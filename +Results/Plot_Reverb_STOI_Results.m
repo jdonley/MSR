@@ -3,21 +3,31 @@ clear;
 close all;
 
 %% Info
-Version = {'90pwAngle_10000weight__withFlatMask';};% '10000weight__withFlatMask'}; %{'0weight_withFlatMask', '10000weight_withFlatMask', 'Privacy_Weighted_FlatMask', 'PrivacyWeighted_v5'};
-Titles  = {'Large Uniform Zone Weight with White Noise Masker - Anechoic'; };%
+Version = {'10000weight__withFlatMask';'10000weight__withFlatMask';'10000weight__withFlatMask';'10000weight__withFlatMask';};% '10000weight__withFlatMask'}; %{'0weight_withFlatMask', '10000weight_withFlatMask', 'Privacy_Weighted_FlatMask', 'PrivacyWeighted_v5'};
+Titles  = {'Large Uniform Zone Weight with White Noise Masker - Anechoic 15deg'; ...
+           'Large Uniform Zone Weight with White Noise Masker - Reverb 15deg'; ...
+           'Large Uniform Zone Weight with White Noise Masker - Anechoic 90deg'; ...
+           'Large Uniform Zone Weight with White Noise Masker - Reverb 90deg';};%
            %'Large Uniform Zone Weight with White Noise Masker - Reverb (5mx6m room, 0.3 absorb)'}; %{'No Zone Weight with White Noise Masker';
     %'Large Uniform Zone Weight with White Noise Masker';
     %'Psychoacoustic-Based Zone Weight with White Noise Masker';
     %'Psychoacoustic-Based Zone Weight with Zone-Reversed Psychoacoustic-Based Noise Masker'};
 LUT_resolution = '512f_256w';
+pw_angle = {15; 15; 90; 90;};
 loudspeakers   = 295;  % Number of loudspeakers
 speaker_arc    = 360;  % Degrees
 speaker_radius = 1.5; % Metres
 
-Num_Receivers = 32;
-Room_Size = [5 6 4];
-Reproduction_Centre = [2.5 3 2];
-Wall_Absorption_Coeff = {0.3;};% 0.3};
+Num_Receivers = {16; 16; 32; 32;};
+Room_Size = {[5 6 ]; ...
+             [5 6 ]; ...
+             [5 6 4]; ...
+             [5 6 4];};
+Reproduction_Centre = {[2.5 3 ]; ...
+                       [2.5 3 ]; ...
+                       [2.5 3 2]; ...
+                       [2.5 3 2];};
+Wall_Absorption_Coeff = {1.0; 0.3; 1.0; 0.3;};% 0.3};
 
 %Figure Output Settings
 DocumentPath = 'tex\latex\Intelligibility';
@@ -30,26 +40,31 @@ Font = 'Times';
 
 
 %%
-room = num2str(Room_Size(1));
-room = [room 'x' num2str(Room_Size(2)) ];
-if length(Room_Size) == 3
-    room = [room 'x' num2str(Room_Size(3)) ];
+for r = 1:length(Room_Size)
+    Room_Size_ = Room_Size{r};
+    room{r} = num2str(Room_Size_(1));
+    room{r} = [room{r} 'x' num2str(Room_Size_(2)) ];
+    if length(Room_Size_) == 3
+        room{r} = [room{r} 'x' num2str(Room_Size_(3)) ];
+    end
 end
 
-room_cent = num2str(Reproduction_Centre(1));
-room_cent = [room_cent 'x' num2str(Reproduction_Centre(2)) ];
-if length(Room_Size) == 3
-    room_cent = [room_cent 'x' num2str(Reproduction_Centre(3)) ];
+for r = 1:length(Reproduction_Centre)
+    Reproduction_Centre_ = Reproduction_Centre{r};
+    room_cent{r} = num2str(Reproduction_Centre_(1));
+    room_cent{r} = [room_cent{r} 'x' num2str(Reproduction_Centre_(2)) ];
+    if length(Reproduction_Centre_) == 3
+        room_cent{r} = [room_cent{r} 'x' num2str(Reproduction_Centre_(3)) ];
+    end
 end
-
 %%
 
 h = figure(1);
 for v = 1:length(Version)
     %% Create paths
-    ResultsPath = ['+Results\+Reverb__' num2str(Num_Receivers) 'Rec_' room 'Dim_' room_cent 'Ctr_' num2str(Wall_Absorption_Coeff{v}) 'Ab\'];
+    ResultsPath = ['+Results\+Reverb__' num2str(Num_Receivers{v}) 'Rec_' room{v} 'Dim_' room_cent{v} 'Ctr_' num2str(Wall_Absorption_Coeff{v}) 'Ab\'];
     Output_file_path_ext = ['+' num2str(speaker_radius*2) 'm_SpkrDia\+' num2str(loudspeakers) 'Spkrs_' num2str(speaker_arc) 'DegArc_LUT_' LUT_resolution '\'];
-    Results_filepath = [ResultsPath Output_file_path_ext 'SI_Results_' Version{v} '.csv'];
+    Results_filepath = [ResultsPath Output_file_path_ext 'SI_Results_' num2str(pw_angle{v}) 'pwAngle_' Version{v} '.csv'];
     
     
 % Read results
