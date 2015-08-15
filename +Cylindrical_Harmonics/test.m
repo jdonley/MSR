@@ -1,0 +1,15 @@
+clear;
+close all;
+sp1 = Cylindrical_Harmonics.spatial_zone(2000, 0.3, 'pw', 1, 15);
+sp2 = Cylindrical_Harmonics.spatial_zone(2000, 0.3, 'pw', 1, 0);
+%sp3 = spatial_zone(400, 0.3, 135, 'ps', 1.0);
+%sp3 = sp3.setDesiredSoundfield();
+gs = Cylindrical_Harmonics.global_soundfield;
+gs = gs.addSpatialZone(sp1, 0.6, 180);
+gs = gs.addSpatialZone(sp2, 0.6, 0);
+%gs = gs.addSpatialZone(sp3, 1.0, 135);
+gs = gs.calc_Beta_Coeffs();
+gs = gs.createGlobalSoundfield();
+gs.plotSoundfield();
+%sp1.plotSoundfield();
+%sp2.plotSoundfield();
