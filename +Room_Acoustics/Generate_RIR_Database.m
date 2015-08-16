@@ -42,10 +42,10 @@ soundfield = soundfield.createSoundfield('DEBUG', Radius);
 
 %% RIR Generation for a particular setup...
 
-room_size = [5 6 4];
+room_size = [4 4 3];
 room_dimensions = 3;
 reproduction_center = room_size ./ 2;
-absorb_coeff = 0.3;
+absorb_coeff = 1.0;
 reflect_coeff = sqrt(1-absorb_coeff);
 reverb_time = repmat(reflect_coeff,1,6); %Seconds
 n_samples = 8000;
