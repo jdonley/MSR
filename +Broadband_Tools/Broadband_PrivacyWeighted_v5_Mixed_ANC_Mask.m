@@ -60,7 +60,7 @@ Quiet_Signal  = [];
 ANC_Bright_Signal = [];
 ANC_Quiet_Signal  = [];
 
-%% For ANC we want to produce the resulting signal of the quite zone back into the quite zone but inverted
+%% For ANC we want to produce the resulting signal of the quiet zone back into the quiet zone but inverted
 
 [Input_Signal, Fs_file] = audioread( [Input_file_path Input_file_name Input_file_ext] );
 
