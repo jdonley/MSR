@@ -48,10 +48,10 @@ Angles               = [0    ];
 
 Radius_of_zones      = [0.3; ...        % Zone 1 radius
                         0.3];           % Zone 2 radius
-% Position_of_zones    = [0.6, 180; ...   % Zone 1 distance and angle from origin
-%                         0.6, 0];       % Zone 2 distance and angle from origin
-Position_of_zones    = [0.6, 0; ...   % Zone 1 distance and angle from origin
-                        0.6, 180];       % Zone 2 distance and angle from origin
+Position_of_zones    = [0.6, 180; ...   % Zone 1 distance and angle from origin
+                        0.6, 0];       % Zone 2 distance and angle from origin
+% Position_of_zones    = [0.6, 0; ...   % Zone 1 distance and angle from origin
+%                         0.6, 180];       % Zone 2 distance and angle from origin
 
 Reproduction_Radius = 1.0; % Metres  
 
@@ -67,7 +67,7 @@ loudspeakers   = ceil(speaker_arc/360 * (2*M+1));  % Number of loudspeakers
 frequencies = length(Frequencies);
 
 % Path to save the database (Look-Up Table)
-Database_Path = ['+Soundfield_Database\+' num2str(speaker_radius*2) 'm_SpkrDia\+' num2str(loudspeakers) 'Spkrs_' num2str(speaker_arc) 'DegArc\'];
+Database_Path = ['Z:\+Soundfield_Database\+' num2str(speaker_radius*2) 'm_SpkrDia\+' num2str(loudspeakers) 'Spkrs_' num2str(speaker_arc) 'DegArc\'];
 
 %% Results
 Contrast__Weight_Vs_Frequency     = zeros(length(Weights), length(Frequencies));

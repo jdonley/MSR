@@ -42,7 +42,7 @@ soundfield = soundfield.createSoundfield('DEBUG', Radius);
 
 %% RIR Generation for a particular setup...
 
-room_size = [4 4 3];
+room_size = [10 10 10];
 room_dimensions = 3;
 reproduction_center = room_size ./ 2;
 absorb_coeff = 1.0;
@@ -67,7 +67,7 @@ RIRs = struct('Bright_RIRs', RIR_B, ...
 
 
 %% Save the RIRs to a database for reuse
-RIR_Database_Path = '+Room_Acoustics\+RIR_Database\';
+RIR_Database_Path = 'Z:\+Room_Acoustics\+RIR_Database\';
 
 room = num2str(room_size(1));
 room = [room 'x' num2str(room_size(2)) ];
