@@ -2,6 +2,7 @@ clear;
 clc;
 %clear;
 %close all;
+tic;
 
 %%
 f_max = 8000;
@@ -42,10 +43,16 @@ soundfield = soundfield.createSoundfield('DEBUG', Radius);
 
 %% RIR Generation for a particular setup...
 
-room_size = [10 10 10];
+%room_size = [10 10 10];
+%room_size = [4 9 3]; %35.G46e
+room_size = [8 10 3]; %6.107
+
 room_dimensions = 3;
 reproduction_center = room_size ./ 2;
-absorb_coeff = 1.0;
+
+%absorb_coeff = 1.0;
+absorb_coeff = 0.3;
+
 reflect_coeff = sqrt(1-absorb_coeff);
 reverb_time = repmat(reflect_coeff,1,6); %Seconds
 n_samples = 8000;
@@ -96,6 +103,9 @@ scatter(Rec_Quiet_Pos(:,1),Rec_Quiet_Pos(:,2),'or'); hold off;
 axis equal;
 
 
+
+%%
+toc
 
 
 

@@ -4,7 +4,7 @@ clear;
 close all;
 tic;
 % Kill dropbox
-Tools.Dropbox('kill');
+%Tools.Dropbox('kill');
 %if (matlabpool('size') ~= 0); matlabpool close; end; %Close existing pool if open
 %matlabpool %Start new pool
 C = clock;
@@ -87,4 +87,4 @@ tEnd = toc;
 fprintf('\nExecution time: %dmin(s) %fsec(s)\n\n', floor(tEnd/60), rem(tEnd,60)); %Time taken to execute this script
 
 % Restart dropbox
-Tools.Dropbox('start');
+%Tools.Dropbox('start');

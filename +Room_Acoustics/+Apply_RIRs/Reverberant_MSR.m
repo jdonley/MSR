@@ -16,8 +16,10 @@ LUT_resolution =  '512f_256w';
 
 Fs = 16000;
 
-%pw_angle = 90;
-pw_angle = 15;
+mask_type = 'ZoneWeightMask';
+
+pw_angle = 90;
+%pw_angle = 15;
 %pw_angle = 0;
 
 loudspeakers = 295;
@@ -64,15 +66,16 @@ Input_file_path = [Spkr_Sig_file_path Spkr_Sig_file_path_ext];
 files = Tools.getAllFiles(Input_file_path);
 files = sort(files);
 
-%Isolate only files of the correct planewave angle
+%Isolate only files of the correct planewave angle and mask type. 
 for i=1:length(files)
-    ind(i) = ~isempty(findstr(files{i},[num2str(pw_angle) 'pwAngle'])) ...
+    ind(i) = (~isempty(findstr(files{i},[num2str(pw_angle) 'pwAngle'])) ...
+        && ~isempty(findstr(files{i},['with' mask_type])) ) ...
           || ~isempty(findstr(files{i},'Original'));
 end
 files = files(ind);
 
 fprintf('\n====== Applying Room Impulse Responses to Loudspeaker-Signals ======\n');
-fprintf(['Privacy Weighting: ' 'None (Uniform Weighting)' '\n']);n=0;
+fprintf(['Privacy Weighting: ' mask_type '\n']);n=0;
 fprintf('\tCompletion: ');
 
 parfor_progress( length(files) );
