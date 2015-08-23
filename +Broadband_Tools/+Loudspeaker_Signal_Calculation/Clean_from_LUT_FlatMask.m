@@ -39,7 +39,8 @@ end
 first_speaker  = 0; % Degrees
 speaker_radius = 1.5; % Metres
 
-Output_file_path     = 'E:\Jacob\+Speaker_Signals\'; % Can be relative or exact
+Drive = 'Z:\';
+Output_file_path     = [Drive '+Speaker_Signals\']; % Can be relative or exact
 Output_file_path_ext = ['+' num2str(speaker_radius*2) 'm_SpkrDia\+' num2str(loudspeakers) 'Spkrs_' num2str(speaker_arc) 'DegArc_LUT_' LUT_resolution '\'];
 SetupInfo            = ['_' num2str(f_low ) 'Hz-' ...
     num2str(f_high) 'Hz_' ...
@@ -96,7 +97,7 @@ Quiet_Zone_sample   = zeros(f_samples, 1);
 
 %% Secondly, build a flat spectra desired multizone soundfield for all frequencies from the previous fft and save the speaker signals for each frequency bin.
 
-load(['+Soundfield_Database\+' num2str(speaker_radius*2) 'm_SpkrDia\+' num2str(loudspeakers) 'Spkrs_' num2str(speaker_arc) 'DegArc\LUT_Weight_vs_Frequency_' num2str(angle_pw) 'deg_' LUT_resolution '.mat']);
+load([Drive '+Soundfield_Database\+' num2str(speaker_radius*2) 'm_SpkrDia\+' num2str(loudspeakers) 'Spkrs_' num2str(speaker_arc) 'DegArc\LUT_Weight_vs_Frequency_' num2str(angle_pw) 'deg_' LUT_resolution '.mat']);
 
 %Loudspeaker capable LUT available?
 if ~exist('Loudspeaker_Weights__Weight_Vs_Frequency','var')
