@@ -1,4 +1,4 @@
-function Clean_from_LUT( Input_file_path, Input_file_name, Input_file_ext, LUT_resolution, weight, loudspeaker_setup )
+function Clean_from_LUT( Input_file_path, Input_file_name, Input_file_ext, LUT_resolution, weight, loudspeaker_setup, angle_pw  )
 %Analyse_Broadband_Signals_from_LUT Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -23,7 +23,9 @@ f_high = 8000; % Hz
 resolution = 100;
 phase = 0;
 radius = 0.3;
-angle_pw = 15;
+if nargin < 8
+    angle_pw = 15;
+end
 radius2origin = 0.6;
 angle2origin  = [0 180];
 %weight = 0.05;

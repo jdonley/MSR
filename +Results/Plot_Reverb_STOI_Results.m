@@ -3,31 +3,30 @@ clear;
 close all;
 
 %% Info
-Version = {'10000weight__withFlatMask'};%'10000weight__withFlatMask';'10000weight__withFlatMask';'10000weight__withFlatMask';};% '10000weight__withFlatMask'}; %{'0weight_withFlatMask', '10000weight_withFlatMask', 'Privacy_Weighted_FlatMask', 'PrivacyWeighted_v5'};
-Titles  = ...%{'Large Uniform Zone Weight with White Noise Masker - Anechoic 15deg'; ...
-           {'Large Uniform Zone Weight with White Noise Masker - Reverb 15deg';};% ...
-           %'Large Uniform Zone Weight with White Noise Masker - Anechoic 90deg'; ...
-           %'Large Uniform Zone Weight with White Noise Masker - Reverb 90deg';};%
-           %'Large Uniform Zone Weight with White Noise Masker - Reverb (5mx6m room, 0.3 absorb)'}; %{'No Zone Weight with White Noise Masker';
-    %'Large Uniform Zone Weight with White Noise Masker';
-    %'Psychoacoustic-Based Zone Weight with White Noise Masker';
-    %'Psychoacoustic-Based Zone Weight with Zone-Reversed Psychoacoustic-Based Noise Masker'};
+mask_type = 'ZoneWeightMask';
+
 LUT_resolution = '512f_256w';
-pw_angle = {15;};% 15; 90; 90;};
+pw_angle = {90;};% 15; 90; 90;};
 loudspeakers   = 295;  % Number of loudspeakers
 speaker_arc    = 360;  % Degrees
 speaker_radius = 1.5; % Metres
 
 Num_Receivers = {32};%16; 16; 32; 32;};
-Room_Size = {[4 4 3];};% ...
+Room_Size = {[10 10 10];};% ...
              %[5 6 ]; ...
              %[5 6 4]; ...
              %[5 6 4];};
-Reproduction_Centre = {[2 2 1.5];};% ...
+Reproduction_Centre = {[5 5 5];};% ...
                       % [2.5 3 ]; ...
                       % [2.5 3 2]; ...
                       % [2.5 3 2];};
-Wall_Absorption_Coeff = {0.3};%{1.0; 0.3; 1.0; 0.3;};% 0.3};
+Wall_Absorption_Coeff = {1.0};%{1.0; 0.3; 1.0; 0.3;};% 0.3};
+
+
+Version = {['10000weight__with' mask_type]};%'10000weight__withFlatMask';'10000weight__withFlatMask';'10000weight__withFlatMask';};% '10000weight__withFlatMask'}; %{'0weight_withFlatMask', '10000weight_withFlatMask', 'Privacy_Weighted_FlatMask', 'PrivacyWeighted_v5'};
+Titles  = ...%{'Large Uniform Zone Weight with White Noise Masker - Anechoic 15deg'; ...
+           {['Large Uniform Zone Weight with ' mask_type ' - Anechoic ' num2str(pw_angle{1}) 'deg'];};% ...
+
 
 %Figure Output Settings
 DocumentPath = 'tex\latex\Intelligibility';
@@ -168,7 +167,7 @@ for v = 1:length(Version)
         hold off;
         
         title(Titles{v});
-        axis([-46 1 0 100]);
+        axis([-46 1 0 105]);
         grid on;
         legend([erB, erQ], {'Bright Zone';'Quiet Zone'},'Location','southwest');
         

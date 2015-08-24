@@ -7,7 +7,7 @@ tic;
 % Start Parallel Pool
 para_pool = parpool;
 % Kill dropbox
-Tools.Dropbox('kill');
+%Tools.Dropbox('kill');
 C = clock;
 fprintf('Started execution at %.0f:%.0f:%.0f on the %.0f/%.0f/%.0f\n',C([4:6 3:-1:1]))
 
@@ -16,10 +16,11 @@ LUT_resolution =  '512f_256w';
 
 Fs = 16000;
 
-mask_type = 'ZoneWeightMask';
+%mask_type = 'ZoneWeightMask';
+mask_type = 'FlatMask';
 
-pw_angle = 90;
-%pw_angle = 15;
+%pw_angle = 90;
+pw_angle = 15;
 %pw_angle = 0;
 
 loudspeakers = 295;
@@ -36,8 +37,8 @@ Reproduction_Centre = Room_Size ./ 2;%[2.5 3];
 Wall_Absorption_Coeff = 1.0;
 %Wall_Absorption_Coeff = 0.3;
 
-
-Spkr_Sig_file_path     = 'Z:\+Speaker_Signals\'; % Can be relative or exact
+Drive = 'Z:\';
+Spkr_Sig_file_path     = [Drive '+Speaker_Signals\']; % Can be relative or exact
 Spkr_Sig_file_path_ext = ['+' num2str(speaker_radius*2) 'm_SpkrDia\+' num2str(loudspeakers) 'Spkrs_' num2str(speaker_arc) 'DegArc_LUT_' LUT_resolution '\'];
 Output_file_path_ext = Spkr_Sig_file_path_ext;
 
@@ -54,12 +55,12 @@ if length(Room_Size) == 3
     room_cent = [room_cent 'x' num2str(Reproduction_Centre(3)) ];
 end
 
-RIR_Database_file_path = 'Z:\+Room_Acoustics\+RIR_Database\';
+RIR_Database_file_path = [Drive '+Room_Acoustics\+RIR_Database\'];
 RIR_Database_file_name = ['RIRs__' num2str(loudspeakers) 'Src_' num2str(Num_Receivers) 'Rec_' room 'Dim_' room_cent 'Ctr_' num2str(Wall_Absorption_Coeff) 'Ab.mat'];;
 
 load([RIR_Database_file_path RIR_Database_file_name]);
 
-ResultsPath = ['Z:\+Results\+Reverb__' num2str(Num_Receivers) 'Rec_' room 'Dim_' room_cent 'Ctr_' num2str(Wall_Absorption_Coeff) 'Ab\'];
+ResultsPath = [Drive '+Results\+Reverb__' num2str(Num_Receivers) 'Rec_' room 'Dim_' room_cent 'Ctr_' num2str(Wall_Absorption_Coeff) 'Ab\'];
 
 %% Find Speaker Signals and read to Workspace
 Input_file_path = [Spkr_Sig_file_path Spkr_Sig_file_path_ext];
@@ -151,7 +152,7 @@ tEnd = toc;
 fprintf('\nExecution time: %dmin(s) %fsec(s)\n\n', floor(tEnd/60), rem(tEnd,60)); %Time taken to execute this script
 
 % Restart dropbox
-Tools.Dropbox('start');
+%Tools.Dropbox('start');
 
 % Delete Parallel Pool
 delete(para_pool);
