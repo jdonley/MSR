@@ -120,8 +120,28 @@ for file = 1:length(files)
                 end
             end
              
-  
-            Room_Acoustics.Apply_RIRs.Save_Reverb_STOI_Result( orig, Rec_Bright, Rec_Quiet, Fs, ResultsPath, Output_file_path_ext, fileName(1:ind-2) );
+            % Resize the original speech signal and Align it with the
+            % reverberant signals.
+            orig(length(orig):size(Rec_Bright,2))=0; % Resize the original signal because the reverberant signal will be longer
+            if (length(orig) ~= length(Rec_Bright)) || (length(orig) ~= length(Rec_Quiet))
+                error('Size of the original signal does not match the reproduced signal!');
+            end
+            c_speed = 343;%343m/s speed of sound in air
+            max_delay = speaker_radius*2 / c_speed * Fs;
+            Original = zeros(Num_Receivers,2,length(orig));
+            
+            for r = 1:Num_Receivers                
+                [delay,~,~,orig_shifted] = sigalign(Rec_Bright(r,:), orig, [0 max_delay]);
+                Original(r,1,:) = [orig_shifted; zeros(delay,1)];
+                
+                [delay,~,~,orig_shifted] = sigalign( Rec_Quiet(r,:), orig, [0 max_delay]);
+                Original(r,2,:) = [orig_shifted; zeros(delay,1)];
+            end
+            % End resize and align
+            
+            
+            % Calculate and save results
+            Room_Acoustics.Apply_RIRs.Save_Reverb_STOI_Result( Original, Rec_Bright, Rec_Quiet, Fs, ResultsPath, Output_file_path_ext, fileName(1:ind-2) );
             
             
         end
