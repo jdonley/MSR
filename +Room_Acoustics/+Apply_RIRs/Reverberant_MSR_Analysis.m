@@ -158,6 +158,8 @@ for file = 1:length(files)
     
     end
     
+    n = Tools.showTimeToCompletion( file/length(files), n);
+    
     %parfor_progress;
 end
 

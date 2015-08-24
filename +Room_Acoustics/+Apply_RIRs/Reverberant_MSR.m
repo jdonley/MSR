@@ -19,8 +19,8 @@ Fs = 16000;
 %mask_type = 'ZoneWeightMask';
 mask_type = 'FlatMask';
 
-%pw_angle = 90;
-pw_angle = 15;
+pw_angle = 90;
+%pw_angle = 15;
 %pw_angle = 0;
 
 loudspeakers = 295;
@@ -79,7 +79,7 @@ fprintf('\n====== Applying Room Impulse Responses to Loudspeaker-Signals ======\
 fprintf(['Privacy Weighting: ' mask_type '\n']);n=0;
 fprintf('\tCompletion: ');
 
-parfor_progress( length(files) );
+%parfor_progress( length(files) );
 
 fileName_prev = '';
 Speaker_Signals = [];
@@ -141,11 +141,12 @@ for file = 1:length(files)
     
     end
     
-    parfor_progress;
+    n = Tools.showTimeToCompletion( file/length(files), n);
+    %parfor_progress;
 end
 
 
-parfor_progress(0);
+%parfor_progress(0);
 
 %%
 tEnd = toc;
