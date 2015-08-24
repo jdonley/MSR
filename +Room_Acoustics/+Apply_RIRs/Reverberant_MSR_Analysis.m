@@ -120,7 +120,7 @@ for file = 1:length(files)
                 end
             end
              
-            % Resize the original speech signal and Align it with the
+            % BEGIN Resize the original speech signal and Align it with the
             % reverberant signals.
             orig(length(orig):size(Rec_Bright,2))=0; % Resize the original signal because the reverberant signal will be longer
             if (length(orig) ~= length(Rec_Bright)) || (length(orig) ~= length(Rec_Quiet))
@@ -137,11 +137,19 @@ for file = 1:length(files)
                 [delay,~,~,orig_shifted] = sigalign( Rec_Quiet(r,:), orig, [0 max_delay]);
                 Original(r,2,:) = [orig_shifted; zeros(delay,1)];
             end
-            % End resize and align
+            % END resize and align
             
             
             % Calculate and save results
+            
+            % Speech Intelligibility
             Room_Acoustics.Apply_RIRs.Save_Reverb_STOI_Result( Original, Rec_Bright, Rec_Quiet, Fs, ResultsPath, Output_file_path_ext, fileName(1:ind-2) );
+            
+            % Signal to Noise Ratio
+            Room_Acoustics.Apply_RIRs.Save_Reverb_SNR_Result( Original, Rec_Bright, Rec_Quiet, Fs, ResultsPath, Output_file_path_ext, fileName(1:ind-2) );
+            
+            % Perceptual Evaluation of Speech Quality
+            Room_Acoustics.Apply_RIRs.Save_Reverb_PESQ_Result( Original, Rec_Bright, Fs, ResultsPath, Output_file_path_ext, fileName(1:ind-2) );
             
             
         end
