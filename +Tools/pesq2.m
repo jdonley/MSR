@@ -44,7 +44,7 @@ global Align_Nfft Window
 %info = audioinfo(ref_wav);
 %nbits = info.BitsPerSample;
 %[ref_data,sampling_rate] = audioread(ref_wav);
-ref_data = ref_sig; sampling_rate = fs;
+ref_data = ref_sig(:); sampling_rate = fs;
 %[ref_data,sampling_rate,nbits]= wavread( ref_wav);
 if sampling_rate~=8000 && sampling_rate~=16000
     error('Sampling frequency needs to be either 8000 or 16000 Hz');
@@ -71,7 +71,7 @@ ref_data= [zeros( 1, SEARCHBUFFER* Downsample), ref_data, ...
     zeros( 1, DATAPADDING_MSECS* (Fs/ 1000)+ SEARCHBUFFER* Downsample)];
 
 %deg_data= audioread( alt_wav);
-deg_data = alt_sig;
+deg_data = alt_sig(:);
 %deg_data= wavread( deg_wav);
 deg_data= deg_data';
 deg_data= deg_data* 32768;

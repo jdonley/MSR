@@ -72,7 +72,7 @@ fprintf('\n====== Analysing Simulated Reverberant Signals ======\n');
 fprintf(['Privacy Weighting: ' mask_type '\n']);n=0;
 fprintf('\tCompletion: ');
 
-parfor_progress( length(files) );
+%parfor_progress( length(files) );
 
 fileName_prev = '';
 Rec_Bright = [];
@@ -158,11 +158,11 @@ for file = 1:length(files)
     
     end
     
-    parfor_progress;
+    %parfor_progress;
 end
 
 
-parfor_progress(0);
+%parfor_progress(0);
 
 %%
 tEnd = toc;
