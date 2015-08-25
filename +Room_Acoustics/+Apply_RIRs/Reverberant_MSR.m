@@ -19,9 +19,9 @@ Fs = 16000;
 %mask_type = 'ZoneWeightMask';
 mask_type = 'FlatMask';
 
-pw_angle = 90;
+%pw_angle = 90;
 %pw_angle = 15;
-%pw_angle = 0;
+pw_angle = 0;
 
 loudspeakers = 295;
 speaker_arc    = 360;  % Degrees
