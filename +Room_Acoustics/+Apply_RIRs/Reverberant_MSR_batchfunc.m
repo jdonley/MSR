@@ -1,8 +1,9 @@
+function Reverberant_MSR_batchfunc(Room_Size, Wall_Absorption_Coeff, mask_type, pw_angle)
 %% Initialise
-clc;
-clear;
-close all;
-fclose all;
+%clc;
+%clear;
+%close all;
+%fclose all;
 tic;
 % Start Parallel Pool
 para_pool = parpool;
@@ -12,31 +13,62 @@ C = clock;
 fprintf('Started execution at %.0f:%.0f:%.0f on the %.0f/%.0f/%.0f\n',C([4:6 3:-1:1]))
 
 %% Setup and Path Info
-LUT_resolution =  '512f_256w';
-
-Fs = 16000;
-
-mask_type = 'ZoneWeightMask';
-%mask_type = 'FlatMask';
-
-%pw_angle = 90;
-pw_angle = 15;
-%pw_angle = 0;
-
-loudspeakers = 295;
+LUT_resolution =  '512f_256w'; %Look-Up Table resolution
+Fs = 16000; %Sampling Frequency
+loudspeakers = 295; %Number of loudspeakers
 speaker_arc    = 360;  % Degrees
 speaker_radius = 1.5; % Metres
-Num_Receivers = 32;
+Num_Receivers = 32; %Number of recording points (microphones)
 
-%Room_Size = [10 10 10];
-Room_Size = [8 10 3];
-%Room_Size = [5 6 4];
-%Room_Size = [4 4 3];
-
-Reproduction_Centre = Room_Size ./ 2;%[2.5 3];
-
+%%
+% % ROOM 1
+% % Anechoic
+%Room_Size = [10 10 10]; %Anechoic
 %Wall_Absorption_Coeff = 1.0;
-Wall_Absorption_Coeff = 0.3;
+
+% % ROOM 2
+% % Small Open Plan Office
+% %Room_Size = [5 6 4];  %Small Open Plan Office
+% %Wall_Absorption_Coeff = 0.3;
+
+% % ROOM 3
+% % Medium Open Plan Office
+% Room_Size = [8 10 3];   %Medium Open Plan Office
+% Wall_Absorption_Coeff = 0.3;
+
+% % ROOM 4
+% % Cafe / Restaurant
+%Room_Size = [9 14 3];   %Cafe/Restaurant
+%Wall_Absorption_Coeff = 0.3;
+
+% % ROOM 5
+% % Small Open Plan Office
+%Room_Size = [4 9 3];   %Small Open Plan Office
+%Wall_Absorption_Coeff = 0.3;
+
+%%
+% % Setup and Privacy Scheme 1
+%mask_type = 'FlatMask';
+%pw_angle = 0;
+
+% % Setup and Privacy Scheme 2
+%mask_type = 'FlatMask';
+%pw_angle = 15;
+
+    % % Setup and Privacy Scheme 3
+    %mask_type = 'ZoneWeightMask';
+    %pw_angle = 15;
+
+% % Setup and Privacy Scheme 4
+%mask_type = 'FlatMask';
+%pw_angle = 90;
+
+    % % Setup and Privacy Scheme 5
+    %mask_type = 'ZoneWeightMask';
+    %pw_angle = 90;
+
+%%
+Reproduction_Centre = Room_Size ./ 2;
 
 Drive = 'Z:\';
 Spkr_Sig_file_path     = [Drive '+Speaker_Signals\']; % Can be relative or exact
@@ -68,7 +100,10 @@ end
 files = files(ind);
 
 fprintf('\n====== Applying Room Impulse Responses to Loudspeaker-Signals ======\n');
-fprintf(['Privacy Weighting: ' mask_type '\n']);n=0;
+fprintf(['            Room Size: ' [strrep(sprintf(strrep(repmat('%d',1,length(Room_Size)),'d%','d %'),Room_Size),' ','m x ') 'm'] '\n']);
+fprintf(['Wall Absorption Coeff: ' num2str(Wall_Absorption_Coeff) '\n']);
+fprintf(['      Planewave Angle: ' num2str(pw_angle) '\n']);
+fprintf(['    Privacy Weighting: ' mask_type '\n\n']);n=0;
 fprintf('\tCompletion: ');
 
 %parfor_progress( length(files) );

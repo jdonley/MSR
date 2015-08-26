@@ -1,8 +1,9 @@
+function Reverberant_MSR_Analysis_batchfunc(Room_Size, Wall_Absorption_Coeff, mask_type, pw_angle)
 %% Initialise
-clc;
-clear;
-close all;
-fclose all;
+%clc;
+%clear;
+%close all;
+%fclose all;
 tic;
 % Start Parallel Pool
 para_pool = parpool;
@@ -153,11 +154,11 @@ for file = 1:length(files)
             max_delay = speaker_radius*2 / c_speed * Fs;
             Original = zeros(Num_Receivers,2,length(orig));
             
-            for r = 1:Num_Receivers                
-                delay = sigalign(Rec_Bright(r,:), orig, [-max_delay 0]);
+            for r = 1:Num_Receivers
+                delay = sigalign(Rec_Bright(r,:), orig, [-max_delay 0]) - 1;
                 Original(r,1,:) = [orig(-delay:end); zeros(-delay-1,1)];
                 
-                delay = sigalign( Rec_Quiet(r,:), orig, [-max_delay 0]);
+                delay = sigalign( Rec_Quiet(r,:), orig, [-max_delay 0]) - 1;
                 Original(r,2,:) = [orig(-delay:end); zeros(-delay-1,1)];
             end
             % END resize and align
