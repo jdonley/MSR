@@ -3,30 +3,46 @@ clear;
 close all;
 
 %% Info
-mask_type = 'ZoneWeightMask';
-
+result_type = 'PESQ';
 LUT_resolution = '512f_256w';
-pw_angle = {90;};% 15; 90; 90;};
 loudspeakers   = 295;  % Number of loudspeakers
 speaker_arc    = 360;  % Degrees
 speaker_radius = 1.5; % Metres
+Num_Receivers = 32;
 
-Num_Receivers = {32};%16; 16; 32; 32;};
-Room_Size = {[10 10 10];};% ...
+pw_angle = {0; ...
+            15; ...
+            15; ...
+            90; ...
+            90;};
+mask_type = {'FlatMask'; ...
+             'FlatMask'; ...
+             'ZoneWeightMask'; ...
+             'FlatMask'; ...
+             'ZoneWeightMask';};
+         
+Room_Size = [10 10 10];% ...
              %[5 6 ]; ...
              %[5 6 4]; ...
              %[5 6 4];};
-Reproduction_Centre = {[5 5 5];};% ...
+Reproduction_Centre = [5 5 5];% ...
                       % [2.5 3 ]; ...
                       % [2.5 3 2]; ...
                       % [2.5 3 2];};
-Wall_Absorption_Coeff = {1.0};%{1.0; 0.3; 1.0; 0.3;};% 0.3};
+Wall_Absorption_Coeff = 1.0;%{1.0; 0.3; 1.0; 0.3;};% 0.3};
 
-result_type = 'PESQ';
 
-Version = {['10000weight__with' mask_type]};%'10000weight__withFlatMask';'10000weight__withFlatMask';'10000weight__withFlatMask';};% '10000weight__withFlatMask'}; %{'0weight_withFlatMask', '10000weight_withFlatMask', 'Privacy_Weighted_FlatMask', 'PrivacyWeighted_v5'};
-Titles  = ...%{'Large Uniform Zone Weight with White Noise Masker - Anechoic 15deg'; ...
-           {['Large Uniform Zone Weight with ' mask_type ' - Anechoic ' num2str(pw_angle{1}) 'deg'];};% ...
+Version = {['10000weight__with' mask_type{1}]; ...
+           ['10000weight__with' mask_type{2}]; ...
+           ['10000weight__with' mask_type{3}]; ...
+           ['10000weight__with' mask_type{4}]; ...
+           ['10000weight__with' mask_type{5}]};
+       
+Titles  = {['Large Uniform Zone Weight with ' mask_type{1} ' - Anechoic ' num2str(pw_angle{1}) 'deg']; ...
+           ['Large Uniform Zone Weight with ' mask_type{2} ' - Anechoic ' num2str(pw_angle{2}) 'deg']; ...
+           ['Large Uniform Zone Weight with ' mask_type{3} ' - Anechoic ' num2str(pw_angle{3}) 'deg']; ...
+           ['Large Uniform Zone Weight with ' mask_type{4} ' - Anechoic ' num2str(pw_angle{4}) 'deg']; ...
+           ['Large Uniform Zone Weight with ' mask_type{5} ' - Anechoic ' num2str(pw_angle{5}) 'deg']};
 
 
 %Figure Output Settings
@@ -40,29 +56,15 @@ Font = 'Times';
 
 
 %%
-for r = 1:length(Room_Size)
-    Room_Size_ = Room_Size{r};
-    room{r} = num2str(Room_Size_(1));
-    room{r} = [room{r} 'x' num2str(Room_Size_(2)) ];
-    if length(Room_Size_) == 3
-        room{r} = [room{r} 'x' num2str(Room_Size_(3)) ];
-    end
-end
+room = strrep(sprintf(strrep(repmat('%d',1,length(Room_Size)),'d%','d %'),Room_Size),' ','x');
+room_cent = strrep(sprintf(strrep(repmat('%d',1,length(Reproduction_Centre)),'d%','d %'),Reproduction_Centre),' ','x');
 
-for r = 1:length(Reproduction_Centre)
-    Reproduction_Centre_ = Reproduction_Centre{r};
-    room_cent{r} = num2str(Reproduction_Centre_(1));
-    room_cent{r} = [room_cent{r} 'x' num2str(Reproduction_Centre_(2)) ];
-    if length(Reproduction_Centre_) == 3
-        room_cent{r} = [room_cent{r} 'x' num2str(Reproduction_Centre_(3)) ];
-    end
-end
 %%
 
 h = figure(1);
 for v = 1:length(Version)
     %% Create paths
-    ResultsPath = ['+Results\+Reverb__' num2str(Num_Receivers{v}) 'Rec_' room{v} 'Dim_' room_cent{v} 'Ctr_' num2str(Wall_Absorption_Coeff{v}) 'Ab\'];
+    ResultsPath = ['+Results\+Reverb__' num2str(Num_Receivers) 'Rec_' room 'Dim_' room_cent 'Ctr_' num2str(Wall_Absorption_Coeff) 'Ab\'];
     Output_file_path_ext = ['+' num2str(speaker_radius*2) 'm_SpkrDia\+' num2str(loudspeakers) 'Spkrs_' num2str(speaker_arc) 'DegArc_LUT_' LUT_resolution '\'];
     Results_filepath = [ResultsPath Output_file_path_ext result_type '_Results_' num2str(pw_angle{v}) 'pwAngle_' Version{v} '.csv'];
     
@@ -123,9 +125,12 @@ for v = 1:length(Version)
     for pl = 1:2
         if pl == 1
             h=figure(1);
-            if mod(length(Version),2)~=1
-                subplot(length(Version)/2,2,v);
-            end
+%             if mod(length(Version),2)~=1
+%                 subplot(length(Version)/2,2,v);
+%             else
+%                 subplot((length(Version)+1)/2,2,v);
+%             end
+            subplot(length(Version),1,v);
         else
             h_sub(v)=figure(100 + v);
         end

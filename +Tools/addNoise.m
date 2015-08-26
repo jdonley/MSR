@@ -22,24 +22,6 @@ function [x_n] = addNoise( x, level, type )
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-if nargin < 3
-    type = 'UWGN'; % Uniform White Gaussian Noise
-end
-
-% Maximum value in input signal
-max_val =  max( abs( x(:) ) );
-
-% Level in magnitude
-level_mag = db2mag(level);
-
-
-if strcmp(type,'UWGN')
-   
-    noise_ = rand( size(x) ) * 2 - 1; % UWGN: -1 to 1
-    x_n = x + max_val * noise_ * level_mag;
-    
-else
-    error('''type'' argument for noise not supported');
-end
+Tools.generateNoise( x, level, type, true);
 
 end
