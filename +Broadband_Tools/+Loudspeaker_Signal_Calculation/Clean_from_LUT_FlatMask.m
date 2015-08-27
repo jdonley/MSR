@@ -194,13 +194,19 @@ end
 % clear Loudspeakers_; % Save on memory
 
 
+ % Scale signals so they don't clip upon saving
+ if Noise_Mask_dB <= 0
+     scaler = 1 / (db2mag(0)+1); %Plus one is for the amplitude of the clean signal
+ elseif Noise_Mask_dB > 0 % For a positive masker we scale the signals to save up to a 40db noise masker
+     scaler = 1 / (db2mag(40)+1);%Plus one is for the amplitude of the clean signal
+ end
+
  % Normalise Loudspeaker Signals
- Loudspeaker_Signals = Loudspeaker_Signals ./ max(abs(Loudspeaker_Signals(:)))  *  0.5; % The half is so that when we add 0dB of relative noise we don't clip upon saving the file
- Original_ = Original_ ./ max(abs(Original_(:)))  *  0.5;
+ Loudspeaker_Signals = Loudspeaker_Signals ./ max(abs(Loudspeaker_Signals(:)))  *  scaler; 
+ Original_ = Original_ ./ max(abs(Original_(:)))  *  scaler;
  
  % Add white noise to Loudspeaker Signals
  Loudspeaker_Signals = Tools.addNoise(Loudspeaker_Signals, Noise_Mask_dB, 'UWGN'); 
-
 
  
  % % Once we have the speaker signals we should save them for later use as .wav files

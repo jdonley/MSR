@@ -152,10 +152,16 @@ for sig = 1:2 % Firstly we compute the loudspeaker signals for the input signal 
     % clear Loudspeakers_; % Save on memory
     
     
+    % Scale signals so they don't clip upon saving
+    if Noise_Mask_dB <= 0
+        scaler = 1 / (db2mag(0)+1); %Plus one is for the amplitude of the clean signal
+    elseif Noise_Mask_dB > 0 % For a positive masker we scale the signals to save up to a 40db noise masker
+        scaler = 1 / (db2mag(40)+1);%Plus one is for the amplitude of the clean signal
+    end
     
     % Normalise Loudspeaker Signals
-    Loudspeaker_Signals = Loudspeaker_Signals ./ max(abs(Loudspeaker_Signals(:)))  *  0.5; % The half is so that when we add 0dB of relative noise we don't clip upon saving the file
-    Original_ = Original_ ./ max(abs(Original_(:)))  *  0.5;
+    Loudspeaker_Signals = Loudspeaker_Signals ./ max(abs(Loudspeaker_Signals(:)))  *  scaler; 
+    Original_ = Original_ ./ max(abs(Original_(:)))  *  scaler;
     
     if sig == 1
         Loudspeaker_Signals_Input_Signal = Loudspeaker_Signals;
@@ -169,7 +175,7 @@ Original_ = Original_Input_Signal;
 
 %% Add Zone Weighted Noise Loudspeaker Signals to Speech Loudspeaker Signals
 
- % Here we add out loudspeaker signals which reproduce our input signal and a relatively weighted 'zone weighted' noise
+ % Here we add our loudspeaker signals which reproduce our input signal and a relatively weighted 'zone weighted' noise
  % That is to say, we add the zone weighted noise to the reproduction,
  % however, the zone weighted noise can be varied in level such that 0dB is
  % when the peak noise is equal to the input signal reproduction.

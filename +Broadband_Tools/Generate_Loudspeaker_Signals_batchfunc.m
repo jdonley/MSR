@@ -1,7 +1,9 @@
+function Generate_Loudspeaker_Signals_batchfunc(Zone_Weights, Noise_Mask_Levels, Masker_Type, Planewave_Angle)
+
 %% Initialise
-clc;
-clear;
-close all;
+% clc;
+% clear;
+% close all;
 tic;
 % Kill dropbox
 %Tools.Dropbox('kill');
@@ -15,31 +17,21 @@ fprintf('Started execution at %.0f:%.0f:%.0f on the %.0f/%.0f/%.0f\n',C([4:6 3:-
 LUT_res = '512f_256w';
 
 loudspeakers = 295;
-planewave_angle = 0;
 
 Input_file_path = '+Miscellaneous\+Speech_Files\';
 files = Tools.getAllFiles(Input_file_path);
-%weights = [0 1e0 1e2 1e4];
-weights = [1e4];
-%noise_masks = [-40 -35 -30 -25 -20 -15 -10 -5 -0];
-noise_masks = [5 10 15 20 25 30 35 40];
-
-%mask_type = 'ZoneWeightMask';
-mask_type = 'FlatMask';
-%mask_type = 'NoMask';
-
-
 
 
 %%
 fprintf('\n====== Building Broadband Multizone-Soundfield Loudspeaker-Signals ======\n');
-fprintf(['         Zone Weights: ' strrep(sprintf(strrep(repmat('%d',1,length(weights)),'d%','d %'),weights),' ',' & ') '\n']);
-fprintf(['    Noise Mask Levels: ' strrep(sprintf(strrep(repmat('%d',1,length(noise_masks)),'d%','d %'),noise_masks),' ',' & ') '\n']);
-fprintf(['          Masker Type: ' mask_type '\n\n']);
-fprintf(['      Planewave Angle: ' num2str(planewave_angle) '\n']);n=0;
+fprintf(['         Zone Weights: ' strrep(sprintf(strrep(repmat('%d',1,length(Zone_Weights)),'d%','d %'),Zone_Weights),' ',' & ') '\n']);
+fprintf(['    Noise Mask Levels: ' [strrep(sprintf(strrep(repmat('%d',1,length(Noise_Mask_Levels)),'d%','d %'),Noise_Mask_Levels),' ','dB & ') 'dB'] '\n']);
+fprintf(['          Masker Type: ' Masker_Type '\n']);
+fprintf(['      Planewave Angle: ' num2str(Planewave_Angle) '\n\n']);n=0;
 fprintf('\tCompletion: ');
-%parfor_progress( length(files) * length(weights) * length(noise_masks));
-for file = 1:length(files)
+
+F=length(files);
+for file = 1:F
     try
         audioread(files{file});
     catch err
@@ -48,53 +40,54 @@ for file = 1:length(files)
         end
     end
     
-    
-    for w = 1:length(weights)
+    W = length(Zone_Weights);
+    for w = 1:W
         [filePath, fileName, fileExt] = fileparts(files{file});
         
-        if strcmp(mask_type, 'NoMask')
+        if strcmp(Masker_Type, 'NoMask')
                 Broadband_Tools.Loudspeaker_Signal_Calculation.Clean_from_LUT( ...
                     [filePath '\'], ...
                     fileName, ...
                     fileExt, ...
                     LUT_res, ...
-                    weights(w), ...
+                    Zone_Weights(w), ...
                     loudspeakers, ...
-                    planewave_angle);
+                    Planewave_Angle);
         end
-        for m = 1:length(noise_masks)
+        M = length(Noise_Mask_Levels);
+        for m = 1:M
             
-            if strcmp(mask_type, 'FlatMask')
+            if strcmp(Masker_Type, 'FlatMask')
                 Broadband_Tools.Loudspeaker_Signal_Calculation.Clean_from_LUT_FlatMask( ...
                     [filePath '\'], ...
                     fileName, ...
                     fileExt, ...
                     LUT_res, ...
-                    noise_masks(m), ...
-                    weights(w), ...
+                    Noise_Mask_Levels(m), ...
+                    Zone_Weights(w), ...
                     loudspeakers, ...
-                    planewave_angle); %Planewave Angle in Bright Zone
+                    Planewave_Angle); %Planewave Angle in Bright Zone
                 
-            elseif strcmp(mask_type, 'ZoneWeightMask')
+            elseif strcmp(Masker_Type, 'ZoneWeightMask')
                 Broadband_Tools.Loudspeaker_Signal_Calculation.Clean_from_LUT_ZoneWeightedMask( ...
                     [filePath '\'], ...
                     fileName, ...
                     fileExt, ...
                     LUT_res, ...
-                    noise_masks(m), ...
-                    weights(w), ...
+                    Noise_Mask_Levels(m), ...
+                    Zone_Weights(w), ...
                     loudspeakers, ...
-                    planewave_angle); %Planewave Angle in Bright Zone
+                    Planewave_Angle); %Planewave Angle in Bright Zone
             end
             
-            %parfor_progress;
+            n = Tools.showTimeToCompletion( ((file-1)*W*M + (w-1)*M + m) / (F*W*M), n);
         end
         
     end
     
     
 end
-%parfor_progress(0);
+
 
 %%
 tEnd = toc;

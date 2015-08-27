@@ -74,6 +74,8 @@ rec_q = rec_q(mask_q(:) ~= 0,:);
 
 Rec_Bright_Pos = rec_b;
 Rec_Quiet_Pos = rec_q;
+% Generate random number seed from current time
+rng('shuffle');
 %Use random samples
 if n_rec ~= -1
     ind_rec_b_rnd = randi(size(Rec_Bright_Pos,1),1,n_rec);

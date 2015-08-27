@@ -22,6 +22,6 @@ function [x_n] = addNoise( x, level, type )
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Tools.generateNoise( x, level, type, true);
+x_n = Tools.generateNoise( x, level, type, true);
 
 end

@@ -45,7 +45,8 @@ soundfield = soundfield.createSoundfield('DEBUG', Radius);
 
 %room_size = [10 10 10];
 %room_size = [4 9 3]; %35.G46e
-room_size = [8 10 3]; %6.107
+%room_size = [8 10 3]; %6.107
+room_size = [9 14 3]; % Out to lunch
 
 room_dimensions = 3;
 reproduction_center = room_size ./ 2;
@@ -74,19 +75,11 @@ RIRs = struct('Bright_RIRs', RIR_B, ...
 
 
 %% Save the RIRs to a database for reuse
-RIR_Database_Path = 'Z:\+Room_Acoustics\+RIR_Database\';
+Drive = 'Z:\';
+RIR_Database_Path = [Drive '+Room_Acoustics\+RIR_Database\'];
 
-room = num2str(room_size(1));
-room = [room 'x' num2str(room_size(2)) ];
-if room_dimensions == 3
-    room = [room 'x' num2str(room_size(3)) ];
-end
-
-room_cent = num2str(reproduction_center(1));
-room_cent = [room_cent 'x' num2str(reproduction_center(2)) ];
-if room_dimensions == 3
-    room_cent = [room_cent 'x' num2str(reproduction_center(3)) ];
-end
+room = strrep(sprintf(strrep(repmat('%d',1,length(room_size)),'d%','d %'),room_size),' ','x');
+room_cent = strrep(sprintf(strrep(repmat('%d',1,length(reproduction_center)),'d%','d %'),reproduction_center),' ','x');
 
 RIR_Name__Details = [num2str(setup.Loudspeaker_Count) 'Src_' num2str(n_rec) 'Rec_' room 'Dim_' room_cent 'Ctr_' num2str(absorb_coeff) 'Ab'];
     

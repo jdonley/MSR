@@ -11,22 +11,22 @@ clear;close all;fclose all;clc;
 % %Wall_Absorption_Coeff = 0.3;
 
 % % ROOM 3
-% % Medium Open Plan Office
-Room_Size = [8 10 3];   %Medium Open Plan Office
+% % Small Open Plan Office
+Room_Size = [4 9 3];   %Small Open Plan Office
 Wall_Absorption_Coeff = 0.3;
 
 % % ROOM 4
+% % Medium Open Plan Office
+% Room_Size = [8 10 3];   %Medium Open Plan Office
+% Wall_Absorption_Coeff = 0.3;
+
+% % ROOM 5
 % % Cafe / Restaurant
 %Room_Size = [9 14 3];   %Cafe/Restaurant
 %Wall_Absorption_Coeff = 0.3;
 
-% % ROOM 5
-% % Small Open Plan Office
-%Room_Size = [4 9 3];   %Small Open Plan Office
-%Wall_Absorption_Coeff = 0.3;
-
 %%
-setups = [1 2 4 5];
+setups = [1 2 3 4 5];
 
 for scheme = setups
     if scheme == 1
