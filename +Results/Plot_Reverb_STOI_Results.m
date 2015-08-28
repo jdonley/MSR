@@ -172,7 +172,7 @@ for v = 1:length(Version)
         hold off;
         
         title(Titles{v});
-        axis([-46 1 0 105]);
+        axis([-41 41 0 105]);
         grid on;
         legend([erB, erQ], {'Bright Zone';'Quiet Zone'},'Location','southwest');
         
@@ -180,10 +180,16 @@ for v = 1:length(Version)
         xlabel({'Noise Mask (dB)'});%; '(with reference to Quiet Zone)'});
         
         arB(1).FaceColor= 'none';
-        arB(2).FaceColor= [0.8 0.9 1];
+        arB(2).FaceColor= plB.Color; 
+        drawnow; pause(0.05);  % this is important for transparency!
+        arB(2).Face.ColorType = 'truecoloralpha';
+        arB(2).Face.ColorData(4) = 0.2*255;
         
         arQ(1).FaceColor= 'none';
-        arQ(2).FaceColor= [1 0.9 0.9];
+        arQ(2).FaceColor= plQ.Color;
+        drawnow; pause(0.05);  % this is important for transparency!
+        arQ(2).Face.ColorType = 'truecoloralpha';
+        arQ(2).Face.ColorData(4) = 0.2*255;
     end
 end
 

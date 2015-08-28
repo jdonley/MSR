@@ -26,7 +26,9 @@ Wall_Absorption_Coeff = 0.3;
 %Wall_Absorption_Coeff = 0.3;
 
 %%
-setups = [1 2 3 4 5];
+setups = [1 3 4 5 6];
+Noise_Mask_Levels = [-40 -35 -30 -25 -20 -15 -10 -5 0];
+%Noise_Mask_Levels = [5 10 15 20 25 30 35 40];
 
 for scheme = setups
     if scheme == 1
@@ -35,22 +37,26 @@ for scheme = setups
         pw_angle = 0;
     elseif scheme == 2
         % % Setup and Privacy Scheme 2
-        mask_type = 'FlatMask';
-        pw_angle = 15;
+        mask_type = 'ZoneWeightMask';
+        pw_angle = 0;
     elseif scheme == 3
         % % Setup and Privacy Scheme 3
-        mask_type = 'ZoneWeightMask';
+        mask_type = 'FlatMask';
         pw_angle = 15;
     elseif scheme == 4
         % % Setup and Privacy Scheme 4
-        mask_type = 'FlatMask';
-        pw_angle = 90;
+        mask_type = 'ZoneWeightMask';
+        pw_angle = 15;
     elseif scheme == 5
         % % Setup and Privacy Scheme 5
+        mask_type = 'FlatMask';
+        pw_angle = 90;
+    elseif scheme == 6
+        % % Setup and Privacy Scheme 6
         mask_type = 'ZoneWeightMask';
         pw_angle = 90;
     end
     
-    Room_Acoustics.Apply_RIRs.Reverberant_MSR_batchfunc(Room_Size, Wall_Absorption_Coeff, mask_type, pw_angle);
+    Room_Acoustics.Apply_RIRs.Reverberant_MSR_batchfunc(Room_Size, Wall_Absorption_Coeff, mask_type, pw_angle, Noise_Mask_Levels);
     
 end

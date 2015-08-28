@@ -1,4 +1,4 @@
-function Reverberant_MSR_batchfunc(Room_Size, Wall_Absorption_Coeff, mask_type, pw_angle)
+function Reverberant_MSR_batchfunc(Room_Size, Wall_Absorption_Coeff, mask_type, pw_angle, mask_level)
 %% Initialise
 %clc;
 %clear;
@@ -19,6 +19,9 @@ loudspeakers = 295; %Number of loudspeakers
 speaker_arc    = 360;  % Degrees
 speaker_radius = 1.5; % Metres
 Num_Receivers = 32; %Number of recording points (microphones)
+if nargin < 5
+   mask_level = [];
+end
 
 %%
 % % ROOM 1
@@ -76,8 +79,8 @@ Spkr_Sig_file_path_ext = ['+' num2str(speaker_radius*2) 'm_SpkrDia\+' num2str(lo
 Output_file_path_ext = Spkr_Sig_file_path_ext;
 
 %% Load RIR Database file
-room = strrep(sprintf(strrep(repmat('%d',1,length(Room_Size)),'d%','d %'),Room_Size),' ','x');
-room_cent = strrep(sprintf(strrep(repmat('%d',1,length(Reproduction_Centre)),'d%','d %'),Reproduction_Centre),' ','x');
+room = strrep(sprintf(strrep(repmat('%g',1,length(Room_Size)),'g%','g %'),Room_Size),' ','x');
+room_cent = strrep(sprintf(strrep(repmat('%g',1,length(Reproduction_Centre)),'g%','g %'),Reproduction_Centre),' ','x');
 
 RIR_Database_file_path = [Drive '+Room_Acoustics\+RIR_Database\'];
 RIR_Database_file_name = ['RIRs__' num2str(loudspeakers) 'Src_' num2str(Num_Receivers) 'Rec_' room 'Dim_' room_cent 'Ctr_' num2str(Wall_Absorption_Coeff) 'Ab.mat'];;
@@ -93,9 +96,15 @@ files = sort(files);
 
 %Isolate only files of the correct planewave angle and mask type. 
 for i=1:length(files)
-    ind(i) = (~isempty(findstr(files{i},[num2str(pw_angle) 'pwAngle'])) ...
-        && ~isempty(findstr(files{i},['with' mask_type])) ) ...
-          || ~isempty(findstr(files{i},'Original'));
+    tmp = 1;
+    for m = 1:length(mask_level)
+        tmp(m) = ~isempty(strfind(files{i},['_' num2str(mask_level(m)) 'dB']));
+    end
+    tmp = any(tmp);
+    ind(i) = (~isempty(strfind(files{i},[num2str(pw_angle) 'pwAngle'])) ...
+        && ~isempty(strfind(files{i},['with' mask_type])) ...
+        && tmp ) ...
+          || ~isempty(strfind(files{i},'Original'));
 end
 files = files(ind);
 

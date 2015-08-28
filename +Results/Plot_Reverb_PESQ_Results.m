@@ -1,6 +1,10 @@
 clc;
 clear;
-close all;
+%close all;
+
+%% Add to existing figure
+add2fig = 1;
+ColorOrderIndex = 4;
 
 %% Info
 result_type = 'PESQ';
@@ -124,38 +128,58 @@ for v = 1:length(Version)
     %% Plot results
     for pl = 1:2
         if pl == 1
-            h=figure(1);
-%             if mod(length(Version),2)~=1
-%                 subplot(length(Version)/2,2,v);
-%             else
-%                 subplot((length(Version)+1)/2,2,v);
-%             end
-            subplot(length(Version),1,v);
+            if add2fig
+                h=figure(add2fig);
+                ax = h.Children(end - (v-1)*2);
+                gca = axes('Position',ax.Position,...
+                    'YAxisLocation','right',...
+                    'Color','none');
+                hold on;
+            else
+                h=figure(2);
+                %if mod(length(Version),2)~=1
+                %	subplot(length(Version)/2,2,v);
+                %else
+                %	subplot((length(Version)+1)/2,2,v);
+                %end
+                subplot(length(Version),1,v);
+            end
         else
             h_sub(v)=figure(100 + v);
         end
         arB = area(CI_x, Result_Bright_area,'LineStyle','none'); hold on;
         
         %scB = scatter(NoiseLevel,SI_WC_Bright,'bo');
-        set(gca,'ColorOrderIndex',1);
+        set(gca,'ColorOrderIndex',ColorOrderIndex);
         erB = errorbar(NoiseLevel_Vec,mean(Result_Bright_Matrix),Result_Bright_CI(:,1),Result_Bright_CI(:,2),...
-            'o');
+            's');
         
-        set(gca,'ColorOrderIndex',1);
+        set(gca,'ColorOrderIndex',ColorOrderIndex);
         plB = plot(Bright_trend,'-');
         
         hold off;
         
         title(Titles{v});
-        axis([-46 1 1 4.6]);
+        axis([-41 41 1 4.6]);
         grid on;
-        legend(erB, {'Bright Zone'},'Location','southwest');
+        legend(erB, {'Bright Zone'},'Location','northeast');
         
         ylabel({'PESQ (MOS)'});
         xlabel({'Noise Mask (dB)'});%; '(with reference to Quiet Zone)'});
         
-        arB(1).FaceColor= 'none';
-        arB(2).FaceColor= [0.8 0.9 1];
+        arB(1).FaceColor = 'none';
+        arB(2).FaceColor = plB.Color; 
+        drawnow; pause(0.05);  % this is important for transparency!
+        arB(2).Face.ColorType = 'truecoloralpha';
+        arB(2).Face.ColorData(4) = 0.2*255;              
+        
+        if add2fig
+            ylim( [1 4.75*(104/100)] );
+            gca.YTick=linspace(1,4.75,6);
+            gca.XTick=[];
+            gca.XLabel=[];
+            gca.Title=[];
+        end
         
     end
 end
