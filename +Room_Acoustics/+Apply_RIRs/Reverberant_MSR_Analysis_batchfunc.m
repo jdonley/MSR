@@ -1,4 +1,4 @@
-function Reverberant_MSR_Analysis_batchfunc(Room_Size, Wall_Absorption_Coeff, mask_type, pw_angle)
+function Reverberant_MSR_Analysis_batchfunc(Room_Size, Wall_Absorption_Coeff, mask_type, pw_angle, mask_level)
 %% Initialise
 %clc;
 %clear;
@@ -19,6 +19,9 @@ loudspeakers = 295; %Number of loudspeakers
 speaker_arc    = 360;  % Degrees
 speaker_radius = 1.5; % Metres
 Num_Receivers = 32; %Number of recording points (microphones)
+if nargin < 5
+   mask_level = [];
+end
 
 %%
 % % ROOM 1
@@ -73,8 +76,8 @@ Reproduction_Centre = Room_Size ./ 2;
 Output_file_path_ext = ['+' num2str(speaker_radius*2) 'm_SpkrDia\+' num2str(loudspeakers) 'Spkrs_' num2str(speaker_arc) 'DegArc_LUT_' LUT_resolution '\'];
 
 %% Load RIR Database file
-room = strrep(sprintf(strrep(repmat('%d',1,length(Room_Size)),'d%','d %'),Room_Size),' ','x');
-room_cent = strrep(sprintf(strrep(repmat('%d',1,length(Reproduction_Centre)),'d%','d %'),Reproduction_Centre),' ','x');
+room = strrep(sprintf(strrep(repmat('%g',1,length(Room_Size)),'g%','g %'),Room_Size),' ','x');
+room_cent = strrep(sprintf(strrep(repmat('%g',1,length(Reproduction_Centre)),'g%','g %'),Reproduction_Centre),' ','x');
 
 Drive = 'Z:\';
 ResultsPath = ['+Results\+Reverb__' num2str(Num_Receivers) 'Rec_' room 'Dim_' room_cent 'Ctr_' num2str(Wall_Absorption_Coeff) 'Ab\'];
@@ -84,16 +87,25 @@ Input_file_path = [Drive ResultsPath Output_file_path_ext];
 files = Tools.getAllFiles(Input_file_path);
 files = sort(files);
 
-%Isolate only files of the correct planewave angle
+%Isolate only files of the correct planewave angle, mask type and mask level.
 for i=1:length(files)
-    ind(i) = (~isempty(findstr(files{i},[num2str(pw_angle) 'pwAngle'])) ...
-        && ~isempty(findstr(files{i},['with' mask_type])) ) ...
-          || ~isempty(findstr(files{i},'Original'));
+    tmp = 1;
+    for m = 1:length(mask_level)
+        tmp(m) = ~isempty(strfind(files{i},['_' num2str(mask_level(m)) 'dB']));
+    end
+    tmp = any(tmp);
+    ind(i) = (~isempty(strfind(files{i},['_' num2str(pw_angle) 'pwAngle'])) ...
+        && ~isempty(strfind(files{i},['with' mask_type])) ...
+        && tmp ) ...
+          || ~isempty(strfind(files{i},'Original'));
 end
 files = files(ind);
 
 fprintf('\n====== Analysing Simulated Reverberant Signals ======\n');
-fprintf(['Privacy Weighting: ' mask_type '\n']);n=0;
+fprintf(['            Room Size: ' [strrep(sprintf(strrep(repmat('%g',1,length(Room_Size)),'g%','g %'),Room_Size),' ','m x ') 'm'] '\n']);
+fprintf(['Wall Absorption Coeff: ' num2str(Wall_Absorption_Coeff) '\n']);
+fprintf(['      Planewave Angle: ' num2str(pw_angle) '\n']);
+fprintf(['    Privacy Weighting: ' mask_type '\n\n']);n=0;
 fprintf('\tCompletion: ');
 
 %parfor_progress( length(files) );
@@ -150,8 +162,9 @@ for file = 1:length(files)
             if (length(orig) ~= length(Rec_Bright)) || (length(orig) ~= length(Rec_Quiet))
                 error('Size of the original signal does not match the reproduced signal!');
             end
-            c_speed = 343;%343m/s speed of sound in air
-            max_delay = speaker_radius*2 / c_speed * Fs;
+            %c_speed = 343;%343m/s speed of sound in air
+            %max_delay = speaker_radius*2 / c_speed * Fs;
+            max_delay = Fs / 2;
             Original = zeros(Num_Receivers,2,length(orig));
             
             for r = 1:Num_Receivers
@@ -166,14 +179,15 @@ for file = 1:length(files)
             
             % Calculate and save results
             
+            % Perceptual Evaluation of Speech Quality
+            Room_Acoustics.Apply_RIRs.Save_Reverb_PESQ_Result( Original, Rec_Bright, Fs, ResultsPath, Output_file_path_ext, fileName(1:ind-2) );
+            
             % Speech Intelligibility
             Room_Acoustics.Apply_RIRs.Save_Reverb_STOI_Result( Original, Rec_Bright, Rec_Quiet, Fs, ResultsPath, Output_file_path_ext, fileName(1:ind-2) );
             
             % Signal to Noise Ratio
             Room_Acoustics.Apply_RIRs.Save_Reverb_SNR_Result( Original, Rec_Bright, Rec_Quiet, Fs, ResultsPath, Output_file_path_ext, fileName(1:ind-2) );
             
-            % Perceptual Evaluation of Speech Quality
-            Room_Acoustics.Apply_RIRs.Save_Reverb_PESQ_Result( Original, Rec_Bright, Fs, ResultsPath, Output_file_path_ext, fileName(1:ind-2) );
             
             
         end

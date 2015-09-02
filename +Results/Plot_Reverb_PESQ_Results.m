@@ -3,7 +3,7 @@ clear;
 %close all;
 
 %% Add to existing figure
-add2fig = 1;
+add2fig = 0;
 ColorOrderIndex = 4;
 
 %% Info
@@ -25,16 +25,29 @@ mask_type = {'FlatMask'; ...
              'FlatMask'; ...
              'ZoneWeightMask';};
          
-Room_Size = [10 10 10];% ...
-             %[5 6 ]; ...
-             %[5 6 4]; ...
-             %[5 6 4];};
-Reproduction_Centre = [5 5 5];% ...
-                      % [2.5 3 ]; ...
-                      % [2.5 3 2]; ...
-                      % [2.5 3 2];};
-Wall_Absorption_Coeff = 1.0;%{1.0; 0.3; 1.0; 0.3;};% 0.3};
 
+% % ROOM 1
+% % Anechoic6
+% Room_Size = [10 10 10]; %Anechoic
+% Wall_Absorption_Coeff = 1.0;
+
+% % ROOM 2
+% % Small Open Plan Office
+Room_Size = [4 9 3];   %Small Open Plan Office
+Wall_Absorption_Coeff = 0.3;
+
+% % ROOM 3
+% Medium Open Plan Office
+% Room_Size = [8 10 3];   %Medium Open Plan Office
+% Wall_Absorption_Coeff = 0.3;
+
+% % ROOM 4
+% % Cafe / Restaurant
+%Room_Size = [9 14 3];   %Cafe/Restaurant
+%Wall_Absorption_Coeff = 0.3;
+
+
+Reproduction_Centre = Room_Size / 2; %[5 5 5];
 
 Version = {['10000weight__with' mask_type{1}]; ...
            ['10000weight__with' mask_type{2}]; ...
@@ -60,8 +73,8 @@ Font = 'Times';
 
 
 %%
-room = strrep(sprintf(strrep(repmat('%d',1,length(Room_Size)),'d%','d %'),Room_Size),' ','x');
-room_cent = strrep(sprintf(strrep(repmat('%d',1,length(Reproduction_Centre)),'d%','d %'),Reproduction_Centre),' ','x');
+room = strrep(sprintf(strrep(repmat('%g',1,length(Room_Size)),'g%','g %'),Room_Size),' ','x');
+room_cent = strrep(sprintf(strrep(repmat('%g',1,length(Reproduction_Centre)),'g%','g %'),Reproduction_Centre),' ','x');
 
 %%
 
@@ -76,62 +89,20 @@ for v = 1:length(Version)
 % Read results
     [NoiseLevel,Result_Bright,ConfInt_Bright_Low,ConfInt_Bright_Up] = Results.import_PESQ_Reverb(Results_filepath);
         
-    Num_Audio_Files = max(histcounts(NoiseLevel));
+% Generate Plottable data matrices and vectors
+    [Hrz_Vec, Res_Bright_Matrix, Res_Bright_trend, Res_Bright_area, Res_Bright_CI, CI_vec] = Results.generatePlotData( NoiseLevel, Result_Bright, ConfInt_Bright_Low, ConfInt_Bright_Up);
     
-% Create Matrices of Results
-    %Masking noise Level
-    NoiseLevel_Matrix = fliplr(reshape(NoiseLevel,size(NoiseLevel,1)/Num_Audio_Files,Num_Audio_Files)');
-    NoiseLevel_Vec = double(NoiseLevel_Matrix(1,:));
-    %Speech Intelligibility Results
-    Result_Bright_Matrix = fliplr(reshape(Result_Bright,size(Result_Bright,1)/Num_Audio_Files,Num_Audio_Files)');
-    % Confidence Intervals from Spatial Sampling Points
-    ConfInt_Bright_Low_M = fliplr(reshape(ConfInt_Bright_Low,size(ConfInt_Bright_Low,1)/Num_Audio_Files,Num_Audio_Files)');
-    ConfInt_Bright_Up_M  = fliplr(reshape(ConfInt_Bright_Up ,size(ConfInt_Bright_Up ,1)/Num_Audio_Files,Num_Audio_Files)');
-    
-% Order Matrices of Results
-    [NoiseLevel_Vec,I] = sort(NoiseLevel_Vec);
-    %Masking noise Level
-    NoiseLevel_Matrix   = NoiseLevel_Matrix(:,I);
-    NoiseLevel = flip(NoiseLevel_Matrix(:));
-    %Speech Intelligibility Results
-    Result_Bright_Matrix = Result_Bright_Matrix(:,I);
-    % Confidence Intervals from Spatial Sampling Points
-    ConfInt_Bright_Low_M = ConfInt_Bright_Low_M(:,I);
-    ConfInt_Bright_Up_M  = ConfInt_Bright_Up_M(:,I);
-    
-    %Average Spatial Sampling Confidence Intervals
-    ConfInt_Bright_M = [mean(ConfInt_Bright_Low_M,1)' mean(ConfInt_Bright_Up_M,1)'];
-    
-        %% Calculate confidence intervals
-    Result_Bright_CI = Tools.confidence_intervals(Result_Bright_Matrix, 95);
-    
-    %% Fit a trendline to the results
-    Fit_Options = fitoptions( 'Method', 'SmoothingSpline' );
-    Fit_Options.SmoothingParam = 1.0;
-    [Bright_trend, ~] = Results.createFit(double(NoiseLevel),flip(Result_Bright_Matrix(:)), 'smoothingspline', Fit_Options);
-    
-    temp1 = repmat(Result_Bright_CI(:,1)',Num_Audio_Files,1); temp1 = temp1(:);
-    temp2 = repmat(Result_Bright_CI(:,2)',Num_Audio_Files,1); temp2 = temp2(:);
-    Bright_CI_trend = struct('Upper', ...
-                     Results.createFit(double(NoiseLevel),temp1,'smoothingspline',Fit_Options), ...
-                     'Lower', ...
-                     Results.createFit(double(NoiseLevel),temp2,'smoothingspline',Fit_Options));
-                 
-    %Trendline plot vectors
-    CI_x= linspace(NoiseLevel_Vec(1),NoiseLevel_Vec(end),100);
-    
-    %% Calculate areas
-    %SI_WC_Bright_area = [mean(SI_WC_Bright_Matrix)' + SI_WC_Bright_CI(:,1), SI_WC_Bright_CI(:,2) - SI_WC_Bright_CI(:,1)];
-    Result_Bright_area = flip([flip(Bright_trend(CI_x)) + Bright_CI_trend.Upper(CI_x), ...
-                         Bright_CI_trend.Lower(CI_x) - Bright_CI_trend.Upper(CI_x)]);  
     
     %% Plot results
     for pl = 1:2
         if pl == 1
             if add2fig
                 h=figure(add2fig);
+                if ~numel(h.Children)
+                    error('No figure exists to add plots too.\nPlease change the ''add2fig'' value to zero.',[]);
+                end
                 ax = h.Children(end - (v-1)*2);
-                gca = axes('Position',ax.Position,...
+                ax2 = axes('Position',ax.Position,...
                     'YAxisLocation','right',...
                     'Color','none');
                 hold on;
@@ -147,20 +118,20 @@ for v = 1:length(Version)
         else
             h_sub(v)=figure(100 + v);
         end
-        arB = area(CI_x, Result_Bright_area,'LineStyle','none'); hold on;
+        arB = area(CI_vec, Res_Bright_area,'LineStyle','none'); hold on;
         
         %scB = scatter(NoiseLevel,SI_WC_Bright,'bo');
         set(gca,'ColorOrderIndex',ColorOrderIndex);
-        erB = errorbar(NoiseLevel_Vec,mean(Result_Bright_Matrix),Result_Bright_CI(:,1),Result_Bright_CI(:,2),...
+        erB = errorbar(Hrz_Vec,mean(Res_Bright_Matrix),Res_Bright_CI(:,1),Res_Bright_CI(:,2),...
             's');
         
         set(gca,'ColorOrderIndex',ColorOrderIndex);
-        plB = plot(Bright_trend,'-');
+        plB = plot(Res_Bright_trend,'-');
         
         hold off;
         
         title(Titles{v});
-        axis([-41 41 1 4.6]);
+        axis([min(Hrz_Vec)-1 max(Hrz_Vec)+1 1 4.6]);
         grid on;
         legend(erB, {'Bright Zone'},'Location','northeast');
         
@@ -174,11 +145,11 @@ for v = 1:length(Version)
         arB(2).Face.ColorData(4) = 0.2*255;              
         
         if add2fig
-            ylim( [1 4.75*(104/100)] );
-            gca.YTick=linspace(1,4.75,6);
-            gca.XTick=[];
-            gca.XLabel=[];
-            gca.Title=[];
+            %ylim( [1 4.75*(104/100)] );
+            %gca.YTick=linspace(1,4.75,6);
+            ax2.XTick=[];
+            ax2.XLabel=[];
+            ax2.Title=[];
         end
         
     end

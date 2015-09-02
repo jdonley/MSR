@@ -2,8 +2,8 @@ clear;close all;fclose all;clc;
 
 % % ROOM 1
 % % Anechoic
-% Room_Size = [10 10 10]; %Anechoic
-% Wall_Absorption_Coeff = 1.0;
+Room_Size = [10 10 10]; %Anechoic
+Wall_Absorption_Coeff = 1.0;
 
 % % ROOM 2
 % % Small Open Plan Office
@@ -12,8 +12,8 @@ clear;close all;fclose all;clc;
 
 % % ROOM 3
 % % Small Open Plan Office
-Room_Size = [4 9 3];   %Small Open Plan Office
-Wall_Absorption_Coeff = 0.3;
+% Room_Size = [4 9 3];   %Small Open Plan Office
+% Wall_Absorption_Coeff = 0.3;
 
 % % ROOM 4
 % % Medium Open Plan Office
@@ -26,9 +26,9 @@ Wall_Absorption_Coeff = 0.3;
 %Wall_Absorption_Coeff = 0.3;
 
 %%
-setups = [1 3 4 5 6];
-Noise_Mask_Levels = [-40 -35 -30 -25 -20 -15 -10 -5 0];
-%Noise_Mask_Levels = [5 10 15 20 25 30 35 40];
+setups = [ 5 6];
+%Noise_Mask_Levels = [-40 -35 -30 -25 -20 -15 -10 -5 0];
+Noise_Mask_Levels = [5 10 15 20 25 30 35 40];
 
 for scheme = setups
     if scheme == 1

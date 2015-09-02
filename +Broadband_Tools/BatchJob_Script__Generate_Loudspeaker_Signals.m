@@ -1,11 +1,11 @@
 clear;close all;fclose all;clc;
 
 Zone_Weights = 1e4;
-Noise_Mask_Levels = [5 10 15 20 25 30 35 40];
+Noise_Mask_Levels = [-40 -35 -30 -25 -20 -15 -10 -5 0 5 10 15 20 25 30 35 40];
 
 
 %%
-setups = [1 3 4 5 6];
+setups = [2];
 
 for scheme = setups
     if scheme == 1

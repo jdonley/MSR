@@ -94,14 +94,14 @@ Input_file_path = [Spkr_Sig_file_path Spkr_Sig_file_path_ext];
 files = Tools.getAllFiles(Input_file_path);
 files = sort(files);
 
-%Isolate only files of the correct planewave angle and mask type. 
+%Isolate only files of the correct planewave angle, mask type and mask level.
 for i=1:length(files)
     tmp = 1;
     for m = 1:length(mask_level)
         tmp(m) = ~isempty(strfind(files{i},['_' num2str(mask_level(m)) 'dB']));
     end
     tmp = any(tmp);
-    ind(i) = (~isempty(strfind(files{i},[num2str(pw_angle) 'pwAngle'])) ...
+    ind(i) = (~isempty(strfind(files{i},['_' num2str(pw_angle) 'pwAngle'])) ...
         && ~isempty(strfind(files{i},['with' mask_type])) ...
         && tmp ) ...
           || ~isempty(strfind(files{i},'Original'));
@@ -109,7 +109,7 @@ end
 files = files(ind);
 
 fprintf('\n====== Applying Room Impulse Responses to Loudspeaker-Signals ======\n');
-fprintf(['            Room Size: ' [strrep(sprintf(strrep(repmat('%d',1,length(Room_Size)),'d%','d %'),Room_Size),' ','m x ') 'm'] '\n']);
+fprintf(['            Room Size: ' [strrep(sprintf(strrep(repmat('%g',1,length(Room_Size)),'g%','g %'),Room_Size),' ','m x ') 'm'] '\n']);
 fprintf(['Wall Absorption Coeff: ' num2str(Wall_Absorption_Coeff) '\n']);
 fprintf(['      Planewave Angle: ' num2str(pw_angle) '\n']);
 fprintf(['    Privacy Weighting: ' mask_type '\n\n']);n=0;

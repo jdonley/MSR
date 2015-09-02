@@ -25,7 +25,8 @@ results_type = 'PESQ';
 %% Calculate Results
 orig_B = squeeze( Original_(:,1,:) );
 for r = 1:size(Rec_Sigs_B,1)
-    PESQ_B(r) = Tools.pesq2( orig_B(r,:), Rec_Sigs_B(r,:), Fs );
+    %PESQ_B(r) = Tools.pesq2( orig_B(r,:), Rec_Sigs_B(r,:), Fs );
+    PESQ_B(r) = Tools.pesq3( orig_B(r,:), Rec_Sigs_B(r,:), Fs );
     
     PESQ_MOS_B(r) = pesq2mos( PESQ_B(r) );
 end
