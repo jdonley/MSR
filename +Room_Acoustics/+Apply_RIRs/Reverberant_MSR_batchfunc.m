@@ -18,6 +18,7 @@ Fs = 16000; %Sampling Frequency
 loudspeakers = 295; %Number of loudspeakers
 speaker_arc    = 360;  % Degrees
 speaker_radius = 1.5; % Metres
+Time_Delay = false;
 Num_Receivers = 32; %Number of recording points (microphones)
 if nargin < 5
    mask_level = [];
@@ -145,12 +146,24 @@ for file = 1:length(files)
         
         if all( any( Speaker_Signals, 2 ) ) % If we have a complete group of speaker signals
             
+            %Time delay (group delay) loudspeaker signals for better
+            %reproduction in target brigh zone
+            if Time_Delay
+                load('+Room_Acoustics\Time_Delay_TFs.mat');
+                TD_TF=[]; TD_TF(1,:,:) = Time_Delay_TFs';
+                Speaker_Signals = squeeze( ...
+                    Room_Acoustics.Apply_RIRs.Convolve_SpkrSigs_and_RIRs( ...
+                    Speaker_Signals, TD_TF, 'FFT'));
+            end
+            
             % Perform RIR Convolution with Loudspeaker Signals
             % Bright Zone Signals
-            Rec_Sigs_B = Room_Acoustics.Apply_RIRs.Convolve_SpkrSigs_and_RIRs(Speaker_Signals, RIRs.Bright_RIRs, 'FFT');
+            Rec_Sigs_B = Room_Acoustics.Apply_RIRs.Convolve_SpkrSigs_and_RIRs( ...
+                                Speaker_Signals, RIRs.Bright_RIRs, 'FFT');
             Rec_Sigs_B = squeeze(sum(Rec_Sigs_B,1));
             % Quiet Zone Signals
-            Rec_Sigs_Q = Room_Acoustics.Apply_RIRs.Convolve_SpkrSigs_and_RIRs(Speaker_Signals, RIRs.Quiet_RIRs, 'FFT');
+            Rec_Sigs_Q = Room_Acoustics.Apply_RIRs.Convolve_SpkrSigs_and_RIRs( ...
+                                Speaker_Signals, RIRs.Quiet_RIRs, 'FFT');
             Rec_Sigs_Q = squeeze(sum(Rec_Sigs_Q,1));
             
             

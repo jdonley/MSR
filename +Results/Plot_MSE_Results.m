@@ -103,11 +103,11 @@ end
     xlabel('Weight');
     
     arB(1).FaceColor= 'none';
-    arB(2).FaceColor= [0.8 0.9 1];
+    arB(2).FaceColor= plB.Color;
+    drawnow; pause(0.05);  % this is important for transparency!
+    arB(2).Face.ColorType = 'truecoloralpha';
+    arB(2).Face.ColorData(4) = 0.2*255;
     
-    arQ(1).FaceColor= 'none';
-    arQ(2).FaceColor= [1 0.9 0.9];
-
 
 
 %% 

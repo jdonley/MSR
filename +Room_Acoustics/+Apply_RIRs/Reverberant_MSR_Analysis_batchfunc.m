@@ -162,6 +162,7 @@ for file = 1:length(files)
             if (length(orig) ~= length(Rec_Bright)) || (length(orig) ~= length(Rec_Quiet))
                 error('Size of the original signal does not match the reproduced signal!');
             end
+            
             %c_speed = 343;%343m/s speed of sound in air
             %max_delay = speaker_radius*2 / c_speed * Fs;
             max_delay = Fs / 2;

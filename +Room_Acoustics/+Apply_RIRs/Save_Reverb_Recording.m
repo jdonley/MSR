@@ -42,22 +42,11 @@ mask_type = ['__' strrep(mask_type,'_','')];
 
 FileName = [FileName(1:pos+5) mask_type];
 
-%%
-% filenumbers = num2str((1:size(Rec_Sigs_Q,1))');
-% filenumbers(filenumbers==' ') = '_';
-% fullpath_bright = [repmat([ResultsPath Output_file_path_ext FileName '_Bright_'], [size(Rec_Sigs_Q,1) 1]) ...
-%     filenumbers ...
-%     repmat(Output_file_ext, [size(Rec_Sigs_Q,1) 1]) ];
-% fullpath_quiet = [repmat([ResultsPath Output_file_path_ext FileName '_Quiet_'], [size(Rec_Sigs_Q,1) 1]) ...
-%     filenumbers ...
-%     repmat(Output_file_ext, [size(Rec_Sigs_Q,1) 1]) ];
 
+
+%%
 if ~exist([ResultsPath Output_file_path_ext],'dir'); mkdir([ResultsPath Output_file_path_ext]); end
 
-% for r = 1:size(Rec_Sigs_Q,1)
-%     audiowrite(fullpath_bright(r,:),Rec_Sigs_B(r,:), Fs);
-%     audiowrite(fullpath_quiet(r,:),Rec_Sigs_Q(r,:), Fs);
-% end
 save([ResultsPath Output_file_path_ext FileName '_Bright.mat'], 'Rec_Sigs_B');
 save([ResultsPath Output_file_path_ext FileName '_Quiet.mat'], 'Rec_Sigs_Q');
 audiowrite( [ResultsPath Output_file_path_ext FileName '_Original' Output_file_ext], Original_, Fs);

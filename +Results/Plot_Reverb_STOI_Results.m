@@ -23,13 +23,13 @@ mask_type = {'FlatMask'; ...
 
 % % ROOM 1
 % % Anechoic6
-Room_Size = [10 10 10]; %Anechoic
-Wall_Absorption_Coeff = 1.0;
+% Room_Size = [10 10 10]; %Anechoic
+% Wall_Absorption_Coeff = 1.0;
 
 % % ROOM 2
 % % Small Open Plan Office
-% Room_Size = [4 9 3];   %Small Open Plan Office
-% Wall_Absorption_Coeff = 0.3;
+Room_Size = [4 9 3];   %Small Open Plan Office
+Wall_Absorption_Coeff = 0.3;
 
 % % ROOM 3
 % % Medium Open Plan Office
@@ -43,7 +43,11 @@ Wall_Absorption_Coeff = 1.0;
 
 
 Reproduction_Centre = Room_Size / 2; %[5 5 5];
-
+if Wall_Absorption_Coeff == 1.0
+    room_type = 'Anechoic';
+elseif Wall_Absorption_Coeff == 0.3
+    room_type = 'Reverberant';
+end    
 
 Version = {['10000weight__with' mask_type{1}]; ...
            ['10000weight__with' mask_type{2}]; ...
@@ -51,11 +55,11 @@ Version = {['10000weight__with' mask_type{1}]; ...
            ['10000weight__with' mask_type{4}]; ...
            ['10000weight__with' mask_type{5}]};
        
-Titles  = {['Large Uniform Zone Weight with ' mask_type{1} ' - Anechoic ' num2str(pw_angle{1}) 'deg']; ...
-           ['Large Uniform Zone Weight with ' mask_type{2} ' - Anechoic ' num2str(pw_angle{2}) 'deg']; ...
-           ['Large Uniform Zone Weight with ' mask_type{3} ' - Anechoic ' num2str(pw_angle{3}) 'deg']; ...
-           ['Large Uniform Zone Weight with ' mask_type{4} ' - Anechoic ' num2str(pw_angle{4}) 'deg']; ...
-           ['Large Uniform Zone Weight with ' mask_type{5} ' - Anechoic ' num2str(pw_angle{5}) 'deg']};
+Titles  = {['Large Zone Weight with ' mask_type{1} ', ' room_type ', ' num2str(pw_angle{1}) 'deg']; ...
+           ['Large Zone Weight with ' mask_type{2} ', ' room_type ', ' num2str(pw_angle{2}) 'deg']; ...
+           ['Large Zone Weight with ' mask_type{3} ', ' room_type ', ' num2str(pw_angle{3}) 'deg']; ...
+           ['Large Zone Weight with ' mask_type{4} ', ' room_type ', ' num2str(pw_angle{4}) 'deg']; ...
+           ['Large Zone Weight with ' mask_type{5} ', ' room_type ', ' num2str(pw_angle{5}) 'deg']};
 
 
 %Figure Output Settings

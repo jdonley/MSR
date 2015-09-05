@@ -9,7 +9,7 @@ function [y]=fconv(x, h)
 %      See also CONV
 %
 
-Ly=length(x)+length(h)-1;  % 
+Ly=size(x,1)+size(h,1)-1;  % 
 Ly2=pow2(nextpow2(Ly));    % Find smallest power of 2 that is > Ly
 
 if isa(x, 'gpuArray')

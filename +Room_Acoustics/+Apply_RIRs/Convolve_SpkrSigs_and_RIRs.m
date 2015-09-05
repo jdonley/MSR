@@ -1,7 +1,7 @@
 function [Receiver_Signals] = Convolve_SpkrSigs_and_RIRs( Speaker_Signals, RIRs, Method )
 %CONVOLVE_SPKRSIGS_AND_RIRS Convolves Room Impulse Responses (RIRs) with Loudspeaker Signals
 %
-% Syntax:	[OUTPUTARGS] = CONVOLVE_SPKRSIGS_AND_RIRS( Speaker_Signals, RIRs ) Explain usage here
+% Syntax:	[Receiver_Signals] = CONVOLVE_SPKRSIGS_AND_RIRS( Speaker_Signals, RIRs ) Explain usage here
 %
 % Inputs:
 % 	Speaker_Signals - A 2D matrix of Speaker Signals such that each
@@ -71,6 +71,7 @@ if ~strcmp(Method,'FFT')
 else
     Receiver_Signals = zeros(NLoudspeakers, NReceivers, Receiver_Signals_Length, 'like', Speaker_Signals);
     parfor rec = 1:NReceivers
+    %for rec = 1:NReceivers
         NRec = length(rec);
         spkr_sig = repmat(Speaker_Signals', 1, NRec);
         rir = reshape(permute(RIRs(rec,:,:),[3 1 2]), NRec * NLoudspeakers, RIR_Length)';

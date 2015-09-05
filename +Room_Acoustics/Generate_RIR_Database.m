@@ -56,6 +56,7 @@ absorb_coeff = 0.3;
 
 reflect_coeff = sqrt(1-absorb_coeff);
 reverb_time = repmat(reflect_coeff,1,6); %Seconds
+Fs = 16000;
 n_samples = 8000;
 n_rec = 32;
 
@@ -74,6 +75,31 @@ RIRs = struct('Bright_RIRs', RIR_B, ...
     'Quiet_Receiver_Positions', Rec_Quiet_Pos);
 
 
+%% Group delay
+%Aim the reproduction at the centre of the bright zone using a group delay
+%for all speakers (no delay implies the reproduction is aimed at the centre
+%of the loud speaker array)
+C = 343; %Speed of sound m/s
+max_delay = ceil(soundfield.Radius*2 / C * Fs);
+
+[Spkr_LocX, Spkr_LocY] = pol2cart( ...
+                         setup.Loudspeaker_Locations(:,1), ...
+                         setup.Loudspeaker_Locations(:,2));
+Spkr_Loc = [Spkr_LocX, Spkr_LocY];
+
+Bright_Loc = [repmat(setup.Multizone_Soundfield.Bright_Zone.Origin_q.X,size(Spkr_LocX)), ...
+              repmat(setup.Multizone_Soundfield.Bright_Zone.Origin_q.Y,size(Spkr_LocY))];
+                     
+Delay_Dist = sum((Bright_Loc - Spkr_Loc) .^ 2, 2) .^ 0.5; %Euclidean distance
+
+Time_Delay_Samples = round( (max(Delay_Dist) - Delay_Dist) /C * Fs ) + 1;
+
+Time_Delay_TFs = zeros(setup.Loudspeaker_Count, max_delay);
+for i = 1:setup.Loudspeaker_Count
+    Time_Delay_TFs(i,Time_Delay_Samples(i))=1;
+end
+ 
+
 %% Save the RIRs to a database for reuse
 Drive = 'Z:\';
 RIR_Database_Path = [Drive '+Room_Acoustics\+RIR_Database\'];
@@ -83,7 +109,9 @@ room_cent = strrep(sprintf(strrep(repmat('%d',1,length(reproduction_center)),'d%
 
 RIR_Name__Details = [num2str(setup.Loudspeaker_Count) 'Src_' num2str(n_rec) 'Rec_' room 'Dim_' room_cent 'Ctr_' num2str(absorb_coeff) 'Ab'];
     
-save([RIR_Database_Path 'RIRs__' RIR_Name__Details '.mat'],'RIRs');
+save([RIR_Database_Path 'RIRs__' RIR_Name__Details '.mat'], ...
+        'RIRs', ...
+        'Time_Delay_TFs');
 
 
 %%
