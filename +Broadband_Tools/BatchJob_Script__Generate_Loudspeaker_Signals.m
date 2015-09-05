@@ -5,10 +5,16 @@ Noise_Mask_Levels = [-40 -35 -30 -25 -20 -15 -10 -5 0 5 10 15 20 25 30 35 40];
 
 
 %%
-setups = [2];
+setups = [0];
 
 for scheme = setups
-    if scheme == 1
+    if scheme == 0
+        % % Setup and Privacy Scheme 0 (Benchmark)
+        Zone_Weights = 0;
+        Masker_Type = 'NoMask';        
+        Planewave_Angle = 0;
+        Noise_Mask_Levels = -inf;
+    elseif scheme == 1
         % % Setup and Privacy Scheme 1
         Masker_Type = 'FlatMask';
         Planewave_Angle = 0;

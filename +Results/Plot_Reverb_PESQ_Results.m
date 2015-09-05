@@ -3,8 +3,8 @@ clear;
 %close all;
 
 %% Add to existing figure
-add2fig = 0;
-ColorOrderIndex = 4;
+add2fig = 1; % If not set to zero but instead set to a postiive number then this script will try and add the plots to an existing figure with that number
+ColorOrderIndex = 4; % Colour of lines for these plots
 
 %% Info
 result_type = 'PESQ';

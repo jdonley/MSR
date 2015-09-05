@@ -236,7 +236,7 @@ audiowrite([Output_file_path Output_file_path_ext ...
 
 
 
-% %%
+ %%
 % Bright_Zone_sample = [zeros(trunc_index_low-1, 1); Bright_Zone_sample; zeros( size(Z,2) - trunc_index_high, 1) ];
 % Bright_Zone_sample = permute( repmat(Bright_Zone_sample, [1 1 size(Z,1)]), [3 1 2]);
 % 

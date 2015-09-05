@@ -39,7 +39,8 @@ end
 first_speaker  = 0; % Degrees
 speaker_radius = 1.5; % Metres
 
-Output_file_path     = '+Speaker_Signals\'; % Can be relative or exact
+Drive = 'Z:\';
+Output_file_path     = [Drive '+Speaker_Signals\']; % Can be relative or exact
 Output_file_path_ext = ['+' num2str(speaker_radius*2) 'm_SpkrDia\+' num2str(loudspeakers) 'Spkrs_' num2str(speaker_arc) 'DegArc_LUT_' LUT_resolution '\'];
 SetupInfo            = [num2str(f_low ) 'Hz-' ...
     num2str(f_high) 'Hz_' ...
@@ -48,7 +49,7 @@ SetupInfo            = [num2str(f_low ) 'Hz-' ...
 Output_file_name     = [Input_file_name '__' ...
     num2str(loudspeakers) 'spkrs_' ...
     SetupInfo];
-Output_file_ext      = '.wav';
+Output_file_ext      = '.WAV';
 
 
 
@@ -95,7 +96,7 @@ Quiet_Zone_sample   = zeros(f_samples, 1);
 
 %% Secondly, build a flat spectra desired multizone soundfield for all frequencies from the previous fft and save the speaker signals for each frequency bin.
 
-load(['+Soundfield_Database\+' num2str(speaker_radius*2) 'm_SpkrDia\+' num2str(loudspeakers) 'Spkrs_' num2str(speaker_arc) 'DegArc\LUT_Weight_vs_Frequency_' num2str(angle_pw) 'deg_' LUT_resolution '.mat']);
+load([Drive '+Soundfield_Database\+' num2str(speaker_radius*2) 'm_SpkrDia\+' num2str(loudspeakers) 'Spkrs_' num2str(speaker_arc) 'DegArc\LUT_Weight_vs_Frequency_' num2str(angle_pw) 'deg_' LUT_resolution '.mat']);
 
 %Loudspeaker capable LUT available?
 if ~exist('Loudspeaker_Weights__Weight_Vs_Frequency','var')
@@ -224,150 +225,150 @@ audiowrite([Output_file_path Output_file_path_ext ...
 
 
 %%
-Bright_Zone_sample = [zeros(trunc_index_low-1, 1); Bright_Zone_sample; zeros( size(Z,2) - trunc_index_high, 1) ];
-Bright_Zone_sample = permute( repmat(Bright_Zone_sample, [1 1 size(Z,1)]), [3 1 2]);
-
-Quiet_Zone_sample  = [zeros(trunc_index_low-1, 1); Quiet_Zone_sample; zeros( size(Z,2) - trunc_index_high, 1) ];
-Quiet_Zone_sample  = permute( repmat(Quiet_Zone_sample, [1 1 size(Z,1)]), [3 1 2]);
-
-Bright = zeros( [size(Z,1) (size(Z,2))*2] );
-Quiet  = zeros( [size(Z,1) (size(Z,2))*2] );
-
-Bright(:,1:end/2)     = squeeze( Z(:,:,1) ) .* Bright_Zone_sample(:,:);
-Bright(:,end/2+1:end) = conj( [-Bright(:,1).*0 Bright(:,end/2:-1:2)] );
-Quiet(:,1:end/2)      = squeeze( Z(:,:,1) ) .* Quiet_Zone_sample;
-Quiet(:,end/2+1:end)  = conj( [-Quiet(:,1).*0 Quiet(:,end/2:-1:2)] );
-
-% We then want to perform an Inverse FFT (ifft) on each full spectrum frame
-for frame = 1:size(Z, 1)
-    Bright(frame,:) = ifft( Bright(frame, :) );
-    Quiet( frame,:) = ifft( Quiet( frame, :) );
-end
-
-% Then we should perform the overlap-add method to obtain the complete time domain signal for each speaker
-Bright_Signal = +Broadband_Tools.OverlapAdd( Bright, overlap );
-Quiet_Signal  = +Broadband_Tools.OverlapAdd( Quiet , overlap );
-
-% Normalise Loudspeaker Signals
-maxVal = max(abs(Bright_Signal(:)));
-Bright_Signal = Bright_Signal ./ maxVal;
-Quiet_Signal  = Quiet_Signal  ./ maxVal;
-
-%Second method - Correlated Normalisation
-[Bright_Signal, Scale] = Tools.correlated_normalisation(Original_,Bright_Signal);
-Quiet_Signal = Quiet_Signal / Scale;
-maxVal = max(abs([Original_(:); Bright_Signal(:); Quiet_Signal(:)]));
-Original_ = Original_ ./ maxVal;
-Bright_Signal = Bright_Signal ./ maxVal;
-Quiet_Signal  = Quiet_Signal  ./ maxVal;
-
-
-
-
-
-
-% Once we have the speaker signals we should save them for later use as .wav files
-if ~exist(['+Results\' Output_file_path_ext],'dir'); mkdir(['+Results\' Output_file_path_ext]); end
-Original_path = ['+Results\' Output_file_path_ext ...
-    Input_file_name '__Original_' ...
-    num2str(f_low ) 'Hz-' ...
-    num2str(f_high) 'Hz' ...
-    Input_file_ext];
-audiowrite(Original_path, Original_, Fs);
-Bright_path = ['+Results\' Output_file_path_ext ...
-    Input_file_name '___Bright_' ...
-    SetupInfo ...
-    Input_file_ext];
-audiowrite(Bright_path, Bright_Signal, Fs);
-Quiet_path = ['+Results\' Output_file_path_ext ...
-    Input_file_name '___Quiet__' ...
-    SetupInfo ...
-    Input_file_ext];
-audiowrite(Quiet_path, Quiet_Signal, Fs);
-
-
-
-
-
-
-
-
-
-%% Calculate and save Mean Squared Error (MSE) Values to the results folder
-if ~exist(['+Results\' Output_file_path_ext],'dir'); mkdir(['+Results\' Output_file_path_ext]); end
-
-fileID = fopen(['+Results\' Output_file_path_ext 'MSE_Results_' num2str(weight) 'weight.csv'],'a');
-MSE_Bright = sum((Original_ - Bright_Signal).^2) / numel(Original_);
-MSE_Quiet  = sum((Original_ - Quiet_Signal ).^2) / numel(Original_);
-fprintf(fileID,'%s,MSE_Bright,%f,MSE_Quiet,%f,\r\n',[Input_file_name SetupInfo], MSE_Bright, MSE_Quiet);
-fclose(fileID);
-
-
-%% Calculate and save PESQ Values to the results folder
-if ~exist(['+Results\' Output_file_path_ext],'dir'); mkdir(['+Results\' Output_file_path_ext]); end
-
-fileID = fopen(['+Results\' Output_file_path_ext 'PESQ_Results_' num2str(weight) 'weight.csv'],'a');
-PESQ_Bright = pesq(Original_path,Bright_path);
-PESQ_Quiet = pesq(Original_path,Quiet_path);
-fprintf(fileID,'%s,PESQ_Bright,%f,PESQ_Quiet,%f,\r\n',[Input_file_name SetupInfo], PESQ_Bright, PESQ_Quiet);
-fclose(fileID);
-
-fileID = fopen(['+Results\' Output_file_path_ext 'PESQ_MOS_Results_' num2str(weight) 'weight.csv'],'a');
-PESQ_MOS_Bright = pesq2mos(PESQ_Bright);
-PESQ_MOS_Quiet = pesq2mos(PESQ_Quiet);
-fprintf(fileID,'%s,PESQ_MOS_Bright,%f,PESQ_MOS_Quiet,%f,\r\n',[Input_file_name SetupInfo], PESQ_MOS_Bright, PESQ_MOS_Quiet);
-fclose(fileID);
-
-%% Calculate and save Active Speech Level values to the results folder
-if ~exist(['+Results\' Output_file_path_ext],'dir'); mkdir(['+Results\' Output_file_path_ext]); end
-
-fileID = fopen(['+Results\' Output_file_path_ext 'ASL_Results_' num2str(weight) 'weight.csv'],'a');
-
-[ASL_Bright_dB, Activity_Bright] = activlev(Bright_Signal, Fs, 'd');
-[ASL_Quiet_dB,  Activity_Quiet ] = activlev(Quiet_Signal,  Fs, 'd');
-
-fprintf(fileID,'%s,ASL_Bright_dB,%f,ASL_Quiet_dB,%f,Activity_Bright,%f,Activity_Quiet,%f,\r\n', ...
-        [Input_file_name SetupInfo], ...
-        ASL_Bright_dB, ...
-        ASL_Quiet_dB, ...
-        Activity_Bright, ...
-        Activity_Quiet);
-fclose(fileID);
-
-
-%% Calculate and save Speech Intelligibility values to the results folder
-if ~exist(['+Results\' Output_file_path_ext],'dir'); mkdir(['+Results\' Output_file_path_ext]); end
-
-fileID = fopen(['+Results\' Output_file_path_ext 'SI_Results_' num2str(weight) 'weight.csv'],'a');
-
-d_SI_Bright = Tools.stoi(Original_, Bright_Signal, Fs);
-d_SI_Quiet  = Tools.stoi(Original_, Quiet_Signal,  Fs);
-
-% Following the publications by tall2011
-%    References:
-%      C. H. Taal, R. C. Hendriks, R. Heusdens, and J. Jensen. A Short-Time
-%      Objective Intelligibility Measure for Time-Frequency Weighted Noisy
-%      Speech. In Acoustics Speech and Signal Processing (ICASSP), pages
-%      4214-4217. IEEE, 2010.
-%      
-%      C. H. Taal, R. C. Hendriks, R. Heusdens, and J. Jensen. An Algorithm
-%      for Intelligibility Prediction of Time-Frequency Weighted Noisy Speech.
-%      IEEE Transactions on Audio, Speech and Language Processing,
-%      19(7):2125-2136, 2011.
-
-% for IEEE English library
-f_IEEE_a = -17.4906;
-f_IEEE_b = 9.6921;
-
-WordsCorrect_SI_Bright = 100 / (1 + exp(f_IEEE_a * d_SI_Bright + f_IEEE_b ) );
-WordsCorrect_SI_Quiet  = 100 / (1 + exp(f_IEEE_a * d_SI_Quiet  + f_IEEE_b ) );
-
-fprintf(fileID,'%s,d_SI_Bright,%f,d_SI_Quiet,%f,WordsCorrect_SI_Bright,%f,WordsCorrect_SI_Quiet,%f,\r\n', ...
-        [Input_file_name SetupInfo], ...
-        d_SI_Bright, ...
-        d_SI_Quiet, ...
-        WordsCorrect_SI_Bright, ...
-        WordsCorrect_SI_Quiet );
-fclose(fileID);
+% Bright_Zone_sample = [zeros(trunc_index_low-1, 1); Bright_Zone_sample; zeros( size(Z,2) - trunc_index_high, 1) ];
+% Bright_Zone_sample = permute( repmat(Bright_Zone_sample, [1 1 size(Z,1)]), [3 1 2]);
+% 
+% Quiet_Zone_sample  = [zeros(trunc_index_low-1, 1); Quiet_Zone_sample; zeros( size(Z,2) - trunc_index_high, 1) ];
+% Quiet_Zone_sample  = permute( repmat(Quiet_Zone_sample, [1 1 size(Z,1)]), [3 1 2]);
+% 
+% Bright = zeros( [size(Z,1) (size(Z,2))*2] );
+% Quiet  = zeros( [size(Z,1) (size(Z,2))*2] );
+% 
+% Bright(:,1:end/2)     = squeeze( Z(:,:,1) ) .* Bright_Zone_sample(:,:);
+% Bright(:,end/2+1:end) = conj( [-Bright(:,1).*0 Bright(:,end/2:-1:2)] );
+% Quiet(:,1:end/2)      = squeeze( Z(:,:,1) ) .* Quiet_Zone_sample;
+% Quiet(:,end/2+1:end)  = conj( [-Quiet(:,1).*0 Quiet(:,end/2:-1:2)] );
+% 
+% % We then want to perform an Inverse FFT (ifft) on each full spectrum frame
+% for frame = 1:size(Z, 1)
+%     Bright(frame,:) = ifft( Bright(frame, :) );
+%     Quiet( frame,:) = ifft( Quiet( frame, :) );
+% end
+% 
+% % Then we should perform the overlap-add method to obtain the complete time domain signal for each speaker
+% Bright_Signal = +Broadband_Tools.OverlapAdd( Bright, overlap );
+% Quiet_Signal  = +Broadband_Tools.OverlapAdd( Quiet , overlap );
+% 
+% % Normalise Loudspeaker Signals
+% maxVal = max(abs(Bright_Signal(:)));
+% Bright_Signal = Bright_Signal ./ maxVal;
+% Quiet_Signal  = Quiet_Signal  ./ maxVal;
+% 
+% %Second method - Correlated Normalisation
+% [Bright_Signal, Scale] = Tools.correlated_normalisation(Original_,Bright_Signal);
+% Quiet_Signal = Quiet_Signal / Scale;
+% maxVal = max(abs([Original_(:); Bright_Signal(:); Quiet_Signal(:)]));
+% Original_ = Original_ ./ maxVal;
+% Bright_Signal = Bright_Signal ./ maxVal;
+% Quiet_Signal  = Quiet_Signal  ./ maxVal;
+% 
+% 
+% 
+% 
+% 
+% 
+% % Once we have the speaker signals we should save them for later use as .wav files
+% if ~exist(['+Results\' Output_file_path_ext],'dir'); mkdir(['+Results\' Output_file_path_ext]); end
+% Original_path = ['+Results\' Output_file_path_ext ...
+%     Input_file_name '__Original_' ...
+%     num2str(f_low ) 'Hz-' ...
+%     num2str(f_high) 'Hz' ...
+%     Input_file_ext];
+% audiowrite(Original_path, Original_, Fs);
+% Bright_path = ['+Results\' Output_file_path_ext ...
+%     Input_file_name '___Bright_' ...
+%     SetupInfo ...
+%     Input_file_ext];
+% audiowrite(Bright_path, Bright_Signal, Fs);
+% Quiet_path = ['+Results\' Output_file_path_ext ...
+%     Input_file_name '___Quiet__' ...
+%     SetupInfo ...
+%     Input_file_ext];
+% audiowrite(Quiet_path, Quiet_Signal, Fs);
+% 
+% 
+% 
+% 
+% 
+% 
+% 
+% 
+% 
+% %% Calculate and save Mean Squared Error (MSE) Values to the results folder
+% if ~exist(['+Results\' Output_file_path_ext],'dir'); mkdir(['+Results\' Output_file_path_ext]); end
+% 
+% fileID = fopen(['+Results\' Output_file_path_ext 'MSE_Results_' num2str(weight) 'weight.csv'],'a');
+% MSE_Bright = sum((Original_ - Bright_Signal).^2) / numel(Original_);
+% MSE_Quiet  = sum((Original_ - Quiet_Signal ).^2) / numel(Original_);
+% fprintf(fileID,'%s,MSE_Bright,%f,MSE_Quiet,%f,\r\n',[Input_file_name SetupInfo], MSE_Bright, MSE_Quiet);
+% fclose(fileID);
+% 
+% 
+% %% Calculate and save PESQ Values to the results folder
+% if ~exist(['+Results\' Output_file_path_ext],'dir'); mkdir(['+Results\' Output_file_path_ext]); end
+% 
+% fileID = fopen(['+Results\' Output_file_path_ext 'PESQ_Results_' num2str(weight) 'weight.csv'],'a');
+% PESQ_Bright = pesq(Original_path,Bright_path);
+% PESQ_Quiet = pesq(Original_path,Quiet_path);
+% fprintf(fileID,'%s,PESQ_Bright,%f,PESQ_Quiet,%f,\r\n',[Input_file_name SetupInfo], PESQ_Bright, PESQ_Quiet);
+% fclose(fileID);
+% 
+% fileID = fopen(['+Results\' Output_file_path_ext 'PESQ_MOS_Results_' num2str(weight) 'weight.csv'],'a');
+% PESQ_MOS_Bright = pesq2mos(PESQ_Bright);
+% PESQ_MOS_Quiet = pesq2mos(PESQ_Quiet);
+% fprintf(fileID,'%s,PESQ_MOS_Bright,%f,PESQ_MOS_Quiet,%f,\r\n',[Input_file_name SetupInfo], PESQ_MOS_Bright, PESQ_MOS_Quiet);
+% fclose(fileID);
+% 
+% %% Calculate and save Active Speech Level values to the results folder
+% if ~exist(['+Results\' Output_file_path_ext],'dir'); mkdir(['+Results\' Output_file_path_ext]); end
+% 
+% fileID = fopen(['+Results\' Output_file_path_ext 'ASL_Results_' num2str(weight) 'weight.csv'],'a');
+% 
+% [ASL_Bright_dB, Activity_Bright] = activlev(Bright_Signal, Fs, 'd');
+% [ASL_Quiet_dB,  Activity_Quiet ] = activlev(Quiet_Signal,  Fs, 'd');
+% 
+% fprintf(fileID,'%s,ASL_Bright_dB,%f,ASL_Quiet_dB,%f,Activity_Bright,%f,Activity_Quiet,%f,\r\n', ...
+%         [Input_file_name SetupInfo], ...
+%         ASL_Bright_dB, ...
+%         ASL_Quiet_dB, ...
+%         Activity_Bright, ...
+%         Activity_Quiet);
+% fclose(fileID);
+% 
+% 
+% %% Calculate and save Speech Intelligibility values to the results folder
+% if ~exist(['+Results\' Output_file_path_ext],'dir'); mkdir(['+Results\' Output_file_path_ext]); end
+% 
+% fileID = fopen(['+Results\' Output_file_path_ext 'SI_Results_' num2str(weight) 'weight.csv'],'a');
+% 
+% d_SI_Bright = Tools.stoi(Original_, Bright_Signal, Fs);
+% d_SI_Quiet  = Tools.stoi(Original_, Quiet_Signal,  Fs);
+% 
+% % Following the publications by tall2011
+% %    References:
+% %      C. H. Taal, R. C. Hendriks, R. Heusdens, and J. Jensen. A Short-Time
+% %      Objective Intelligibility Measure for Time-Frequency Weighted Noisy
+% %      Speech. In Acoustics Speech and Signal Processing (ICASSP), pages
+% %      4214-4217. IEEE, 2010.
+% %      
+% %      C. H. Taal, R. C. Hendriks, R. Heusdens, and J. Jensen. An Algorithm
+% %      for Intelligibility Prediction of Time-Frequency Weighted Noisy Speech.
+% %      IEEE Transactions on Audio, Speech and Language Processing,
+% %      19(7):2125-2136, 2011.
+% 
+% % for IEEE English library
+% f_IEEE_a = -17.4906;
+% f_IEEE_b = 9.6921;
+% 
+% WordsCorrect_SI_Bright = 100 / (1 + exp(f_IEEE_a * d_SI_Bright + f_IEEE_b ) );
+% WordsCorrect_SI_Quiet  = 100 / (1 + exp(f_IEEE_a * d_SI_Quiet  + f_IEEE_b ) );
+% 
+% fprintf(fileID,'%s,d_SI_Bright,%f,d_SI_Quiet,%f,WordsCorrect_SI_Bright,%f,WordsCorrect_SI_Quiet,%f,\r\n', ...
+%         [Input_file_name SetupInfo], ...
+%         d_SI_Bright, ...
+%         d_SI_Quiet, ...
+%         WordsCorrect_SI_Bright, ...
+%         WordsCorrect_SI_Quiet );
+% fclose(fileID);
 
 end
