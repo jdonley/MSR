@@ -27,7 +27,7 @@ samples              = 512 ;
                                      8000);
 
 loudness = 30;
-SPL = Perceptual_Tools.Loudness( Frequencies_in_zones, loudness );   % SPL of signal in Bright Zone fitting equal loudness curve
+SPL = Perceptual_Tools.Loudness( Frequencies_in_zones, loudness )';   % SPL of signal in Bright Zone fitting equal loudness curve
 %SPL = ones(length(Frequencies_in_zones),1) * loudness; % Flat response
 
 Masker_frequency     = 2000; % Hz
@@ -154,7 +154,7 @@ for f_ = 1:frequencies
     
 end
 %%
-Bright_SPL = Perceptual_Tools.Loudness( Frequencies, loudness );
+Bright_SPL = Perceptual_Tools.Loudness( Frequencies, loudness )';
 
 
 %% Results

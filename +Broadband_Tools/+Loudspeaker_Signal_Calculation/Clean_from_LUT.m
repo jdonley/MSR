@@ -23,7 +23,7 @@ f_high = 8000; % Hz
 resolution = 100;
 phase = 0;
 radius = 0.3;
-if nargin < 8
+if nargin < 7
     angle_pw = 15;
 end
 radius2origin = 0.6;
@@ -42,7 +42,7 @@ speaker_radius = 1.5; % Metres
 Drive = 'Z:\';
 Output_file_path     = [Drive '+Speaker_Signals\']; % Can be relative or exact
 Output_file_path_ext = ['+' num2str(speaker_radius*2) 'm_SpkrDia\+' num2str(loudspeakers) 'Spkrs_' num2str(speaker_arc) 'DegArc_LUT_' LUT_resolution '\'];
-SetupInfo            = [num2str(f_low ) 'Hz-' ...
+SetupInfo            = ['_' num2str(f_low ) 'Hz-' ...
     num2str(f_high) 'Hz_' ...
     num2str(angle_pw) 'pwAngle_' ...
     num2str(weight) 'weight__'];

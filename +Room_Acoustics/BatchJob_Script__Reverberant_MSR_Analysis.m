@@ -21,12 +21,17 @@ Wall_Absorption_Coeff = 1.0;
 %Wall_Absorption_Coeff = 0.3;
 
 %%
-setups = [4];
-%Noise_Mask_Levels = [-40 -35 -30 -25 -20 -15 -10 -5 0];
-Noise_Mask_Levels = [5 10 15 20 25 30 35 40];
+setups = [0];
+Noise_Mask_Levels = [-40 -35 -30 -25 -20 -15 -10 -5 0];% 5 10 15 20 25 30 35];
 
 for scheme = setups
-    if scheme == 1
+    if scheme == 0
+        % % Setup and Privacy Scheme 0 (Benchmark)
+        %Zone_Weights = 0;
+        mask_type = 'NoMask';
+        pw_angle = 0;
+        Noise_Mask_Levels = [];
+    elseif scheme == 1
         % % Setup and Privacy Scheme 1
         mask_type = 'FlatMask';
         pw_angle = 0;

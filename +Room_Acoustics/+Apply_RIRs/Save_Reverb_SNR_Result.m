@@ -31,22 +31,36 @@ parfor r = 1:size(Rec_Sigs_Q,1)
 end
 ConfInt_95 = Tools.confidence_intervals( [SNRSeg_B' SNRSeg_Q'  SNR_B' SNR_Q'] );
 
-%%
-% Work out noise mask
+%% Determine where to save results
+   
+% Work out Planewave Angle
 pos = strfind(FileName,'Hz_');
 PW_angle = sscanf(FileName(pos:end),'%*[^0-9^-]%d%*s');
 
-pos = strfind(FileName,'Angle');
-noise_mask = sscanf(FileName(pos:end),'%*[^0-9^-]%d%*s');
-
-%Determine where to save results
-pos = strfind(FileName,'dB');
-weight = sscanf(FileName(pos:end),'%*[^0-9]%d%*s');
+if ~isempty(strfind(FileName,'with'))
+    % Work out noise mask
+    pos = strfind(FileName,'Angle');
+    noise_mask = sscanf(FileName(pos:end),'%*[^0-9^-]%d%*s');
+    
+    % Work out weight
+    pos = strfind(FileName,'dB');
+    weight = sscanf(FileName(pos:end),'%*[^0-9]%d%*s');
+    
+    % Work out mask type
+    pos = strfind(FileName,'weight');
+    mask_type = sscanf(FileName(pos:end),'weight%[^0-9]');
+    mask_type = ['__' strrep(mask_type,'_','')];
+else
+    % Work out weight
+    pos = strfind(FileName,'Angle');
+    weight = sscanf(FileName(pos:end),'%*[^0-9]%d%*s');
+    
+    % Assign mask type and noise mask
+    mask_type = 'NoMask';
+    noise_mask = -Inf;
+end
 
 pos = strfind(FileName,'weight');
-mask_type = sscanf(FileName(pos:end),'weight%[^0-9]');
-mask_type = ['__' strrep(mask_type,'_','')];
-
 FileName = [FileName(1:pos+5) mask_type];
 
 %% Calculate and save Speech Intelligibility values to the results folder
