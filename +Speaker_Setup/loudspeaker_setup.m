@@ -133,7 +133,8 @@ classdef loudspeaker_setup
             end
             
             % Normalise to the maximum of the absolute bright zone values
-            maxBrightVal = max(abs(obj.Bright_Samples(:)));
+            maxBrightVal = mean(abs(obj.Bright_Samples(:))); % Changed to find the average as our goal is to have the bright zone fit on average.
+            obj.Loudspeaker_Weights     = obj.Loudspeaker_Weights   / maxBrightVal; %Added to keep speaker weights tied with their response
             obj.Bright_Samples          = obj.Bright_Samples        / maxBrightVal;
             obj.Quiet_Samples           = obj.Quiet_Samples         / maxBrightVal;
             obj.Bright_Sample           = obj.Bright_Sample         / maxBrightVal;

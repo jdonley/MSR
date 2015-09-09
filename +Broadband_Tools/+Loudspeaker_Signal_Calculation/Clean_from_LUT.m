@@ -122,8 +122,8 @@ for spkr = 1:loudspeakers
     
        
 %     figure(1);
-%     plot(Frequencies, abs(LUT_Loudspeaker_Weights(end,:,spkr))); hold on;
-%     plot(Frequencies_, abs(Loudspeaker_Weights(:,spkr))); hold off;
+%     plot(Frequencies, abs(LUT_Loudspeaker_Weights(1,:,spkr))); hold on;
+%     plot(Frequencies_, abs(Loudspeaker_Weights(:,spkr))); set(gca,'XScale','log');hold off;
 %     figure(2);
 %     plot(Frequencies, unwrap(angle(LUT_Loudspeaker_Weights(end,:,spkr)))); hold on;
 %     plot(Frequencies_, unwrap(angle(Loudspeaker_Weights(:,spkr)))); hold off;

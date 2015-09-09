@@ -1,7 +1,7 @@
 clear;close all;fclose all;clc;
 
 %%
-rooms = [1 ];
+rooms = [ 1 ];
 
 setups = [ 0 ];
 
