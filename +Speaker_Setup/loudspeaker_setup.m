@@ -132,6 +132,8 @@ classdef loudspeaker_setup
                 %obj = obj.norm_soundfield();
             end
             
+            % Equal delay 
+            obj.Loudspeaker_Weights     = obj.Loudspeaker_Weights * abs( besselh(0, obj.k_global ) ); %Remove effect of frequency dependent decay
             % Normalise to the maximum of the absolute bright zone values
             maxBrightVal = mean(abs(obj.Bright_Samples(:))); % Changed to find the average as our goal is to have the bright zone fit on average.
             obj.Loudspeaker_Weights     = obj.Loudspeaker_Weights   / maxBrightVal; %Added to keep speaker weights tied with their response

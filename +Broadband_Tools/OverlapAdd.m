@@ -22,5 +22,6 @@ if ~isempty(non_overlapping)
 else
     TimeSignal = [first_few'; added_part(:); last_few'];
 end
+
 end
 

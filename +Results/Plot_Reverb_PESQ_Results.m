@@ -3,8 +3,8 @@ clear;
 %close all;
 
 %% Add to existing figure
-add2fig = 0; % If not set to zero but instead set to a postiive number then this script will try and add the plots to an existing figure with that number
-ColorOrderIndex = 4; % Colour of lines for these plots
+add2fig = 1; % If not set to zero but instead set to a postiive number then this script will try and add the plots to an existing figure with that number
+ColorInd = 4; % Colour of lines for these plots
 
 %% Info
 result_type = 'PESQ';
@@ -130,11 +130,11 @@ for v = 1:length(Version)
         arB = area(CI_vec, Res_Bright_area,'LineStyle','none'); hold on;
         
         %scB = scatter(NoiseLevel,SI_WC_Bright,'bo');
-        set(gca,'ColorOrderIndex',ColorOrderIndex);
+        set(gca,'ColorOrderIndex',ColorInd);
         erB = errorbar(Hrz_Vec,mean(Res_Bright_Matrix),Res_Bright_CI(:,1),Res_Bright_CI(:,2),...
             's');
         
-        set(gca,'ColorOrderIndex',ColorOrderIndex);
+        set(gca,'ColorOrderIndex',ColorInd);
         plB = plot(Res_Bright_trend,'-');
         
         hold off;
@@ -154,8 +154,8 @@ for v = 1:length(Version)
         arB(2).Face.ColorData(4) = 0.2*255;              
         
         if add2fig
-            %ylim( [1 4.75*(104/100)] );
-            %gca.YTick=linspace(1,4.75,6);
+            ylim( [1 4.75*(104/100)] );
+            ax2.YTick=linspace(1,4.75,6);
             ax2.XTick=[];
             ax2.XLabel=[];
             ax2.Title=[];

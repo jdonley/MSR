@@ -188,9 +188,9 @@ Original = [Z(:,:,1) conj( [-Z(:,1,1).*0 Z(:,end:-1:2,1)] )];
 % %Loudspeaker_Signals =
 % zeros([(size(Z,1)+ceil(overlap))*size(Z,2)*2*(1-overlap) loudspeakers] ); % pre-allocate memory
 for spkr = 1:loudspeakers
-    Loudspeaker_Signals(:,spkr) = +Broadband_Tools.OverlapAdd( Loudspeakers_(:,:,spkr), overlap );
+    Loudspeaker_Signals(:,spkr) = Broadband_Tools.OverlapAdd( Loudspeakers_(:,:,spkr), overlap );
 end
- Original_ = +Broadband_Tools.OverlapAdd( Original, overlap );
+ Original_ = Broadband_Tools.OverlapAdd( Original, overlap );
 % clear Loudspeakers_; % Save on memory
 
 

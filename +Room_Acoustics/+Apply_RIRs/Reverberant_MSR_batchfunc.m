@@ -18,7 +18,7 @@ Fs = 16000; %Sampling Frequency
 loudspeakers = 295; %Number of loudspeakers
 speaker_arc    = 360;  % Degrees
 speaker_radius = 1.5; % Metres
-Time_Delay = true;
+Time_Delay = false;
 Num_Receivers = 32; %Number of recording points (microphones)
 if nargin < 5
    mask_level = [];
@@ -93,7 +93,6 @@ ResultsPath = [Drive '+Results\+Reverb__' num2str(Num_Receivers) 'Rec_' room 'Di
 %% Find Speaker Signals and read to Workspace
 Input_file_path = [Spkr_Sig_file_path Spkr_Sig_file_path_ext];
 files = Tools.getAllFiles(Input_file_path);
-files = sort(files);
 
 %Isolate only files of the correct planewave angle, mask type and mask level.
 for i=1:length(files)
@@ -109,8 +108,14 @@ for i=1:length(files)
                 && isempty(strfind(files{i},'with')) ...
                 && strcmp(mask_type,'NoMask')) ...
             || ~isempty(strfind(files{i},'Original'));
+
+        
+        ind(i) = ~isempty(strfind(files{i},'sinusoid'));
+
+
 end
 files = files(ind);
+files = sort(files);
 
 fprintf('\n====== Applying Room Impulse Responses to Loudspeaker-Signals ======\n');
 fprintf(['            Room Size: ' [strrep(sprintf(strrep(repmat('%g',1,length(Room_Size)),'g%','g %'),Room_Size),' ','m x ') 'm'] '\n']);

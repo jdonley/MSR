@@ -19,6 +19,7 @@ LUT_res = '512f_256w';
 loudspeakers = 295;
 
 Input_file_path = '+Miscellaneous\+Speech_Files\';
+%Input_file_path = '+Miscellaneous\+TestAudio_Files\';
 files = Tools.getAllFiles(Input_file_path);
 
 
