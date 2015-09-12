@@ -165,10 +165,15 @@ end
 % % would usually exist.
  Loudspeaker_Weights = [zeros(trunc_index_low-1, loudspeakers); ...
                         Loudspeaker_Weights; ...
-                        zeros( size(Z,2) - trunc_index_high, loudspeakers)];
-                    
+                        zeros( size(Z,2) - trunc_index_high, loudspeakers)];                    
  Loudspeaker_Weights = permute( repmat(Loudspeaker_Weights, [1 1 size(Z,1)]), [3 1 2]);
  Z_l = repmat(Z, [1 1 loudspeakers]);
+ 
+
+% Z(:, 1:(trunc_index_low-1)) = 0;
+% Z(:, (trunc_index_high+1):end) = 0;
+                   
+                    
 % 
 Loudspeakers_ = zeros( [size(Z_l,1) (size(Z_l,2))*2 size(Z_l,3)] );
 for spkr = 1:loudspeakers
@@ -187,9 +192,6 @@ Original = [Z(:,:,1) conj( [-Z(:,1,1).*0 Z(:,end:-1:2,1)] )];
  end
  
  
- 
- 
- 
  %We should apply the second square root hamming window here
  %we should do this to remove artificats caused by our spectral
  %modification
@@ -199,8 +201,6 @@ Original = [Z(:,:,1) conj( [-Z(:,1,1).*0 Z(:,end:-1:2,1)] )];
     end
      Original = Original .* Windows;
  %end
- 
- 
  
  
 % 

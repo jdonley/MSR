@@ -42,7 +42,24 @@ end
 
 
 %% Apply windowing to each frame
-window_ = hamming(Nfft);
+% if mod(Nfft,2) % If odd correct matlabs silly bugger default hamming window    
+%     window_ = hamming(Nfft);
+%     window_(1) = window_(1)/2;  % repair constant-overlap-add for 50% overlap
+%     window_(Nfft) = window_(Nfft)/2;
+% else
+%     window_ = hamming(Nfft+1);
+%     window_ = window_(1:Nfft); % Delete last sample for periodic case
+% end
+
+if mod(Nfft,2) % If odd correct matlabs silly bugger default hamming window    
+    window_ = hanning(Nfft);
+else
+    window_ = [hanning(Nfft-1); 0];
+end
+
+%Square root window
+window_ = sqrt(window_);
+
 Windows = repmat( window_', [N_of_frames 1]);
 Frames = Frames .* Windows;
 

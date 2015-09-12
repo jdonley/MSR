@@ -18,7 +18,9 @@ Fs = 16000; %Sampling Frequency
 loudspeakers = 295; %Number of loudspeakers
 speaker_arc    = 360;  % Degrees
 speaker_radius = 1.5; % Metres
+
 Time_Delay = false;
+
 Num_Receivers = 32; %Number of recording points (microphones)
 if nargin < 5
    mask_level = [];
@@ -108,11 +110,6 @@ for i=1:length(files)
                 && isempty(strfind(files{i},'with')) ...
                 && strcmp(mask_type,'NoMask')) ...
             || ~isempty(strfind(files{i},'Original'));
-
-        
-        ind(i) = ~isempty(strfind(files{i},'sinusoid'));
-
-
 end
 files = files(ind);
 files = sort(files);

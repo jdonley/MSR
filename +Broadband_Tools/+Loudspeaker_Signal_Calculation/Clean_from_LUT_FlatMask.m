@@ -62,7 +62,7 @@ Output_file_ext      = '.WAV';
 
 
 %% Firstly, find the frequency domain representation of an audio file that is wished to be reproduced in the spatial domain.
-[Z, Frequencies_] = Broadband_Tools.FFT_custom([Input_file_path Input_file_name Input_file_ext], Nfft, Fs, overlap);
+[Z, Frequencies_ ~, Windows] = Broadband_Tools.FFT_custom([Input_file_path Input_file_name Input_file_ext], Nfft, Fs, overlap);
 
 % Truncate to frequencies in the range f_low <-> f_high
 trunc_index_low  = find(Frequencies_ < f_low , 1, 'last' ) + 1;
@@ -164,9 +164,13 @@ end
 % % We want to form the entire spectrum by adding the conjugate of the frame
 % % to the existing frame where the negative frequencies of the transform
 % % would usually exist.
- Loudspeaker_Weights = [zeros(trunc_index_low-1, loudspeakers); Loudspeaker_Weights; zeros( size(Z,2) - trunc_index_high, loudspeakers) ];
+ Loudspeaker_Weights = [zeros(trunc_index_low-1, loudspeakers); ...
+                        Loudspeaker_Weights; ...
+                        zeros( size(Z,2) - trunc_index_high, loudspeakers)];                    
  Loudspeaker_Weights = permute( repmat(Loudspeaker_Weights, [1 1 size(Z,1)]), [3 1 2]);
  Z_l = repmat(Z, [1 1 loudspeakers]);
+ 
+ 
 % 
 Loudspeakers_ = zeros( [size(Z_l,1) (size(Z_l,2))*2 size(Z_l,3)] );
 for spkr = 1:loudspeakers
@@ -182,7 +186,21 @@ Original = [Z(:,:,1) conj( [-Z(:,1,1).*0 Z(:,end:-1:2,1)] )];
         Loudspeakers_(frame,:,spkr) = ifft( Loudspeakers_(frame,:,spkr) );
     end
      Original(frame,:) = ifft( Original(frame, :) );
- end
+ end 
+ 
+ 
+ %We should apply the second square root hamming window here
+ %we should do this to remove artificats caused by our spectral
+ %modification
+  %for frame = 1:size(Loudspeakers_, 1)
+    for spkr = 1:loudspeakers
+        Loudspeakers_(:,:,spkr) = Loudspeakers_(:,:,spkr) .* Windows;
+    end
+     Original = Original .* Windows;
+ %end
+ 
+ 
+
 % 
 % % Then we should perform the overlap-add method to obtain the complete time domain signal for each speaker
 % %Loudspeaker_Signals =
