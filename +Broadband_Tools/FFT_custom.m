@@ -9,7 +9,19 @@ if nargin < 2
 end
 
 %% Read audio file
-[x, Fs_file] = audioread( audiofilepath );
+in_type=whos('b');in_type=in_type.class;
+if strcmp( in_type, 'char' )
+    
+    [x, Fs_file] = audioread( audiofilepath );
+    
+    if Fs ~= Fs_file
+        error(['Sampling frequency of the file (' ...
+            num2str(Fs_file) ...
+            'Hz) does not match the given sampling frequency (' ...
+            num2str(Fs_file) 'Hz) .']);
+    end
+end
+ 
 if size(x,2) > 1 % If audio is not mono then sum audio from all channels together
    %x = sum(x,2);
 end

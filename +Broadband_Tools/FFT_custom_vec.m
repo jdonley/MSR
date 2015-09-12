@@ -1,4 +1,4 @@
-function [ Y, frequencies, Frames, window_] = FFT_custom_vec( x, Nfft, Fs, Overlap )
+function [ Y, frequencies, Frames, Windows] = FFT_custom_vec( x, Nfft, Fs, Overlap )
 %FFT_CUSTOM Summary of this function goes here
 %   Detailed explanation goes here
 
