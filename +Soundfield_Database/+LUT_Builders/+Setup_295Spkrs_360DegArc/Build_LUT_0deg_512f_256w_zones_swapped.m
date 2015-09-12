@@ -40,18 +40,19 @@ Finishing_No_of_Pw   =  300;
                                      Starting_No_of_Pw, ...
                                      Finishing_No_of_Pw, ...
                                      Starting_Frequency, ...
-                                     Finishing_Frequency);
+                                     Finishing_Frequency,'lin');
 
 Weights              = [0     logspace(log10( 1e-2), log10(  1e4), Number_of_Weights - 1) ];
-                     
+Weights              = [0     1e4];
+
 Angles               = [0    ];
 
 Radius_of_zones      = [0.3; ...        % Zone 1 radius
                         0.3];           % Zone 2 radius
-Position_of_zones    = [0.6, 180; ...   % Zone 1 distance and angle from origin
-                        0.6, 0];       % Zone 2 distance and angle from origin
-% Position_of_zones    = [0.6, 0; ...   % Zone 1 distance and angle from origin
-%                         0.6, 180];       % Zone 2 distance and angle from origin
+%Position_of_zones    = [0.6, 180; ...   % Zone 1 distance and angle from origin
+%                       0.6, 0];       % Zone 2 distance and angle from origin
+ Position_of_zones    = [0.6, 0; ...   % Zone 1 distance and angle from origin
+                         0.6, 180];       % Zone 2 distance and angle from origin
 
 Reproduction_Radius = 1.0; % Metres  
 
@@ -153,91 +154,91 @@ end
 
 
 %%
-Title1='Acoustic Brightness Contrast for various Weights & Frequencies';
-h=figure('Name',Title1,'NumberTitle','off');
-surf(Frequencies, Weights, Contrast__Weight_Vs_Frequency);
-    title(Title1);
-    xlabel('Frequency (Hz)');
-    set(gca, 'XScale', 'log');
-    ylabel('Quiet Zone Weight');
-    set(gca, 'YScale', 'log');
-    zlabel('Acoustic Brightness Contrast (dB)');
-    zlim([-20 120]);
-    ZTick = -10:10:120;
-    set(gca, 'ZTick', ZTick);
-    %saveas(h,[Database_Path Title1 '.fig']);
-    
-Title2='Error in Bright Zone for various Weights & Frequencies';
-h=figure('Name',Title2,'NumberTitle','off');
-surf(Frequencies, Weights, Error_Bright__Weight_Vs_Frequency);
-    title(Title2);
-    xlabel('Frequency (Hz)');
-    set(gca, 'XScale', 'log');
-    ylabel('Quiet Zone Weight');
-    set(gca, 'YScale', 'log');
-    zlabel('Mean Squared Error in Bright Zone (dB)');
-    zlim([-120 10]);
-    ZTick = -120:10:10;
-    set(gca, 'ZTick', ZTick);
-    %saveas(h,[Database_Path Title2 '.fig']);
-
-Title3='Error in Quiet Zone for various Weights & Frequencies';
-h=figure('Name',Title3,'NumberTitle','off');
-surf(Frequencies, Weights, Error_Quiet__Weight_Vs_Frequency);
-    title(Title3);
-    xlabel('Frequency (Hz)');
-    set(gca, 'XScale', 'log');
-    ylabel('Quiet Zone Weight');
-    set(gca, 'YScale', 'log');
-    zlabel('Mean Squared Error in Quiet Zone (dB)');
-    zlim([-120 10]);
-    ZTick = -120:10:10;
-    set(gca, 'ZTick', ZTick);
-    %saveas(h,[Database_Path Title3 '.fig']);
-    
-Title4='SPL in Quiet Zone for various Weights & Frequencies';
-h=figure('Name',Title4,'NumberTitle','off');
-surf(Frequencies, Weights, Quiet_SPL__Weight_Vs_Frequency);
-    title(Title4);
-    xlabel('Frequency (Hz)');
-    set(gca, 'XScale', 'log');
-    ylabel('Quiet Zone Weight');
-    set(gca, 'YScale', 'log');
-    zlabel('SPL in Quiet Zone (dB)');
-    zlim([-10 120]);
-    ZTick = -10:10:120;
-    set(gca, 'ZTick', ZTick);
-    %saveas(h,[Database_Path Title4 '.fig']);
-    
-%% Samples 
-Title5='Sample in Bright Zone for various Weights & Frequencies';
-h=figure('Name',Title5,'NumberTitle','off');
-surf(Frequencies, Weights, abs(Bright_Sample__Weight_Vs_Frequency));
-    title(Title5);
-    xlabel('Frequency (Hz)');
-    set(gca, 'XScale', 'log');
-    ylabel('Quiet Zone Weight');
-    set(gca, 'YScale', 'log');
-    zlabel('Bright Zone Sample');
-    %saveas(h,[Database_Path Title5 '.fig']);
-    
-Title6='Sample in Quiet Zone for various Weights & Frequencies';
-h=figure('Name',Title6,'NumberTitle','off');
-surf(Frequencies, Weights, abs(Quiet_Sample__Weight_Vs_Frequency));
-    title(Title6);
-    xlabel('Frequency (Hz)');
-    set(gca, 'XScale', 'log');
-    ylabel('Quiet Zone Weight');
-    set(gca, 'YScale', 'log');
-    zlabel('Bright Zone Sample');
-    %saveas(h,[Database_Path Title6 '.fig']);
+% Title1='Acoustic Brightness Contrast for various Weights & Frequencies';
+% h=figure('Name',Title1,'NumberTitle','off');
+% surf(Frequencies, Weights, Contrast__Weight_Vs_Frequency);
+%     title(Title1);
+%     xlabel('Frequency (Hz)');
+%     set(gca, 'XScale', 'log');
+%     ylabel('Quiet Zone Weight');
+%     set(gca, 'YScale', 'log');
+%     zlabel('Acoustic Brightness Contrast (dB)');
+%     zlim([-20 120]);
+%     ZTick = -10:10:120;
+%     set(gca, 'ZTick', ZTick);
+%     %saveas(h,[Database_Path Title1 '.fig']);
+%     
+% Title2='Error in Bright Zone for various Weights & Frequencies';
+% h=figure('Name',Title2,'NumberTitle','off');
+% surf(Frequencies, Weights, Error_Bright__Weight_Vs_Frequency);
+%     title(Title2);
+%     xlabel('Frequency (Hz)');
+%     set(gca, 'XScale', 'log');
+%     ylabel('Quiet Zone Weight');
+%     set(gca, 'YScale', 'log');
+%     zlabel('Mean Squared Error in Bright Zone (dB)');
+%     zlim([-120 10]);
+%     ZTick = -120:10:10;
+%     set(gca, 'ZTick', ZTick);
+%     %saveas(h,[Database_Path Title2 '.fig']);
+% 
+% Title3='Error in Quiet Zone for various Weights & Frequencies';
+% h=figure('Name',Title3,'NumberTitle','off');
+% surf(Frequencies, Weights, Error_Quiet__Weight_Vs_Frequency);
+%     title(Title3);
+%     xlabel('Frequency (Hz)');
+%     set(gca, 'XScale', 'log');
+%     ylabel('Quiet Zone Weight');
+%     set(gca, 'YScale', 'log');
+%     zlabel('Mean Squared Error in Quiet Zone (dB)');
+%     zlim([-120 10]);
+%     ZTick = -120:10:10;
+%     set(gca, 'ZTick', ZTick);
+%     %saveas(h,[Database_Path Title3 '.fig']);
+%     
+% Title4='SPL in Quiet Zone for various Weights & Frequencies';
+% h=figure('Name',Title4,'NumberTitle','off');
+% surf(Frequencies, Weights, Quiet_SPL__Weight_Vs_Frequency);
+%     title(Title4);
+%     xlabel('Frequency (Hz)');
+%     set(gca, 'XScale', 'log');
+%     ylabel('Quiet Zone Weight');
+%     set(gca, 'YScale', 'log');
+%     zlabel('SPL in Quiet Zone (dB)');
+%     zlim([-10 120]);
+%     ZTick = -10:10:120;
+%     set(gca, 'ZTick', ZTick);
+%     %saveas(h,[Database_Path Title4 '.fig']);
+%     
+% %% Samples 
+% Title5='Sample in Bright Zone for various Weights & Frequencies';
+% h=figure('Name',Title5,'NumberTitle','off');
+% surf(Frequencies, Weights, abs(Bright_Sample__Weight_Vs_Frequency));
+%     title(Title5);
+%     xlabel('Frequency (Hz)');
+%     set(gca, 'XScale', 'log');
+%     ylabel('Quiet Zone Weight');
+%     set(gca, 'YScale', 'log');
+%     zlabel('Bright Zone Sample');
+%     %saveas(h,[Database_Path Title5 '.fig']);
+%     
+% Title6='Sample in Quiet Zone for various Weights & Frequencies';
+% h=figure('Name',Title6,'NumberTitle','off');
+% surf(Frequencies, Weights, abs(Quiet_Sample__Weight_Vs_Frequency));
+%     title(Title6);
+%     xlabel('Frequency (Hz)');
+%     set(gca, 'XScale', 'log');
+%     ylabel('Quiet Zone Weight');
+%     set(gca, 'YScale', 'log');
+%     zlabel('Bright Zone Sample');
+%     %saveas(h,[Database_Path Title6 '.fig']);
 
 %%
 if ~exist(Database_Path,'dir'), mkdir(Database_Path);end;
 save([Database_Path 'LUT_Weight_vs_Frequency_' ...
       num2str(Angles) 'deg_' ...
       num2str(Number_of_Frequencies) 'f_' ...
-      num2str(Number_of_Weights) 'w.mat'], ...
+      num2str(Number_of_Weights) 'w_zones_swapped_max_min.mat'], ...
      'Frequencies', ...
      'Weights', ...
      'Error_Quiet__Weight_Vs_Frequency', ...

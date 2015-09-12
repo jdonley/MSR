@@ -19,7 +19,7 @@ loudspeakers = 295; %Number of loudspeakers
 speaker_arc    = 360;  % Degrees
 speaker_radius = 1.5; % Metres
 
-Time_Delay = false;
+Time_Delay = true;
 
 Num_Receivers = 32; %Number of recording points (microphones)
 if nargin < 5
