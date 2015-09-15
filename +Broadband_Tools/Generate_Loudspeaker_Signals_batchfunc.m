@@ -20,6 +20,10 @@ loudspeakers = 295;
 
 Input_file_path = '+Miscellaneous\+Speech_Files\';
 %Input_file_path = '+Miscellaneous\+TestAudio_Files\';
+%Input_file_path = '+Miscellaneous\+STIPA_Test\';
+%Input_file_path = '+Miscellaneous\+Impulse_Response\';
+%Input_file_path = '+Miscellaneous\+Sine_Sweep\';
+
 files = Tools.getAllFiles(Input_file_path);
 
 

@@ -9,7 +9,7 @@ if nargin < 2
 end
 
 %% Read audio file
-in_type=whos('b');in_type=in_type.class;
+in_type=whos('audiofilepath');in_type=in_type.class;
 if strcmp( in_type, 'char' )
     
     [x, Fs_file] = audioread( audiofilepath );

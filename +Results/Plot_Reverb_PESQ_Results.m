@@ -139,13 +139,13 @@ for v = 1:length(Version)
         
         hold off;
         
-        title(Titles{v});
-        axis([min(Hrz_Vec)-1 max(Hrz_Vec)+1 1 4.6]);
-        grid on;
-        legend(erB, {'Bright Zone'},'Location','northeast');
+        if ~add2fig, title(Titles{v}); end
+        axis([min(Hrz_Vec)-1 20+1 1 4.6]);
+        if ~add2fig, grid on; end;
+        legend(erB, {'BZ PESQ'},'Location','northeast');
         
         ylabel({'PESQ (MOS)'});
-        xlabel({'Noise Mask (dB)'});%; '(with reference to Quiet Zone)'});
+        if ~add2fig, xlabel({'Noise Mask (dB)'}); end; %; '(with reference to Quiet Zone)'});
         
         arB(1).FaceColor = 'none';
         arB(2).FaceColor = plB.Color; 
@@ -155,7 +155,7 @@ for v = 1:length(Version)
         
         if add2fig
             ylim( [1 4.75*(104/100)] );
-            ax2.YTick=linspace(1,4.75,6);
+            ax2.YTick=round(linspace(1,4.75,3),1);
             ax2.XTick=[];
             ax2.XLabel=[];
             ax2.Title=[];

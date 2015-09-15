@@ -58,12 +58,12 @@ Version = {['10000weight__with' mask_type{1}]; ...
            ['10000weight__with' mask_type{5}]; ...
            ['10000weight__with' mask_type{6}]};
        
-Titles  = {['Large Zone Weight with ' mask_type{1} ', ' room_type ', ' num2str(pw_angle{1}) 'deg']; ...
-           ['Large Zone Weight with ' mask_type{2} ', ' room_type ', ' num2str(pw_angle{2}) 'deg']; ...
-           ['Large Zone Weight with ' mask_type{3} ', ' room_type ', ' num2str(pw_angle{3}) 'deg']; ...
-           ['Large Zone Weight with ' mask_type{4} ', ' room_type ', ' num2str(pw_angle{4}) 'deg']; ...
-           ['Large Zone Weight with ' mask_type{5} ', ' room_type ', ' num2str(pw_angle{5}) 'deg']; ...
-           ['Large Zone Weight with ' mask_type{6} ', ' room_type ', ' num2str(pw_angle{6}) 'deg']};
+Titles  = {['SIC for ' mask_type{1}  ' and \theta=' num2str(pw_angle{1}) '°']; ...
+           ['SIC for ' mask_type{2}  ' and \theta=' num2str(pw_angle{2}) '°']; ...
+           ['SIC for ' mask_type{3}  ' and \theta=' num2str(pw_angle{3}) '°']; ...
+           ['SIC for ' mask_type{4}  ' and \theta=' num2str(pw_angle{4}) '°']; ...
+           ['SIC for ' mask_type{5}  ' and \theta=' num2str(pw_angle{5}) '°']; ...
+           ['SIC for ' mask_type{6}  ' and \theta=' num2str(pw_angle{6}) '°']};
 
 
 %Figure Output Settings
@@ -108,7 +108,7 @@ for v = 1:length(Version)
 %             else
 %                 subplot((length(Version)+1)/2,2,v);
 %             end
-            subplot(length(Version),1,v);
+            subplot(length(Version)/2,2,v);
         else
             h_sub(v)=figure(100 + v);
         end
@@ -128,11 +128,15 @@ for v = 1:length(Version)
         hold off;
         
         title(Titles{v});
-        axis([min(Hrz_Vec)-1 max(Hrz_Vec)+1 0 105]);
+        axis([min(Hrz_Vec)-1 20+1 0 105]);
         grid on;
-        legend([erB, erQ], {'Bright Zone';'Quiet Zone'},'Location','southwest');
+        leg_loc = 'northwest';
+        if strcmp(mask_type{v},'FlatMask')
+            leg_loc = 'northeast';
+        end
+        legend([erB, erQ], {'BZ STOI';'QZ STOI'},'Location',leg_loc);
         
-        ylabel({'Speech Intelligibility';'(% Words Correct)'});
+        ylabel({'STOI (%WC)'});
         xlabel({'Noise Mask (dB)'});%; '(with reference to Quiet Zone)'});
         
         arB(1).FaceColor= 'none';

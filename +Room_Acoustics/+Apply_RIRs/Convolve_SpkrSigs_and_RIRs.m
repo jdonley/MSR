@@ -69,7 +69,7 @@ if ~strcmp(Method,'FFT')
         end
     end
 else
-    Receiver_Signals = zeros(NLoudspeakers, NReceivers, Receiver_Signals_Length, 'like', Speaker_Signals);
+    Receiver_Signals = zeros(NReceivers, Receiver_Signals_Length, 'like', Speaker_Signals);
     parfor rec = 1:NReceivers
     %for rec = 1:NReceivers
         NRec = length(rec);
@@ -79,9 +79,10 @@ else
         rec_sig = Tools.fconv( spkr_sig, rir );
         %rec_sig = Tools.fconv( gpuArray(spkr_sig), gpuArray(rir) );
         
-        Receiver_Signals(:,rec,:) = reshape( rec_sig', NLoudspeakers, NRec, Receiver_Signals_Length);
+        Receiver_Signals(rec,:) = sum(rec_sig,2)';%reshape( rec_sig', NLoudspeakers, NRec, Receiver_Signals_Length);
+    
     end
 end
 
-
+            %Rec_Sigs_B = squeeze(sum(Rec_Sigs_B,1));
 end

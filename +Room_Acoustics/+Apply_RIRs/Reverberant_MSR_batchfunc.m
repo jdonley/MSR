@@ -1,4 +1,4 @@
-function Reverberant_MSR_batchfunc(Room_Size, Wall_Absorption_Coeff, mask_type, pw_angle, mask_level)
+function Reverberant_MSR_batchfunc(Room_Size, Wall_Absorption_Coeff, mask_type, pw_angle, mask_level, Conv_Type )
 %% Initialise
 %clc;
 %clear;
@@ -19,13 +19,16 @@ loudspeakers = 295; %Number of loudspeakers
 speaker_arc    = 360;  % Degrees
 speaker_radius = 1.5; % Metres
 
-Time_Delay = true;
-
 Num_Receivers = 32; %Number of recording points (microphones)
 if nargin < 5
    mask_level = [];
 end
 
+if nargin < 6
+    Conv_Type = 'FFT';
+end
+
+    
 %%
 % % ROOM 1
 % % Anechoic
@@ -151,25 +154,13 @@ for file = 1:length(files)
         
         if all( any( Speaker_Signals, 2 ) ) % If we have a complete group of speaker signals
             
-            %Time delay (group delay) loudspeaker signals for better
-            %reproduction in target brigh zone
-            if Time_Delay
-                load('+Room_Acoustics\Time_Delay_TFs.mat');
-                TD_TF=[]; TD_TF(1,:,:) = Time_Delay_TFs';
-                Speaker_Signals = squeeze( ...
-                    Room_Acoustics.Apply_RIRs.Convolve_SpkrSigs_and_RIRs( ...
-                    Speaker_Signals, TD_TF, 'FFT'));
-            end
-            
             % Perform RIR Convolution with Loudspeaker Signals
             % Bright Zone Signals
             Rec_Sigs_B = Room_Acoustics.Apply_RIRs.Convolve_SpkrSigs_and_RIRs( ...
-                                Speaker_Signals, RIRs.Bright_RIRs, 'FFT');
-            Rec_Sigs_B = squeeze(sum(Rec_Sigs_B,1));
+                                Speaker_Signals, RIRs.Bright_RIRs, Conv_Type);
             % Quiet Zone Signals
             Rec_Sigs_Q = Room_Acoustics.Apply_RIRs.Convolve_SpkrSigs_and_RIRs( ...
-                                Speaker_Signals, RIRs.Quiet_RIRs, 'FFT');
-            Rec_Sigs_Q = squeeze(sum(Rec_Sigs_Q,1));
+                                Speaker_Signals, RIRs.Quiet_RIRs, Conv_Type);
             
             
             % Read original file

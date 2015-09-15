@@ -44,9 +44,9 @@ soundfield = soundfield.createSoundfield('DEBUG', Radius);
 %% RIR Generation for a particular setup...
 
 %room_size = [10 10 10];
-%room_size = [4 9 3]; %35.G46e
+room_size = [4 9 3]; %35.G46e
 %room_size = [8 10 3]; %6.107
-room_size = [9 14 3]; % Out to lunch
+%room_size = [9 14 3]; % Out to lunch
 
 room_dimensions = 3;
 reproduction_center = room_size ./ 2;
