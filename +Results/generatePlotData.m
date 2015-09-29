@@ -1,4 +1,4 @@
-function [ Hrz_Vec, Res_Matrix, Res_trend, Res_area, Res_CI, CI_vec ] = generatePlotData( X_vals,Res,ConfInt_Low,ConfInt_Up )
+function [ Hrz_Vec, Res_Matrix, Res_trend, Res_area, Res_CI, CI_vec ] = generatePlotData( X_vals,Res,ConfInt_Low,ConfInt_Up, Type_of_Fit, X_vals_buffer )
 %GENERATEPLOTDATA Organises input data into nice trending plottable data
 %for plots, area plots and errorbar plots.
 % 
@@ -28,7 +28,12 @@ function [ Hrz_Vec, Res_Matrix, Res_trend, Res_area, Res_CI, CI_vec ] = generate
 % Revision: 0.1
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+if nargin < 5
+    Type_of_Fit =  'smoothingspline' ;
+end
+if nargin < 6
+   X_vals_buffer = [0 0]; 
+end
     
     Num_Audio_Files = max(histcounts(X_vals,-100:5:100));
             
@@ -59,25 +64,31 @@ function [ Hrz_Vec, Res_Matrix, Res_trend, Res_area, Res_CI, CI_vec ] = generate
     Res_CI = Tools.confidence_intervals(Res_Matrix, 95);
     
     %% Fit a trendline to the results
-    Fit_Options = fitoptions( 'Method', 'SmoothingSpline' );
-    Fit_Options.SmoothingParam = 1.0;
-    [Res_trend, ~] = Results.createFit(double(X_vals),Res_Matrix(:), 'smoothingspline', Fit_Options);
+    Fit_Options = fitoptions( 'Method', Type_of_Fit );
+    if strcmp(Type_of_Fit,'smoothingspline')
+        Fit_Options.SmoothingParam = 1.0;
+    end
+    [Res_trend, ~] = Results.createFit(double(X_vals),Res_Matrix(:), Type_of_Fit, Fit_Options);
+    
+    %Trendline plot vectors
+    CI_vec= linspace(Hrz_Vec(1)-X_vals_buffer(1),Hrz_Vec(end)+X_vals_buffer(2),100);
     
     temp1 = repmat(Res_CI(:,1)',Num_Audio_Files,1); temp1 = temp1(:);
     temp2 = repmat(Res_CI(:,2)',Num_Audio_Files,1); temp2 = temp2(:);
-    CI_trend = struct('Upper', ...
-                     Results.createFit(double(X_vals),temp1,'smoothingspline',Fit_Options), ...
-                     'Lower', ...
-                     Results.createFit(double(X_vals),temp2,'smoothingspline',Fit_Options));                 
-                 
-    %Trendline plot vectors
-    CI_vec= linspace(Hrz_Vec(1),Hrz_Vec(end),100);
-    
-    %% Calculate areas
-    Res_area = ([(Res_trend(CI_vec)) + CI_trend.Upper(CI_vec), ...
-                         CI_trend.Lower(CI_vec) - CI_trend.Upper(CI_vec)]);
-    
-                     
+    if all((numel(temp1) ~= 1) & (numel(temp2) ~= 1))
+        CI_trend = struct('Upper', ...
+            Results.createFit(double(X_vals),temp1,Type_of_Fit,Fit_Options), ...
+            'Lower', ...
+            Results.createFit(double(X_vals),temp2,Type_of_Fit,Fit_Options));        
+        
+        % Calculate areas
+        Res_area = ([(Res_trend(CI_vec)) + CI_trend.Upper(CI_vec), ...
+            CI_trend.Lower(CI_vec) - CI_trend.Upper(CI_vec)]);
+        
+    else
+        CI_trend = [];
+        Res_area = [];
+    end
     
 
 

@@ -1,4 +1,4 @@
-function Reverberant_MSR_Analysis_batchfunc(Room_Size, Wall_Absorption_Coeff, mask_type, pw_angle, mask_level, pesqNumber)
+function Reverberant_MSR_Analysis_STI_batchfunc(Room_Size, Wall_Absorption_Coeff, mask_type, pw_angle, mask_level)
 %% Initialise
 %clc;
 %clear;
@@ -22,9 +22,7 @@ Num_Receivers = 32; %Number of recording points (microphones)
 if nargin < 5
    mask_level = [];
 end
-if nargin < 6
-    pesqNumber = 0;
-end
+
 %%
 % % ROOM 1
 % % Anechoic
@@ -82,10 +80,10 @@ room = strrep(sprintf(strrep(repmat('%g',1,length(Room_Size)),'g%','g %'),Room_S
 room_cent = strrep(sprintf(strrep(repmat('%g',1,length(Reproduction_Centre)),'g%','g %'),Reproduction_Centre),' ','x');
 
 Drive = 'Z:\';
-ResultsPath = ['+Results\+Reverb__' num2str(Num_Receivers) 'Rec_' room 'Dim_' room_cent 'Ctr_' num2str(Wall_Absorption_Coeff) 'Ab\'];
+ResultsPath = [Drive '+Results\+Reverb__' num2str(Num_Receivers) 'Rec_' room 'Dim_' room_cent 'Ctr_' num2str(Wall_Absorption_Coeff) 'Ab\'];
 
 %% Find Speaker Signals and read to Workspace
-Input_file_path = [Drive ResultsPath Output_file_path_ext];
+Input_file_path = [ResultsPath Output_file_path_ext];
 files = Tools.getAllFiles(Input_file_path);
 files = sort(files);
 
@@ -96,17 +94,18 @@ for i=1:length(files)
         tmp(m) = ~isempty(strfind(files{i},['_' num2str(mask_level(m)) 'dB']));
     end
     tmp = any(tmp);
-    ind(i) =   (~isempty(strfind(files{i},['_' num2str(pw_angle) 'pwAngle'])) ...
+    ind(i) =   ((~isempty(strfind(files{i},['_' num2str(pw_angle) 'pwAngle'])) ...
                 && ~isempty(strfind(files{i},['with' mask_type])) ...
                 && tmp ) ...
             || (~isempty(strfind(files{i},['_' num2str(pw_angle) 'pwAngle'])) ...
                 && isempty(strfind(files{i},'with')) ...
                 && strcmp(mask_type,'NoMask')) ...
-            || ~isempty(strfind(files{i},'Original'));
+            || ~isempty(strfind(files{i},'Original'))) ...
+            && isempty(strfind(files{i},'_Result'));
 end
 files = files(ind);
 
-fprintf('\n====== Analysing Simulated Reverberant Signals ======\n');
+fprintf('\n====== Calculating and Saving System Impulse Response ======\n');
 fprintf(['            Room Size: ' [strrep(sprintf(strrep(repmat('%g',1,length(Room_Size)),'g%','g %'),Room_Size),' ','m x ') 'm'] '\n']);
 fprintf(['Wall Absorption Coeff: ' num2str(Wall_Absorption_Coeff) '\n']);
 fprintf(['      Planewave Angle: ' num2str(pw_angle) '\n']);
@@ -186,13 +185,16 @@ for file = 1:length(files)
             % Calculate and save results
             
             % Perceptual Evaluation of Speech Quality
-            Room_Acoustics.Apply_RIRs.Save_Reverb_PESQ_Result( Original, Rec_Bright, Fs, ResultsPath, Output_file_path_ext, fileName(1:ind-2), pesqNumber );
+            %Room_Acoustics.Apply_RIRs.Save_Reverb_PESQ_Result( Original, Rec_Bright, Fs, ResultsPath, Output_file_path_ext, fileName(1:ind-2) );
             
             % Speech Intelligibility
             %Room_Acoustics.Apply_RIRs.Save_Reverb_STOI_Result( Original, Rec_Bright, Rec_Quiet, Fs, ResultsPath, Output_file_path_ext, fileName(1:ind-2) );
             
             % Signal to Noise Ratio
             %Room_Acoustics.Apply_RIRs.Save_Reverb_SNR_Result( Original, Rec_Bright, Rec_Quiet, Fs, ResultsPath, Output_file_path_ext, fileName(1:ind-2) );
+            
+            % Speech Transmission Index
+            Room_Acoustics.Apply_RIRs.Save_Reverb_STI_ImpResp( Original, Rec_Bright, Rec_Quiet, Fs, ResultsPath, Output_file_path_ext, fileName(1:ind-2) );
             
             
             

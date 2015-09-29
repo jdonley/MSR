@@ -1,8 +1,10 @@
-function [ res ] = pesq3( reference_sig, degraded_sig, Fs )
-
+function [ res ] = pesq3( reference_sig, degraded_sig, Fs, fileNum )
+if nargin < 4
+    fileNum = 0;
+end
 temp_path = [pwd filesep '+Miscellaneous\+Temporary\'];
-ref_path = [ 'tmp_ref.wav'];
-deg_path = [ 'tmp_deg.wav'];
+ref_path = [ 'tmp_ref' num2str(fileNum) '.wav'];
+deg_path = [ 'tmp_deg' num2str(fileNum) '.wav'];
 
 if ~exist(temp_path,'dir'); mkdir(temp_path); end
 

@@ -119,7 +119,7 @@ save([RIR_Database_Path 'RIRs__' RIR_Name__Details '.mat'], ...
 % 
 scatter(rec_b(:,1),rec_b(:,2),'.g'); hold on
 scatter(rec_q(:,1),rec_q(:,2),'.y');
-scatter(Rec_Bright_Pos(:,1),Rec_Bright_Pos(:,2),'ob')
+scatter(Rec_Bright_Pos(:,1),Rec_Bright_Pos(:,2),'ob'); hold on;
 scatter(Rec_Quiet_Pos(:,1),Rec_Quiet_Pos(:,2),'or'); hold off;
 axis equal;
 

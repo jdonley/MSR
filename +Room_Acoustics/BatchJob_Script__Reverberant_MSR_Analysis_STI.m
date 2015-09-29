@@ -2,31 +2,27 @@ delete(gcp);clear;close all;fclose all;clc;
 
 % % ROOM 1
 % % Anechoic6
-% pesqNumber = 0;
 % Room_Size = [10 10 10]; %Anechoic
 % Wall_Absorption_Coeff = 1.0;
 
 % % ROOM 2
 % % Small Open Plan Office
-% pesqNumber = 1;
 % Room_Size = [4 9 3];   %Small Open Plan Office
 % Wall_Absorption_Coeff = 0.3;
 
 % % ROOM 3
 % % Medium Open Plan Office
-% pesqNumber = 2;
 % Room_Size = [8 10 3];   %Medium Open Plan Office
 % Wall_Absorption_Coeff = 0.3;
 
 % % ROOM 4
 % % Cafe / Restaurant
-pesqNumber = 4;
 Room_Size = [9 14 3];   %Cafe/Restaurant
 Wall_Absorption_Coeff = 0.3;
 
 %%
 %setups = [0];
-setups = [ 0 ];
+setups = [1 2 3 4 5 6 0];
 Noise_Mask_Levels = [-40 -35 -30 -25 -20 -15 -10 -5 0 5 10 15 20];% 25 30 35 40];
 
 
@@ -63,7 +59,7 @@ for scheme = setups
         pw_angle = 90;
     end
     
-    Room_Acoustics.Apply_RIRs.Reverberant_MSR_Analysis_batchfunc(Room_Size, Wall_Absorption_Coeff, mask_type, pw_angle, Noise_Mask_Levels, pesqNumber);
-    %Room_Acoustics.Apply_RIRs.Reverberant_MSR_Analysis_STI_batchfunc(Room_Size, Wall_Absorption_Coeff, mask_type, pw_angle, Noise_Mask_Levels);
+    %Room_Acoustics.Apply_RIRs.Reverberant_MSR_Analysis_batchfunc(Room_Size, Wall_Absorption_Coeff, mask_type, pw_angle, Noise_Mask_Levels);
+    Room_Acoustics.Apply_RIRs.Reverberant_MSR_Analysis_STI_batchfunc(Room_Size, Wall_Absorption_Coeff, mask_type, pw_angle, Noise_Mask_Levels);
     
 end

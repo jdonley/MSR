@@ -1,17 +1,18 @@
 delete(gcp);clear;close all;fclose all;clc;
 
 %%
-%rooms = [ 2 ];
-rooms = [ 1 ];
+rooms = [4];
+%rooms = [ 1 ];
 
 setups = [1 2 3 4 5 6 0];
 %setups = [ 0 ];
 
-Noise_Mask_Levels = [-40 -35 -30 -25 -20 -15 -10 -5 0 5 10 15 20 25 30 35 40];
+for room = rooms
+    
+Noise_Mask_Levels = [-40 -35 -30 -25 -20 -15 -10 -5 0 5 10 15 20];% 25 30 35 40];
     
     
 %%
-for room = rooms
     if room == 1
         % % ROOM 1
         % % Anechoic

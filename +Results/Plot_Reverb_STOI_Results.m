@@ -1,6 +1,10 @@
 clc;
-clear;
+%clear;
 close all;
+
+
+%%
+ColorInd = 4; %this is for whatever the PESQ colour will be plotted as
 
 %% Info
 LUT_resolution = '512f_256w';
@@ -15,12 +19,15 @@ pw_angle = {0; ...
             15; ...
             90; ...
             90;};
-mask_type = {'FlatMask'; ...
-             'ZoneWeightMask'; ...
-             'FlatMask'; ...
-             'ZoneWeightMask'; ...
-             'FlatMask'; ...
-             'ZoneWeightMask';};
+mask_type_ = {'Flat Mask'; ...
+             'Zone Weighted Mask'; ...
+             'Flat Mask'; ...
+             'Zone Weighted Mask'; ...
+             'Flat Mask'; ...
+             'Zone Weighted Mask';};
+for i=1:length(mask_type_)
+    mask_type{1,i} = strrep(strrep(mask_type_{i},'Weighted','Weight'),' ','');
+end
          
 
 % % ROOM 1
@@ -58,22 +65,23 @@ Version = {['10000weight__with' mask_type{1}]; ...
            ['10000weight__with' mask_type{5}]; ...
            ['10000weight__with' mask_type{6}]};
        
-Titles  = {['SIC for ' mask_type{1}  ' and \theta=' num2str(pw_angle{1}) '°']; ...
-           ['SIC for ' mask_type{2}  ' and \theta=' num2str(pw_angle{2}) '°']; ...
-           ['SIC for ' mask_type{3}  ' and \theta=' num2str(pw_angle{3}) '°']; ...
-           ['SIC for ' mask_type{4}  ' and \theta=' num2str(pw_angle{4}) '°']; ...
-           ['SIC for ' mask_type{5}  ' and \theta=' num2str(pw_angle{5}) '°']; ...
-           ['SIC for ' mask_type{6}  ' and \theta=' num2str(pw_angle{6}) '°']};
+Titles  = {['' mask_type_{1} ]; ... ' and \theta=' num2str(pw_angle{1}) '°']; ...
+           ['' mask_type_{2} ]; ... ' and \theta=' num2str(pw_angle{2}) '°']; ...
+           ['' mask_type_{3} ]; ... ' and \theta=' num2str(pw_angle{3}) '°']; ...
+           ['' mask_type_{4} ]; ... ' and \theta=' num2str(pw_angle{4}) '°']; ...
+           ['' mask_type_{5} ]; ... ' and \theta=' num2str(pw_angle{5}) '°']; ...
+           ['' mask_type_{6} ]};% ' and \theta=' num2str(pw_angle{6}) '°']};
 
 
 %Figure Output Settings
 DocumentPath = 'tex\latex\Intelligibility';
 print_fmt = 'pdf'; %figure image file format
 print_res = 600; %dpi
-plot_width = (88.9/10);% + 6.35/10 + 88.9/10); %IEEE full page width
-aspect_ratio = 9/3;
+plot_width = (88.9)/10;% + 6.35 + 88.9)/10; %IEEE full text width
+aspect_ratio = 3/3;
 FontSize = 9;
 Font = 'Times';
+lineWid = 0.1;
 
 
 %%
@@ -95,12 +103,14 @@ for v = 1:length(Version)
         
     
 % Generate Plottable data matrices and vectors
-    [Hrz_Vec, Res_Bright_Matrix, Res_Bright_trend, Res_Bright_area, Res_Bright_CI, CI_vec] = Results.generatePlotData( NoiseLevel, SI_WC_Bright, ConfInt_Bright_Low, ConfInt_Bright_Up);
-    [~, Res_Quiet_Matrix, Res_Quiet_trend, Res_Quiet_area, Res_Quiet_CI, ~] = Results.generatePlotData( NoiseLevel, SI_WC_Quiet, ConfInt_Quiet_Low, ConfInt_Quiet_Up);
+    [Hrz_Vec, Res_Bright_Matrix, Res_Bright_trend, Res_Bright_area, Res_Bright_CI, CI_vec] = ...
+        Results.generatePlotData( NoiseLevel, SI_WC_Bright, ConfInt_Bright_Low, ConfInt_Bright_Up, 'smoothingspline', [2 2]);
+    [~, Res_Quiet_Matrix, Res_Quiet_trend, Res_Quiet_area, Res_Quiet_CI, ~] = ...
+        Results.generatePlotData( NoiseLevel, SI_WC_Quiet, ConfInt_Quiet_Low, ConfInt_Quiet_Up, 'smoothingspline', [2 2]);
     
     
     %% Plot results
-    for pl = 1:2
+    for pl = 1:1 %pl = 1:2
         if pl == 1
             h=figure(1);
 %             if mod(length(Version),2)~=1
@@ -112,32 +122,52 @@ for v = 1:length(Version)
         else
             h_sub(v)=figure(100 + v);
         end
+        set(gca,'ColorOrderIndex',1);
         arB = area(CI_vec, Res_Bright_area,'LineStyle','none'); hold on;
-        arQ  = area(CI_vec, Res_Quiet_area,'LineStyle','none');
+        arQ  = area(CI_vec, Res_Quiet_area,'LineStyle','none');        
         
         set(gca,'ColorOrderIndex',1);
         erB = errorbar(Hrz_Vec,mean(Res_Bright_Matrix),Res_Bright_CI(:,1),Res_Bright_CI(:,2),...
-            'o');
+            'o', 'LineWidth',lineWid, 'MarkerSize',4);
         erQ = errorbar(Hrz_Vec,mean(Res_Quiet_Matrix),Res_Quiet_CI(:,1),Res_Quiet_CI(:,2),...
-            'r^');
+            'r^', 'LineWidth',lineWid, 'MarkerSize',4);
         
         set(gca,'ColorOrderIndex',1);
-        plB = plot(Res_Bright_trend,'-');
-        plQ = plot(Res_Quiet_trend,'r--');
+        plB = plot(Res_Bright_trend,'-'); set(plB,'LineWidth',lineWid);
+        plQ = plot(Res_Quiet_trend,'r-'); set(plQ,'LineWidth',lineWid);
         
-        hold off;
-        
-        title(Titles{v});
-        axis([min(Hrz_Vec)-1 20+1 0 105]);
-        grid on;
-        leg_loc = 'northwest';
-        if strcmp(mask_type{v},'FlatMask')
-            leg_loc = 'northeast';
+        if mod(v,2) == 0
+            txt_pos = [-38, 55];
+        else
+            txt_pos = [0, 55];
         end
-        legend([erB, erQ], {'BZ STOI';'QZ STOI'},'Location',leg_loc);
+       % if v~=1
+            text(txt_pos(1),txt_pos(2),['\theta = ' num2str(pw_angle{v}) '°'],'fontname',Font,'fontsize',FontSize)
+%         else
+%             text(-8,85,['\theta = ' num2str(pw_angle{v}) '°'],'fontname',Font,'fontsize',FontSize)
+        %end               
         
-        ylabel({'STOI (%WC)'});
-        xlabel({'Noise Mask (dB)'});%; '(with reference to Quiet Zone)'});
+        axis([min(Hrz_Vec)-2 20+2 0 105]);
+        grid on; grid minor;
+        
+        legend off;
+        
+        set(gca,'YTick', round(linspace(0,100,6),1) );
+        if mod(v,2)~=0
+            ylabel({'STOI (%WC)'});
+        else            
+            ylabel('');           
+        end
+        if mod(v,2)==0
+             set(gca,'YTickLabel',[]);
+        end
+        
+        if v==(length(Version)-0) || v==(length(Version)-1)
+            xlabel({'Noise Mask ({\it{G}}_{dB})'});
+        else
+            xlabel('');
+            set(gca,'XTickLabel',[]);
+        end;
         
         arB(1).FaceColor= 'none';
         arB(2).FaceColor= plB.Color; 
@@ -150,8 +180,41 @@ for v = 1:length(Version)
         drawnow; pause(0.05);  % this is important for transparency!
         arQ(2).Face.ColorType = 'truecoloralpha';
         arQ(2).Face.ColorData(4) = 0.2*255;
+        
+        
+        
+        ax_pos = get(gca,'Position');
+        if mod(v,2) == 0
+            set(gca,'Position', ax_pos + [-0.08 0 0 0]);
+        end
+        
+        ax_pos = get(gca,'Position');
+        if v ~= 1 && v ~= 2
+            set(gca,'Position', ax_pos + [0 0.07*round((v-2)/2,0) 0 0]);
+        end
+        
+        set(gca,    'FontSize',FontSize-1, ...
+            'FontName',Font);
+        
+        if v==1 || v==2
+            title(Titles{v}, ...
+                'FontSize',FontSize, ...
+                'FontName',Font);
+        end
+
+        
+        hold off;
+        
     end
+    G_=-40:0.1:20;
+    contrast_{v}=[Res_Bright_trend(G_)-Res_Quiet_trend(G_)];
+
 end
+set(gcf, 'Units','centimeters', 'Color','w');
+fig_pos = get(gcf,'Position');
+set(gcf, 'PaperUnits','centimeters', ...
+    'Position', [fig_pos(1) fig_pos(2) plot_width plot_width/aspect_ratio], ...
+    'PaperSize', [plot_width plot_width/aspect_ratio]);
 
 %% 
 % figure(100 + 2);

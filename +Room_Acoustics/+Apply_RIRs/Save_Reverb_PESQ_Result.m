@@ -1,4 +1,4 @@
-function Save_Reverb_PESQ_Result(Original_, Rec_Sigs_B, Fs, ResultsPath, Output_file_path_ext, FileName)
+function Save_Reverb_PESQ_Result(Original_, Rec_Sigs_B, Fs, ResultsPath, Output_file_path_ext, FileName, pesqNumber)
 %SAVE_REVERB_PESQ_RESULT Summary of this function goes here
 % 
 % Syntax:	SAVE_REVERB_PESQ_RESULT(Original_, Rec_Sigs_B, Rec_Sigs_Q, Fs, ResultsPath, Output_file_path_ext, FileName)
@@ -20,13 +20,16 @@ function Save_Reverb_PESQ_Result(Original_, Rec_Sigs_B, Fs, ResultsPath, Output_
 % Revision: 0.1
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if nargin < 7
+    pesqNumber = 0;
+end
 results_type = 'PESQ';
 
 %% Calculate Results
 orig_B = squeeze( Original_(:,1,:) );
 for r = 1:size(Rec_Sigs_B,1)
     %PESQ_B(r) = Tools.pesq2( orig_B(r,:), Rec_Sigs_B(r,:), Fs );
-    PESQ_B(r) = Tools.pesq3( orig_B(r,:), Rec_Sigs_B(r,:), Fs );
+    PESQ_B(r) = Tools.pesq3( orig_B(r,:), Rec_Sigs_B(r,:), Fs , pesqNumber);
     
     PESQ_MOS_B(r) = pesq2mos( PESQ_B(r) );
 end
