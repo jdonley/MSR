@@ -80,10 +80,10 @@ room = strrep(sprintf(strrep(repmat('%g',1,length(Room_Size)),'g%','g %'),Room_S
 room_cent = strrep(sprintf(strrep(repmat('%g',1,length(Reproduction_Centre)),'g%','g %'),Reproduction_Centre),' ','x');
 
 Drive = 'Z:\';
-ResultsPath = [Drive '+Results\+Reverb__' num2str(Num_Receivers) 'Rec_' room 'Dim_' room_cent 'Ctr_' num2str(Wall_Absorption_Coeff) 'Ab\'];
+ResultsPath = ['+Results\+Reverb__' num2str(Num_Receivers) 'Rec_' room 'Dim_' room_cent 'Ctr_' num2str(Wall_Absorption_Coeff) 'Ab\'];
 
 %% Find Speaker Signals and read to Workspace
-Input_file_path = [ResultsPath Output_file_path_ext];
+Input_file_path = [Drive ResultsPath Output_file_path_ext];
 files = Tools.getAllFiles(Input_file_path);
 files = sort(files);
 
@@ -194,7 +194,8 @@ for file = 1:length(files)
             %Room_Acoustics.Apply_RIRs.Save_Reverb_SNR_Result( Original, Rec_Bright, Rec_Quiet, Fs, ResultsPath, Output_file_path_ext, fileName(1:ind-2) );
             
             % Speech Transmission Index
-            Room_Acoustics.Apply_RIRs.Save_Reverb_STI_ImpResp( Original, Rec_Bright, Rec_Quiet, Fs, ResultsPath, Output_file_path_ext, fileName(1:ind-2) );
+            %Room_Acoustics.Apply_RIRs.Save_Reverb_STI_ImpResp( Original, Rec_Bright, Rec_Quiet, Fs, ResultsPath, Output_file_path_ext, fileName(1:ind-2) );
+            Room_Acoustics.Apply_RIRs.Save_Reverb_STI_Result( Original, Rec_Bright, Rec_Quiet, Fs, ResultsPath, Output_file_path_ext, fileName(1:ind-2) );
             
             
             

@@ -1,10 +1,40 @@
-function [ h ] = ImpResp( original, degraded )
+function [ h ] = ImpResp( original, degraded, fs )
 %IMPRESP Summary of this function goes here
-%   Detailed explanation goes here
+% 
+% Syntax:	[OUTPUTARGS] = IMPRESP(INPUTARGS) Explain usage here
+% 
+% Inputs: 
+% 	input1 - Description
+% 	input2 - Description
+% 	input3 - Description
+% 
+% Outputs: 
+% 	output1 - Description
+% 	output2 - Description
+% 
+% Example: 
+% 	Line 1 of example
+% 	Line 2 of example
+% 	Line 3 of example
+% 
+% See also: List related files here
+
+% Author: Jacob Donley
+% University of Wollongong
+% Email: jrd089@uowmail.edu.au
+% Copyright: Jacob Donley 2015
+% Date: 30 September 2015 
+% Revision: 0.1
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 x = original;
-y = degraded(end:-1:1);
+y = degraded;
+
+N = length(original); %Number of samples
+T = N*fs; %Length of signal in seconds
+
 
 
 % [b,a]=butter(1,1/2,'high');

@@ -1,4 +1,4 @@
-function [sweep invsweepfft sweepRate] = synthSweep(T,FS,f1,f2,tail,magSpect)
+function [sweep, invsweepfft, sweepRate] = synthSweep(T,FS,f1,f2,tail,magSpect)
 
 % SYNTHSWEEP Synthesize a logarithmic sine sweep.
 %   [sweep invsweepfft sweepRate] = SYNTHSWEEP(T,FS,f1,f2,tail,magSpect) 
