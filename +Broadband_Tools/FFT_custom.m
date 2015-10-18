@@ -20,6 +20,8 @@ if strcmp( in_type, 'char' )
             'Hz) does not match the given sampling frequency (' ...
             num2str(Fs_file) 'Hz) .']);
     end
+else
+    x = audiofilepath;
 end
  
 if size(x,2) > 1 % If audio is not mono then sum audio from all channels together

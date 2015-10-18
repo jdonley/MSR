@@ -3,8 +3,8 @@ clear;
 %close all;
 
 %% Add to existing figure
-%Plot_ = 'STOI&PESQ';
-Plot_ = 'STI&PESQ';
+Plot_ = 'STOI&PESQ';
+%Plot_ = 'STI&PESQ';
 if strcmp(Plot_,'STOI&PESQ')
     Results.Plot_Reverb_STOI_Results;
     Plot_ = 'STOI&PESQ';
@@ -18,8 +18,14 @@ ColorInd = 4; % Colour of lines for these plots
 %% Info
 result_type = 'PESQ';
 LUT_resolution = '512f_256w';
-loudspeakers   = 295;  % Number of loudspeakers
-speaker_arc    = 360;  % Degrees
+
+% loudspeakers   = 295;  % Number of loudspeakers
+% speaker_arc    = 360;  % Degrees
+loudspeakers   = 32;  % Number of loudspeakers
+speaker_arc    = 180;  % Degrees
+% loudspeakers   = 16;  % Number of loudspeakers
+% speaker_arc    = 180;  % Degrees
+
 speaker_radius = 1.5; % Metres
 Num_Receivers = 32;
 
@@ -29,12 +35,16 @@ pw_angle = {0; ...
             15; ...
             90; ...
             90;};
+pw_angle = {15};
+
 mask_type_ = {'Flat Mask'; ...
              'Zone Weighted Mask'; ...
              'Flat Mask'; ...
              'Zone Weighted Mask'; ...
              'Flat Mask'; ...
              'Zone Weighted Mask';};
+mask_type_ = {'Zone Weighted Mask Alias Ctrl Stereo Noise';};
+
 for i=1:length(mask_type_)
     mask_type{1,i} = strrep(strrep(mask_type_{i},'Weighted','Weight'),' ','');
 end
@@ -77,19 +87,25 @@ else
     room_type = 'Reverberant';
 end
 
+%{
 Version = {['10000weight__with' mask_type{1}]; ...
            ['10000weight__with' mask_type{2}]; ...
            ['10000weight__with' mask_type{3}]; ...
            ['10000weight__with' mask_type{4}]; ...
            ['10000weight__with' mask_type{5}]; ...
            ['10000weight__with' mask_type{6}]};
+  %}     
+Version = {['10000weight__with' mask_type{1}]};
        
-Titles  = {['Large Zone Weight with ' mask_type_{1} ', ' room_type ', ' num2str(pw_angle{1}) 'deg']; ...
-           ['Large Zone Weight with ' mask_type_{2} ', ' room_type ', ' num2str(pw_angle{2}) 'deg']; ...
-           ['Large Zone Weight with ' mask_type_{3} ', ' room_type ', ' num2str(pw_angle{3}) 'deg']; ...
-           ['Large Zone Weight with ' mask_type_{4} ', ' room_type ', ' num2str(pw_angle{4}) 'deg']; ...
-           ['Large Zone Weight with ' mask_type_{5} ', ' room_type ', ' num2str(pw_angle{5}) 'deg']; ...
-           ['Large Zone Weight with ' mask_type_{6} ', ' room_type ', ' num2str(pw_angle{6}) 'deg']};
+    %{   
+Titles  = {['' mask_type_{1} ]; ... ' and \theta=' num2str(pw_angle{1}) '°']; ...
+           ['' mask_type_{2} ]; ... ' and \theta=' num2str(pw_angle{2}) '°']; ...
+           ['' mask_type_{3} ]; ... ' and \theta=' num2str(pw_angle{3}) '°']; ...
+           ['' mask_type_{4} ]; ... ' and \theta=' num2str(pw_angle{4}) '°']; ...
+           ['' mask_type_{5} ]; ... ' and \theta=' num2str(pw_angle{5}) '°']; ...
+           ['' mask_type_{6} ]};% ' and \theta=' num2str(pw_angle{6}) '°']};
+%}
+Titles  = {['' mask_type_{1} ];};% ' and \theta=' num2str(pw_angle{1}) '°']; ...
 
 
 %Figure Output Settings
@@ -188,7 +204,7 @@ for v = 1:length(Version)
         G_=-40:0.1:20;
         pesq_{v}=[Res_Bright_trend(G_)];
         if strcmp(Plot_,'STOI&PESQ'), ls='--';end
-        if mod(v,2)==1 %Flat Mask
+        if mod(v,2)==1 && length(Version) ~= 1 %Flat Mask
             SIC = contrast_{v};
             [~,Gdb] = max(SIC);
             op=plot([G_(Gdb) G_(Gdb)],[-200 200],['k' ls]);set(op,'LineWidth',lineWid);
@@ -204,7 +220,7 @@ for v = 1:length(Version)
         if ~add2fig, title(Titles{v}); end
             axis([min(Hrz_Vec)-2 20+2 1 4.6*(104/100)]);
         if ~add2fig, grid on; end;
-        if v==length(Version) && strcmp(Plot_,'STOI&PESQ')
+        if (v==length(Version) || length(Version) == 1) && strcmp(Plot_,'STOI&PESQ')
             set(gca,'ColorOrderIndex',1);
             stoiB = scatter(0,-10,'o'); %something plotted off the axis
             stoiQ = scatter(0,-10,'r^'); %something plotted off the axis
@@ -259,7 +275,7 @@ for v = 1:length(Version)
             ax2{v}.YTickLabel=num2cell(round(linspace(1,4.6,6),1),1);
         end
            
-        if mod(v,2)==0 & r_ == 1
+        if r_ == 1 && (mod(v,2)==0 || length(Version) == 1)
             ylabel({'PESQ (MOS)'});
         else            
             ylabel('');
@@ -276,7 +292,7 @@ for v = 1:length(Version)
         if add2fig            
             axis([min(Hrz_Vec)-2 20+2 1 4.6*(104/100)]);
             ax2{v}.YTick= linspace(1,4.6,6);
-            if r_ == 1 & mod(v,2)==0
+            if r_ == 1 && (mod(v,2)==0 || length(Version) == 1)
                 ax2{v}.YTickLabel=num2cell(round(linspace(1,4.6,6),1),1);
             else
                 ax2{v}.YTickLabel='';
@@ -286,7 +302,7 @@ for v = 1:length(Version)
             ax2{v}.XLabel=[];
             ax2{v}.Title=[];
         end
-        if mod(v,2)~=0
+        if mod(v,2)~=0 && length(Version) ~= 1
             set(gca,'YTickLabel',[]);
         end
         
@@ -300,7 +316,7 @@ for v = 1:length(Version)
 end
 end
 
-if strcmp(Plot_,'STOI&PESQ')
+if strcmp(Plot_,'STOI&PESQ') && length(Version) ~= 1
     a= h.Children(2:end);
     leg=h.Children(1);
     h.Children = [a(2:length(a)/2); ...
@@ -321,13 +337,13 @@ set(gcf, 'PaperUnits','centimeters', ...
 tightfig(h);
 
 if ~exist(DocumentPath,'dir'); mkdir(DocumentPath); end
-print(['-d' print_fmt], [DocumentPath '\SIC_' Plot_ '_room_' room '_matlab.pdf']);
+print(['-d' print_fmt], [DocumentPath '\SIC_' Plot_ '_spkrs_' num2str(loudspeakers) '_room_' room '_matlab.pdf']);
 if strcmp(Plot_,'STI&PESQ'), room='All';end
-export_fig([DocumentPath '\SIC_' Plot_ '_room_' room '.pdf'], '-transparent');
+export_fig([DocumentPath '\SIC_' Plot_ '_spkrs_' num2str(loudspeakers) '_room_' room '.pdf']);
 
 %close all;
 % Update latex File Name DataBase
-Tools.MiKTeX_FNDB_Refresh;
+%Tools.MiKTeX_FNDB_Refresh;
 
 %close all;
 

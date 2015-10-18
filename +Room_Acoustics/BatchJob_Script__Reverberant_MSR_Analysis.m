@@ -2,9 +2,9 @@ delete(gcp);clear;close all;fclose all;clc;
 
 % % ROOM 1
 % % Anechoic6
-% pesqNumber = 0;
-% Room_Size = [10 10 10]; %Anechoic
-% Wall_Absorption_Coeff = 1.0;
+pesqNumber = 0;
+Room_Size = [10 10 10]; %Anechoic
+Wall_Absorption_Coeff = 1.0;
 
 % % ROOM 2
 % % Small Open Plan Office
@@ -20,13 +20,14 @@ delete(gcp);clear;close all;fclose all;clc;
 
 % % ROOM 4
 % % Cafe / Restaurant
-pesqNumber = 4;
-Room_Size = [9 14 3];   %Cafe/Restaurant
-Wall_Absorption_Coeff = 0.3;
+% pesqNumber = 4;
+% Room_Size = [9 14 3];   %Cafe/Restaurant
+% Wall_Absorption_Coeff = 0.3;
 
 %%
 %setups = [0];
-setups = [ 0 ];
+setups = [ 9 ];
+%% 
 Noise_Mask_Levels = [-40 -35 -30 -25 -20 -15 -10 -5 0 5 10 15 20];% 25 30 35 40];
 
 
@@ -61,6 +62,20 @@ for scheme = setups
         % % Setup and Privacy Scheme 6
         mask_type = 'ZoneWeightMask';
         pw_angle = 90;
+        
+        %Test Schemes
+    elseif scheme == 7
+        % % Setup and Privacy Scheme 7
+        mask_type = 'ZoneWeightMaskAliasCtrl';
+        pw_angle = 15;
+    elseif scheme == 8
+        % % Setup and Privacy Scheme 7
+        mask_type = 'ZoneWeightMaskAliasCtrlOffsetNoise';
+        pw_angle = 15;
+    elseif scheme == 9
+        % % Setup and Privacy Scheme 7
+        mask_type = 'ZoneWeightMaskAliasCtrlStereoNoise';
+        pw_angle = 15;
     end
     
     Room_Acoustics.Apply_RIRs.Reverberant_MSR_Analysis_batchfunc(Room_Size, Wall_Absorption_Coeff, mask_type, pw_angle, Noise_Mask_Levels, pesqNumber);

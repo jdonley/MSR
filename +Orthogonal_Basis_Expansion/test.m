@@ -17,7 +17,7 @@ Font = 'Times';
 %Soundfield settings
 quiet  = Orthogonal_Basis_Expansion.spatial_zone(2000, 0, 0.30, 'quiet');
 bright = Orthogonal_Basis_Expansion.spatial_zone(2000, 0, 0.30, 'pw', 1.0, 0);
-quiet.res  = 100;
+quiet.res  = 50;
 bright.res = quiet.res;
 quiet  =  quiet.setDesiredSoundfield(true, 'suppress_output');    
 bright = bright.setDesiredSoundfield(true);

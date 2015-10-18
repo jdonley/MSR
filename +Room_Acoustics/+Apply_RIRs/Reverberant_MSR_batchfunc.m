@@ -15,8 +15,14 @@ fprintf('Started execution at %.0f:%.0f:%.0f on the %.0f/%.0f/%.0f\n',C([4:6 3:-
 %% Setup and Path Info
 LUT_resolution =  '512f_256w'; %Look-Up Table resolution
 Fs = 16000; %Sampling Frequency
-loudspeakers = 295; %Number of loudspeakers
-speaker_arc    = 360;  % Degrees
+
+%loudspeakers = 295; %Number of loudspeakers
+%speaker_arc    = 360;  % Degrees
+loudspeakers = 32; %Number of loudspeakers
+speaker_arc    = 180;  % Degrees
+% loudspeakers = 16; %Number of loudspeakers
+% speaker_arc    = 180;  % Degrees
+
 speaker_radius = 1.5; % Metres
 
 Num_Receivers = 32; %Number of recording points (microphones)

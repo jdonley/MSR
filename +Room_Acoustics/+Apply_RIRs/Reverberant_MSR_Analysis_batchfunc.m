@@ -15,8 +15,16 @@ fprintf('Started execution at %.0f:%.0f:%.0f on the %.0f/%.0f/%.0f\n',C([4:6 3:-
 %% Setup and Path Info
 LUT_resolution =  '512f_256w'; %Look-Up Table resolution
 Fs = 16000; %Sampling Frequency
-loudspeakers = 295; %Number of loudspeakers
-speaker_arc    = 360;  % Degrees
+
+% loudspeakers = 295; %Number of loudspeakers
+% speaker_arc    = 360;  % Degrees
+
+loudspeakers = 32; %Number of loudspeakers
+speaker_arc    = 180;  % Degrees
+
+% loudspeakers = 16; %Number of loudspeakers
+% speaker_arc    = 180;  % Degrees
+
 speaker_radius = 1.5; % Metres
 Num_Receivers = 32; %Number of recording points (microphones)
 if nargin < 5
@@ -189,10 +197,13 @@ for file = 1:length(files)
             Room_Acoustics.Apply_RIRs.Save_Reverb_PESQ_Result( Original, Rec_Bright, Fs, ResultsPath, Output_file_path_ext, fileName(1:ind-2), pesqNumber );
             
             % Speech Intelligibility
-            %Room_Acoustics.Apply_RIRs.Save_Reverb_STOI_Result( Original, Rec_Bright, Rec_Quiet, Fs, ResultsPath, Output_file_path_ext, fileName(1:ind-2) );
+            % STOI
+            Room_Acoustics.Apply_RIRs.Save_Reverb_STOI_Result( Original, Rec_Bright, Rec_Quiet, Fs, ResultsPath, Output_file_path_ext, fileName(1:ind-2) );
+            % STI
+            %Room_Acoustics.Apply_RIRs.Save_Reverb_STI_Result( Original, Rec_Bright, Rec_Quiet, Fs, ResultsPath, Output_file_path_ext, fileName(1:ind-2) );
             
             % Signal to Noise Ratio
-            %Room_Acoustics.Apply_RIRs.Save_Reverb_SNR_Result( Original, Rec_Bright, Rec_Quiet, Fs, ResultsPath, Output_file_path_ext, fileName(1:ind-2) );
+            Room_Acoustics.Apply_RIRs.Save_Reverb_SNR_Result( Original, Rec_Bright, Rec_Quiet, Fs, ResultsPath, Output_file_path_ext, fileName(1:ind-2) );
             
             
             

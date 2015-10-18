@@ -31,12 +31,13 @@ angle2origin  = [0 180];
 %weight = 0.05;
 
 loudspeakers   = loudspeaker_setup;  % Number of loudspeakers
-if loudspeaker_setup == 16
+if loudspeaker_setup == 16 || loudspeaker_setup == 32
     speaker_arc    = 180;  % Degrees
+    first_speaker  = 90; % Degrees
 else
     speaker_arc    = 360;  % Degrees
+    first_speaker  = 0; % Degrees
 end
-first_speaker  = 0; % Degrees
 speaker_radius = 1.5; % Metres
 
 Drive = 'Z:\';

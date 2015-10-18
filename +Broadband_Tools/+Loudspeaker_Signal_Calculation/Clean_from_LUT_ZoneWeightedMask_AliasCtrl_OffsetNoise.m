@@ -1,7 +1,7 @@
-function Clean_from_LUT_ZoneWeightedMask( Input_file_path, Input_file_name, Input_file_ext, LUT_resolution, Noise_Mask_dB, weight, loudspeaker_setup, angle_pw )
+function Clean_from_LUT_ZoneWeightedMask_AliasCtrl_OffsetNoise( Input_file_path, Input_file_name, Input_file_ext, LUT_resolution, Noise_Mask_dB, weight, loudspeaker_setup, angle_pw, leakage_angle )
 %Clean_from_LUT_ZoneWeightedMask Summary of this function goes here
-%   Detailed explanation goes here
 
+masker_type = 'ZoneWeightMaskAliasCtrlOffsetNoise';
 %% Setup Variables
 
 Fs = 16000; % Sampling frequency
@@ -13,7 +13,14 @@ f_high = 8000; % Hz
 resolution = 100;
 phase = 0;
 radius = 0.3;
-leakage_angle = 0; % Angle of the leaked planewave into the quiet so that planewave noise can mask the signal
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% OFFSET NOISE
+if nargin < 9
+    leakage_angle = 15; % Angle of the leaked planewave into the quiet so that planewave noise can mask the signal
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 if nargin < 8
     angle_pw = 15;
 end
@@ -38,7 +45,7 @@ SetupInfo            = ['_' num2str(f_low ) 'Hz-' ...
     num2str(f_high) 'Hz_' ...
     num2str(angle_pw) 'pwAngle_' ...
     num2str(Noise_Mask_dB) 'dB_' ...
-    num2str(weight) 'weight__withZoneWeightMask'];
+    num2str(weight) 'weight__with' masker_type];
 Output_file_name     = [Input_file_name '__' ...
     num2str(loudspeakers) 'spkrs_' ...
     SetupInfo];
@@ -53,33 +60,7 @@ Input_Signal = audioread( [Input_file_path Input_file_name Input_file_ext] );
 
 for sig = 1:2 % Firstly we compute the loudspeaker signals for the input signal then we compute the loudspeaker signals for the additive zone weighted noise
     
-    %% Firstly, find the frequency domain representation of an audio file that is wished to be reproduced in the spatial domain.
-    [Z, Frequencies_, ~, Windows] = Broadband_Tools.FFT_custom_vec(Input_Signal, Nfft, Fs, overlap);
-    
-    % Truncate to frequencies in the range f_low <-> f_high
-    trunc_index_low  = find(Frequencies_ < f_low , 1, 'last' ) + 1;
-    trunc_index_high = find(Frequencies_ > f_high, 1 ) + 1;
-    if isempty(trunc_index_low)
-        trunc_index_low = 1;
-    end
-    if isempty(trunc_index_high)
-        trunc_index_high = length(Frequencies_);
-    end
-    %Z = Z ( :, trunc_index_low:trunc_index_high );
-    Frequencies_ = Frequencies_( :, trunc_index_low:trunc_index_high );
-    
-    % Work out the coresponding number of planewaves for these frequencies
-    f_samples = length(Frequencies_);   
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    %% Secondly, build a flat spectra desired multizone soundfield for all frequencies from the previous fft and save the speaker signals for each frequency bin.
+    %% First, Load the relevant look-up tables and check compatability
     if sig == 1
         load([Drive '+Soundfield_Database\+' num2str(speaker_radius*2) 'm_SpkrDia\+' num2str(loudspeakers) 'Spkrs_' num2str(speaker_arc) 'DegArc\LUT_Weight_vs_Frequency_' num2str(angle_pw) 'deg_' LUT_resolution '.mat']);
     elseif sig == 2
@@ -91,8 +72,53 @@ for sig = 1:2 % Firstly we compute the loudspeaker signals for the input signal 
     if ~exist('Loudspeaker_Weights__Weight_Vs_Frequency','var')
         error('A Look-Up Table with valid Loudspeaker Weights was not found. Please either choose another LUT or generate a valid LUT.');
     end
+        
+    %% Second, Adjust the noise to account for the aliasing caused by a limited number of loudspeakers
+    % The amount of aliasing is predicted from the average magnitude in the
+    % quiet zone. Where there is a large amount of aliasing and hence a
+    % large magnitude in the quiet zone, we invert this level and apply it
+    % to the noise input signal.
+    if sig == 2
+        W = -mag2db(Quiet_Sample__Weight_Vs_Frequency);        
+        freqs = linspace(0, Fs/2, length(Input_Signal)/2 + 1);
+        freqs = freqs(freqs>=min(Frequencies) & freqs<=max(Frequencies));
+        W_ = permute( Tools.interpVal_2D(W, Frequencies, Weights, freqs, weight, 'spline'), [2 1]);        
+        
+        % Equalise signal in target "bright" zone
+        Input_Signal = applyWeight(Input_Signal, W_, freqs, Fs);       
+        
+        %Find cutoff frequencies for band pass filter
+        Alias_leakage_threshold = 7.5; %dB
+        [~,bandpass_centre] = max(W_);
+        f_cutoff_low  = freqs(find( W_(1:bandpass_centre) <=Alias_leakage_threshold,1,'last'));
+        f_cutoff_high = freqs(find( W_(bandpass_centre:end) <=Alias_leakage_threshold,1,'first'));
+        f_cutoff = [f_cutoff_low, f_cutoff_high];        
+        
+        %Design low pass filter
+        [b,a] = butter(6, f_cutoff./(Fs/2));
+        
+        %Apply low pass filter to noise
+        Input_Signal = filter(b,a,Input_Signal(:));
+    end
     
     
+    %% Third, find the frequency domain representation of the audio file that is wished to be reproduced in the spatial domain.
+    [Z, Frequencies_, ~, Windows] = Broadband_Tools.FFT_custom(Input_Signal, Nfft, Fs, overlap);
+    
+    % Truncate to frequencies in the range f_low <-> f_high
+    trunc_index_low  = find(Frequencies_ < f_low , 1, 'last' ) + 1;
+    trunc_index_high = find(Frequencies_ > f_high, 1 ) + 1;
+    if isempty(trunc_index_low)
+        trunc_index_low = 1;
+    end
+    if isempty(trunc_index_high)
+        trunc_index_high = length(Frequencies_);
+    end
+    
+    Frequencies_ = Frequencies_( :, trunc_index_low:trunc_index_high );
+    
+    
+    %% Fourth, build a flat spectra desired multizone soundfield for all frequencies from the previous fft and save the speaker weights for each frequency bin.
     [szW, szF] = size(Loudspeaker_Weights__Weight_Vs_Frequency);
     LUT_Loudspeaker_Weights = cell2mat(Loudspeaker_Weights__Weight_Vs_Frequency);
     LUT_Loudspeaker_Weights = permute( reshape(LUT_Loudspeaker_Weights, loudspeakers, szW, szF), [2 3 1] );
@@ -110,15 +136,9 @@ for sig = 1:2 % Firstly we compute the loudspeaker signals for the input signal 
         
     end
     
-    
-    
-        
-    
-    
+
     
     %% Finally, apply the speaker weight and reconstruct the loudspeaker signals for each frame of the input signal
-    %load(['+Soundfield_Database\+From_LUT\' Output_file_path_ext 'Weights_and_Samples__' SetupInfo '.mat']);
-    
     % % Here we want to build the speaker signals for each speaker so that our loudspeaker weights are taken into account.
     % % We want to form the entire spectrum by adding the conjugate of the frame
     % % to the existing frame where the negative frequencies of the transform
@@ -161,7 +181,7 @@ for sig = 1:2 % Firstly we compute the loudspeaker signals for the input signal 
     % %Loudspeaker_Signals =
     % zeros([(size(Z,1)+ceil(overlap))*size(Z,2)*2*(1-overlap) loudspeakers] ); % pre-allocate memory
     for spkr = 1:loudspeakers
-        Loudspeaker_Signals(:,spkr) = Broadband_Tools.OverlapAdd( Loudspeakers_(:,:,spkr), overlap );
+        Loudspeaker_Signals(:,spkr) = Broadband_Tools.OverlapAdd( Loudspeakers_(:,:,spkr), overlap ); %#ok<AGROW>
     end
     Original_ = Broadband_Tools.OverlapAdd( Original, overlap );
     % clear Loudspeakers_; % Save on memory
@@ -183,13 +203,16 @@ for sig = 1:2 % Firstly we compute the loudspeaker signals for the input signal 
         Original_Input_Signal = Original_;
     end
     
-    Input_Signal = Tools.generateNoise(Loudspeaker_Signals, Noise_Mask_dB, 'WGN'); % Generate noise to put back into the system and zone weight according to the multizone setup
+    %Input_Signal = Tools.generateNoise(Loudspeaker_Signals, Noise_Mask_dB, 'WGN'); % Generate noise to put back into the system and zone weight according to the multizone setup
+    max_Spkrval =  max( abs( Loudspeaker_Signals(:) ) );
+    level_mag = db2mag(Noise_Mask_dB);
+    Input_Signal = Perceptual_Tools.GreyNoise( length(Loudspeaker_Signals)/Fs, Fs, max_Spkrval * level_mag );
     
 end
 Original_ = Original_Input_Signal;
 
-%% Add Zone Weighted Noise Loudspeaker Signals to Speech Loudspeaker Signals
 
+%% Add Zone Weighted Noise Loudspeaker Signals to Speech Loudspeaker Signals
  % Here we add our loudspeaker signals which reproduce our input signal and a relatively weighted 'zone weighted' noise
  % That is to say, we add the zone weighted noise to the reproduction,
  % however, the zone weighted noise can be varied in level such that 0dB is
@@ -222,4 +245,37 @@ audiowrite([Output_file_path Output_file_path_ext ...
 
 
 
+end
+
+function y = applyWeight(x, W, W_freqs, Fs)
+
+% Frequency Domain Tranform
+X = fft(x); % Fast Fourier Transform
+
+% Frequencies
+M = length(x);
+NumPts = M/2 + 1;
+freqs = linspace(0, Fs/2, NumPts);
+cutoff_low = min(W_freqs);
+cutoff_high = max(W_freqs);
+
+% Weight Levels
+W = [linspace(0, W(1), length(freqs(freqs<cutoff_low))), ...
+     W', ...
+     linspace(W(end), 0, length(freqs(freqs>cutoff_high)))];
+
+% Apply magnitude weighting
+X(1:NumPts) = X(1:NumPts) .* db2mag(W);
+
+% Apply conjugation for negative frequency side of spectrum
+X(NumPts+1:M) = conj(X(M/2:-1:2));
+
+% Time Domain Transform
+y = ifft(X); % Inverse Fast Fourier Transform
+
+% prepare output vector y
+y = real(y(1, 1:M));
+
+% remove DC
+y = y(:) - mean(y);
 end

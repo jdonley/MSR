@@ -334,7 +334,8 @@ obj.Quiet_Samples_Locations = ones(O*2, O*2, 2)*NaN;
         end
         
         %% Plotting Functions
-        function h = plotSoundfield(obj, field, colour)
+        function h = plotSoundfield(obj, field, colour, realistic)
+            if nargin < 4; realistic = false; end;
             if nargin < 3; colour = 'default'; end;
             if nargin < 2; field = obj.Soundfield_reproduced; end;
             
@@ -347,15 +348,24 @@ obj.Quiet_Samples_Locations = ones(O*2, O*2, 2)*NaN;
             
             %             subplot(1,2,1);
             h = surf(real(field),'EdgeColor','None');
+            if realistic
+                drawnow; pause(0.05);
+                h.FaceAlpha = 0.5;
+            end
             colormap(colour);
             view(2);
             title('Real',...
                 'FontWeight','bold',...
                 'FontSize',24,...
                 'FontName','Arial');
-            axis('square');
+            axis equal;
             box on;
-            axis([1 length(field) 1 length(field)]);
+            if realistic
+                room = ([4.815, 3.3]-0.10)*obj.res;  %The subtraction is the wall thickness compensation for the anechoic chamber
+                axis([(size(field,1)/2-room(1)/2) (size(field,1)/2+room(1)/2) (size(field,2)/2-room(2)/2) (size(field,2)/2+room(2)/2)]);
+            else
+                axis([1 size(field,1) 1 size(field,2)]);
+            end
             set(gca, 'XTick', XYTick); set(gca, 'XTickLabel', XYTickLabel);
             set(gca, 'YTick', XYTick); set(gca, 'YTickLabel', XYTickLabel);
             set(gca, 'FontSize', 16);
@@ -374,8 +384,8 @@ obj.Quiet_Samples_Locations = ones(O*2, O*2, 2)*NaN;
             end
             colorbar(tick_str,[-1 -0.5 0 0.5 1],'FontSize',16, 'FontName','Arial');
             
-            obj.zonePlots(real(field));
-            obj.speakerPlots(real(field));
+            obj.zonePlots(real(field),realistic);
+            obj.speakerPlots(real(field),realistic);
             
             %             subplot(1,2,2);
             %             surf(imag(field),'EdgeColor','None');
@@ -392,7 +402,8 @@ obj.Quiet_Samples_Locations = ones(O*2, O*2, 2)*NaN;
             
         end
         
-        function zonePlots(obj, field)
+        function zonePlots(obj, field, realistic)
+            if nargin < 3; realistic = false; end
             if nargin < 2; field = obj.Soundfield_reproduced; end;
             
             % For a Global Zone outline plot
@@ -400,7 +411,11 @@ obj.Quiet_Samples_Locations = ones(O*2, O*2, 2)*NaN;
             GlobalZone_temp.Origin_q = struct('X',0,'Y',0);
             GlobalZone_temp.Radius_q = obj.Multizone_Soundfield.Radius;
             
-            maxZ = max(real(field(:)));
+            if realistic
+                maxZ = 0;
+            else
+                maxZ = max(real(field(:)));
+            end
             hold on
             th = 0:pi/obj.res:2*pi;
             SpatialZones = [obj.Multizone_Soundfield.Quiet_Zone obj.Multizone_Soundfield.Bright_Zone GlobalZone_temp];
@@ -416,16 +431,48 @@ obj.Quiet_Samples_Locations = ones(O*2, O*2, 2)*NaN;
             hold off
         end
         
-        function speakerPlots(obj, field)
+        function speakerPlots(obj, field, realistic)
+            if nargin < 3; realistic = false; end
             if nargin < 2; field = obj.Soundfield_reproduced; end;
             
-            maxZ = max(real(field(:)));
+            if realistic
+                maxZ = 0;
+            else
+                maxZ = max(real(field(:)));
+            end
             O = length(obj.Soundfield_reproduced) / 2; %Set the centre of the zone for indexing
             hold on;            
             
             [sl_x, sl_y] = pol2cart(obj.Loudspeaker_Locations(:,1), (obj.Loudspeaker_Locations(:,2) * obj.res)-1);
-
+            
+            if realistic
+                for crnr = 1:4
+                    
+                    %spkr_dim = [0.121, 0.116, 0.195]; %Genelec 8010A
+                    %spkr_dim = [0.151, 0.142, 0.242]; %Genelec 8020C
+                    spkr_dim = [0.103, 0.145, 0.103]; %Meyer MM-4XP
+                    
+                    spkr_width = spkr_dim(1) * obj.res; %metres
+                    spkr_depth = spkr_dim(2) * obj.res; %metres
+                    sw_half = spkr_width / 2; %metres
+                    Rl = (obj.Loudspeaker_Locations(:,2) * obj.res)-1;
+                    th = atan(sw_half ./ Rl);
+                    th1 = obj.Loudspeaker_Locations(:,1) + th;
+                    th2 = obj.Loudspeaker_Locations(:,1) - th;
+                    [sl_x1, sl_y1] = pol2cart(th1, sqrt(Rl.^2 + sw_half^2));
+                    [sl_x2, sl_y2] = pol2cart(th2, sqrt(Rl.^2 + sw_half^2));
+                    [sl_x3, sl_y3] = pol2cart(th2, sqrt((Rl+spkr_depth).^2 + sw_half^2));
+                    [sl_x4, sl_y4] = pol2cart(th1, sqrt((Rl+spkr_depth).^2 + sw_half^2));
+                end
+                for i = 1:obj.Loudspeaker_Count
+                    spkr_crnrs_x = [sl_x1(i); sl_x2(i);sl_x3(i); sl_x4(i); sl_x1(i)] + O;
+                    spkr_crnrs_y = [sl_y1(i); sl_y2(i);sl_y3(i); sl_y4(i); sl_y1(i)] + O;
+                    spkr_Z = [maxZ; maxZ; maxZ; maxZ; maxZ];
+                    plot3(spkr_crnrs_x, spkr_crnrs_y, spkr_Z, 'Color', [0 0 0], 'LineWidth', 2);
+                end
+            end
             scatter3(sl_x + O, sl_y + O, ones(length(sl_x),1)*maxZ, 100, 'MarkerEdgeColor', [0 0 0],'MarkerFaceColor', [1 1 1], 'LineWidth', 3);
+            
             
             hold off;
         end
