@@ -14,17 +14,20 @@ fprintf('Started execution at %.0f:%.0f:%.0f on the %.0f/%.0f/%.0f\n',C([4:6 3:-
 
 
 %% Analyse broadband signals script
-LUT_res = '512f_256w';
+%LUT_res = '512f_256w';
+LUT_res = '512f_32w';
 
 %loudspeakers = 295;
-loudspeakers = 32;
-%loudspeakers = 16;
+%loudspeakers = 32;
+loudspeakers = 16;
 
 if nargin < 5
     Leakage_Angle = 15;
 end
 
 Input_file_path = '+Miscellaneous\+Speech_Files\';
+%Input_file_path = '+Miscellaneous\+Speech_File_Test\';
+
 %Input_file_path = '+Miscellaneous\+TestAudio_Files\';
 %Input_file_path = '+Miscellaneous\+STIPA_Test\';
 %Input_file_path = '+Miscellaneous\+Impulse_Response\';

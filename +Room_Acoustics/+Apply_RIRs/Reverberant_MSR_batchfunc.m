@@ -13,14 +13,15 @@ C = clock;
 fprintf('Started execution at %.0f:%.0f:%.0f on the %.0f/%.0f/%.0f\n',C([4:6 3:-1:1]))
 
 %% Setup and Path Info
-LUT_resolution =  '512f_256w'; %Look-Up Table resolution
+%LUT_resolution =  '512f_256w'; %Look-Up Table resolution
+LUT_resolution =  '512f_32w'; %Look-Up Table resolution
 Fs = 16000; %Sampling Frequency
 
 %loudspeakers = 295; %Number of loudspeakers
 %speaker_arc    = 360;  % Degrees
-loudspeakers = 32; %Number of loudspeakers
+%loudspeakers = 32; %Number of loudspeakers
 speaker_arc    = 180;  % Degrees
-% loudspeakers = 16; %Number of loudspeakers
+loudspeakers = 16; %Number of loudspeakers
 % speaker_arc    = 180;  % Degrees
 
 speaker_radius = 1.5; % Metres
@@ -95,7 +96,7 @@ room = strrep(sprintf(strrep(repmat('%g',1,length(Room_Size)),'g%','g %'),Room_S
 room_cent = strrep(sprintf(strrep(repmat('%g',1,length(Reproduction_Centre)),'g%','g %'),Reproduction_Centre),' ','x');
 
 RIR_Database_file_path = [Drive '+Room_Acoustics\+RIR_Database\'];
-RIR_Database_file_name = ['RIRs__' num2str(loudspeakers) 'Src_' num2str(Num_Receivers) 'Rec_' room 'Dim_' room_cent 'Ctr_' num2str(Wall_Absorption_Coeff) 'Ab.mat'];;
+RIR_Database_file_name = ['RIRs__' num2str(loudspeakers) 'Src_' num2str(Num_Receivers) 'Rec_' room 'Dim_' room_cent 'Ctr_' num2str(Wall_Absorption_Coeff) 'Ab.mat'];
 
 load([RIR_Database_file_path RIR_Database_file_name]);
 

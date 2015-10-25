@@ -63,7 +63,7 @@ first_speaker  = 90; % Degrees
 speaker_radius = 1.5; % Metres
 k_max = 8000/343 * 2*pi;
 M = ceil(k_max * Reproduction_Radius);
-loudspeakers   = 32;%ceil(speaker_arc/360 * (2*M+1));  % Number of loudspeakers
+loudspeakers   = 16;%ceil(speaker_arc/360 * (2*M+1));  % Number of loudspeakers
 
 frequencies = length(Frequencies);
 

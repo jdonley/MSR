@@ -5,7 +5,7 @@ Noise_Mask_Levels = [-40 -35 -30 -25 -20 -15 -10 -5 0 5 10 15 20];% 25 30 35 40]
 Leakage_Angle = 0;
 
 %%
-setups = [9];
+setups = [7];
 %setups = [0];
 
 for scheme = setups

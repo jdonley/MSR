@@ -7,13 +7,14 @@ close all;
 ColorInd = 4; %this is for whatever the PESQ colour will be plotted as
 
 %% Info
-LUT_resolution = '512f_256w';
+%LUT_resolution = '512f_256w';
+LUT_resolution = '512f_32w';
 
 % loudspeakers   = 295;  % Number of loudspeakers
 % speaker_arc    = 360;  % Degrees
-loudspeakers   = 32;  % Number of loudspeakers
+%loudspeakers   = 32;  % Number of loudspeakers
 speaker_arc    = 180;  % Degrees
-% loudspeakers   = 16;  % Number of loudspeakers
+loudspeakers   = 16;  % Number of loudspeakers
 % speaker_arc    = 180;  % Degrees
 
 speaker_radius = 1.5; % Metres
@@ -33,7 +34,7 @@ mask_type_ = {'Flat Mask'; ...
              'Zone Weighted Mask'; ...
              'Flat Mask'; ...
              'Zone Weighted Mask';};
-mask_type_ = {'Zone Weighted Mask Alias Ctrl Stereo Noise';};
+mask_type_ = {'Zone Weighted Mask Alias Ctrl';};
 
 for i=1:length(mask_type_)
     mask_type{1,i} = strrep(strrep(mask_type_{i},'Weighted','Weight'),' ','');

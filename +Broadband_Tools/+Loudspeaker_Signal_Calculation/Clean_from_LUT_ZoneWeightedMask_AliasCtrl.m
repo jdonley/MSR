@@ -66,25 +66,54 @@ for sig = 1:2 % Firstly we compute the loudspeaker signals for the input signal 
         error('A Look-Up Table with valid Loudspeaker Weights was not found. Please either choose another LUT or generate a valid LUT.');
     end
         
+    
+    %% Find ideal weights
+    single_weight = false;
+    
+    len = length(Input_Signal);
+    noise_freqs = linspace(0, Fs/2, len/2 + 1);
+    noise_freqs = noise_freqs(noise_freqs>=min(Frequencies) & noise_freqs<=max(Frequencies));
+    len = Nfft;
+    freqs = linspace(0, Fs/2, len/2 + 1);
+    freqs = freqs(freqs>=min(Frequencies) & freqs<=max(Frequencies));
+    
+    if single_weight
+        noise_weights = repmat(weight,1,length(noise_freqs));
+        weights = repmat(weight,1,length(freqs));
+    else
+        % Find the weights that will give us the biggest contrast possible
+        % (works better at lower frequencies)
+        LUT_MagDiff = Bright_Sample__Weight_Vs_Frequency - Quiet_Sample__Weight_Vs_Frequency;
+        
+        % Noise weights
+        LUT_MagDiff_interp = interp2(Frequencies,Weights,LUT_MagDiff,noise_freqs',Weights,'spline');
+        [~,I]=max(LUT_MagDiff_interp);
+        noise_weights = Weights(I);
+        
+        %Signal Weights
+        LUT_MagDiff_interp = interp2(Frequencies,Weights,LUT_MagDiff,freqs',Weights,'spline');
+        [~,I]=max(LUT_MagDiff_interp);
+        weights = Weights(I);
+    end
+    
     %% Second, Adjust the noise to account for the aliasing caused by a limited number of loudspeakers
     % The amount of aliasing is predicted from the average magnitude in the
     % quiet zone. Where there is a large amount of aliasing and hence a
     % large magnitude in the quiet zone, we invert this level and apply it
     % to the noise input signal.
     if sig == 2
-        W = -mag2db(Quiet_Sample__Weight_Vs_Frequency);        
-        freqs = linspace(0, Fs/2, length(Input_Signal)/2 + 1);
-        freqs = freqs(freqs>=min(Frequencies) & freqs<=max(Frequencies));
-        W_ = permute( Tools.interpVal_2D(W, Frequencies, Weights, freqs, weight, 'spline'), [2 1]);        
+        W = -mag2db(Quiet_Sample__Weight_Vs_Frequency);   
+        W_ = permute( Tools.interpVal_2D(W, Frequencies, Weights, noise_freqs, noise_weights, 'spline'), [2 1]);        
+        W_=W_(:);
         
         % Equalise signal in target "bright" zone
-        Input_Signal = applyWeight(Input_Signal, W_, freqs, Fs);       
+        Input_Signal = applyWeight(Input_Signal, W_, noise_freqs, Fs);       
         
         %Find cutoff frequencies for band pass filter
         Alias_leakage_threshold = 7.5; %dB
         [~,bandpass_centre] = max(W_);
-        f_cutoff_low  = freqs(find( W_(1:bandpass_centre) <=Alias_leakage_threshold,1,'last'));
-        f_cutoff_high = freqs(find( W_(bandpass_centre:end) <=Alias_leakage_threshold,1,'first'));
+        f_cutoff_low  = noise_freqs(find( W_(1:bandpass_centre) <=Alias_leakage_threshold,1,'last'));
+        f_cutoff_high = noise_freqs( (bandpass_centre-1) + find( W_(bandpass_centre:end) <=Alias_leakage_threshold,1,'first'));
         f_cutoff = [f_cutoff_low, f_cutoff_high];        
         
         %Design low pass filter
@@ -110,23 +139,24 @@ for sig = 1:2 % Firstly we compute the loudspeaker signals for the input signal 
     
     Frequencies_ = Frequencies_( :, trunc_index_low:trunc_index_high );
     
+%     Frequencies_ = Frequencies_(Frequencies_>=min(Frequencies) & Frequencies_<=max(Frequencies));
     
     %% Fourth, build a flat spectra desired multizone soundfield for all frequencies from the previous fft and save the speaker weights for each frequency bin.
     [szW, szF] = size(Loudspeaker_Weights__Weight_Vs_Frequency);
     LUT_Loudspeaker_Weights = cell2mat(Loudspeaker_Weights__Weight_Vs_Frequency);
-    LUT_Loudspeaker_Weights = permute( reshape(LUT_Loudspeaker_Weights, loudspeakers, szW, szF), [2 3 1] );
-    
+    LUT_Loudspeaker_Weights = permute( reshape(LUT_Loudspeaker_Weights, loudspeakers, szW, szF), [2 3 1] );    
     
     % When interpolating the angle of the complex loudspeaker weight we need to phase unwrap otherwise
     % the interpolation may become close to 180 degrees out of phase which will
     % cause contructive interference instead of destructive and vise versa
     Loudspeaker_Weights = zeros(length(Frequencies_),loudspeakers);
     for spkr = 1:loudspeakers
-        Loudspeaker_Weights(:,spkr) = permute( Tools.interpVal_2D(LUT_Loudspeaker_Weights(:,:,spkr), Frequencies, Weights, Frequencies_, weight, 'spline'), [2 1]);
+        LW = Tools.interpVal_2D(LUT_Loudspeaker_Weights(:,:,spkr), Frequencies, Weights, Frequencies_, weights, 'spline');
+        Loudspeaker_Weights(:,spkr) = LW(:);
         
-        Loudspeaker_Weights(:,spkr) = permute( Tools.interpVal_2D(abs(LUT_Loudspeaker_Weights(:,:,spkr)), Frequencies, Weights, Frequencies_, weight, 'spline'), [2 1]) ...
-            .* exp(1i * angle(Loudspeaker_Weights(:,spkr)));
-        
+        LW_abs = Tools.interpVal_2D( abs(LUT_Loudspeaker_Weights(:,:,spkr)), Frequencies, Weights, Frequencies_, weights, 'spline');
+        Loudspeaker_Weights(:,spkr) = LW_abs(:) ...
+            .* exp(1i * angle(Loudspeaker_Weights(:,spkr)));        
     end
     
 
@@ -200,7 +230,7 @@ for sig = 1:2 % Firstly we compute the loudspeaker signals for the input signal 
     max_Spkrval =  max( abs( Loudspeaker_Signals(:) ) );
     level_mag = db2mag(Noise_Mask_dB);
     Input_Signal = Perceptual_Tools.GreyNoise( length(Loudspeaker_Signals)/Fs, Fs, max_Spkrval * level_mag );
-    
+    Input_Signal = Input_Signal(:);
 end
 Original_ = Original_Input_Signal;
 
@@ -254,11 +284,11 @@ cutoff_high = max(W_freqs);
 
 % Weight Levels
 W = [linspace(0, W(1), length(freqs(freqs<cutoff_low))), ...
-     W', ...
+     W(:)', ...
      linspace(W(end), 0, length(freqs(freqs>cutoff_high)))];
 
 % Apply magnitude weighting
-X(1:NumPts) = X(1:NumPts) .* db2mag(W);
+X(1:NumPts) = X(1:NumPts) .* db2mag(W(:));
 
 % Apply conjugation for negative frequency side of spectrum
 X(NumPts+1:M) = conj(X(M/2:-1:2));
@@ -267,7 +297,7 @@ X(NumPts+1:M) = conj(X(M/2:-1:2));
 y = ifft(X); % Inverse Fast Fourier Transform
 
 % prepare output vector y
-y = real(y(1, 1:M));
+y = real(y(1:M));
 
 % remove DC
 y = y(:) - mean(y);

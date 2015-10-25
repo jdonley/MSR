@@ -129,20 +129,20 @@ for sig = 1:3 % Firstly we compute the loudspeaker signals for the input signal 
     LUT_Loudspeaker_Weights = cell2mat(Loudspeaker_Weights__Weight_Vs_Frequency);
     LUT_Loudspeaker_Weights = permute( reshape(LUT_Loudspeaker_Weights, loudspeakers, szW, szF), [2 3 1] );
     
-    % Find the wrights that will give us the biggest contrast possible
+    % Find the weights that will give us the biggest contrast possible
     % (works better at lower frequencies)
-    LUT_MagDiff = Bright_Sample__Weight_Vs_Frequency - Quiet_Sample__Weight_Vs_Frequency;
-    Ideal_val = max(LUT_MagDiff(:))*ones(1,length(Frequencies_)); %Ideal value is the maximum separation
-    weights = Tools.interpFromVal_2D(LUT_MagDiff, Frequencies, Weights, Frequencies_, Ideal_val);
+    %LUT_MagDiff = Bright_Sample__Weight_Vs_Frequency - Quiet_Sample__Weight_Vs_Frequency;
+    %Ideal_val = max(LUT_MagDiff(:))*ones(1,length(Frequencies_)); %Ideal value is the maximum separation
+   % weights = Tools.interpFromVal_2D(LUT_MagDiff, Frequencies, Weights, Frequencies_, Ideal_val);
             
     % When interpolating the angle of the complex loudspeaker weight we need to phase unwrap otherwise
     % the interpolation may become close to 180 degrees out of phase which will
     % cause contructive interference instead of destructive and vise versa
     Loudspeaker_Weights = zeros(length(Frequencies_),loudspeakers);
     for spkr = 1:loudspeakers
-        Loudspeaker_Weights(:,spkr) = permute( Tools.interpVal_2D(LUT_Loudspeaker_Weights(:,:,spkr), Frequencies, Weights, Frequencies_, weights, 'spline'), [2 1]);
+        Loudspeaker_Weights(:,spkr) = permute( Tools.interpVal_2D(LUT_Loudspeaker_Weights(:,:,spkr), Frequencies, Weights, Frequencies_, weight, 'spline'), [2 1]);
         
-        Loudspeaker_Weights(:,spkr) = permute( Tools.interpVal_2D(abs(LUT_Loudspeaker_Weights(:,:,spkr)), Frequencies, Weights, Frequencies_, weights, 'spline'), [2 1]) ...
+        Loudspeaker_Weights(:,spkr) = permute( Tools.interpVal_2D(abs(LUT_Loudspeaker_Weights(:,:,spkr)), Frequencies, Weights, Frequencies_, weight, 'spline'), [2 1]) ...
             .* exp(1i * angle(Loudspeaker_Weights(:,spkr)));
         
     end

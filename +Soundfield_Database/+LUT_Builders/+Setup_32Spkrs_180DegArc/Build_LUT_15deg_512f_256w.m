@@ -25,7 +25,7 @@ Resolution = 100;           % The higher the resolution the better the sampling 
 SPL = 94; % 94dB is 1Pa (RMS) when reference to 20uPa (RMS)
 
 Number_of_Frequencies = 512;
-Number_of_Weights = 256;
+Number_of_Weights = 32;%256;
 
 Starting_Frequency  =  150; %Hz
 Starting_No_of_Pw   =   28;
@@ -43,7 +43,7 @@ Finishing_No_of_Pw   =  300;
                                      Finishing_Frequency,'lin');
 
 Weights              = [0     logspace(log10( 1e-2), log10(  1e4), Number_of_Weights - 1) ];
-Weights              = [0     1e4];
+%Weights              = [0     1e4];
 
 Angles               = [15    ];
 
@@ -236,7 +236,7 @@ if ~exist(Database_Path,'dir'), mkdir(Database_Path);end;
 save([Database_Path 'LUT_Weight_vs_Frequency_' ...
       num2str(Angles) 'deg_' ...
       num2str(Number_of_Frequencies) 'f_' ...
-      num2str(Number_of_Weights) 'w_max_min.mat'], ...
+      num2str(Number_of_Weights) 'w.mat'], ...
      'Frequencies', ...
      'Weights', ...
      'Error_Quiet__Weight_Vs_Frequency', ...

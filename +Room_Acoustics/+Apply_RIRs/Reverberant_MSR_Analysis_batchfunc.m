@@ -13,16 +13,17 @@ C = clock;
 fprintf('Started execution at %.0f:%.0f:%.0f on the %.0f/%.0f/%.0f\n',C([4:6 3:-1:1]))
 
 %% Setup and Path Info
-LUT_resolution =  '512f_256w'; %Look-Up Table resolution
+%LUT_resolution =  '512f_256w'; %Look-Up Table resolution
+LUT_resolution =  '512f_32w'; %Look-Up Table resolution
 Fs = 16000; %Sampling Frequency
 
 % loudspeakers = 295; %Number of loudspeakers
 % speaker_arc    = 360;  % Degrees
 
-loudspeakers = 32; %Number of loudspeakers
+%loudspeakers = 32; %Number of loudspeakers
 speaker_arc    = 180;  % Degrees
 
-% loudspeakers = 16; %Number of loudspeakers
+loudspeakers = 16; %Number of loudspeakers
 % speaker_arc    = 180;  % Degrees
 
 speaker_radius = 1.5; % Metres
@@ -113,6 +114,26 @@ for i=1:length(files)
             || ~isempty(strfind(files{i},'Original'));
 end
 files = files(ind);
+
+
+%% Delete previous results file
+results_type{1} = 'PESQ';
+results_type{2} = 'SI';
+results_type{3} = 'SNR';
+
+[~, FileName, ~] = fileparts(files{1});
+Num_ = strfind(FileName,'__')+2;
+Num_p = Num_(3);
+z_t = sscanf([' ' FileName(Num_p:end)],'%*[^_]_%[A-Za-z]');
+ind = strfind(FileName, z_t);
+[ pw_a, ~, wei, m_t ] = Results.getInfoFromFilename(FileName(1:ind-2));
+
+for i=1:length(results_type)
+    csvFilename = ([ResultsPath Output_file_path_ext results_type{i} '_Results_' num2str(pw_a) 'pwAngle_' num2str(wei) 'weight' m_t '.csv']);
+    delete(csvFilename);
+end
+
+%% Start Evaluation Loop
 
 fprintf('\n====== Analysing Simulated Reverberant Signals ======\n');
 fprintf(['            Room Size: ' [strrep(sprintf(strrep(repmat('%g',1,length(Room_Size)),'g%','g %'),Room_Size),' ','m x ') 'm'] '\n']);

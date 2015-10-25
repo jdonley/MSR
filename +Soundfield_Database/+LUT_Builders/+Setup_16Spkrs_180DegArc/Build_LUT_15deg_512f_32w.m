@@ -45,14 +45,12 @@ Finishing_No_of_Pw   =  300;
 Weights              = [0     logspace(log10( 1e-2), log10(  1e4), Number_of_Weights - 1) ];
 %Weights              = [0     1e4];
 
-Angles               = [0    ];
+Angles               = [15    ];
 
 Radius_of_zones      = [0.3; ...        % Zone 1 radius
                         0.3];           % Zone 2 radius
-%Position_of_zones    = [0.6, 180; ...   % Zone 1 distance and angle from origin
-%                       0.6, 0];       % Zone 2 distance and angle from origin
- Position_of_zones    = [0.6, 0; ...   % Zone 1 distance and angle from origin
-                         0.6, 180];       % Zone 2 distance and angle from origin
+Position_of_zones    = [0.6, 180; ...   % Zone 1 distance and angle from origin
+                        0.6, 0];       % Zone 2 distance and angle from origin
 
 Reproduction_Radius = 1.0; % Metres  
 
@@ -63,7 +61,7 @@ first_speaker  = 90; % Degrees
 speaker_radius = 1.5; % Metres
 k_max = 8000/343 * 2*pi;
 M = ceil(k_max * Reproduction_Radius);
-loudspeakers   = 32;%ceil(speaker_arc/360 * (2*M+1));  % Number of loudspeakers
+loudspeakers   = 16;%ceil(speaker_arc/360 * (2*M+1));  % Number of loudspeakers
 
 frequencies = length(Frequencies);
 
@@ -238,7 +236,7 @@ if ~exist(Database_Path,'dir'), mkdir(Database_Path);end;
 save([Database_Path 'LUT_Weight_vs_Frequency_' ...
       num2str(Angles) 'deg_' ...
       num2str(Number_of_Frequencies) 'f_' ...
-      num2str(Number_of_Weights) 'w_zones_swapped.mat'], ...
+      num2str(Number_of_Weights) 'w.mat'], ...
      'Frequencies', ...
      'Weights', ...
      'Error_Quiet__Weight_Vs_Frequency', ...

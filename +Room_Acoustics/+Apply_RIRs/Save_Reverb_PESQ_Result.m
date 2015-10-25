@@ -28,41 +28,13 @@ results_type = 'PESQ';
 %% Calculate Results
 orig_B = squeeze( Original_(:,1,:) );
 for r = 1:size(Rec_Sigs_B,1)
-    %PESQ_B(r) = Tools.pesq2( orig_B(r,:), Rec_Sigs_B(r,:), Fs );
-    PESQ_B(r) = Tools.pesq3( orig_B(r,:), Rec_Sigs_B(r,:), Fs , pesqNumber);
-    
-    PESQ_MOS_B(r) = pesq2mos( PESQ_B(r) );
+    PESQ_MOS_B(r) = Tools.pesq_mex_vec( orig_B(r,:), Rec_Sigs_B(r,:), Fs , pesqNumber);
 end
-ConfInt_95 = Tools.confidence_intervals( [PESQ_MOS_B'  PESQ_B'] );
+ConfInt_95 = Tools.confidence_intervals( [PESQ_MOS_B'] );
 
 %% Determine where to save results
-   
-% Work out Planewave Angle
-pos = strfind(FileName,'Hz_');
-PW_angle = sscanf(FileName(pos:end),'%*[^0-9^-]%d%*s');
 
-if ~isempty(strfind(FileName,'with'))
-    % Work out noise mask
-    pos = strfind(FileName,'Angle');
-    noise_mask = sscanf(FileName(pos:end),'%*[^0-9^-]%d%*s');
-    
-    % Work out weight
-    pos = strfind(FileName,'dB');
-    weight = sscanf(FileName(pos:end),'%*[^0-9]%d%*s');
-    
-    % Work out mask type
-    pos = strfind(FileName,'weight');
-    mask_type = sscanf(FileName(pos:end),'weight%[^0-9]');
-    mask_type = ['__' strrep(mask_type,'_','')];
-else
-    % Work out weight
-    pos = strfind(FileName,'Angle');
-    weight = sscanf(FileName(pos:end),'%*[^0-9]%d%*s');
-    
-    % Assign mask type and noise mask
-    mask_type = 'NoMask';
-    noise_mask = -Inf;
-end
+[ PW_angle, noise_mask, weight, mask_type ] = Results.getInfoFromFilename(FileName);
 
 pos = strfind(FileName,'weight');
 FileName = [FileName(1:pos+5) mask_type];
@@ -77,18 +49,12 @@ fprintf(fileID, ...
         'Noise_Mask,%f,' ...
         'PESQ_MOS_Bright,%f,' ...
         '95_ConfInt_PESQ_MOS_Bright_L,%f,' ...
-        '95_ConfInt_PESQ_MOS_Bright_U,%f,' ...
-        'PESQ_Bright,%f,' ...
-        '95_ConfInt_PESQ_Bright_L,%f,' ...
-        '95_ConfInt_PESQ_Bright_U,%f,' '\r\n'], ...
+        '95_ConfInt_PESQ_MOS_Bright_U,%f,' '\r\n'], ...
         FileName, ...
         noise_mask, ...
         mean(PESQ_MOS_B), ...
         ConfInt_95(1,1), ...
-        ConfInt_95(1,2), ...
-        mean(PESQ_B), ...
-        ConfInt_95(2,1), ...
-        ConfInt_95(2,2) );
+        ConfInt_95(1,2) );
 fclose(fileID);
 
 end

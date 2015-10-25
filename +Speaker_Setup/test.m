@@ -6,18 +6,19 @@ tic;
 %%
 i=0;
 j=0;
- for s = 1:1
- ang=[-30, 30];
- for f=logspace(log10(150),log10(400),5)
-i=i+1;
-for w=logspace(log10(1),log10(1e3),5)
-j=j+1;
-%f = 200;
+%  for s = 1:1
+%  ang=[-30, 30];
+%  for f=logspace(log10(150),log10(400),5)
+% i=i+1;
+% for w=logspace(log10(1),log10(1e3),5)
+% j=j+1;
+f = 2000;
+w = 1e4;
 col = 'k';
 f_max = 8000;
 
 quiet  = Orthogonal_Basis_Expansion.spatial_zone(f, 0, 0.30, 'quiet');
-bright = Orthogonal_Basis_Expansion.spatial_zone(f, 0, 0.30, 'pw', 1.0, ang(s));
+bright = Orthogonal_Basis_Expansion.spatial_zone(f, 0, 0.30, 'pw', 1.0, 15);
 quiet.res  = 50;
 bright.res = quiet.res;
 quiet  =  quiet.setDesiredSoundfield(true, 'suppress_output');    
@@ -25,8 +26,8 @@ bright = bright.setDesiredSoundfield(true);
 
 %%
 soundfield = Orthogonal_Basis_Expansion.multizone_soundfield_OBE;
-soundfield = soundfield.addSpatialZone(quiet,  0.6, 180);
-soundfield = soundfield.addSpatialZone(bright, 0.6, 0);
+soundfield = soundfield.addSpatialZone(quiet,  0.6, 0);
+soundfield = soundfield.addSpatialZone(bright, 0.6, 180);
 %%
  soundfield.BrightZ_Weight     = 1.0;
  soundfield.QuietZ_Weight      = w;
@@ -57,22 +58,22 @@ soundfield = soundfield.createSoundfield('DEBUG', Radius);
  setup = setup.calc_Loudspeaker_Weights();
  setup = setup.reproduceSoundfield('DEBUG');
 
- Field{i} = abs(setup.Soundfield_reproduced);
- magdif{i,j} = setup.Bright_Sample - setup.Quiet_Sample;
-end
- end
- end
-F = zeros(size(Field{1}));
-for i = 1:length(Field)
-   F = F+Field{i};
-end
-F = F/length(Field);
+%  Field{i} = abs(setup.Soundfield_reproduced);
+%  magdif{i,j} = setup.Bright_Sample - setup.Quiet_Sample;
+% end
+%  end
+%  end
+% F = zeros(size(Field{1}));
+% for i = 1:length(Field)
+%    F = F+Field{i};
+% end
+% F = F/length(Field);
  %%
  figure(1);
  realistic = false;
- setup.plotSoundfield( F, 'default', realistic);
- caxis([0 1.1]);
- mean([magdif{:}])
+ setup.plotSoundfield( setup.Soundfield_reproduced, 'default', realistic);
+ %caxis([0 1.1]);
+ %mean([magdif{:}])
 % figure(2);
 % plot(abs(setup.Loudspeaker_Weights), col);hold on;
 % figure(3);
@@ -86,6 +87,7 @@ F = F/length(Field);
 %  plot(angle(setup.Loudspeaker_Weights)/pi*180);
  
 %end 
+export_fig('test.png',gcf);
 %%
 tEnd = toc;
 fprintf('\nExecution time: %dmin(s) %fsec(s)\n', floor(tEnd/60), rem(tEnd,60)); %Time taken to execute this script
