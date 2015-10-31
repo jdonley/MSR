@@ -1,96 +1,54 @@
 function Reverberant_MSR_Analysis_batchfunc(Room_Size, Wall_Absorption_Coeff, mask_type, pw_angle, mask_level, pesqNumber)
 %% Initialise
-%clc;
-%clear;
-%close all;
-%fclose all;
 tic;
 % Start Parallel Pool
 para_pool = parpool;
-% Kill dropbox
-%Tools.Dropbox('kill');
 C = clock;
 fprintf('Started execution at %.0f:%.0f:%.0f on the %.0f/%.0f/%.0f\n',C([4:6 3:-1:1]))
 
 %% Setup and Path Info
+Drive = 'Z:\'; % Database drive (storage drive)
+
 %LUT_resolution =  '512f_256w'; %Look-Up Table resolution
 LUT_resolution =  '512f_32w'; %Look-Up Table resolution
 Fs = 16000; %Sampling Frequency
 
-% loudspeakers = 295; %Number of loudspeakers
-% speaker_arc    = 360;  % Degrees
-
+%loudspeakers = 295; %Number of loudspeakers
 %loudspeakers = 32; %Number of loudspeakers
-speaker_arc    = 180;  % Degrees
+loudspeakers = 24; %Number of loudspeakers
+%loudspeakers = 16; %Number of loudspeakers
 
-loudspeakers = 16; %Number of loudspeakers
-% speaker_arc    = 180;  % Degrees
+loudspeaker_layout = {'numberof_loudspeakers',        loudspeakers, ...
+                      'loudspeaker_radius',           1.5, ...
+                      'angleof_loudspeakerarc'        180, ...
+                      'loudspeaker_model',            'Genelec 8010A', ...
+                      'angleof_loudspeakerarrcentre', 180, ...
+                      'loudspeaker_spacing',          0.01    };            
 
-speaker_radius = 1.5; % Metres
+zone_layout = {'brightzone_source_angle',     pw_angle};
+             
+setup = Speaker_Setup.createSetup({...
+            zone_layout{:}, ...
+            loudspeaker_layout{:}});
+        
+        
 Num_Receivers = 32; %Number of recording points (microphones)
+
+Reproduction_Centre = Room_Size ./ 2;
+
 if nargin < 5
    mask_level = [];
 end
 if nargin < 6
     pesqNumber = 0;
 end
-%%
-% % ROOM 1
-% % Anechoic
-%Room_Size = [10 10 10]; %Anechoic
-%Wall_Absorption_Coeff = 1.0;
 
-% % ROOM 2
-% % Small Open Plan Office
-% %Room_Size = [5 6 4];  %Small Open Plan Office
-% %Wall_Absorption_Coeff = 0.3;
-
-% % ROOM 3
-% % Medium Open Plan Office
-% Room_Size = [8 10 3];   %Medium Open Plan Office
-% Wall_Absorption_Coeff = 0.3;
-
-% % ROOM 4
-% % Cafe / Restaurant
-%Room_Size = [9 14 3];   %Cafe/Restaurant
-%Wall_Absorption_Coeff = 0.3;
-
-% % ROOM 5
-% % Small Open Plan Office
-%Room_Size = [4 9 3];   %Small Open Plan Office
-%Wall_Absorption_Coeff = 0.3;
-
-%%
-% % Setup and Privacy Scheme 1
-%mask_type = 'FlatMask';
-%pw_angle = 0;
-
-% % Setup and Privacy Scheme 2
-%mask_type = 'FlatMask';
-%pw_angle = 15;
-
-    % % Setup and Privacy Scheme 3
-    %mask_type = 'ZoneWeightMask';
-    %pw_angle = 15;
-
-% % Setup and Privacy Scheme 4
-%mask_type = 'FlatMask';
-%pw_angle = 90;
-
-    % % Setup and Privacy Scheme 5
-    %mask_type = 'ZoneWeightMask';
-    %pw_angle = 90;
-
-%%
-Reproduction_Centre = Room_Size ./ 2;
-
-Output_file_path_ext = ['+' num2str(speaker_radius*2) 'm_SpkrDia\+' num2str(loudspeakers) 'Spkrs_' num2str(speaker_arc) 'DegArc_LUT_' LUT_resolution '\'];
+Output_file_path_ext = ['+' num2str(setup.Radius*2) 'm_SpkrDia\+' num2str(setup.Loudspeaker_Count) 'Spkrs_' num2str(setup.Speaker_Arc_Angle) 'DegArc_LUT_' LUT_resolution '\'];
 
 %% Load RIR Database file
 room = strrep(sprintf(strrep(repmat('%g',1,length(Room_Size)),'g%','g %'),Room_Size),' ','x');
 room_cent = strrep(sprintf(strrep(repmat('%g',1,length(Reproduction_Centre)),'g%','g %'),Reproduction_Centre),' ','x');
 
-Drive = 'Z:\';
 ResultsPath = ['+Results\+Reverb__' num2str(Num_Receivers) 'Rec_' room 'Dim_' room_cent 'Ctr_' num2str(Wall_Absorption_Coeff) 'Ab\'];
 
 %% Find Speaker Signals and read to Workspace
@@ -142,14 +100,13 @@ fprintf(['      Planewave Angle: ' num2str(pw_angle) '\n']);
 fprintf(['    Privacy Weighting: ' mask_type '\n\n']);n=0;
 fprintf('\tCompletion: ');
 
-%parfor_progress( length(files) );
 
 fileName_prev = '';
 Rec_Bright = [];
 Rec_Quiet = [];
 for file = 1:length(files)
    
-    [filePath, fileName, fileExt] = fileparts(files{file});
+    [~, fileName, ~] = fileparts(files{file});
     
     if isempty(strfind(fileName,'Original')) % Make sure the file being read isn't an original file
         
@@ -190,8 +147,8 @@ for file = 1:length(files)
                 end
             end
              
-            % BEGIN Resize the original speech signal and Align it with the
-            % reverberant signals.
+            % BEGIN Resize the original speech signal and
+            % Align it with the reverberant signals.
             orig(length(orig):size(Rec_Bright,2))=0; % Resize the original signal because the reverberant signal will be longer
             if (length(orig) ~= length(Rec_Bright)) || (length(orig) ~= length(Rec_Quiet))
                 error('Size of the original signal does not match the reproduced signal!');
@@ -211,22 +168,21 @@ for file = 1:length(files)
             end
             % END resize and align
             
-            
-            % Calculate and save results
+            % BEGIN Calculate and save results
             
             % Perceptual Evaluation of Speech Quality
             Room_Acoustics.Apply_RIRs.Save_Reverb_PESQ_Result( Original, Rec_Bright, Fs, ResultsPath, Output_file_path_ext, fileName(1:ind-2), pesqNumber );
             
             % Speech Intelligibility
-            % STOI
+                % STOI
             Room_Acoustics.Apply_RIRs.Save_Reverb_STOI_Result( Original, Rec_Bright, Rec_Quiet, Fs, ResultsPath, Output_file_path_ext, fileName(1:ind-2) );
-            % STI
+                % STI
             %Room_Acoustics.Apply_RIRs.Save_Reverb_STI_Result( Original, Rec_Bright, Rec_Quiet, Fs, ResultsPath, Output_file_path_ext, fileName(1:ind-2) );
             
             % Signal to Noise Ratio
             Room_Acoustics.Apply_RIRs.Save_Reverb_SNR_Result( Original, Rec_Bright, Rec_Quiet, Fs, ResultsPath, Output_file_path_ext, fileName(1:ind-2) );
             
-            
+            % END calc and save results
             
         end
         
@@ -236,20 +192,13 @@ for file = 1:length(files)
     
     n = Tools.showTimeToCompletion( file/length(files), n);
     
-    %parfor_progress;
 end
 
-
-%parfor_progress(0);
 
 %%
 tEnd = toc;
 fprintf('\nExecution time: %dmin(s) %fsec(s)\n\n', floor(tEnd/60), rem(tEnd,60)); %Time taken to execute this script
 
-% Restart dropbox
-%Tools.Dropbox('start');
-
 % Delete Parallel Pool
 delete(para_pool);
-
 

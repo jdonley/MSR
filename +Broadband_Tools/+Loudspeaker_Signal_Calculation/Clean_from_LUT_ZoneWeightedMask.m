@@ -1,8 +1,10 @@
-function Clean_from_LUT_ZoneWeightedMask( Input_file_path, Input_file_name, Input_file_ext, LUT_resolution, Noise_Mask_dB, weight, loudspeaker_setup, angle_pw )
+function Clean_from_LUT_ZoneWeightedMask( Input_file, LUT_resolution, Noise_Mask_dB, weight, setup )
 %Clean_from_LUT_ZoneWeightedMask Summary of this function goes here
 %   Detailed explanation goes here
 
 %% Setup Variables
+[Input_file_path, Input_file_name, Input_file_ext] = fileparts( Input_file );
+Input_file_path = [Input_file_path '\'];
 
 Fs = 16000; % Sampling frequency
 Nfft = 1024;% Number of fft components
@@ -10,26 +12,11 @@ overlap = 0.5;
 f_low  = 150;  % Hz
 f_high = 8000; % Hz
 
-resolution = 100;
-phase = 0;
-radius = 0.3;
 leakage_angle = 0; % Angle of the leaked planewave into the quiet so that planewave noise can mask the signal
-if nargin < 8
-    angle_pw = 15;
-end
-radius2origin = 0.6;
-angle2origin  = [0 180];
-%weight = 0.05;
-
-loudspeakers   = loudspeaker_setup;  % Number of loudspeakers
-if loudspeaker_setup == 16 || loudspeaker_setup == 32
-    speaker_arc    = 180;  % Degrees
-    first_speaker  = 90; % Degrees
-else
-    speaker_arc    = 360;  % Degrees
-    first_speaker  = 0; % Degrees
-end
-speaker_radius = 1.5; % Metres
+angle_pw       = setup.Multizone_Soundfield.Bright_Zone.SourceOrigin.Angle;
+loudspeakers   = setup.Loudspeaker_Count;
+speaker_arc    = setup.Speaker_Arc_Angle;
+speaker_radius = setup.Radius;
 
 Drive = 'Z:\';
 Output_file_path     = [Drive '+Speaker_Signals\']; % Can be relative or exact

@@ -1,18 +1,10 @@
-function Clean_from_LUT_FlatMask( Input_file_path, Input_file_name, Input_file_ext, LUT_resolution, Noise_Mask_dB, weight, loudspeaker_setup, angle_pw )
+function Clean_from_LUT_FlatMask( Input_file, LUT_resolution, Noise_Mask_dB, weight, setup )
 %Analyse_Broadband_Signals_from_LUT Summary of this function goes here
 %   Detailed explanation goes here
 
 %% Setup Variables
-%Input_file_path = '+Miscellaneous\'; % Can be relative or exact
-%Input_file_name = 'MaleSpeech16k';
-%Input_file_ext  = '.wav';
-% if nargin < 5
-%     LUT_resolution = '256f_128w';
-% elseif nargin < 6
-%     LUT_resolution = [num2str(N_LUT_frequencies) 'f_128w'];
-% elseif nargin < 7
-% 	LUT_resolution = [num2str(N_LUT_frequencies) 'f_' num2str(N_LUT_weights) 'w'];
-% end
+[Input_file_path, Input_file_name, Input_file_ext] = fileparts( Input_file );
+Input_file_path = [Input_file_path '\'];
 
 Fs = 16000; % Sampling frequency
 Nfft = 1024;% Number of fft components
@@ -20,25 +12,10 @@ overlap = 0.5;
 f_low  = 150;  % Hz
 f_high = 8000; % Hz
 
-resolution = 100;
-phase = 0;
-radius = 0.3;
-if nargin < 8
-    angle_pw = 15;
-end
-radius2origin = 0.6;
-angle2origin  = [0 180];
-%weight = 0.05;
-
-loudspeakers   = loudspeaker_setup;  % Number of loudspeakers
-if loudspeaker_setup == 16 || loudspeaker_setup == 32
-    speaker_arc    = 180;  % Degrees
-    first_speaker  = 90; % Degrees
-else
-    speaker_arc    = 360;  % Degrees
-    first_speaker  = 0; % Degrees
-end
-speaker_radius = 1.5; % Metres
+angle_pw       = setup.Multizone_Soundfield.Bright_Zone.SourceOrigin.Angle;
+loudspeakers   = setup.Loudspeaker_Count;
+speaker_arc    = setup.Speaker_Arc_Angle;
+speaker_radius = setup.Radius;
 
 Drive = 'Z:\';
 Output_file_path     = [Drive '+Speaker_Signals\']; % Can be relative or exact

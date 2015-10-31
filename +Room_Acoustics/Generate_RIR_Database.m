@@ -35,7 +35,7 @@ soundfield = soundfield.createSoundfield('DEBUG', Radius);
  setup.Angle_FirstSpeaker = 90;
  k = f_max/343*2*pi;
  M = ceil(k*Radius);
- setup.Loudspeaker_Count = 32;%16;%ceil( setup.Speaker_Arc_Angle/360 * 2*M + 1 ) ;%16;
+ setup.Loudspeaker_Count = 24;%16;%ceil( setup.Speaker_Arc_Angle/360 * 2*M + 1 ) ;%16;
  setup = setup.setRadius(1.5);
  
  setup = setup.calc_Loudspeaker_Weights();

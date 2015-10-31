@@ -2,27 +2,35 @@ function [ Y, frequencies, Frames, Windows] = FFT_custom( audiofilepath, Nfft, F
 %FFT_CUSTOM Summary of this function goes here
 %   Detailed explanation goes here
 
-if nargin < 2
-   Nfft = 1024; % 1024 samples per frame
-   Fs = 16000; % 16kHz sampling frequency
-   Overlap = 0.5;
-end
-
 %% Read audio file
 in_type=whos('audiofilepath');in_type=in_type.class;
-if strcmp( in_type, 'char' )
+if strcmp( in_type, 'char' )    
     
     [x, Fs_file] = audioread( audiofilepath );
     
-    if Fs ~= Fs_file
+    if Fs ~= Fs_file && ~isempty(Fs)
         error(['Sampling frequency of the file (' ...
             num2str(Fs_file) ...
             'Hz) does not match the given sampling frequency (' ...
             num2str(Fs_file) 'Hz) .']);
     end
+    Fs = Fs_file;
 else
+    
     x = audiofilepath;
+    
+    if nargin < 3 || isempty(Fs)
+        Fs = 16000; % 16kHz sampling frequency
+    end
 end
+
+if nargin < 2
+   Nfft = 1024; % 1024 samples per frame
+end
+if nargin < 4
+   Overlap = 0.5;
+end
+
  
 if size(x,2) > 1 % If audio is not mono then sum audio from all channels together
    %x = sum(x,2);

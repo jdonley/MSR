@@ -14,6 +14,11 @@ classdef loudspeaker_setup
         Radius = 1.5;               % Radius of speaker layout
         Speaker_Arc_Angle = 180;    % Angle of the arc of speakers (360 = full circle, 180 = semi-circle)
         Angle_FirstSpeaker = 0;     % The angle where the first speaker of the array occurs
+        Speaker_Array_Centre = 180;   % Angle of the centre of the loudspeaker arc
+        Speaker_Spacing = 0.01;       % The spacing between each consecutive loudspeaker
+        Speaker_Array_Type = 'circle'; % 'circle' or 'line'
+        Loudspeaker_Dimensions;
+        Loudspeaker_Type = 'Genelec 8010A';
         k_global = 2000 /343*2*pi;  % Frequency in wavenumber
         Multizone_Soundfield;       % multizone_soundfield object for reproduction
         %N_zone_samples = 1;             % The number of samples in each zone
@@ -80,19 +85,8 @@ classdef loudspeaker_setup
                 else
                     obj = obj.setRadius(Radius);
                 end
-%             else
-%                 if nargin < 2
-%                     obj = obj.setRadius(obj.Radius);
-%                     Debug = '';
-%                 elseif nargin < 3
-%                     obj = obj.setRadius(obj.Radius);
-%                     obj.N_zone_samples = 1;
-%                 else
-%                     obj.N_zone_samples = Radius;
-%                 end
-%             end
-            
-            %obj = obj.calc_Loudspeaker_Weights(Debug);
+                
+            obj = obj.setWavenumberFromChild();
             
             obj = obj.createEmptySoundfield;            
                        
@@ -151,36 +145,103 @@ classdef loudspeaker_setup
             if nargin < 2
                 Debug = '';
             end
+                   
+            if isempty( obj.Loudspeaker_Locations )
+               error('Please set the loudspeaker locations first.') ;
+            end
             
-            phi = obj.Speaker_Arc_Angle / 180 * pi;
-            first_spkr_offset = obj.Angle_FirstSpeaker / 180 * pi;
-            Rl = obj.Radius;            
-            M = obj.Multizone_Soundfield.getGlobalModeLimit;
-            
-            %obj.Loudspeaker_Count = ceil( phi_window*(2*M+1)/(2*pi) );
             Q0 = obj.Loudspeaker_Count; 
+            phi = obj.Speaker_Arc_Angle / 180 * pi;
+            delta_phi_s = phi / Q0;
             
+            phi_q = obj.Loudspeaker_Locations(:,1) + pi;
+            R_q = obj.Loudspeaker_Locations(:,2);            
+            M = obj.Multizone_Soundfield.getGlobalModeLimit;            
+            
+            Alpha_to_Beta_Coeff = zeros(Q0,2*M+1);
+            for m = -M:M
+                Alpha_to_Beta_Coeff(:,m+M+1) = 2 ./ (1i*pi*besselh(m, obj.Multizone_Soundfield.k_global * R_q));
+            end
+            Beta =   Alpha_to_Beta_Coeff .* repmat(obj.Multizone_Soundfield.Alpha_Coeffs, Q0, 1) ;
+            
+            m = -M:M;
             obj.Loudspeaker_Weights = zeros(1, Q0);
             
-            Alpha_to_Beta_Coeff = zeros(1,2*M+1);
-            for m = -M:M
-                Alpha_to_Beta_Coeff(m+M+1) = 2 / (1i*pi*besselh(m, obj.Multizone_Soundfield.k_global * Rl));
-            end
-            Beta =   Alpha_to_Beta_Coeff .* obj.Multizone_Soundfield.Alpha_Coeffs ;
-            
-            delta_phi_s = phi / Q0;
-            phi_q = ((1:Q0) - 1) * delta_phi_s + pi + first_spkr_offset;
-            m = -M:M;
-            
             for q = 1:Q0
-                obj.Loudspeaker_Locations(q,:) = [(phi_q(q) - pi) Rl];
-                obj.Loudspeaker_Weights(q) = sum(Beta .* exp(1i*m*phi_q(q)) * delta_phi_s);
+                obj.Loudspeaker_Weights(q) = sum(Beta(q,:) .* exp(1i*m*phi_q(q,:)) * delta_phi_s);
             end
             obj.Loudspeaker_Weights = obj.Loudspeaker_Weights';
         end
         
         
-        
+        function obj = calc_Loudspeaker_Locations(obj)        
+            Q0 = obj.Loudspeaker_Count;
+            Rl = obj.Radius;
+            
+            if strcmp(obj.Speaker_Array_Type, 'circle')
+                phi = obj.Speaker_Arc_Angle / 180 * pi;
+                delta_phi_s = phi / Q0;
+                first_spkr_offset = obj.Angle_FirstSpeaker / 180 * pi;
+                phi_q = ((1:Q0) - 1) * delta_phi_s + pi + first_spkr_offset;
+                Rl_ = repmat(Rl, length(phi_q), 1);
+                obj.Loudspeaker_Locations = [(phi_q(:) - pi) Rl_];
+                
+            elseif strcmp(obj.Speaker_Array_Type, 'line')
+                wid = obj.Loudspeaker_Dimensions(1);
+                space = obj.Speaker_Spacing;
+                centre = obj.Speaker_Array_Centre;
+                L = obj.Loudspeaker_Count;
+                len = (wid+space)*L - space;
+                x = repmat(obj.Radius, 1, L);
+                
+                if iseven(L)
+                    y = ((wid+space)/2):(wid+space):len/2;
+                    y = [flip(-y), y];
+                else
+                    y = (wid+space):(wid+space):len/2 + (wid+space)/2;
+                    y = [flip(-y), 0, y];
+                end
+                
+                [spkr_theta, spkr_rho]=cart2pol(x,y);
+                spkr_theta = spkr_theta + centre/180*pi;
+                
+                obj.Loudspeaker_Locations = [spkr_theta(:), spkr_rho(:)];
+                
+            elseif strcmp(obj.Speaker_Array_Type, 'coprime')
+                L = obj.Loudspeaker_Count;
+                
+                if ~isprime(L+1) && ~isprime(L)
+                    error('Number of loudspeakers is not one less than a prime number.');
+                end
+                
+                wid = obj.Loudspeaker_Dimensions(1);
+                space = obj.Speaker_Spacing;
+                centre = obj.Speaker_Array_Centre;
+                len = (wid+space)*L - space;
+                x = repmat(obj.Radius, L, 1);
+                        
+                ends_ = (len/2-wid/2);
+                y1 =  linspace(ends_,-ends_,L/2+1);
+                y1(end) = [];
+                y2 =  linspace(ends_,-ends_,L/2+2); 
+                y_ = -y2(1);
+                y2(1)=[];
+                y2(end)=[];
+                
+                y = [y1; y2];
+                if iseven(L)
+                    y = y(:);
+                else
+                    y = [y(:);y_];
+                end
+                
+                [spkr_theta, spkr_rho]=cart2pol(x,y);
+                spkr_theta = spkr_theta + centre/180*pi;
+                
+                obj.Loudspeaker_Locations = [spkr_theta(:), spkr_rho(:)];
+            end
+            
+        end
         
         %% Auxilary Methods
         function obj = addMultizone_Soundfield(obj, multizone_soundfield )
@@ -194,7 +255,6 @@ classdef loudspeaker_setup
                     '\n Previous Soundfield Resolution = %0.2d samples/m' ...
                     '\n New Soundfield Resolution = %0.2d samples/m'], ...
                     obj.res, multizone_soundfield.res);
-                return;
             end
             
             obj.Multizone_Soundfield = multizone_soundfield;
@@ -215,10 +275,63 @@ classdef loudspeaker_setup
             f = obj.k_global * 343 / (2 * pi);
         end
         
+        function obj = setWavenumberFromChild(obj)
+           obj.k_global = obj.Multizone_Soundfield.k_global;
+        end
+        
         function obj = setRadius(obj, Radius)
            obj.Radius = Radius;           
            obj = obj.calcDesiredMask();
         end
+                        
+        
+        function obj = setLoudspeakerType(obj, Type)
+            obj.Loudspeaker_Type = Type;
+            
+            if strcmp(Type, 'Genelec 8010A')
+                obj.Loudspeaker_Dimensions = [0.121, 0.116, 0.195]; %Genelec 8010A
+                
+            elseif strcmp(Type, 'Genelec 8020C')
+                obj.Loudspeaker_Dimensions = [0.151, 0.142, 0.242]; %Genelec 8020C
+                
+            elseif strcmp(Type, 'Meyer MM-4XP')
+                obj.Loudspeaker_Dimensions = [0.103, 0.145, 0.103]; %Meyer MM-4XP
+                
+            else
+                error('Loudspeaker type not supported.');
+            end
+        end
+        
+        function obj = setLoudspeakerSpacing(obj, Speaker_Arr_Centre, LoudspeakerSpacing)
+            width = obj.Loudspeaker_Dimensions(1);
+            if nargin < 2
+                centre = obj.Speaker_Array_Centre;
+            else
+                centre = Speaker_Arr_Centre;
+            end
+            if nargin < 3
+                space = obj.Speaker_Spacing;
+            else
+                space = LoudspeakerSpacing;
+            end
+            
+            circumf = obj.Loudspeaker_Count * (space + width);
+            
+            new_Speaker_Arc_Angle = circumf / obj.Radius * 180/pi;            
+            if new_Speaker_Arc_Angle > obj.Speaker_Arc_Angle && ~isnan(obj.Speaker_Arc_Angle)
+                warning(['The previously specified loudspeaker arc is too small to accommodate the desired number of loudspeakers.' 10, ...
+                         'Either:' 10 ...
+                         9	'1) Reduce the number of loudspeakers.' 10 ...
+                         9  '2) Use smaller loudspeakers.  or' 10 ... 
+                         9  '3) Increase the size of the loudspeaker arc.' 10, ...
+                         'The loudspeaker arc will be adjusted now...' 10, ...
+                         9  'Old loudspeaker arc: ~' num2str(round(obj.Speaker_Arc_Angle,1)) '°' 10, ...
+                         9  'New loudspeaker arc: ~' num2str(round(new_Speaker_Arc_Angle,1)) '°' 10 10]);
+            end
+            obj.Speaker_Arc_Angle = new_Speaker_Arc_Angle;
+            obj.Angle_FirstSpeaker = centre - obj.Speaker_Arc_Angle/2 + (((space + width)/2) / obj.Radius * 180/pi );
+        end
+        
         
         function obj = norm_soundfield(obj)
             f_ = obj.Soundfield_reproduced .* obj.Desired_Mask;
@@ -346,7 +459,7 @@ obj.Quiet_Samples_Locations = ones(O*2, O*2, 2)*NaN;
             XYTick = [1 length(field)/4 length(field)/2 length(field)*3/4 length(field)];
             XYTickLabel = [ -length(field)/2/obj.res, -length(field)/4/obj.res, 0, length(field)/4/obj.res, length(field)/2/obj.res];
             
-            %             subplot(1,2,1);
+            
             h = surf(real(field),'EdgeColor','None');
             if realistic
                 drawnow; pause(0.05);
@@ -364,7 +477,7 @@ obj.Quiet_Samples_Locations = ones(O*2, O*2, 2)*NaN;
                 room = ([4.815, 3.3]-0.10)*obj.res;  %The subtraction is the wall thickness compensation for the anechoic chamber
                 axis([(size(field,1)/2-room(1)/2) (size(field,1)/2+room(1)/2) (size(field,2)/2-room(2)/2) (size(field,2)/2+room(2)/2)]);
             else
-                axis([1 size(field,1) 1 size(field,2)]);
+                axis([0 size(field,1)+1 0 size(field,2)+1]);
             end
             set(gca, 'XTick', XYTick); set(gca, 'XTickLabel', XYTickLabel);
             set(gca, 'YTick', XYTick); set(gca, 'YTickLabel', XYTickLabel);
@@ -445,29 +558,39 @@ obj.Quiet_Samples_Locations = ones(O*2, O*2, 2)*NaN;
             
             [sl_x, sl_y] = pol2cart(obj.Loudspeaker_Locations(:,1), (obj.Loudspeaker_Locations(:,2) * obj.res)-1);
             
-            if realistic
-                for crnr = 1:4
-                    
-                    %spkr_dim = [0.121, 0.116, 0.195]; %Genelec 8010A
-                    %spkr_dim = [0.151, 0.142, 0.242]; %Genelec 8020C
-                    spkr_dim = [0.103, 0.145, 0.103]; %Meyer MM-4XP
-                    
-                    spkr_width = spkr_dim(1) * obj.res; %metres
-                    spkr_depth = spkr_dim(2) * obj.res; %metres
-                    sw_half = spkr_width / 2; %metres
-                    Rl = (obj.Loudspeaker_Locations(:,2) * obj.res)-1;
-                    th = atan(sw_half ./ Rl);
-                    th1 = obj.Loudspeaker_Locations(:,1) + th;
-                    th2 = obj.Loudspeaker_Locations(:,1) - th;
-                    [sl_x1, sl_y1] = pol2cart(th1, sqrt(Rl.^2 + sw_half^2));
-                    [sl_x2, sl_y2] = pol2cart(th2, sqrt(Rl.^2 + sw_half^2));
-                    [sl_x3, sl_y3] = pol2cart(th2, sqrt((Rl+spkr_depth).^2 + sw_half^2));
-                    [sl_x4, sl_y4] = pol2cart(th1, sqrt((Rl+spkr_depth).^2 + sw_half^2));
+            if realistic                
+                L = obj.Loudspeaker_Count;                
+                widL = repmat(obj.Loudspeaker_Dimensions(1) * obj.res, L, 1 ); %metres
+                depL = repmat(obj.Loudspeaker_Dimensions(2) * obj.res, L, 1 ); %metres
+                widL_half = widL / 2; %metres
+                
+                thL = zeros(L,4);
+                xL = thL;
+                yL = thL;
+                radL = zeros(L,1);
+                
+                if strcmp(obj.Speaker_Array_Type, 'circle')
+                    thL = obj.Loudspeaker_Locations(:,4);
+                    radL = repmat(obj.Radius * obj.res,L,1) - 1;
+                elseif strcmp(obj.Speaker_Array_Type, 'line')
+                    thL = repmat(obj.Speaker_Array_Centre,L,4)/180*pi;
+                    [xL, yL] = pol2cart(obj.Loudspeaker_Locations(:,1), ...
+                        obj.Loudspeaker_Locations(:,2) * obj.res - 1);
+                    xL = repmat(xL,1,4);
+                    yL = repmat(yL,1,4);
                 end
+                
+                X = [radL, radL, radL + depL, radL + depL ];
+                Y = [widL_half, -widL_half, -widL_half, widL_half ];                
+                [TH, R] = cart2pol(X, Y);                
+                [X, Y] = pol2cart(TH + thL, R);                
+                X = X + xL;
+                Y = Y + yL;
+                
                 for i = 1:obj.Loudspeaker_Count
-                    spkr_crnrs_x = [sl_x1(i); sl_x2(i);sl_x3(i); sl_x4(i); sl_x1(i)] + O;
-                    spkr_crnrs_y = [sl_y1(i); sl_y2(i);sl_y3(i); sl_y4(i); sl_y1(i)] + O;
-                    spkr_Z = [maxZ; maxZ; maxZ; maxZ; maxZ];
+                    spkr_crnrs_x = [X(i,:), X(i,1)] + O;
+                    spkr_crnrs_y = [Y(i,:), Y(i,1)] + O;
+                    spkr_Z = repmat(maxZ, 1, 5);
                     plot3(spkr_crnrs_x, spkr_crnrs_y, spkr_Z, 'Color', [0 0 0], 'LineWidth', 2);
                 end
             end

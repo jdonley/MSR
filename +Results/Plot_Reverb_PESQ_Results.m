@@ -23,9 +23,9 @@ LUT_resolution = '512f_32w';
 % loudspeakers   = 295;  % Number of loudspeakers
 % speaker_arc    = 360;  % Degrees
 %loudspeakers   = 32;  % Number of loudspeakers
+loudspeakers   = 24;  % Number of loudspeakers
+%loudspeakers   = 16;  % Number of loudspeakers
 speaker_arc    = 180;  % Degrees
-loudspeakers   = 16;  % Number of loudspeakers
-% speaker_arc    = 180;  % Degrees
 
 speaker_radius = 1.5; % Metres
 Num_Receivers = 32;

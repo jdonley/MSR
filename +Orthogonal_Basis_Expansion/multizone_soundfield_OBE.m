@@ -23,6 +23,7 @@ classdef multizone_soundfield_OBE
         k_global = 2000 /343*2*pi;  % Frequency in wavenumber
         Quiet_Zone;                 % spatial_zone object for the quiet zone
         Bright_Zone;                % spatial_zone object for the bright zone
+        Geometry = 'circle';        % Geometry of the reproduction region
         
         % Results
             % 3D
@@ -93,13 +94,12 @@ classdef multizone_soundfield_OBE
 
         function obj = createSoundfield(obj, Debug, Radius)
             if nargin < 2
-                obj.Radius = obj.getRadius_FromZones;
                 Debug = '';
-            elseif nargin < 3
-                obj.Radius = obj.getRadius_FromZones;
-            else
+            elseif nargin >= 3
                obj.Radius = Radius; 
-            end
+            end            
+            obj = obj.setWavenumberFromChildZone(); %Incase the child spatial zones have been changed
+            
             M0 = obj.getGlobalModeLimit; 
             
             obj = obj.createEmptySoundfield(Debug);
@@ -418,13 +418,16 @@ classdef multizone_soundfield_OBE
                 obj.Bright_Zone = spatialZone;
             else
                 error('Incorrect zone type');
-                return;
             end
             
         end     
         
         function f = getFrequency(obj)
             f = obj.k_global * 343 / (2 * pi);
+        end
+        
+        function obj = setWavenumberFromChildZone(obj)
+           obj.k_global = obj.Bright_Zone.getWavenumber();
         end
         
         function obj = setN(obj, N)

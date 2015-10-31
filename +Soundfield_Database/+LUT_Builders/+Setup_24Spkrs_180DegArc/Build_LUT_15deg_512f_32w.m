@@ -98,7 +98,7 @@ for w = 1:length(Weights)
         bright     = Orthogonal_Basis_Expansion.spatial_zone( Frequencies( f ), 0, Radius_of_zones(1),   'pw', 1.0, Angles(a));
         quiet.res  = Resolution;
         bright.res = Resolution;
-        quiet      = quiet.setDesiredSoundfield(true, 'suppress_output');
+        quiet      =  quiet.setDesiredSoundfield(true, 'suppress_output');
         bright     = bright.setDesiredSoundfield(true, 'suppress_output');
         
         %%

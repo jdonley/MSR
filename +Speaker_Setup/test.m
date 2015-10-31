@@ -4,22 +4,16 @@ clear;
 tic;
 
 %%
-i=0;
-j=0;
-%  for s = 1:1
-%  ang=[-30, 30];
-%  for f=logspace(log10(150),log10(400),5)
-% i=i+1;
-% for w=logspace(log10(1),log10(1e3),5)
-% j=j+1;
-f = 2000;
+
+        
+f = 3500;
 w = 1e4;
 col = 'k';
 f_max = 8000;
 
 quiet  = Orthogonal_Basis_Expansion.spatial_zone(f, 0, 0.30, 'quiet');
 bright = Orthogonal_Basis_Expansion.spatial_zone(f, 0, 0.30, 'pw', 1.0, 15);
-quiet.res  = 50;
+quiet.res  = 100;
 bright.res = quiet.res;
 quiet  =  quiet.setDesiredSoundfield(true, 'suppress_output');    
 bright = bright.setDesiredSoundfield(true);
@@ -47,13 +41,29 @@ soundfield = soundfield.createSoundfield('DEBUG', Radius);
 %%
  setup = Speaker_Setup.loudspeaker_setup;
  setup = setup.addMultizone_Soundfield(soundfield);
- %setup.Loudspeaker_Count = 2*ceil(f_max/343 * exp(1) * Radius / 2 ) + 1 ;%16;
- setup.Speaker_Arc_Angle = 180;
- setup.Angle_FirstSpeaker = 90;
+ 
  k = f_max/343*2*pi;
  M = ceil(k*Radius);
- setup.Loudspeaker_Count = 32; %ceil( setup.Speaker_Arc_Angle/360 * 2*M + 1 ) %16;
- setup = setup.setRadius(1.5);
+setup.Loudspeaker_Count = 24; %ceil( setup.Speaker_Arc_Angle/360 * 2*M + 1 ) %16;
+setup = setup.setRadius(1.5);
+
+setup.Speaker_Arc_Angle = 180;
+setup.Angle_FirstSpeaker = 90;
+
+setup = setup.setLoudspeakerType('Genelec 8010A');
+setup.Speaker_Array_Centre = 180;
+setup = setup.setLoudspeakerSpacing( 0.01 );
+ 
+ spkr_first = [-1.49, -1.49];
+ spkr_last = [-1.49, 1.49];
+ x = linspace(spkr_first(1), spkr_last(1),setup.Loudspeaker_Count);
+ y = linspace(spkr_first(2), spkr_last(2),setup.Loudspeaker_Count);
+ y = ((0.121+0.005)/2):(0.121+0.005):(0.121+0.005)*setup.Loudspeaker_Count/2;
+ y = [flip(-y), y];
+ [spkr_theta, spkr_rho]=cart2pol(x,y);
+ setup.Loudspeaker_Locations = [spkr_theta', spkr_rho'];
+ 
+ %setup = setup.calc_Loudspeaker_Locations();
  
  setup = setup.calc_Loudspeaker_Weights();
  setup = setup.reproduceSoundfield('DEBUG');

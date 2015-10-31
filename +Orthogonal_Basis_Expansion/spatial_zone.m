@@ -94,6 +94,10 @@ classdef spatial_zone
                 frequency = obj.Frequency;
                 suppress_output = true;
            end
+           if strcmp(phase, 'suppress_output')
+               phase = obj.Phase;
+               suppress_output = true;
+           end
            % Save values to the object
            obj.Frequency = frequency;
            obj.Phase = phase;
@@ -140,6 +144,7 @@ classdef spatial_zone
            
            % TODO: Instead of using a for loop for the cartesian x and y
            % coords use a for loop for all radii and one revolution
+           % OR Vectorise !
            for x = 1:length(obj.Soundfield_d)
             for y = 1:length(obj.Soundfield_d)                
                 [OMEGA_q, R_q] = cart2pol(x - O_q_z, y - O_q_z); %Convert to polar coords from centre of the zone
