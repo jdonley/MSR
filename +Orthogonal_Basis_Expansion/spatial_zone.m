@@ -14,7 +14,10 @@ classdef spatial_zone
     properties
         res = 50;                                           % Samples per metre %Resolution of soundfield should be inherited
         Radius_q = 0.5;                                     % Radius of the zone in metres
-        Origin_q = struct('X',0,'Y',0);                     % Coordinates from the global origin
+        Origin_q = struct('X',0, ...                        % Coordinates from the global origin
+                          'Y',0, ...
+                          'Angle',0,...
+                          'Distance',0);
         Weight = 1.0;                                       % Output amplitude from 0.0 (no output) to 1.0 (max output)
         Frequency = 1000;                                   % Frequency of source
         Phase = 0*pi;                                       % Phase of source
@@ -64,6 +67,13 @@ classdef spatial_zone
         function obj = setOrigin(obj, X_Coord, Y_Coord)
             obj.Origin_q.X = X_Coord;
             obj.Origin_q.Y = Y_Coord;
+            [obj.Origin_q.Angle, obj.Origin_q.Distance] = cart2pol(X_Coord, Y_Coord);
+        end
+        
+        function obj = setOriginPolar(obj, Angle, Distance)
+            obj.Origin_q.Angle = Angle;
+            obj.Origin_q.Distance = Distance;
+            [obj.Origin_q.X, obj.Origin_q.Y] = pol2cart(Angle, Distance);
         end
         
         function [r_0q, theta_0q] = getOriginInPolarCoords(obj)

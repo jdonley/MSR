@@ -105,8 +105,10 @@ setup = setup.setLoudspeakerType(spkrmod);
 setup.Speaker_Array_Type = arr_type;
 setup.Speaker_Array_Centre = phiLcent;
 setup.Speaker_Spacing = spkrspace;
-if ~isnan(phiLcent) && ~isnan(spkrspace) && ~isempty(phiLcent) && ~isempty(spkrspace)
-    setup = setup.setLoudspeakerSpacing();
+if ~isempty(phiLcent) && ~isempty(spkrspace)
+    if ~isnan(phiLcent) && ~isnan(spkrspace)
+        setup = setup.setLoudspeakerSpacing();
+    end
 end
 
 setup = setup.calc_Loudspeaker_Locations;

@@ -5,14 +5,20 @@ delete(gcp);clear;close all;fclose all;clc;
 rooms = [ 1 ];
 
 %setups = [1 2 3 4 5 6 0];
-setups = [ 7 ];
+setups = [ 7.5 ];
 
 for room = rooms
     
-Noise_Mask_Levels = [-40 -35 -30 -25 -20 -15 -10 -5 0 5 10 15 20];% 25 30 35 40];
+    Noise_Mask_Levels = [-40 -35 -30 -25 -20 -15 -10 -5 0 5 10 15 20];% 25 30 35 40];
+    loudspeaker_layout = {'numberof_loudspeakers',        24, ...
+        'loudspeaker_radius',           1.5, ...
+        'loudspeaker_model',            'Genelec 8010A', ...
+        'angleof_loudspeakerarrcentre', 180, ...
+        'loudspeaker_spacing',          []    };
+    speech_layout = {};
+    masker_layout = {};
     
-    
-%%
+    %%
     if room == 1
         % % ROOM 1
         % % Anechoic
@@ -36,57 +42,85 @@ Noise_Mask_Levels = [-40 -35 -30 -25 -20 -15 -10 -5 0 5 10 15 20];% 25 30 35 40]
         % % Cafe / Restaurant
         Room_Size = [9 14 3];   %Cafe/Restaurant
         Wall_Absorption_Coeff = 0.3;
-    end    
+    end
     
-    %%    
+    %%
     for scheme = setups
         if scheme == 0
             % % Setup and Privacy Scheme 0 (Benchmark)
             %Zone_Weights = 0;
             mask_type = 'NoMask';
-            pw_angle = 0;
+            speech_layout = {'brightzone_pos_angle',        180, ...
+                'quietzone_pos_angle',         0, ...
+                'brightzone_source_angle',     0};
             Noise_Mask_Levels = [];
         elseif scheme == 1
             % % Setup and Privacy Scheme 1
             mask_type = 'FlatMask';
-            pw_angle = 0;
+            speech_layout = {'brightzone_pos_angle',        180, ...
+                'quietzone_pos_angle',         0, ...
+                'brightzone_source_angle',     0};
         elseif scheme == 2
             % % Setup and Privacy Scheme 2
-            mask_type = 'ZoneWeightMask';
-            pw_angle = 0;
+            Masker_Type = 'ZoneWeightMask';
+            speech_layout = {'brightzone_pos_angle',        180, ...
+                'quietzone_pos_angle',         0, ...
+                'brightzone_source_angle',     0};
         elseif scheme == 3
             % % Setup and Privacy Scheme 3
             mask_type = 'FlatMask';
-            pw_angle = 15;
+            speech_layout = {'brightzone_pos_angle',        180, ...
+                'quietzone_pos_angle',         0, ...
+                'brightzone_source_angle',     15};
         elseif scheme == 4
             % % Setup and Privacy Scheme 4
             mask_type = 'ZoneWeightMask';
-            pw_angle = 15;
+            speech_layout = {'brightzone_pos_angle',        180, ...
+                'quietzone_pos_angle',         0, ...
+                'brightzone_source_angle',     15};
         elseif scheme == 5
             % % Setup and Privacy Scheme 5
             mask_type = 'FlatMask';
-            pw_angle = 90;
+            speech_layout = {'brightzone_pos_angle',        180, ...
+                'quietzone_pos_angle',         0, ...
+                'brightzone_source_angle',     90};
         elseif scheme == 6
             % % Setup and Privacy Scheme 6
             mask_type = 'ZoneWeightMask';
-            pw_angle = 90;
-        
+            speech_layout = {'brightzone_pos_angle',        180, ...
+                'quietzone_pos_angle',         0, ...
+                'brightzone_source_angle',     90};
+            
             %Test Schemes
         elseif scheme == 7
             % % Setup and Privacy Scheme 7
             mask_type = 'ZoneWeightMaskAliasCtrl';
-            pw_angle = 15;
+            speech_layout = {'brightzone_pos_angle',        180, ...
+                'quietzone_pos_angle',         0, ...
+                'brightzone_source_angle',     15};
+        elseif scheme == 7.5
+            % % Setup and Privacy Scheme 7.5
+            mask_type = 'ZoneWeightMaskAliasCtrl';
+            speech_layout = {'brightzone_pos_angle',        90, ...
+                'quietzone_pos_angle',         -90, ...
+                'brightzone_source_angle',     0};
         elseif scheme == 8
             % % Setup and Privacy Scheme 8
             mask_type = 'ZoneWeightMaskAliasCtrlOffsetNoise';
-            pw_angle = 15;
+            speech_layout = {'brightzone_pos_angle',        180, ...
+                'quietzone_pos_angle',         0, ...
+                'brightzone_source_angle',     15};
         elseif scheme == 9
             % % Setup and Privacy Scheme 9
             mask_type = 'ZoneWeightMaskAliasCtrlStereoNoise';
-            pw_angle = 15;
+            speech_layout = {'brightzone_pos_angle',        180, ...
+                'quietzone_pos_angle',         0, ...
+                'brightzone_source_angle',     15};
         end
         
-        Room_Acoustics.Apply_RIRs.Reverberant_MSR_batchfunc(Room_Size, Wall_Absorption_Coeff, mask_type, pw_angle, Noise_Mask_Levels);
+        Speech_Setup = Speaker_Setup.createSetup({ speech_layout{:}, loudspeaker_layout{:}});
+        
+        Room_Acoustics.Apply_RIRs.Reverberant_MSR_batchfunc(Room_Size, Wall_Absorption_Coeff, mask_type, Speech_Setup, Noise_Mask_Levels);
         
     end
 end

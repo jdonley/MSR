@@ -570,7 +570,7 @@ obj.Quiet_Samples_Locations = ones(O*2, O*2, 2)*NaN;
                 radL = zeros(L,1);
                 
                 if strcmp(obj.Speaker_Array_Type, 'circle')
-                    thL = obj.Loudspeaker_Locations(:,4);
+                    thL = repmat(obj.Loudspeaker_Locations(:,1),1,4);
                     radL = repmat(obj.Radius * obj.res,L,1) - 1;
                 elseif strcmp(obj.Speaker_Array_Type, 'line')
                     thL = repmat(obj.Speaker_Array_Centre,L,4)/180*pi;

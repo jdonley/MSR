@@ -1,4 +1,4 @@
-function Clean_from_LUT_ZoneWeightedMask_AliasCtrl( Input_file, LUT_resolution, Noise_Mask_dB, weight, setup )
+function Clean_from_LUT_ZoneWeightedMask_AliasCtrl( Input_file, LUT_resolution, Noise_Mask_dB, weight, setup, setup_mask )
 %Clean_from_LUT_ZoneWeightedMask Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -41,18 +41,26 @@ Input_Signal = audioread( Input_file );
 for sig = 1:2 % Firstly we compute the loudspeaker signals for the input signal then we compute the loudspeaker signals for the additive zone weighted noise
     
     %% First, Load the relevant look-up tables and check compatability
-    if sig == 1
-        load([Drive '+Soundfield_Database\+' num2str(speaker_radius*2) 'm_SpkrDia\+' num2str(loudspeakers) 'Spkrs_' num2str(speaker_arc) 'DegArc\LUT_Weight_vs_Frequency_' num2str(angle_pw) 'deg_' LUT_resolution '.mat']);
-    elseif sig == 2
-        load([Drive '+Soundfield_Database\+' num2str(speaker_radius*2) 'm_SpkrDia\+' num2str(loudspeakers) 'Spkrs_' num2str(speaker_arc) 'DegArc\LUT_Weight_vs_Frequency_' num2str(leakage_angle) 'deg_' LUT_resolution ...
-            '_zones_swapped.mat']);
+    for m = 1:2
+        if sig == 1
+            method = {'new', 'old'};
+            [DB,err] = Soundfield_Database.loadDatabaseFromSetup( setup, LUT_resolution, Drive, method{m} );
+        elseif sig == 2
+            method = {'new', 'old_zones_swapped'};
+            [DB,err] = Soundfield_Database.loadDatabaseFromSetup( setup_mask, LUT_resolution, Drive, method{m} );
+        end
+        if ~err
+            break;
+        end
     end
     
     %Loudspeaker capable LUT available?
-    if ~exist('Loudspeaker_Weights__Weight_Vs_Frequency','var')
+    if ~isfield(DB,'Loudspeaker_Weights__Weight_Vs_Frequency')
         error('A Look-Up Table with valid Loudspeaker Weights was not found. Please either choose another LUT or generate a valid LUT.');
     end
-        
+    
+    Frequencies = DB.Frequencies;
+    Weights = DB.Weights;
     
     %% Find ideal weights
     single_weight = false;
@@ -70,7 +78,7 @@ for sig = 1:2 % Firstly we compute the loudspeaker signals for the input signal 
     else
         % Find the weights that will give us the biggest contrast possible
         % (works better at lower frequencies)
-        LUT_MagDiff = Bright_Sample__Weight_Vs_Frequency - Quiet_Sample__Weight_Vs_Frequency;
+        LUT_MagDiff = DB.Bright_Sample__Weight_Vs_Frequency - DB.Quiet_Sample__Weight_Vs_Frequency;
         
         % Noise weights
         LUT_MagDiff_interp = interp2(Frequencies,Weights,LUT_MagDiff,noise_freqs',Weights,'spline');
@@ -89,7 +97,7 @@ for sig = 1:2 % Firstly we compute the loudspeaker signals for the input signal 
     % large magnitude in the quiet zone, we invert this level and apply it
     % to the noise input signal.
     if sig == 2
-        W = -mag2db(Quiet_Sample__Weight_Vs_Frequency);   
+        W = -mag2db(DB.Quiet_Sample__Weight_Vs_Frequency);   
         W_ = permute( Tools.interpVal_2D(W, Frequencies, Weights, noise_freqs, noise_weights, 'spline'), [2 1]);        
         W_=W_(:);
         
@@ -129,8 +137,8 @@ for sig = 1:2 % Firstly we compute the loudspeaker signals for the input signal 
 %     Frequencies_ = Frequencies_(Frequencies_>=min(Frequencies) & Frequencies_<=max(Frequencies));
     
     %% Fourth, build a flat spectra desired multizone soundfield for all frequencies from the previous fft and save the speaker weights for each frequency bin.
-    [szW, szF] = size(Loudspeaker_Weights__Weight_Vs_Frequency);
-    LUT_Loudspeaker_Weights = cell2mat(Loudspeaker_Weights__Weight_Vs_Frequency);
+    [szW, szF] = size(DB.Loudspeaker_Weights__Weight_Vs_Frequency);
+    LUT_Loudspeaker_Weights = cell2mat(DB.Loudspeaker_Weights__Weight_Vs_Frequency);
     LUT_Loudspeaker_Weights = permute( reshape(LUT_Loudspeaker_Weights, loudspeakers, szW, szF), [2 3 1] );    
     
     % When interpolating the angle of the complex loudspeaker weight we need to phase unwrap otherwise

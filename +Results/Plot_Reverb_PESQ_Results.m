@@ -25,10 +25,19 @@ LUT_resolution = '512f_32w';
 %loudspeakers   = 32;  % Number of loudspeakers
 loudspeakers   = 24;  % Number of loudspeakers
 %loudspeakers   = 16;  % Number of loudspeakers
-speaker_arc    = 180;  % Degrees
 
-speaker_radius = 1.5; % Metres
-Num_Receivers = 32;
+loudspeaker_layout = {'numberof_loudspeakers',        loudspeakers, ...
+                      'loudspeaker_radius',           1.5, ...
+                      'angleof_loudspeakerarc'        180, ...
+                      'loudspeaker_model',            'Genelec 8010A', ...
+                      'angleof_loudspeakerarrcentre', 180, ...
+                      'loudspeaker_spacing',          0.01    };            
+
+             
+setup = Speaker_Setup.createSetup({...
+            loudspeaker_layout{:}});
+        
+Num_Receivers = 32; %Number of recording points (microphones)
 
 pw_angle = {0; ...
             0; ...
@@ -131,7 +140,7 @@ drawnow; pause(0.05);  % this is important for transparency!
 for v = 1:length(Version)
     %% Create paths
     ResultsPath = ['+Results\+Reverb__' num2str(Num_Receivers) 'Rec_' room 'Dim_' room_cent 'Ctr_' num2str(Wall_Absorption_Coeff) 'Ab\'];
-    Output_file_path_ext = ['+' num2str(speaker_radius*2) 'm_SpkrDia\+' num2str(loudspeakers) 'Spkrs_' num2str(speaker_arc) 'DegArc_LUT_' LUT_resolution '\'];
+    Output_file_path_ext = ['+' num2str(setup.Radius*2) 'm_SpkrDia\+' num2str(setup.Loudspeaker_Count) 'Spkrs_' num2str(setup.Speaker_Arc_Angle) 'DegArc_LUT_' LUT_resolution '\'];
     Results_filepath = [ResultsPath Output_file_path_ext result_type '_Results_' num2str(pw_angle{v}) 'pwAngle_' Version{v} '.csv'];
     
     

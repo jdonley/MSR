@@ -1,4 +1,4 @@
-function Reverberant_MSR_Analysis_batchfunc(Room_Size, Wall_Absorption_Coeff, mask_type, pw_angle, mask_level, pesqNumber)
+function Reverberant_MSR_Analysis_batchfunc(Room_Size, Wall_Absorption_Coeff, mask_type, speech_setup, mask_level, pesqNumber)
 %% Initialise
 tic;
 % Start Parallel Pool
@@ -13,24 +13,7 @@ Drive = 'Z:\'; % Database drive (storage drive)
 LUT_resolution =  '512f_32w'; %Look-Up Table resolution
 Fs = 16000; %Sampling Frequency
 
-%loudspeakers = 295; %Number of loudspeakers
-%loudspeakers = 32; %Number of loudspeakers
-loudspeakers = 24; %Number of loudspeakers
-%loudspeakers = 16; %Number of loudspeakers
-
-loudspeaker_layout = {'numberof_loudspeakers',        loudspeakers, ...
-                      'loudspeaker_radius',           1.5, ...
-                      'angleof_loudspeakerarc'        180, ...
-                      'loudspeaker_model',            'Genelec 8010A', ...
-                      'angleof_loudspeakerarrcentre', 180, ...
-                      'loudspeaker_spacing',          0.01    };            
-
-zone_layout = {'brightzone_source_angle',     pw_angle};
-             
-setup = Speaker_Setup.createSetup({...
-            zone_layout{:}, ...
-            loudspeaker_layout{:}});
-        
+pw_angle = speech_setup.Multizone_Soundfield.Bright_Zone.SourceOrigin.Angle;        
         
 Num_Receivers = 32; %Number of recording points (microphones)
 
@@ -43,7 +26,7 @@ if nargin < 6
     pesqNumber = 0;
 end
 
-Output_file_path_ext = ['+' num2str(setup.Radius*2) 'm_SpkrDia\+' num2str(setup.Loudspeaker_Count) 'Spkrs_' num2str(setup.Speaker_Arc_Angle) 'DegArc_LUT_' LUT_resolution '\'];
+Output_file_path_ext = ['+' num2str(speech_setup.Radius*2) 'm_SpkrDia\+' num2str(speech_setup.Loudspeaker_Count) 'Spkrs_' num2str(speech_setup.Speaker_Arc_Angle) 'DegArc_LUT_' LUT_resolution '\'];
 
 %% Load RIR Database file
 room = strrep(sprintf(strrep(repmat('%g',1,length(Room_Size)),'g%','g %'),Room_Size),' ','x');
