@@ -58,21 +58,8 @@ files = files(ind);
 
 
 %% Delete previous results file
-results_type{1} = 'PESQ';
-results_type{2} = 'SI';
-results_type{3} = 'SNR';
-
 [~, FileName, ~] = fileparts(files{1});
-Num_ = strfind(FileName,'__')+2;
-Num_p = Num_(3);
-z_t = sscanf([' ' FileName(Num_p:end)],'%*[^_]_%[A-Za-z]');
-ind = strfind(FileName, z_t);
-[ pw_a, ~, wei, m_t ] = Results.getInfoFromFilename(FileName(1:ind-2));
-
-for i=1:length(results_type)
-    csvFilename = ([ResultsPath Output_file_path_ext results_type{i} '_Results_' num2str(pw_a) 'pwAngle_' num2str(wei) 'weight' m_t '.csv']);
-    delete(csvFilename);
-end
+Results.deleteResultsFile([ResultsPath Output_file_path_ext], FileName, {'PESQ', 'SI', 'SNR'});
 
 %% Start Evaluation Loop
 
@@ -80,7 +67,7 @@ fprintf('\n====== Analysing Simulated Reverberant Signals ======\n');
 fprintf(['            Room Size: ' [strrep(sprintf(strrep(repmat('%g',1,length(Room_Size)),'g%','g %'),Room_Size),' ','m x ') 'm'] '\n']);
 fprintf(['Wall Absorption Coeff: ' num2str(Wall_Absorption_Coeff) '\n']);
 fprintf(['      Planewave Angle: ' num2str(pw_angle) '\n']);
-fprintf(['    Privacy Weighting: ' mask_type '\n\n']);n=0;
+fprintf(['    Privacy Weighting: ' mask_type '\n\n']);n=0;h=[];
 fprintf('\tCompletion: ');
 
 
@@ -173,7 +160,7 @@ for file = 1:length(files)
     
     end
     
-    n = Tools.showTimeToCompletion( file/length(files), n);
+    [n,h] = Tools.showTimeToCompletion( file/length(files), n, h);
     
 end
 

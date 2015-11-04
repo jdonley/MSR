@@ -5,7 +5,7 @@ delete(gcp);clear;close all;fclose all;clc;
 rooms = [ 1 ];
 
 %setups = [1 2 3 4 5 6 0];
-setups = [ 7.5 ];
+setups = [ 7 ];
 
 for room = rooms
     
@@ -14,34 +14,37 @@ for room = rooms
         'loudspeaker_radius',           1.5, ...
         'loudspeaker_model',            'Genelec 8010A', ...
         'angleof_loudspeakerarrcentre', 180, ...
-        'loudspeaker_spacing',          []    };
+        'loudspeaker_spacing',          0.01    };
     speech_layout = {};
     masker_layout = {};
+    
+    Room_Setup = Room_Acoustics.Room;
+    Room_Setup.NoReceivers = 32;
     
     %%
     if room == 1
         % % ROOM 1
         % % Anechoic
-        Room_Size = [10 10 10]; %Anechoic
-        Wall_Absorption_Coeff = 1.0;
+        Room_Setup.Room_Size = [10 10 10]; %Anechoic
+        Room_Setup.Wall_Absorb_Coeff = 1.0;
         
     elseif room == 2
         % % ROOM 2
         % % Small Open Plan Office
-        Room_Size = [4 9 3];   %Small Open Plan Office
-        Wall_Absorption_Coeff = 0.3;
+        Room_Setup.Room_Size = [4 9 3];   %Small Open Plan Office
+        Room_Setup.Wall_Absorb_Coeff = 0.3;
         
     elseif room == 3
         % % ROOM 3
         % % Medium Open Plan Office
-        Room_Size = [8 10 3];   %Medium Open Plan Office
-        Wall_Absorption_Coeff = 0.3;
+        Room_Setup.Room_Size = [8 10 3];   %Medium Open Plan Office
+        Room_Setup.Wall_Absorb_Coeff = 0.3;
         
     elseif room == 4
         % % ROOM 4
         % % Cafe / Restaurant
-        Room_Size = [9 14 3];   %Cafe/Restaurant
-        Wall_Absorption_Coeff = 0.3;
+        Room_Setup.Room_Size = [9 14 3];   %Cafe/Restaurant
+        Room_Setup.Wall_Absorb_Coeff = 0.3;
     end
     
     %%
@@ -120,7 +123,7 @@ for room = rooms
         
         Speech_Setup = Speaker_Setup.createSetup({ speech_layout{:}, loudspeaker_layout{:}});
         
-        Room_Acoustics.Apply_RIRs.Reverberant_MSR_batchfunc(Room_Size, Wall_Absorption_Coeff, mask_type, Speech_Setup, Noise_Mask_Levels);
+        Room_Acoustics.Apply_RIRs.Reverberant_MSR_batchfunc( Room_Setup, mask_type, Speech_Setup, Noise_Mask_Levels);
         
     end
 end

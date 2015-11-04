@@ -1,73 +1,57 @@
 clear;
 clc;
-%clear;
+clear;
+clear classes;
 %close all;
+delete(gcp);
 tic;
 
 %%
-f_max = 8000;
-quiet  = Orthogonal_Basis_Expansion.spatial_zone(2000, 0, 0.30, 'quiet');
-bright = Orthogonal_Basis_Expansion.spatial_zone(2000, 0, 0.30, 'pw', 1.0, 15);
-quiet.res  = 50;
-bright.res = 50;
-quiet  =  quiet.setDesiredSoundfield(true, 'suppress_output');    
-bright = bright.setDesiredSoundfield(true);
+loudspeaker_layout = {'numberof_loudspeakers',        24, ...
+                      'loudspeaker_radius',           1.5, ...
+                      'loudspeaker_model',            'Genelec 8010A', ...
+                      'angleof_loudspeakerarrcentre', 180, ...
+                      'loudspeaker_spacing',          0.01    };
+                  
+speech_layout = {'brightzone_pos_angle',        180, ...
+                 'quietzone_pos_angle',         0, ...
+                 'brightzone_source_angle',     15};
+                  
+% speech_layout = {'brightzone_pos_angle',        90, ...
+%                  'quietzone_pos_angle',         -90, ...
+%                  'brightzone_source_angle',     0};
 
-%%
-soundfield = Orthogonal_Basis_Expansion.multizone_soundfield_OBE;
-soundfield = soundfield.addSpatialZone(quiet,  0.60, 0);
-soundfield = soundfield.addSpatialZone(bright, 0.60, 180);
-%%
- soundfield.BrightZ_Weight     = 1.0;
- soundfield.QuietZ_Weight      = 1e4;
- soundfield.UnattendedZ_Weight = 0.05;
+Speech_Setup = Speaker_Setup.createSetup({ speech_layout{:}, loudspeaker_layout{:}});
 
-soundfield = soundfield.setN(80);
-Radius = 1.0;
-soundfield = soundfield.createSoundfield('DEBUG', Radius);
-
-
-%%
- setup = Speaker_Setup.loudspeaker_setup;
- setup = setup.addMultizone_Soundfield(soundfield);
- %setup.Loudspeaker_Count = 2*ceil(f_max/343 * exp(1) * Radius / 2 ) + 1 ;%16;
- setup.Speaker_Arc_Angle = 180;
- setup.Angle_FirstSpeaker = 90;
- k = f_max/343*2*pi;
- M = ceil(k*Radius);
- setup.Loudspeaker_Count = 24;%16;%ceil( setup.Speaker_Arc_Angle/360 * 2*M + 1 ) ;%16;
- setup = setup.setRadius(1.5);
- 
- setup = setup.calc_Loudspeaker_Weights();
- setup = setup.reproduceSoundfield('DEBUG');
+Speech_Setup.Multizone_Soundfield = Speech_Setup.Multizone_Soundfield.createSoundfield('DEBUG');
+Speech_Setup = Speech_Setup.calc_Loudspeaker_Weights();
+Speech_Setup = Speech_Setup.reproduceSoundfield('DEBUG');
 
 %% RIR Generation for a particular setup...
+room = Room_Acoustics.Room;
+room.Room_Size = [10 10 10];
+%room.Room_Size = [4 9 3]; %35.G46e
+%room.Room_Size = [8 10 3]; %6.107
+%room.Room_Size = [9 14 3]; % Out to lunch
 
-room_size = [10 10 10];
-%room_size = [4 9 3]; %35.G46e
-%room_size = [8 10 3]; %6.107
-%room_size = [9 14 3]; % Out to lunch
+room.Room_Dimensions = 3;
+room.Reproduction_Centre = room.Room_Size ./ 2;
 
-room_dimensions = 3;
-reproduction_center = room_size ./ 2;
+room.Wall_Absorb_Coeff = 1.0;
+%room.Wall_Absorb_Coeff = 0.3;
 
-absorb_coeff = 1.0;
-%absorb_coeff = 0.3;
-
-reflect_coeff = sqrt(1-absorb_coeff);
+reflect_coeff = sqrt(1-room.Wall_Absorb_Coeff);
 reverb_time = repmat(reflect_coeff,1,6); %Seconds
 Fs = 16000;
 n_samples = 8000;
-n_rec = 32;
+
+room.NoReceivers = 32;
 
 [RIR_B, RIR_Q, Rec_Bright_Pos, Rec_Quiet_Pos, rec_b, rec_q ] = Room_Acoustics.RIR_Generation.RIR_from_loudspeaker_setup_rir_generator( ...
-    setup, ...
-    room_size, ...
-    room_dimensions, ...
-    reproduction_center, ...
+    Speech_Setup, ...
+    room, ...
     reverb_time, ...
-    n_samples, ...
-    n_rec);
+    n_samples);
 
 RIRs = struct('Bright_RIRs', RIR_B, ...
     'Bright_Receiver_Positions', Rec_Bright_Pos, ...
@@ -102,13 +86,24 @@ RIRs = struct('Bright_RIRs', RIR_B, ...
 
 %% Save the RIRs to a database for reuse
 Drive = 'Z:\';
-RIR_Database_Path = [Drive '+Room_Acoustics\+RIR_Database\'];
+SpeakerLayoutFolder = ['+' num2str(Speech_Setup.Radius*2) 'm_SpkrDia_' num2str(Speech_Setup.Speaker_Arc_Angle) 'DegArc\'];
+RIR_Database_Path = [Drive ...
+                    '+Room_Acoustics\' ...
+                    '+RIR_Database\' ...
+                    SpeakerLayoutFolder ...
+                    num2str(round(Speech_Setup.Multizone_Soundfield.Bright_Zone.Origin_q.X,10)) 'Bx_' ...
+                    num2str(round(Speech_Setup.Multizone_Soundfield.Bright_Zone.Origin_q.Y,10)) 'By_' ...
+                    num2str(round(Speech_Setup.Multizone_Soundfield.Quiet_Zone.Origin_q.X,10))  'Qx_' ...
+                    num2str(round(Speech_Setup.Multizone_Soundfield.Quiet_Zone.Origin_q.Y,10))  'Qy\'];
 
-room = strrep(sprintf(strrep(repmat('%d',1,length(room_size)),'d%','d %'),room_size),' ','x');
-room_cent = strrep(sprintf(strrep(repmat('%d',1,length(reproduction_center)),'d%','d %'),reproduction_center),' ','x');
-
-RIR_Name__Details = [num2str(setup.Loudspeaker_Count) 'Src_' num2str(n_rec) 'Rec_' room 'Dim_' room_cent 'Ctr_' num2str(absorb_coeff) 'Ab'];
+RIR_Name__Details = [num2str(Speech_Setup.Loudspeaker_Count) 'Src_' ...
+                     num2str(room.NoReceivers) 'Rec_' ...
+                     room.Room_Size_txt 'Dim_' ...
+                     room.Reproduction_Centre_txt 'Ctr_' ...
+                     num2str(room.Wall_Absorb_Coeff) 'Ab'];
     
+
+if ~exist( RIR_Database_Path,'dir'); mkdir( RIR_Database_Path ); end
 save([RIR_Database_Path 'RIRs__' RIR_Name__Details '.mat'], ...
         'RIRs');
         %'Time_Delay_TFs');
@@ -120,10 +115,14 @@ save([RIR_Database_Path 'RIRs__' RIR_Name__Details '.mat'], ...
 scatter(rec_b(:,1),rec_b(:,2),'.g'); hold on
 scatter(rec_q(:,1),rec_q(:,2),'.y');
 scatter(Rec_Bright_Pos(:,1),Rec_Bright_Pos(:,2),'ob'); hold on;
-scatter(Rec_Quiet_Pos(:,1),Rec_Quiet_Pos(:,2),'or'); hold off;
+scatter(Rec_Quiet_Pos(:,1),Rec_Quiet_Pos(:,2),'or'); hold on;
+
+src = [];
+[src(:,1), src(:,2)] = pol2cart( Speech_Setup.Loudspeaker_Locations(:,1), Speech_Setup.Loudspeaker_Locations(:,2));
+src = [src zeros(size(src,1),size(room.Room_Size,2)-2)] + repmat(room.Reproduction_Centre, size(src,1),1);
+scatter(src(:,1),src(:,2),'ok');hold off;
 axis equal;
-
-
+%axis([0 room.Room_Size(1) 0 room.Room_Size(2)]);
 
 %%
 toc

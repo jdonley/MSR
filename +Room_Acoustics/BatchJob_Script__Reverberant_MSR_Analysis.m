@@ -26,14 +26,14 @@ Wall_Absorption_Coeff = 1.0;
 
 %%
 %setups = [0];
-setups = [ 7.5 ];
+setups = [ 7 ];
 %% 
 Noise_Mask_Levels = [-40 -35 -30 -25 -20 -15 -10 -5 0 5 10 15 20];% 25 30 35 40];
     loudspeaker_layout = {'numberof_loudspeakers',        24, ...
         'loudspeaker_radius',           1.5, ...
         'loudspeaker_model',            'Genelec 8010A', ...
         'angleof_loudspeakerarrcentre', 180, ...
-        'loudspeaker_spacing',          []    };
+        'loudspeaker_spacing',          0.01    };
     speech_layout = {};
     masker_layout = {};
     

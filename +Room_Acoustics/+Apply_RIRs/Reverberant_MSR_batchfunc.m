@@ -1,4 +1,4 @@
-function Reverberant_MSR_batchfunc(Room_Size, Wall_Absorption_Coeff, mask_type, speech_setup, mask_level, Conv_Type )
+function Reverberant_MSR_batchfunc( room_setup, mask_type, speech_setup, mask_level, Conv_Type )
 %% Initialise
 tic;
 % Start Parallel Pool
@@ -13,11 +13,8 @@ Drive = 'Z:\'; % Database drive (storage drive)
 LUT_resolution =  '512f_32w'; %Look-Up Table resolution
 Fs = 16000; %Sampling Frequency
 
-pw_angle = speech_setup.Multizone_Soundfield.Bright_Zone.SourceOrigin.Angle;
-        
-Num_Receivers = 32; %Number of recording points (microphones)
+pw_angle = speech_setup.Multizone_Soundfield.Bright_Zone.SourceOrigin.Angle;        
 
-Reproduction_Centre = Room_Size ./ 2;
 
 if nargin < 5
    mask_level = [];
@@ -32,15 +29,20 @@ Spkr_Sig_file_path_ext = ['+' num2str(speech_setup.Radius*2) 'm_SpkrDia\+' num2s
 Output_file_path_ext = Spkr_Sig_file_path_ext;
 
 %% Load RIR Database file
-room = strrep(sprintf(strrep(repmat('%g',1,length(Room_Size)),'g%','g %'),Room_Size),' ','x');
-room_cent = strrep(sprintf(strrep(repmat('%g',1,length(Reproduction_Centre)),'g%','g %'),Reproduction_Centre),' ','x');
-
-RIR_Database_file_path = [Drive '+Room_Acoustics\+RIR_Database\'];
-RIR_Database_file_name = ['RIRs__' num2str(speech_setup.Loudspeaker_Count) 'Src_' num2str(Num_Receivers) 'Rec_' room 'Dim_' room_cent 'Ctr_' num2str(Wall_Absorption_Coeff) 'Ab.mat'];
-
-load([RIR_Database_file_path RIR_Database_file_name]);
-
-ResultsPath = [Drive '+Results\+Reverb__' num2str(Num_Receivers) 'Rec_' room 'Dim_' room_cent 'Ctr_' num2str(Wall_Absorption_Coeff) 'Ab\'];
+method = {'new', 'old'};
+for m = 1:length(method)
+    [DB,err] = Room_Acoustics.loadRIRDatabaseFromSetup( speech_setup, room_setup, Drive, method{m});
+    if ~err
+        break;
+    end
+end
+    
+ResultsPath = [Drive ...
+               '+Results\' ...
+               '+Reverb__' num2str(room_setup.NoReceivers) 'Rec_' ...
+               room_setup.Room_Size_txt 'Dim_' ...
+               room_setup.Reproduction_Centre_txt 'Ctr_' ...
+               num2str(room_setup.Wall_Absorb_Coeff) 'Ab\'];
 
 %% Find Speaker Signals and read to Workspace
 Input_file_path = [Spkr_Sig_file_path Spkr_Sig_file_path_ext];
@@ -65,8 +67,8 @@ files = files(ind);
 files = sort(files);
 
 fprintf('\n====== Applying Room Impulse Responses to Loudspeaker-Signals ======\n');
-fprintf(['            Room Size: ' [strrep(sprintf(strrep(repmat('%g',1,length(Room_Size)),'g%','g %'),Room_Size),' ','m x ') 'm'] '\n']);
-fprintf(['Wall Absorption Coeff: ' num2str(Wall_Absorption_Coeff) '\n']);
+fprintf(['            Room Size: ' [strrep(room_setup.Room_Size_txt,'x','m x ') 'm'] '\n']);
+fprintf(['Wall Absorption Coeff: ' num2str(room_setup.Wall_Absorb_Coeff) '\n']);
 fprintf(['      Planewave Angle: ' num2str(pw_angle) '\n']);
 fprintf(['    Privacy Weighting: ' mask_type '\n\n']);n=0;
 fprintf('\tCompletion: ');
@@ -103,10 +105,10 @@ for file = 1:length(files)
             % Perform RIR Convolution with Loudspeaker Signals
             % Bright Zone Signals
             Rec_Sigs_B = Room_Acoustics.Apply_RIRs.Convolve_SpkrSigs_and_RIRs( ...
-                                Speaker_Signals, RIRs.Bright_RIRs, Conv_Type);
+                                Speaker_Signals, DB.RIRs.Bright_RIRs, Conv_Type);
             % Quiet Zone Signals
             Rec_Sigs_Q = Room_Acoustics.Apply_RIRs.Convolve_SpkrSigs_and_RIRs( ...
-                                Speaker_Signals, RIRs.Quiet_RIRs, Conv_Type);
+                                Speaker_Signals, DB.RIRs.Quiet_RIRs, Conv_Type);
             
             
             % Read original file
