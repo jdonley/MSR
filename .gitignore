@@ -1,4 +1,9 @@
-*
+*.WAV
+*.avi
+*.fig
+*.mat
+*.png
+*.csv
 !.gitignore
 !.gitmodules
 !*.m
