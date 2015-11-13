@@ -1,0 +1,4 @@
+mcc -win32 -W 'dotnet:MSR,Class1,0.0,private' -T link:lib -d M:\MSR\MSR\for_testing -v class{Class1:M:\MSR\MSR.m} -a M:\MSR\+Orthogonal_Basis_Expansion\Gram_Schmidt.m -a M:\MSR\+Speaker_Setup\loudspeaker_setup.m -a M:\MSR\+Orthogonal_Basis_Expansion\multizone_soundfield_OBE.m -a M:\MSR\+Orthogonal_Basis_Expansion\spatial_zone.m 
+"-win32" is invalid when executed from within MATLAB on "win64"
+
+mcc failed.

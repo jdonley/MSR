@@ -1,11 +1,11 @@
-delete(gcp);clear;close all;fclose all;clc;
+delete(gcp);clear;close all;fclose all;clc;clear classes;
 
 %%
 %rooms = [4];
 rooms = [ 1 ];
 
 %setups = [1 2 3 4 5 6 0];
-setups = [ 7 ];
+setups = [ 7.6 ];
 
 for room = rooms
     
@@ -14,7 +14,8 @@ for room = rooms
         'loudspeaker_radius',           1.5, ...
         'loudspeaker_model',            'Genelec 8010A', ...
         'angleof_loudspeakerarrcentre', 180, ...
-        'loudspeaker_spacing',          0.01    };
+        'loudspeaker_spacing',          0.01, ...
+        'speaker_array_type',           'line' };
     speech_layout = {};
     masker_layout = {};
     
@@ -103,6 +104,12 @@ for room = rooms
                 'brightzone_source_angle',     15};
         elseif scheme == 7.5
             % % Setup and Privacy Scheme 7.5
+            mask_type = 'ZoneWeightMaskAliasCtrl';
+            speech_layout = {'brightzone_pos_angle',        90, ...
+                'quietzone_pos_angle',         -90, ...
+                'brightzone_source_angle',     0};
+        elseif scheme == 7.6
+            % % Setup and Privacy Scheme 7.6
             mask_type = 'ZoneWeightMaskAliasCtrl';
             speech_layout = {'brightzone_pos_angle',        90, ...
                 'quietzone_pos_angle',         -90, ...

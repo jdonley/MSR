@@ -26,14 +26,15 @@ Wall_Absorption_Coeff = 1.0;
 
 %%
 %setups = [0];
-setups = [ 7 ];
+setups = [ 7.6 ];
 %% 
 Noise_Mask_Levels = [-40 -35 -30 -25 -20 -15 -10 -5 0 5 10 15 20];% 25 30 35 40];
     loudspeaker_layout = {'numberof_loudspeakers',        24, ...
         'loudspeaker_radius',           1.5, ...
         'loudspeaker_model',            'Genelec 8010A', ...
         'angleof_loudspeakerarrcentre', 180, ...
-        'loudspeaker_spacing',          0.01    };
+        'loudspeaker_spacing',          0.01, ...
+        'speaker_array_type',           'line'    };
     speech_layout = {};
     masker_layout = {};
     
@@ -93,6 +94,12 @@ for scheme = setups
                 'brightzone_source_angle',     15};
         elseif scheme == 7.5
             % % Setup and Privacy Scheme 7.5
+            mask_type = 'ZoneWeightMaskAliasCtrl';
+            speech_layout = {'brightzone_pos_angle',        90, ...
+                'quietzone_pos_angle',         -90, ...
+                'brightzone_source_angle',     0};
+        elseif scheme == 7.6
+            % % Setup and Privacy Scheme 7.6
             mask_type = 'ZoneWeightMaskAliasCtrl';
             speech_layout = {'brightzone_pos_angle',        90, ...
                 'quietzone_pos_angle',         -90, ...

@@ -43,7 +43,7 @@ ratio = percent_complete;
 if nargin >=3
     history = [history; tElapsed, ratio];
     if size(history,1) > 10 && ratio < 0.5
-        t=0:0.0001:1;
+        t=0:0.001:1;
         tTot__ = abs(interp1( ...
             smooth(history(:,2),size(history,1),'rloess'), ...
             smooth(history(:,1),size(history,1),'rloess'), ...
@@ -58,7 +58,7 @@ if nargin >=3
             
         tRem = tTot_(end) - tElapsed;
     elseif size(history,1) > 10
-        t=0:0.0001:1;
+        t=0:0.001:1;
         tTot_ = abs(interp1( ...
             smooth(history(:,2),size(history,1),'rloess'), ...
             smooth(history(:,1),size(history,1),'rloess'), ...
@@ -77,7 +77,6 @@ tTot = tElapsed + tRem;
 % Begin plot prediction
 if nargin >=3
     plot(history(:,2),history(:,1),'ok');hold on;
-    plot(smooth(history(:,2),size(history,1),'rloess'),smooth(history(:,1),size(history,1),'rloess'));
     if size(history,1) > 10 && ratio < 0.5
         plot(t,tTot__,'g');
     end

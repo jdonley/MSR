@@ -31,7 +31,7 @@ fprintf('\n====== Building Broadband Multizone-Soundfield Loudspeaker-Signals ==
 fprintf(['         Zone Weights: ' strrep(sprintf(strrep(repmat('%d',1,length(Zone_Weights)),'d%','d %'),Zone_Weights),' ',' & ') '\n']);
 fprintf(['    Noise Mask Levels: ' [strrep(sprintf(strrep(repmat('%d',1,length(Noise_Mask_Levels)),'d%','d %'),Noise_Mask_Levels),' ','dB & ') 'dB'] '\n']);
 fprintf(['          Masker Type: ' Masker_Type '\n']);
-fprintf(['      Planewave Angle: ' num2str(Speech_Setup.Multizone_Soundfield.Bright_Zone.SourceOrigin.Angle) '\n\n']);n=0;
+fprintf(['      Planewave Angle: ' num2str(Speech_Setup.Multizone_Soundfield.Bright_Zone.SourceOrigin.Angle) '\n\n']);n=0;h=[];
 fprintf('\tCompletion: ');
 
 F=length(files);
@@ -102,7 +102,7 @@ for file = 1:F
                 
             end
             
-            n = Tools.showTimeToCompletion( ((file-1)*W*M + (w-1)*M + m) / (F*W*M), n);
+            [n,h] = Tools.showTimeToCompletion( ((file-1)*W*M + (w-1)*M + m) / (F*W*M), n, h);
         end
         
     end

@@ -481,6 +481,7 @@ obj.Quiet_Samples_Locations = ones(O*2, O*2, 2)*NaN;
             end
             set(gca, 'XTick', XYTick); set(gca, 'XTickLabel', XYTickLabel);
             set(gca, 'YTick', XYTick); set(gca, 'YTickLabel', XYTickLabel);
+            set(gca, 'TickDir', 'out' );
             set(gca, 'FontSize', 16);
             set(gca, 'FontName', 'Arial');
             % Create xlabel

@@ -34,6 +34,8 @@ for m = 1:length(method)
     [DB,err] = Room_Acoustics.loadRIRDatabaseFromSetup( speech_setup, room_setup, Drive, method{m});
     if ~err
         break;
+    elseif m == length(method)
+        error('No matching RIR database file was found. (Generate one and try again)');
     end
 end
     
@@ -134,7 +136,7 @@ for file = 1:length(files)
     
     end
     
-    n = Tools.showTimeToCompletion( file/length(files), n);
+    [n] = Tools.showTimeToCompletion( file/length(files), n);
 end
 
 

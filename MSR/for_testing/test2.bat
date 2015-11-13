@@ -1,0 +1,1 @@
+java -classpath "C:\Program Files\MATLAB\R2015b\toolbox\javabuilder\jar\javabuilder.jar";MSR.jar MSR.Class1 100 2000 1.0 80 1.0 2.5 0.05 0.3 180 0.6 15 0.3 0 0.6 32 1.5 8000 90 180

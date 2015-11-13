@@ -12,7 +12,6 @@ overlap = 0.5;
 f_low  = 150;  % Hz
 f_high = 8000; % Hz
 
-leakage_angle = 0; % Angle of the leaked planewave into the quiet so that planewave noise can mask the signal
 angle_pw       = setup.Multizone_Soundfield.Bright_Zone.SourceOrigin.Angle;
 loudspeakers   = setup.Loudspeaker_Count;
 speaker_arc    = setup.Speaker_Arc_Angle;
@@ -43,10 +42,10 @@ for sig = 1:2 % Firstly we compute the loudspeaker signals for the input signal 
     %% First, Load the relevant look-up tables and check compatability
     for m = 1:2
         if sig == 1
-            method = {'new', 'old'};
+            method = {'new2', 'new', 'old'};
             [DB,err] = Soundfield_Database.loadDatabaseFromSetup( setup, LUT_resolution, Drive, method{m} );
         elseif sig == 2
-            method = {'new', 'old_zones_swapped'};
+            method = {'new2', 'new', 'old_zones_swapped'};
             [DB,err] = Soundfield_Database.loadDatabaseFromSetup( setup_mask, LUT_resolution, Drive, method{m} );
         end
         if ~err
