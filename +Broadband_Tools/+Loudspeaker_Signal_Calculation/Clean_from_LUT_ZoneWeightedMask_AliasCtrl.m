@@ -6,6 +6,7 @@ function Clean_from_LUT_ZoneWeightedMask_AliasCtrl( Input_file, LUT_resolution, 
 [Input_file_path, Input_file_name, Input_file_ext] = fileparts( Input_file );
 Input_file_path = [Input_file_path '\'];
 
+c = 343; % Speed of sound in metres/sec
 Fs = 16000; % Sampling frequency
 Nfft = 1024;% Number of fft components
 overlap = 0.5;
@@ -40,13 +41,14 @@ Input_Signal = audioread( Input_file );
 for sig = 1:2 % Firstly we compute the loudspeaker signals for the input signal then we compute the loudspeaker signals for the additive zone weighted noise
     
     %% First, Load the relevant look-up tables and check compatability
+    method = {'new3', 'new2', 'new'};
     for m = 1:2
         if sig == 1
-            method = {'new2', 'new', 'old'};
-            [DB,err] = Soundfield_Database.loadDatabaseFromSetup( setup, LUT_resolution, Drive, method{m} );
+            method_ = [method, {'old'}];
+            [DB,err] = Soundfield_Database.loadDatabaseFromSetup( setup, LUT_resolution, Drive, method_{m} );
         elseif sig == 2
-            method = {'new2', 'new', 'old_zones_swapped'};
-            [DB,err] = Soundfield_Database.loadDatabaseFromSetup( setup_mask, LUT_resolution, Drive, method{m} );
+            method_ = [method, {'old_zones_swapped'}];
+            [DB,err] = Soundfield_Database.loadDatabaseFromSetup( setup_mask, LUT_resolution, Drive, method_{m} );
         end
         if ~err
             break;
@@ -77,7 +79,7 @@ for sig = 1:2 % Firstly we compute the loudspeaker signals for the input signal 
     else
         % Find the weights that will give us the biggest contrast possible
         % (works better at lower frequencies)
-        LUT_MagDiff = DB.Bright_Sample__Weight_Vs_Frequency - DB.Quiet_Sample__Weight_Vs_Frequency;
+        LUT_MagDiff = DB.Acoustic_Contrast__Weight_Vs_Frequency;%DB.Bright_Sample__Weight_Vs_Frequency - DB.Quiet_Sample__Weight_Vs_Frequency;
         
         % Noise weights
         LUT_MagDiff_interp = interp2(Frequencies,Weights,LUT_MagDiff,noise_freqs',Weights,'spline');
@@ -96,19 +98,24 @@ for sig = 1:2 % Firstly we compute the loudspeaker signals for the input signal 
     % large magnitude in the quiet zone, we invert this level and apply it
     % to the noise input signal.
     if sig == 2
-        W = -mag2db(DB.Quiet_Sample__Weight_Vs_Frequency);   
-        W_ = permute( Tools.interpVal_2D(W, Frequencies, Weights, noise_freqs, noise_weights, 'spline'), [2 1]);        
-        W_=W_(:);
+%         W = -mag2db(DB.Quiet_Sample__Weight_Vs_Frequency);   
+%         W_ = permute( Tools.interpVal_2D(W, Frequencies, Weights, noise_freqs, noise_weights, 'spline'), [2 1]);        
+%         W_=W_(:);
         
         % Equalise signal in target "bright" zone
-        Input_Signal = applyWeight(Input_Signal, W_, noise_freqs, Fs);       
+        %Input_Signal = applyWeight(Input_Signal, W_, noise_freqs, Fs);       
         
         %Find cutoff frequencies for band pass filter
-        Alias_leakage_threshold = 7.5; %dB
-        [~,bandpass_centre] = max(W_);
-        f_cutoff_low  = noise_freqs(find( W_(1:bandpass_centre) <=Alias_leakage_threshold,1,'last'));
-        f_cutoff_high = noise_freqs( (bandpass_centre-1) + find( W_(bandpass_centre:end) <=Alias_leakage_threshold,1,'first'));
-        f_cutoff = [f_cutoff_low, f_cutoff_high];        
+%         Alias_leakage_threshold = 7.5; %dB
+%         [~,bandpass_centre] = max(W_);
+%         f_cutoff_low  = noise_freqs(find( W_(1:bandpass_centre) <=Alias_leakage_threshold,1,'last'));
+%         f_cutoff_high = noise_freqs( (bandpass_centre-1) + find( W_(bandpass_centre:end) <=Alias_leakage_threshold,1,'first'));
+%         f_cutoff = [f_cutoff_low, f_cutoff_high];
+        R_ = max( [setup.Multizone_Soundfield.Bright_Zone.Radius_q + setup.Multizone_Soundfield.Bright_Zone.Origin_q.Distance; ...
+                   setup.Multizone_Soundfield.Quiet_Zone.Radius_q + setup.Multizone_Soundfield.Quiet_Zone.Origin_q.Distance;  ]);
+        phiL_rad = setup.Speaker_Arc_Angle / 180 * pi;
+        
+        f_cutoff = c * (loudspeakers - 1) / (2 * R_ * phiL_rad);
         
         %Design low pass filter
         [b,a] = butter(6, f_cutoff./(Fs/2));

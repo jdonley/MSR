@@ -2,7 +2,7 @@ function [DB, err] = loadRIRDatabaseFromSetup( setup, room, database_workingdir,
 %GETDATABASEFROMSETUP Summary of this function goes here
 %   Detailed explanation goes here
 if nargin < 4
-    method = 'new';
+    method = 'new2';
 end
 if nargin < 3
     database_workingdir = 'Z:\';

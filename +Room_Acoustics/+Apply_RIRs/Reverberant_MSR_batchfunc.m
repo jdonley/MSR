@@ -29,7 +29,7 @@ Spkr_Sig_file_path_ext = ['+' num2str(speech_setup.Radius*2) 'm_SpkrDia\+' num2s
 Output_file_path_ext = Spkr_Sig_file_path_ext;
 
 %% Load RIR Database file
-method = {'new', 'old'};
+method = {'new2', 'new', 'old'};
 for m = 1:length(method)
     [DB,err] = Room_Acoustics.loadRIRDatabaseFromSetup( speech_setup, room_setup, Drive, method{m});
     if ~err

@@ -431,7 +431,12 @@ classdef multizone_soundfield_OBE
         end
         
         function obj = setN(obj, N)
-            obj.N = N;
+            if N>=1;
+                obj.N = N;
+            else                
+                obj = obj.setWavenumberFromChildZone(); %Incase the child spatial zones have been changed
+                obj.N = 2 * obj.getGlobalModeLimit() + 1;
+            end                
             obj.Delta_phi = 2 * pi / obj.N;
         end
         

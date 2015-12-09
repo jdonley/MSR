@@ -47,6 +47,8 @@ classdef loudspeaker_setup
         Quiet_Samples_Locations = [];        
         Bright_Sample = 0;
         Quiet_Sample  = 0;
+        
+        Acoustic_Contrast = 0;
     end
     
     properties (Access = private)
@@ -92,6 +94,7 @@ classdef loudspeaker_setup
                        
             obj = obj.save_Bright_Samples();
             obj = obj.save_Quiet_Samples();
+            obj.Acoustic_Contrast = obj.getAcoustic_Contrast();
             
             if ~strcmp(Debug, 'SAMPLES_ONLY')
                 O = length(obj.Soundfield_reproduced) / 2; %Set the centre of the zone for indexing
@@ -207,6 +210,9 @@ classdef loudspeaker_setup
                 
                 obj.Loudspeaker_Locations = [spkr_theta(:), spkr_rho(:)];
                 
+                obj.Angle_FirstSpeaker = obj.Loudspeaker_Locations(1,1) / pi * 180;
+                obj.Speaker_Arc_Angle = obj.Loudspeaker_Locations(end,1) / pi * 180 - obj.Angle_FirstSpeaker;
+                
             elseif strcmp(obj.Speaker_Array_Type, 'coprime')
                 L = obj.Loudspeaker_Count;
                 
@@ -239,6 +245,9 @@ classdef loudspeaker_setup
                 spkr_theta = spkr_theta + centre/180*pi;
                 
                 obj.Loudspeaker_Locations = [spkr_theta(:), spkr_rho(:)];
+                
+                obj.Angle_FirstSpeaker = obj.Loudspeaker_Locations(1,1) / pi * 180;
+                obj.Speaker_Arc_Angle = obj.Loudspeaker_Locations(end,1) / pi * 180 - obj.Angle_FirstSpeaker;
             end
             
         end
@@ -333,11 +342,11 @@ classdef loudspeaker_setup
         end
         
         
-        function obj = norm_soundfield(obj)
-            f_ = obj.Soundfield_reproduced .* obj.Desired_Mask;
-            
-            obj.Soundfield_reproduced = obj.Soundfield_reproduced / max(abs(real(f_(:)))) * 4/3;
-        end
+%         function obj = norm_soundfield(obj)
+%             f_ = obj.Soundfield_reproduced .* obj.Desired_Mask;
+%             
+%             obj.Soundfield_reproduced = obj.Soundfield_reproduced / max(abs(real(f_(:)))) * 4/3;
+%         end
         
         function obj = save_Bright_Samples(obj)
                         
@@ -444,6 +453,11 @@ obj.Quiet_Samples_Locations = ones(O*2, O*2, 2)*NaN;
             obj.Quiet_Samples = sum( L_.*H , 3 );
                         
             obj.Quiet_Sample = mean( abs( obj.Quiet_Samples(:) ) );
+        end
+        
+        
+        function contrast = getAcoustic_Contrast(obj)
+            contrast = mean( abs( obj.Bright_Samples(:) ) .^ 2 ) / mean( abs( obj.Quiet_Samples(:) ) .^ 2 );
         end
         
         %% Plotting Functions

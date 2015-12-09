@@ -1,4 +1,4 @@
-function [ num_curr_char, history ] = showTimeToCompletion( percent_complete, num_prev_char, history )
+function [ num_curr_char, history_ ] = showTimeToCompletion( percent_complete, num_prev_char, history_ )
 %SHOWTIMETOCOMPLETION Prints the time to completion and expected finish of a looped simulation based on linear extrapolation.
 % 
 % Syntax:	[ num_curr_char ] = showTimeToCompletion( percent_complete, num_prev_char )
@@ -41,12 +41,12 @@ tElapsed = toc;
 ratio = percent_complete;
 
 if nargin >=3
-    history = [history; tElapsed, ratio];
-    if size(history,1) > 10 && ratio < 0.5
+    history_ = [history_; tElapsed, ratio];
+    if size(history_,1) > 10 && ratio < 0.5
         t=0:0.001:1;
         tTot__ = abs(interp1( ...
-            smooth(history(:,2),size(history,1),'rloess'), ...
-            smooth(history(:,1),size(history,1),'rloess'), ...
+            smooth(history_(:,2),size(history_,1),'rloess'), ...
+            smooth(history_(:,1),size(history_,1),'rloess'), ...
             t, 'pchirp', 'extrap'));
         
         I2 = find(t < ratio*2,1,'last');
@@ -57,11 +57,11 @@ if nargin >=3
             t, 'linear', 'extrap'));
             
         tRem = tTot_(end) - tElapsed;
-    elseif size(history,1) > 10
+    elseif size(history_,1) > 10
         t=0:0.001:1;
         tTot_ = abs(interp1( ...
-            smooth(history(:,2),size(history,1),'rloess'), ...
-            smooth(history(:,1),size(history,1),'rloess'), ...
+            smooth(history_(:,2),size(history_,1),'rloess'), ...
+            smooth(history_(:,1),size(history_,1),'rloess'), ...
             t, 'linear', 'extrap'));
         
         tRem = tTot_(end) - tElapsed;
@@ -76,15 +76,26 @@ tTot = tElapsed + tRem;
 
 % Begin plot prediction
 if nargin >=3
-    plot(history(:,2),history(:,1),'ok');hold on;
-    if size(history,1) > 10 && ratio < 0.5
-        plot(t,tTot__,'g');
+    t_vec = (history_(:,1)-history_(end,1))/86400 + datenum(datetime);
+    plot(history_(:,2), t_vec,'ok');hold on;
+    if size(history_,1) > 10 && ratio < 0.5
+        plot(t,(tTot__-history_(end,1))/86400 + datenum(datetime) ,'g');
     end
-    if size(history,1) > 10
-        plot(t,tTot_,'r');
-        ylim([min(tTot_) max(tTot_)]);
+    if size(history_,1) > 10
+        tvec = (tTot_-history_(end,1))/86400 + datenum(datetime);
+        plot(t,tvec,'r');
+        ylim([min(tvec) max(tvec)]);
     end
     hold off;
+    title('Progress','FontSize',14);
+    XTick = linspace(0,1.0,11); XTickLabel = linspace(0,100,11);
+    set(gca, 'XTick', XTick); set(gca, 'XTickLabel', XTickLabel);
+    xlabel('Completion (%)');
+    Y = get(gca,'YLim');
+       YTick = linspace(Y(1),Y(2),10);
+       set(gca, 'YTick', YTick);
+    datetick('y', 'dd-mmm HH:MM:SS PM');
+    ylabel('Date / Time');
     grid on; xlim([0 1.0]); drawnow;
 end
 % End plot prediction

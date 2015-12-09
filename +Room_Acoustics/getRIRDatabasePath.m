@@ -1,8 +1,9 @@
 function [Path, err] = getRIRDatabasePath( setup, room, database_workingdir, method )
 %GETDATABASEFROMSETUP Summary of this function goes here
 %   Detailed explanation goes here
+latest_method = 'new2';
 if nargin < 4
-    method = 'new';
+    method = latest_method;
 end
 if nargin < 3
     database_workingdir = 'Z:\';
@@ -16,7 +17,7 @@ RIR_Database_Path = [database_workingdir ...
 err = false;
 try
     
-    if strcmpi(method, 'new2')
+    if strcmpi(method, latest_method)
         
         [~,~,setup_details_path] = Soundfield_Database.getDatabasePath(setup, '', database_workingdir, 'new3');
         
