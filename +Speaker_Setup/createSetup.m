@@ -24,6 +24,7 @@ addOptional(p,'maximum_frequency',              8000,              @isnumeric);
 addOptional(p,'angleto_firstloudspeaker',       90,                @isnumeric);
 addOptional(p,'angleof_loudspeakerarc',         180,               @isnumeric);
 addOptional(p,'loudspeaker_model',              'Genelec 8010A',   @ischar);
+addOptional(p,'loudspeaker_object',             [] );
 addOptional(p,'angleof_loudspeakerarrcentre',   180,               @isnumeric);
 addOptional(p,'loudspeaker_spacing',            0.01,              @isnumeric);
 addOptional(p,'speaker_array_type',             'circle',          @ischar);
@@ -51,13 +52,14 @@ setup = MultizoneSoundfieldSetup( ...
     p.Results.angleto_firstloudspeaker, ...
     p.Results.angleof_loudspeakerarc, ...
     p.Results.loudspeaker_model, ...
+    p.Results.loudspeaker_object, ...
     p.Results.angleof_loudspeakerarrcentre, ...
     p.Results.loudspeaker_spacing, ...
     p.Results.speaker_array_type);
 
 end
 
-function setup = MultizoneSoundfieldSetup(res, f, R, N, Wb, Wq, Wu, rb, angb, disb, PWangb, rq, angq, disq, L, Rl, fmax, phi, phiL, spkrmod, phiLcent, spkrspace, arr_type)
+function setup = MultizoneSoundfieldSetup(res, f, R, N, Wb, Wq, Wu, rb, angb, disb, PWangb, rq, angq, disq, L, Rl, fmax, phi, phiL, spkrmod, spkrobj, phiLcent, spkrspace, arr_type)
 %%
 c = 343;
 k = (f/c)*2*pi;
@@ -101,6 +103,7 @@ if L < 1
 end
 setup.Loudspeaker_Count = floor(L);
 
+setup = setup.addLoudspeaker_Object(spkrobj);
 setup = setup.setLoudspeakerType(spkrmod);
 setup.Speaker_Array_Type = arr_type;
 setup.Speaker_Array_Centre = phiLcent;
