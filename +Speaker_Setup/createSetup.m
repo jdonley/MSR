@@ -15,6 +15,8 @@ addOptional(p,'brightzone_radius',              0.3,               @isnumeric);
 addOptional(p,'brightzone_pos_angle',           180,               @isnumeric);
 addOptional(p,'brightzone_pos_distance',        0.6,               @isnumeric);
 addOptional(p,'brightzone_source_angle',        15,                @isnumeric);
+addOptional(p,'brightzone_source_dist',         1.0,               @isnumeric);
+addOptional(p,'brightzone_source_type',         'pw',              @ischar);
 addOptional(p,'quietzone_radius',               0.3,               @isnumeric);
 addOptional(p,'quietzone_pos_angle',            0,                 @isnumeric);
 addOptional(p,'quietzone_pos_distance',         0.6,               @isnumeric);
@@ -43,6 +45,8 @@ setup = MultizoneSoundfieldSetup( ...
     p.Results.brightzone_pos_angle, ...
     p.Results.brightzone_pos_distance, ...
     p.Results.brightzone_source_angle, ...
+    p.Results.brightzone_source_dist, ...
+    p.Results.brightzone_source_type, ...
     p.Results.quietzone_radius, ...
     p.Results.quietzone_pos_angle, ...
     p.Results.quietzone_pos_distance, ...
@@ -59,7 +63,7 @@ setup = MultizoneSoundfieldSetup( ...
 
 end
 
-function setup = MultizoneSoundfieldSetup(res, f, R, N, Wb, Wq, Wu, rb, angb, disb, PWangb, rq, angq, disq, L, Rl, fmax, phi, phiL, spkrmod, spkrobj, phiLcent, spkrspace, arr_type)
+function setup = MultizoneSoundfieldSetup(res, f, R, N, Wb, Wq, Wu, rb, angb, disb, srcangb, srcdistb, srctypeb, rq, angq, disq, L, Rl, fmax, phi, phiL, spkrmod, spkrobj, phiLcent, spkrspace, arr_type)
 %%
 c = 343;
 k = (f/c)*2*pi;
@@ -69,11 +73,11 @@ Mmax = ceil(kmax*R);
 
 %%
 quiet  = Orthogonal_Basis_Expansion.spatial_zone(f, 0, rq, 'quiet');
-bright = Orthogonal_Basis_Expansion.spatial_zone(f, 0, rb, 'pw', 1.0, PWangb);
+bright = Orthogonal_Basis_Expansion.spatial_zone(f, 0, rb, srctypeb, 1.0, srcangb, srcdistb);
 quiet.res  = res;
 bright.res = quiet.res;
 quiet  =  quiet.setDesiredSoundfield(true, 'suppress_output');
-bright = bright.setDesiredSoundfield(true, 'suppress_output');
+bright = bright.setDesiredSoundfield(false, 'suppress_output');
 
 %%
 soundfield = Orthogonal_Basis_Expansion.multizone_soundfield_OBE;

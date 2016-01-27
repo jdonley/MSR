@@ -1,4 +1,4 @@
-function [ RIR_Bright, RIR_Quiet, Rec_Bright_Pos, Rec_Quiet_Pos, rec_b, rec_q ] = RIR_from_loudspeaker_setup_rir_generator( loudspeaker_setup, room, reverb_time, n_samples )
+function [ RIR_Bright, RIR_Quiet, Rec_Bright_Pos, Rec_Quiet_Pos, rec_b, rec_q ] = RIR_from_loudspeaker_setup_rir_generator( loudspeaker_setup, room, reverb_time, n_samples, rec_positions )
 %RIR_FROM_LOUDSPEAKER_SETUP Returns the RIR for each sample point in each
 %zone for a given multizone loudspeaker setup using rir_generator
 %   Returns a matrix which contains the RIR (column values) for each
@@ -24,6 +24,9 @@ if nargin < 4
 else
     n = n_samples;
 end
+if nargin < 5
+    rec_positions = [];
+end
 
 dim = room.Room_Dimensions;
 mtype = 'omnidirectional';  % Type of microphone
@@ -44,38 +47,45 @@ src = [src zeros(size(src,1),size(room.Room_Size,2)-2)] + repmat(room.Reproducti
 %Add all receviers (multizone sample point locations)
 %r1 = AddReceiver('Location',[3 3 1]);
 %r1 = [r1 AddReceiver('Location',[2 4 1])];
-
-mask_b = loudspeaker_setup.Multizone_Soundfield.Bright_Zone.Soundfield_d_mask;
-mask_q = loudspeaker_setup.Multizone_Soundfield.Quiet_Zone.Soundfield_d_mask;
-
-rec_b = [];
-angl = loudspeaker_setup.Bright_Samples_Locations(:,:,1);
-dis = loudspeaker_setup.Bright_Samples_Locations(:,:,2);
-[rec_b(:,1), rec_b(:,2)] = pol2cart( angl(:), dis(:));
-rec_b = [rec_b zeros(size(rec_b,1),size(room.Room_Size,2)-2)] + repmat(room.Reproduction_Centre, size(rec_b,1),1);
-rec_b = rec_b(mask_b(:) ~= 0,:);
-
-rec_q = [];
-angl = loudspeaker_setup.Quiet_Samples_Locations(:,:,1);
-dis = loudspeaker_setup.Quiet_Samples_Locations(:,:,2);
-[rec_q(:,1), rec_q(:,2)] = pol2cart( angl(:), dis(:));
-rec_q = [rec_q zeros(size(rec_q,1),size(room.Room_Size,2)-2)] + repmat(room.Reproduction_Centre, size(rec_q,1),1);
-rec_q = rec_q(mask_q(:) ~= 0,:);
-
-
-Rec_Bright_Pos = rec_b;
-Rec_Quiet_Pos = rec_q;
-% Generate random number seed from current time
-rng('shuffle');
-%Use random samples
-if room.NoReceivers ~= -1
-    ind_rec_b_rnd = randi(size(Rec_Bright_Pos,1),1,room.NoReceivers);
-    Rec_Bright_Pos = Rec_Bright_Pos(ind_rec_b_rnd,:);
+if isempty(rec_positions)
     
-    ind_rec_q_rnd = randi(size(Rec_Quiet_Pos,1),1,room.NoReceivers);
-    Rec_Quiet_Pos = Rec_Quiet_Pos(ind_rec_q_rnd,:);
-end   
-
+    mask_b = loudspeaker_setup.Multizone_Soundfield.Bright_Zone.Soundfield_d_mask;
+    mask_q = loudspeaker_setup.Multizone_Soundfield.Quiet_Zone.Soundfield_d_mask;
+    
+    rec_b = [];
+    angl = loudspeaker_setup.Bright_Samples_Locations(:,:,1);
+    dis = loudspeaker_setup.Bright_Samples_Locations(:,:,2);
+    [rec_b(:,1), rec_b(:,2)] = pol2cart( angl(:), dis(:));
+    rec_b = [rec_b zeros(size(rec_b,1),size(room.Room_Size,2)-2)] + repmat(room.Reproduction_Centre, size(rec_b,1),1);
+    rec_b = rec_b(mask_b(:) ~= 0,:);
+    
+    rec_q = [];
+    angl = loudspeaker_setup.Quiet_Samples_Locations(:,:,1);
+    dis = loudspeaker_setup.Quiet_Samples_Locations(:,:,2);
+    [rec_q(:,1), rec_q(:,2)] = pol2cart( angl(:), dis(:));
+    rec_q = [rec_q zeros(size(rec_q,1),size(room.Room_Size,2)-2)] + repmat(room.Reproduction_Centre, size(rec_q,1),1);
+    rec_q = rec_q(mask_q(:) ~= 0,:);
+    
+    
+    Rec_Bright_Pos = rec_b;
+    Rec_Quiet_Pos = rec_q;
+    % Generate random number seed from current time
+    rng('shuffle');
+    %Use random samples
+    if room.NoReceivers ~= -1
+        ind_rec_b_rnd = randi(size(Rec_Bright_Pos,1),1,room.NoReceivers);
+        Rec_Bright_Pos = Rec_Bright_Pos(ind_rec_b_rnd,:);
+        
+        ind_rec_q_rnd = randi(size(Rec_Quiet_Pos,1),1,room.NoReceivers);
+        Rec_Quiet_Pos = Rec_Quiet_Pos(ind_rec_q_rnd,:);
+    end
+    
+else
+    
+    Rec_Bright_Pos = rec_positions.Bright_Receiver_Positions;
+    Rec_Quiet_Pos = rec_positions.Quiet_Receiver_Positions;
+    
+end
 
 %%
 %Evalute the Room Impulse Responses

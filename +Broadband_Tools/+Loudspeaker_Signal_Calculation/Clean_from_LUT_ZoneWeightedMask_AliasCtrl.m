@@ -41,7 +41,7 @@ Input_Signal = audioread( Input_file );
 for sig = 1:2 % Firstly we compute the loudspeaker signals for the input signal then we compute the loudspeaker signals for the additive zone weighted noise
     
     %% First, Load the relevant look-up tables and check compatability
-    method = {'new3', 'new2', 'new'};
+    method = {'new4', 'new3', 'new2', 'new'};
     for m = 1:2
         if sig == 1
             method_ = [method, {'old'}];

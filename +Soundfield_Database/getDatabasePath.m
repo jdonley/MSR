@@ -1,4 +1,4 @@
-function [ Path, err, Sub_Path ] = getDatabasePath( setup, database_res, database_workingdir, method )
+function [ Path, err, Sub_Path, array_style_dir, spkr_array_dir, zone_positions_dir, virtual_source_dir ] = getDatabasePath( setup, database_res, database_workingdir, method )
 %GETDATABASEPATH Summary of this function goes here
 %   Detailed explanation goes here
 if nargin < 4
@@ -10,13 +10,72 @@ if nargin < 3
 end
 
 Sub_Path = '';
+array_style_dir = '';
+spkr_array_dir = '';
+zone_positions_dir = '';
+virtual_source_dir = '';
 
     err = false;
     try
-        
+                
+%%%%%%%%%%%%%%%%%%%%%%%%% NEW4 METHOD %%%%%%%%%%%%%%%%%%%%%%%%%
+% Added virtual source parameters descriptions to dedicated directory
+        if strcmpi(method, 'new4')
+            sc = '_'; %Separation Character
+            
+            %%% Type of database
+            pre_dir = ['+' 'Soundfield_Database' '\'];
+            
+            %%% Speaker array type, perpendicular distance to the centre
+            %%% speaker, angle to the the centre speaker.
+            array_style_dir = ['+' upper(setup.Speaker_Array_Type) 'array' sc ...
+                                   num2str(setup.Radius) 'mPerpDist' sc ...
+                                   num2str(setup.Speaker_Array_Centre) 'degCentre' '\'];
+            
+            %%% Number of loudspeakers and type of loudspeakers
+            spkrTypeString = strrep(setup.Loudspeaker_Type, ' ','');
+            spkr_type_dirstr = ['+' num2str(setup.Loudspeaker_Count) spkrTypeString 'Spkrs' sc];
+            
+            %%% Speaker array length.
+            switch setup.Speaker_Array_Type
+                case 'circle'
+                    spkr_array_dir  = [spkr_type_dirstr num2str(setup.Speaker_Arc_Angle/180*pi * setup.Radius) 'mLen' '\'];
+                    
+                case 'line'
+                    spkr_array_dir  = [spkr_type_dirstr ...
+                        num2str( (setup.Loudspeaker_Count-1)  * (setup.Speaker_Spacing + setup.Loudspeaker_Dimensions(1)) ) 'mLen' '\'];
+                otherwise
+                    error('Loudspeaker array type (circle, line, etc) from the given loudspeaker setup object does not have a database path defined.')
+            end
+            
+            %%% Cartesian coordinates of bright zone and quiet zone
+            zone_positions_dir = ['+' num2str(round(setup.Multizone_Soundfield.Bright_Zone.Origin_q.X,10)) 'Bx' sc ...
+                                      num2str(round(setup.Multizone_Soundfield.Bright_Zone.Origin_q.Y,10)) 'By' sc ...
+                                      num2str(round(setup.Multizone_Soundfield.Quiet_Zone.Origin_q.X,10))  'Qx' sc ...
+                                      num2str(round(setup.Multizone_Soundfield.Quiet_Zone.Origin_q.Y,10))  'Qy' '\'];
+                                  
+            %%% Bright zone virtual source angle, distance and type
+            virtual_source_dir = ['+' 'VSrc' sc ...
+                                      setup.Multizone_Soundfield.Bright_Zone.SourceType sc ...
+                                      num2str(setup.Multizone_Soundfield.Bright_Zone.SourceOrigin.Angle) 'deg' sc ...
+                                      num2str(setup.Multizone_Soundfield.Bright_Zone.SourceOrigin.Distance) 'm' '\' ];
+                                              
+            %%% Database resolution
+            database_filename = ['Database' sc database_res '.mat'];
+                              
+            Sub_Path = [array_style_dir, ...
+                    spkr_array_dir, ...
+                    zone_positions_dir, ...
+                    virtual_source_dir];
+                
+            Path = [database_workingdir, ...
+                    pre_dir, ...
+                    Sub_Path, ...
+                    database_filename];  
+                
 %%%%%%%%%%%%%%%%%%%%%%%%% NEW3 METHOD %%%%%%%%%%%%%%%%%%%%%%%%%
 % Filepath now includes all parameters used within a loudspeaker setup
-        if strcmpi(method, 'new3')
+        elseif strcmpi(method, 'new3')
             
             %%% Type of database
             pre_dir = '+Soundfield_Database\';
@@ -25,16 +84,16 @@ Sub_Path = '';
             %%% speaker, angle to the the centre speaker.
             array_style_dir = ['+' upper(setup.Speaker_Array_Type) 'array_' num2str(setup.Radius) 'mPerpDist_' num2str(setup.Speaker_Array_Centre) 'degCentre\'];
             
-            %%% Number of loudspeakers, speaker array length.
+            %%% Number of loudspeakers and speaker array length.
             switch setup.Speaker_Array_Type
                 case 'circle'
-                    array_size_dir  = ['+' num2str(setup.Loudspeaker_Count) 'Spkrs_' num2str(setup.Speaker_Arc_Angle/180*pi * setup.Radius) 'mLen\'];
+                    spkr_array_dir  = ['+' num2str(setup.Loudspeaker_Count) 'Spkrs_' num2str(setup.Speaker_Arc_Angle/180*pi * setup.Radius) 'mLen\'];
                     
                 case 'line'
-                    array_size_dir  =['+' num2str(setup.Loudspeaker_Count) 'Spkrs_' ...
+                    spkr_array_dir  = ['+' num2str(setup.Loudspeaker_Count) 'Spkrs_' ...
                         num2str( (setup.Loudspeaker_Count-1)  * (setup.Speaker_Spacing + setup.Loudspeaker_Dimensions(1)) ) 'mLen\'];
                 otherwise
-                    error('Loudspeaker array type does not have a database path defined.')
+                    error('Loudspeaker array type (circle, line, etc) from the given loudspeaker setup object does not have a database path defined.')
             end
             
             %%% Cartesian coordinates of bright zone and quiet zone
@@ -49,7 +108,7 @@ Sub_Path = '';
                                   database_res '.mat'];
                               
             Sub_Path = [array_style_dir, ...
-                    array_size_dir, ...
+                    spkr_array_dir, ...
                     zone_positions_dir];
                 
             Path = [database_workingdir, ...

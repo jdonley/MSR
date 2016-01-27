@@ -22,12 +22,19 @@ classdef parametric_soundfield
         Origin = [0, 0]; % [X, Y]
         Angle = 30; % Parametric array source angle in degrees
         
-        % Environmental Parameters
-        Beta = 1.2; % Coefficient of non-linearity
+        %%% Environmental Parameters
+        
+        % https://en.wikibooks.org/wiki/Engineering_Acoustics/The_Acoustic_Parameter_of_Nonlinearity
+        % https://en.wikipedia.org/wiki/Nonlinear_acoustics
+        Beta = 1.2; % Coefficient of non-linearity (Beta = 1 + 1/2 * B/A for fluids) (B/A = 0.4 for Diatomic Gases (Air))
+        
         c = 343; %Speed of sound in air
         rho = 1.225; % Density of medium
-        alpha1 = 0.7; %Absorption Coefficient of ultrasound primary frequency 1
-        alpha2 = 0.7; %Absorption Coefficient of ultrasound primary frequency 2  
+        
+        %Following ISO 9613-1. http://resource.npl.co.uk/acoustics/techguides/absorption/
+        alpha1 = 1.2560; %Absorption Coefficient of ultrasound primary frequency 1  (20degC, 50%Humid., 60kHz, 101.325kPa)
+        alpha2 = 1.2560; %Absorption Coefficient of ultrasound primary frequency 2  (20degC, 50%Humid., 60kHz, 101.325kPa)
+        
         tau; %Retarded time
         
          % Results

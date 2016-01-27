@@ -8,6 +8,7 @@ results_contrastdb = [];
 results_perc = [];
 for spkr = 1:2
     freqs = (10.0^3) * ((2.0) .^ ([-8:9]./3)); %Third octave
+    %freqs = logspace(log10(150),log10(8000),100);
     for f = 1:length(freqs)
         
         %%
@@ -28,16 +29,32 @@ for spkr = 1:2
             'quietzone_pos_angle',         90, ...
             'brightzone_source_angle',     0};
         
+        array_type = 'circle';
         if spkr ==1
             masker = {'angleto_firstloudspeaker',      90, ...
                 'numberof_loudspeakers',         24, ...
-                'loudspeaker_model',             'Genelec 8010A'};
+                'loudspeaker_model',             'Genelec 8010A', ... 
+                  'loudspeaker_radius',            1.5, ...                 
+                  'loudspeaker_spacing',           0.01, ...
+                  'speaker_array_type',            array_type};
         elseif spkr == 2
             %parametric
-            th = atan2(-0.6,-1.5);
+            if strcmp(array_type, 'circle')
+                [x,y] = pol2cart(-90/180*pi, 0.6);
+                x_ = sqrt(1.5^2-y^2);
+                th_c = atan2(y,-x_);
+                th = th_c;
+            elseif strcmp(array_type, 'line')
+                x_=1.5;
+                th_c = 180;
+                th = atan2(-0.6,-1.5);
+            end
             masker = {'angleto_firstloudspeaker',     th/pi*180, ...
-                'numberof_loudspeakers',        1, ...
-                'loudspeaker_model',            'Parametric'};
+                     'loudspeaker_radius',           x_, ...
+                     'numberof_loudspeakers',        1, ...
+                     'loudspeaker_model',            'Parametric', ...                  
+                     'loudspeaker_spacing',           0.01, ...
+                     'speaker_array_type',            'line'};
         end
         setup = Speaker_Setup.createSetup({...
             'frequency',                    freqs(f), ...
@@ -53,12 +70,8 @@ for spkr = 1:2
             'quietzone_radius',             0.3, ...
             'quietzone_pos_distance',       0.6, ...
             'maximum_frequency',            8000, ...
-            'loudspeaker_radius',            1.5, ...
             'angleof_loudspeakerarc',       180 , ...
-            'loudspeaker_object',           Parametric_Synthesis.parametric_soundfield, ...
-            'angleof_loudspeakerarrcentre', 180, ...
-            'loudspeaker_spacing',          0.01, ...
-            'speaker_array_type',           'line'});
+            'loudspeaker_object',           Parametric_Synthesis.parametric_soundfield});
         
         %%
         setup.Multizone_Soundfield = setup.Multizone_Soundfield.createSoundfield('DEBUG');
@@ -72,23 +85,33 @@ for spkr = 1:2
     end
 end
 %%
+[~,ind]=max(results_perc);
+ind1 = logical(mod(ind,2));
+ind2 = [~ind1(2:end) true];
 figure(1);
-plot(freqs,results_perc');
+plot(freqs,results_perc'); hold on; set(gca,'ColorOrderIndex',1);
+plot(freqs(ind1),results_perc(1,ind1),'LineWidth',3); set(gca,'ColorOrderIndex',2);
+plot(freqs(ind2),results_perc(2,ind2),'LineWidth',3); hold off;
 xlim([1e2 1e4]);
 grid minor
 set(gca,'XScale','log');
 title('Multizone vs Parametic - Percent Difference  (Third Octave)');
-legend({'Regular Multizone';'Parametric Multizone'});
+legend({'Orthogonal Basis Expansion Multizone';'Parametric Multizone'},'location','southwest');
 ylabel('Percent Level Difference (%)');
 xlabel('Frequency (Hz)');
 
+[~,ind]=max(results_contrastdb);
+ind1 = logical(mod(ind,2));
+ind2 = [~ind1(2:end) true];
 figure(2);
-plot(freqs,results_contrastdb');
+plot(freqs,results_contrastdb'); hold on; set(gca,'ColorOrderIndex',1);
+plot(freqs(ind1),results_contrastdb(1,ind1),'LineWidth',3); set(gca,'ColorOrderIndex',2);
+plot(freqs(ind2),results_contrastdb(2,ind2),'LineWidth',3); hold off;
 xlim([1e2 1e4]);
 grid minor
 set(gca,'XScale','log');
 title('Multizone vs Parametic - Acoustic Contrast  (Third Octave)');
-legend({'Regular Multizone';'Parametric Multizone'});
+legend({'Orthogonal Basis Expansion Multizone';'Parametric Multizone'},'location','southwest');
 ylabel('Acoustic Contrast (dB)');
 xlabel('Frequency (Hz)');
 

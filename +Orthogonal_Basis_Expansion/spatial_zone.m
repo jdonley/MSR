@@ -136,36 +136,35 @@ classdef spatial_zone
            % Cylindrical Harmonic Expansion
            
            Mq = ceil( k * exp(1) * obj.Radius_q / 2); % Set the maximum mode           
-           % Find Alpha coefficients for the desired soundfield in the zone
-           obj.Alpha_Coeffs = [];
-           for m = -Mq:Mq
+           % Find Alpha coefficients for the desired soundfield in the zone           
+            m = -Mq:Mq;
             if (strcmp(type, 'pw'))
-            	alpha = 1j^m * exp( -1j * m * Phi_src);                 % From reference [17], equation (8)                
+            	obj.Alpha_Coeffs = 1j.^m .* exp( -1j * m * Phi_src);                 % From reference [17], equation (8)
+                obj.SourceOrigin.Distance = 0;
             elseif (strcmp(type, 'ps'))
-                alpha = besselh(m, k * R_src) * exp(-1j * m * Phi_src); % From reference [17], equation (11)
+                obj.Alpha_Coeffs = besselh(m, k * R_src) .* exp(-1j * m * Phi_src); % From reference [17], equation (11)
             elseif (strcmp(type, 'noise'))
-                alpha = 1.0;
+                obj.Alpha_Coeffs = 1.0;
             elseif (strcmp(type, 'quiet'))
-                alpha = 0;
+                obj.Alpha_Coeffs = 0;
             end
-            alpha = alpha * weight;
-            obj.Alpha_Coeffs = [obj.Alpha_Coeffs alpha];
-           end
            
-           % TODO: Instead of using a for loop for the cartesian x and y
-           % coords use a for loop for all radii and one revolution
-           % OR Vectorise !
-           for x = 1:length(obj.Soundfield_d)
-            for y = 1:length(obj.Soundfield_d)                
-                [OMEGA_q, R_q] = cart2pol(x - O_q_z, y - O_q_z); %Convert to polar coords from centre of the zone
-                R_q = R_q / obj.res;  %Change to spatial radius (/metre)
-                for m = -Mq:Mq                    
-                    J = besselj(m, k * R_q );
-                    e = exp(1j * m * OMEGA_q);
-                    obj.Soundfield_d(y, x) = obj.Soundfield_d(y, x) + obj.Alpha_Coeffs(m+Mq+1) * J * e; % Sum pressures
-                end
-            end
-           end                       
+           mm = permute(m,[1 3 2]);
+           aa = permute(obj.Alpha_Coeffs,[1 3 2]);
+           wid = length(obj.Soundfield_d);
+           x = 1:wid;
+           y = 1:wid;
+           [xx,yy] = meshgrid(x,y);
+           xx_   = repmat( xx, 1,   1,   length(m));
+           yy_   = repmat( yy, 1,   1,   length(m));
+           m_    = repmat( mm, wid, wid, 1        );
+           Alpha = repmat( aa, wid, wid, 1        );
+           
+           [OMEGA_q, R_q] = cart2pol((xx_ - O_q_z) / obj.res, (yy_ - O_q_z) / obj.res); %Convert to polar coords from centre of the zone
+           
+           J = besselj(m_, k * R_q );
+           e = exp(1j * m_ .* OMEGA_q);
+           obj.Soundfield_d = sum(Alpha .* J .* e, 3);
            
 % END %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             elseif ideal
@@ -175,12 +174,9 @@ classdef spatial_zone
                   y = x;
                   [xx,yy] = meshgrid(x,y);
                   X = complex(xx,yy);    
-                  if strcmp(type, 'quiet')
-                      weight = 0;
-                  end
-                  obj.Soundfield_d = weight .* exp( 1i * (k * (cos(Phi_src)*real(X) + sin(Phi_src)*imag(X)) + phase) ); %Planewave formula ( e^(i*(kx+ky+kz)) )
-                  if (strcmp(type, 'noise'))
-                      obj.Soundfield_d = ones(size(X));
+                  if strcmp(type,'pw')                      
+                    obj.Soundfield_d = weight .* exp( 1i * (k * (cos(Phi_src)*real(X) + sin(Phi_src)*imag(X)) + phase) ); %Planewave formula ( e^(i*(kx+ky+kz)) )
+                    obj.SourceOrigin.Distance = 0;
                   end
             else
                 return;
