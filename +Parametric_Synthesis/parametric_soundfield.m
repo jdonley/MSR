@@ -114,9 +114,13 @@ classdef parametric_soundfield
             
         end
         
-        function p = convolutionalModel(obj, Th, R0, Directions)
+        function p = convolutionalModel(obj, Th, R0, Directions, Frequency)
             t=0;
-            omega_d = 2*pi*obj.fd;
+            if nargin < 5 || isempty(Frequency)
+                omega_d = 2*pi*obj.fd(:);
+            else
+                omega_d = 2*pi * Frequency(:);
+            end
             
             if mod( Directions + pi/2, 2*pi ) > pi % Flip angle mesh every 180 degrees so there is no dicontinuity
                 Th = rot90(rot90(Th));
@@ -124,13 +128,24 @@ classdef parametric_soundfield
             end            
             Directions = mod(Directions + pi, 2*pi) - pi; % Limit range from -pi to pi
             Th = Th - Directions;
-            mask = ((Th < pi/2) & (Th > - pi/2)); % Force positive directivity only (one-sided parametric array source)            
-            R0 = R0 .* mask;
+            mask = ((Th < pi/2) & (Th > - pi/2)); % Force positive directivity only (one-sided parametric array source)
             Th = Th .* mask;
+            R0 = R0 .* mask;            
             
-            p = ( obj.Beta * obj.P1 * obj.P2 * omega_d^2) ./ (4*pi*obj.rho*obj.c^4 .* R0 *(obj.alpha1+obj.alpha2)) ...
-                .* (-1 + 1i*omega_d*tan(Th).^2 / (2*obj.c*(obj.alpha1+obj.alpha2)) ).^(-1) ...
-                .* exp(-1i*omega_d * (t - R0/obj.c));
+            sz_1 = size(Th,1);
+            sz_2 = size(Th,2);
+            sz_om = size(omega_d,1);
+            
+            Th      = permute( repmat( Th     , 1   , 1   , sz_om ), [1 2 3]);
+            R0      = permute( repmat( R0     , 1   , 1   , sz_om ), [1 2 3]);
+            omega_d = permute( repmat( omega_d, 1   , sz_1, sz_2  ), [2 3 1]);
+            
+            
+            p = ( obj.Beta * obj.P1 * obj.P2 * omega_d.^2) ./ (4*pi*obj.rho*obj.c^4 .* R0 *(obj.alpha1+obj.alpha2)) ...
+                .* (-1 + 1i*omega_d.*tan(Th).^2 / (2*obj.c*(obj.alpha1+obj.alpha2)) ).^(-1) ...
+                .* exp(-1i*omega_d .* (t - R0/obj.c));
+            
+            p = squeeze(p);
         end
         
         function obj = setTau(obj, t, z)

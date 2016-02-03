@@ -6,32 +6,21 @@ function Clean_from_LUT_ZoneWeightedMask_AliasCtrl( Input_file, LUT_resolution, 
 [Input_file_path, Input_file_name, Input_file_ext] = fileparts( Input_file );
 Input_file_path = [Input_file_path '\'];
 
-c = 343; % Speed of sound in metres/sec
-Fs = 16000; % Sampling frequency
-Nfft = 1024;% Number of fft components
-overlap = 0.5;
-f_low  = 150;  % Hz
-f_high = 8000; % Hz
+signal_info.c = 343; % Speed of sound in metres/sec
+signal_info.Fs = 16000; % Sampling frequency
+signal_info.Nfft = 1024;% Number of fft components
+signal_info.overlap = 0.5;
+signal_info.f_low  = 150;  % Hz
+signal_info.f_high = 8000; % Hz
+signal_info.L_noise_mask = Noise_Mask_dB; % dB
+signal_info.weight = weight;
+signal_info.method = 'ZoneWeightMaskAliasCtrl';
 
-angle_pw       = setup.Multizone_Soundfield.Bright_Zone.SourceOrigin.Angle;
+[Output_path, Output_file_name, Output_file_ext] = ...
+    Broadband_Tools.getLoudspeakerSignalPath( setup, signal_info, LUT_resolution, 'Z:\', 'new');
+
+
 loudspeakers   = setup.Loudspeaker_Count;
-speaker_arc    = setup.Speaker_Arc_Angle;
-speaker_radius = setup.Radius;
-
-Drive = 'Z:\';
-Output_file_path     = [Drive '+Speaker_Signals\']; % Can be relative or exact
-Output_file_path_ext = ['+' num2str(speaker_radius*2) 'm_SpkrDia\+' num2str(loudspeakers) 'Spkrs_' num2str(speaker_arc) 'DegArc_LUT_' LUT_resolution '\'];
-SetupInfo            = ['_' num2str(f_low ) 'Hz-' ...
-    num2str(f_high) 'Hz_' ...
-    num2str(angle_pw) 'pwAngle_' ...
-    num2str(Noise_Mask_dB) 'dB_' ...
-    num2str(weight) 'weight__withZoneWeightMaskAliasCtrl'];
-Output_file_name     = [Input_file_name '__' ...
-    num2str(loudspeakers) 'spkrs_' ...
-    SetupInfo];
-Output_file_ext      = '.WAV';
-
-
 
 
 
@@ -251,19 +240,17 @@ Loudspeaker_Signals = Loudspeaker_Signals_Input_Signal + db2mag(Noise_Mask_dB) *
 %% Once we have the speaker signals we should save them for later use as .wav files
 filenumbers = num2str((1:loudspeakers)');
 filenumbers(filenumbers==' ') = '_';
-fullpath = [repmat([Output_file_path Output_file_path_ext Output_file_name], [loudspeakers 1]) ...
+fullpath = [repmat([Output_path Output_file_name], [loudspeakers 1]) ...
     filenumbers ...
     repmat(Output_file_ext, [loudspeakers 1]) ];
 
-if ~exist([Output_file_path Output_file_path_ext],'dir'); mkdir([Output_file_path Output_file_path_ext]); end
+if ~exist(Output_path,'dir'); mkdir(Output_path); end
 
 for spkr = 1:loudspeakers
     audiowrite(fullpath(spkr,:), Loudspeaker_Signals(:, spkr), Fs);
 end
-audiowrite([Output_file_path Output_file_path_ext ...
-    Input_file_name '__Original_' ...
-    num2str(f_low ) 'Hz-' ...
-    num2str(f_high) 'Hz' ...
+audiowrite([Output_path ...
+    Input_file_name '_' 'Original'
     Input_file_ext], Original_, Fs);
 
 

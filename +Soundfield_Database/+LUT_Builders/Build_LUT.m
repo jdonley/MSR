@@ -30,7 +30,7 @@ masker_layout = {'brightzone_pos_angle',        -90, ...
     'brightzone_source_angle',     180};
 
 array_type = 'circle';
-spkr=1;
+spkr=2;
 
 if strcmp(array_type, 'circle')
     [x,y] = pol2cart(-90/180*pi, 0.6);
@@ -61,7 +61,7 @@ elseif spkr == 2
 end
 
 setup = Speaker_Setup.createSetup({...
-    speech_layout{:}, ...
+    masker_layout{:}, ...
     array{:}, ...
     'resolution',                   100, ... % Minimum resolution of approx 50 for 8kHz signal to satisfy nyquist theorem. We choose 100 for good measure.
     'reproduction_radius',          1.0, ...
@@ -82,15 +82,19 @@ setup = Speaker_Setup.createSetup({...
 
 
 Number_of_Frequencies = 512;
-Number_of_Weights = 32;
 
 [~, Frequencies] = Soundfield_Database.LUT_Builders.Orthogonal_Planewave_Selection( ...
     Number_of_Frequencies, 0, 0, ...
-    150, ...
+    0, ...
     8000,'lin');
 
-Weights              = [0     logspace(log10( 1e-2), log10(  1e4), Number_of_Weights - 1) ];
-%Weights              = [0     1e4];
+if spkr == 1
+    Number_of_Weights = 32;
+    Weights           = [0     logspace(log10( 1e-2), log10(  1e4), Number_of_Weights - 1) ];
+elseif spkr == 2
+    Number_of_Weights = 1;
+    Weights           = 1;
+end
 
 
 %% Path to save the database (Look-Up Table)
@@ -105,8 +109,13 @@ DBpath = fileparts(DB_fullpath);
 %% Results
 
 %Samples
-Bright_Sample__Weight_Vs_Frequency = zeros(length(Weights), length(Frequencies));
-Quiet_Sample__Weight_Vs_Frequency  = zeros(length(Weights), length(Frequencies));
+if spkr == 1
+    Bright_Sample__Weight_Vs_Frequency = zeros(length(Weights), length(Frequencies));
+    Quiet_Sample__Weight_Vs_Frequency  = zeros(length(Weights), length(Frequencies));
+elseif spkr == 2
+    Bright_Sample__Weight_Vs_Frequency = cell(length(Weights), length(Frequencies));
+    Quiet_Sample__Weight_Vs_Frequency  = cell(length(Weights), length(Frequencies));
+end
 
 %Contrast
 Acoustic_Contrast__Weight_Vs_Frequency = zeros(length(Weights), length(Frequencies));
@@ -124,7 +133,7 @@ fprintf(['No. of Weights:\t\t' num2str(Number_of_Weights) '\n\n']);
 fprintf('\tCompletion: ');n=0;h=[];
 a=1;
 for w = 1:length(Weights)
-    parfor f = 1:length(Frequencies)
+    for f = 1:length(Frequencies)
         
         parsetup = setup;
         parsetup.Multizone_Soundfield.Quiet_Zone = ...
@@ -139,8 +148,13 @@ for w = 1:length(Weights)
         parsetup = parsetup.calc_Loudspeaker_Weights();
         parsetup = parsetup.reproduceSoundfield('SAMPLES_ONLY');
         
-        Bright_Sample__Weight_Vs_Frequency( w, f ) = parsetup.Bright_Sample;
-        Quiet_Sample__Weight_Vs_Frequency( w, f ) = parsetup.Quiet_Sample;
+        if spkr == 1
+            Bright_Sample__Weight_Vs_Frequency( w, f ) = parsetup.Bright_Sample;
+            Quiet_Sample__Weight_Vs_Frequency( w, f ) = parsetup.Quiet_Sample;
+        elseif spkr == 2
+            Bright_Sample__Weight_Vs_Frequency{ w, f } = parsetup.Bright_Samples;
+            Quiet_Sample__Weight_Vs_Frequency{ w, f } = parsetup.Quiet_Samples;
+        end
         Acoustic_Contrast__Weight_Vs_Frequency( w, f ) = parsetup.Acoustic_Contrast;
         Loudspeaker_Weights__Weight_Vs_Frequency{ w, f } = parsetup.Loudspeaker_Weights;
         

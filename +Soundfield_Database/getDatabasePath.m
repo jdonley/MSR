@@ -1,11 +1,11 @@
-function [ Path, err, Sub_Path, array_style_dir, spkr_array_dir, zone_positions_dir, virtual_source_dir ] = getDatabasePath( setup, database_res, database_workingdir, method )
+function [ Path, err, Sub_Path, array_style_dir, spkr_array_dir, zone_positions_dir, virtual_source_dir, database_filename ] = getDatabasePath( setup, database_res, database_workingdir, method )
 %GETDATABASEPATH Summary of this function goes here
 %   Detailed explanation goes here
-if nargin < 4
-    method = 'new';
+if nargin < 4 || isempty(method)
+    method = 'new4';
 end
 
-if nargin < 3
+if nargin < 3 || isempty(database_workingdir)
     database_workingdir = 'Z:\';
 end
 

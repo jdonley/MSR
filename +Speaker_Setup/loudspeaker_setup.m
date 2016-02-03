@@ -121,7 +121,10 @@ classdef loudspeaker_setup
         end
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        function S = computeField(obj, xx, yy)                      
+        function [S,H] = computeField(obj, xx, yy, freqs)
+            if nargin < 4
+                freqs=[];
+            end
                 th2 = obj.Loudspeaker_Locations(:,1);
                 r2 = obj.Loudspeaker_Locations(:,2) ;
                 L = obj.Loudspeaker_Weights;
@@ -148,12 +151,16 @@ classdef loudspeaker_setup
                 
                 % Loudspeaker transfer functions
                 if strcmp(obj.Loudspeaker_Type, 'Parametric')
-                    H = obj.Loudspeaker_Object.convolutionalModel( th1, r, Di);  
+                    H = obj.Loudspeaker_Object.convolutionalModel( th1, r, Di, freqs);  
                 else
                     H = 1i/4 * besselh(0, obj.k_global * r );                  
                 end
                 
-                S = sum( L_.*H , 3 );
+                if (ndims(L_) == ndims(H)) && all(size(L_) == size(H))
+                    S = sum( L_.*H , 3 );
+                else
+                    S=[];
+                end
         end
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
@@ -345,6 +352,9 @@ classdef loudspeaker_setup
         
         function obj = setWavenumberFromChild(obj)
            obj.k_global = obj.Multizone_Soundfield.k_global;
+           if ~isempty(obj.Loudspeaker_Object)
+               obj.Loudspeaker_Object = obj.Loudspeaker_Object.set_fd(obj.k_global*343/2/pi);
+           end
         end
         
         function obj = setRadius(obj, Radius)

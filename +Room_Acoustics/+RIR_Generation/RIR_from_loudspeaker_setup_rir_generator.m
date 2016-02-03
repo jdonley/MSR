@@ -13,6 +13,7 @@ tic;
 %Set up room dimensions and characteristics
 if nargin < 2
     room.Room_Size = [5, 4, 3];
+    room.Reproduction_Centre = room.Room_Size./2;
 end
 if nargin < 3
     beta = 0.4; % Reverberation time (s)
@@ -34,7 +35,6 @@ order = -1;                 % -1 equals maximum reflection order!
 orientation = 0;            % Microphone orientation (rad)
 hp_filter = 0;              % Enable high-pass filter
 
-%Set MCRoomSim advanced options here 
 c = 343;    % Speed of sound (m/s)
 Fs = 16000; % Sample frequency (samples/s) 
 
@@ -45,8 +45,6 @@ src = [src zeros(size(src,1),size(room.Room_Size,2)-2)] + repmat(room.Reproducti
 
 
 %Add all receviers (multizone sample point locations)
-%r1 = AddReceiver('Location',[3 3 1]);
-%r1 = [r1 AddReceiver('Location',[2 4 1])];
 if isempty(rec_positions)
     
     mask_b = loudspeaker_setup.Multizone_Soundfield.Bright_Zone.Soundfield_d_mask;
