@@ -4,6 +4,7 @@ function Clean_from_LUT( Input_file, LUT_resolution, weight, setup )
 
 
 %% Setup Variables
+Drive = 'Z:\';
 [~, Input_file_name, Input_file_ext] = fileparts( Input_file );
 
 signal_info.c = 343; % Speed of sound in metres/sec
@@ -14,11 +15,12 @@ signal_info.f_low  = 150;  % Hz
 signal_info.f_high = 8000; % Hz
 signal_info.L_noise_mask = -Inf; % dB
 signal_info.weight = weight;
-signal_info.method = 'Clean';
+signal_info.method = 'NoMask';
+signal_info.input_filename = Input_file_name;
 
 
 [Output_path, Output_file_name, Output_file_ext] = ...
-    Broadband_Tools.getLoudspeakerSignalPath( setup, signal_info, LUT_resolution, 'Z:\', 'new');
+    Broadband_Tools.getLoudspeakerSignalPath( setup, signal_info, LUT_resolution, Drive, 'new');
 
 
 loudspeakers   = setup.Loudspeaker_Count;
@@ -48,12 +50,12 @@ Input_Signal = audioread( Input_file );
     %% Find ideal weights
     single_weight = false;
     
-    len = Nfft;
-    freqs = linspace(0, Fs/2, len/2 + 1);
+    len = signal_info.Nfft;
+    freqs = linspace(0, signal_info.Fs/2, len/2 + 1);
     freqs = freqs(freqs>=min(Frequencies) & freqs<=max(Frequencies));
     
     if single_weight
-        weights = repmat(weight,1,length(freqs));
+        weights = repmat(signal_info.weight,1,length(freqs));
     else
         % Find the weights that will give us the biggest contrast possible
         % (works better at lower frequencies)
@@ -67,11 +69,11 @@ Input_Signal = audioread( Input_file );
     
     
     %% Second, find the frequency domain representation of the audio file that is wished to be reproduced in the spatial domain.
-    [Z, Frequencies_, ~, Windows] = Broadband_Tools.FFT_custom(Input_Signal, Nfft, Fs, overlap);
+    [Z, Frequencies_, ~, Windows] = Broadband_Tools.FFT_custom(Input_Signal, signal_info.Nfft, signal_info.Fs, signal_info.overlap);
     
     % Truncate to frequencies in the range f_low <-> f_high
-    trunc_index_low  = find(Frequencies_ < f_low , 1, 'last' ) + 1;
-    trunc_index_high = find(Frequencies_ > f_high, 1 ) + 1;
+    trunc_index_low  = find(Frequencies_ < signal_info.f_low , 1, 'last' ) + 1;
+    trunc_index_high = find(Frequencies_ > signal_info.f_high, 1 ) + 1;
     if isempty(trunc_index_low)
         trunc_index_low = 1;
     end
@@ -146,9 +148,9 @@ Input_Signal = audioread( Input_file );
     % %Loudspeaker_Signals =
     % zeros([(size(Z,1)+ceil(overlap))*size(Z,2)*2*(1-overlap) loudspeakers] ); % pre-allocate memory
     for spkr = 1:loudspeakers
-        Loudspeaker_Signals(:,spkr) = Broadband_Tools.OverlapAdd( Loudspeakers_(:,:,spkr), overlap ); %#ok<AGROW>
+        Loudspeaker_Signals(:,spkr) = Broadband_Tools.OverlapAdd( Loudspeakers_(:,:,spkr), signal_info.overlap ); %#ok<AGROW>
     end
-    Original_ = Broadband_Tools.OverlapAdd( Original, overlap );
+    Original_ = Broadband_Tools.OverlapAdd( Original, signal_info.overlap );
     % clear Loudspeakers_; % Save on memory
     
     
@@ -169,9 +171,9 @@ Broadband_Tools.Loudspeaker_Signal_Calculation.saveLoudspeakerSignals( ...
     Loudspeaker_Signals, ...
     loudspeakers, ...
     Original_, ...
-    Input_file_name, ...
+    signal_info.input_filename, ...
     Input_file_ext, ...
-    Fs );
+    signal_info.Fs );
 
 
 

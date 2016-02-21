@@ -77,7 +77,7 @@ bright = Orthogonal_Basis_Expansion.spatial_zone(f, 0, rb, srctypeb, 1.0, srcang
 quiet.res  = res;
 bright.res = quiet.res;
 quiet  =  quiet.setDesiredSoundfield(true, 'suppress_output');
-bright = bright.setDesiredSoundfield(false, 'suppress_output');
+bright = bright.setDesiredSoundfield(true, 'suppress_output');
 
 %%
 soundfield = Orthogonal_Basis_Expansion.multizone_soundfield_OBE;

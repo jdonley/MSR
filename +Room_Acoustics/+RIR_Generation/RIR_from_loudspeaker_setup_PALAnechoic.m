@@ -1,4 +1,4 @@
-function [ RIR_Bright, RIR_Quiet, Rec_Bright_Pos, Rec_Quiet_Pos ] = RIR_from_loudspeaker_setup_PALAnechoic( loudspeaker_setup, room, n_samples, rec_positions )
+function [ RIR_Bright, RIR_Quiet, Rec_Bright_Pos, Rec_Quiet_Pos ] = RIR_from_loudspeaker_setup_PALAnechoic( loudspeaker_setup, room, n_samples, rec_positions, norm_positions )
 %RIR_FROM_LOUDSPEAKER_SETUP Returns the RIR for each sample point in each
 %zone for a given multizone loudspeaker setup using MCRoomSim
 %   Returns an matrix which contains the RIR (column values) for each
@@ -9,18 +9,21 @@ function [ RIR_Bright, RIR_Quiet, Rec_Bright_Pos, Rec_Quiet_Pos ] = RIR_from_lou
 %   Email: Jacob.Donley089@uowmail.edu.au
 %
 Fs = 16000;
-if nargin < 2
+if nargin < 3
     n = Fs/2;   % Number of samples
 else
     n = n_samples;
 end
-if nargin < 3
+if nargin < 4
     rec_positions = [];
+end
+if nargin < 5
+    norm_positions = [];
 end
 
 
 %% Compute individual directivity impulse responses
-ImpRsp = Room_Acoustics.loudspeakerIR(loudspeaker_setup, room, 0, n, Fs, rec_positions);
+ImpRsp = Room_Acoustics.loudspeakerIR(loudspeaker_setup, room, 0, n, Fs, rec_positions, norm_positions);
 
 Rec_Bright_Pos = rec_positions.Bright_Receiver_Positions;
 Rec_Quiet_Pos  = rec_positions.Quiet_Receiver_Positions;

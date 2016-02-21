@@ -1,4 +1,4 @@
-function Save_Reverb_Recording(Original_, Rec_Sigs_B, Rec_Sigs_Q, Fs, ResultsPath, Output_file_path_ext, FileName, Output_file_ext)
+function Save_Reverb_Recording(Original_, Rec_Sigs_B, Rec_Sigs_Q, Fs, RecordingsPath, Output_file_path_ext, FileName, Output_file_ext)
 %SAVE_REVERB_STOI_RESULT Summary of this function goes here
 % 
 % Syntax:	SAVE_REVERB_RECORDING(INPUTARGS) Explain usage here
@@ -24,33 +24,28 @@ function Save_Reverb_Recording(Original_, Rec_Sigs_B, Rec_Sigs_Q, Fs, ResultsPat
 % Email: jrd089@uowmail.edu.au
 % Copyright: Jacob Donley 2015
 % Date: 16 August 2015 
-% Revision: 0.1
+% Revision: 0.2 (9 February 2016)
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+sc = '_';
 
 %% Calculate Results
-Original_(length(Original_):size(Rec_Sigs_B,2))=0; % Resize the original signal because the reverberant signal will be longer
-if (length(Original_) ~= length(Rec_Sigs_B)) || (length(Original_) ~= length(Rec_Sigs_Q))
-   error('Size of the original signal does not match the reproduced signal!'); 
+if ~isempty(Original_)
+    Original_(length(Original_):size(Rec_Sigs_B,2))=0; % Resize the original signal because the reverberant signal will be longer
+    if (length(Original_) ~= length(Rec_Sigs_B)) || (length(Original_) ~= length(Rec_Sigs_Q))
+        error('Size of the original signal does not match the reproduced signal!');
+    end
 end
 
 %%
-pos = strfind(FileName,'weight');
-mask_type = sscanf(FileName(pos:end),'weight%[^0-9]');
-mask_type = ['__' strrep(mask_type,'_','')];
+if ~exist([RecordingsPath Output_file_path_ext],'dir'); mkdir([RecordingsPath Output_file_path_ext]); end
 
-FileName = [FileName(1:pos+5) mask_type];
+save([RecordingsPath Output_file_path_ext FileName sc 'Bright.mat'], 'Rec_Sigs_B');
+save([RecordingsPath Output_file_path_ext FileName sc 'Quiet.mat'], 'Rec_Sigs_Q');
 
-
-
-%%
-if ~exist([ResultsPath Output_file_path_ext],'dir'); mkdir([ResultsPath Output_file_path_ext]); end
-
-save([ResultsPath Output_file_path_ext FileName '_Bright.mat'], 'Rec_Sigs_B');
-save([ResultsPath Output_file_path_ext FileName '_Quiet.mat'], 'Rec_Sigs_Q');
-audiowrite( [ResultsPath Output_file_path_ext FileName '_Original' Output_file_ext], Original_, Fs);
-
+if ~isempty(Original_)
+    audiowrite( [RecordingsPath Output_file_path_ext FileName sc 'Original' Output_file_ext], Original_, Fs);
+end
 
 
 end

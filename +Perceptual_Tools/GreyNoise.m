@@ -71,5 +71,19 @@ yrms = sqrt(mean(y.^2));
 y = y/yrms;
 % Level adjustment
 y = y * level;
+
+y = applyTaperWindow(y, Fs);
 end
 
+function y = applyTaperWindow(y, Fs)
+rampLen = 0.1; %seconds
+zerosLen = 0.05; %seconds
+
+% % 150ms tapering window
+window_ = [zeros(1,zerosLen*Fs), linspace(0,1,rampLen*Fs)];
+winLen = length(window_);
+
+% Apply to beinging and end of signal
+y(1:winLen) = y(1:winLen) .* window_;
+y((end-winLen+1):end) = y((end-winLen+1):end) .* flip(window_);
+end

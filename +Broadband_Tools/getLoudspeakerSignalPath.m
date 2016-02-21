@@ -1,11 +1,11 @@
-function [ Path, Name, Ext, err ] = getLoudspeakerSignalPath( setup, signal_info, database_res, database_workingdir, method )
+function [ Path, Name, Ext, err, SubPath, spkr_sig_info_dir ] = getLoudspeakerSignalPath( setup, signal_info, database_res, database_workingdir, method )
 %GETLOUDSPEAKERSIGNALPATH Summary of this function goes here
 %   Detailed explanation goes here
-if nargin < 4
+if nargin < 5
     method = 'new';
 end
 
-if nargin < 3
+if nargin < 4
     database_workingdir = 'Z:\';
 end
 
@@ -13,7 +13,7 @@ err = false;
 try
     %%%%%%%%%%%%%%%%%%%%%%%%% NEW METHOD %%%%%%%%%%%%%%%%%%%%%%%%%
     % Supports database path similarity and better structured path for
-    % signal files
+    % loudspeaker signal files
     if strcmpi(method, 'new')
         sc = '_'; %Separation Character
         
@@ -22,14 +22,16 @@ try
         [~,~,dbsubpath,~,~,~,~,dbfname] = Soundfield_Database.getDatabasePath( setup, database_res );
         [pathstr,fname]=fileparts([dbsubpath,dbfname]);
         SubPath = [pathstr filesep '+' fname filesep];
-        Output_file_path_ext = [SubPath, ...
+        spkr_sig_info_dir = [ ...
             '+' num2str(signal_info.f_low ) 'Hz-' ...
             num2str(signal_info.f_high) 'Hz' sc ...
             num2str(signal_info.L_noise_mask) 'dB' sc ...
             num2str(signal_info.weight) 'weight' sc sc ...
             'method' sc signal_info.method filesep ];
+        Output_file_path_ext = [SubPath, ...
+            spkr_sig_info_dir ];
         Path = [Output_file_path Output_file_path_ext];
-        Name     = [Input_file_name sc ];
+        Name     = [signal_info.input_filename sc ];
         Ext      = '.WAV';        
     
     %%%%%%%%%%%%%%%%%%%%%%%%% OLD METHOD %%%%%%%%%%%%%%%%%%%%%%%%%

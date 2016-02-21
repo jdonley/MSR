@@ -2,6 +2,10 @@ function [ PW_angle, noise_mask, weight, mask_type ] = getInfoFromFilename( file
 %GETINFOFROMFILENAME Summary of this function goes here
 %   Detailed explanation goes here
 
+%%%%%%%%%%%%%%%%%%%
+% % DEPRECATED  % %
+%%%%%%%%%%%%%%%%%%%
+
 % Work out Planewave Angle
 pos = strfind(filename,'Hz_');
 PW_angle = sscanf(filename(pos:end),'%*[^0-9^-]%d%*s');

@@ -1,11 +1,9 @@
-function Clean_from_LUT_ZoneWeightedMask_AliasCtrl( Input_file, LUT_resolution, Noise_Mask_dB, weight, setup, setup_mask )
+function ZoneWeightedMasker_AliasCtrl( Signal_Length, LUT_resolution, Noise_Mask_dB, weight, setup )
 %Clean_from_LUT_ZoneWeightedMask Summary of this function goes here
 %   Detailed explanation goes here
 
 %% Setup Variables
 Drive = 'Z:\';
-[Input_file_path, Input_file_name, Input_file_ext] = fileparts( Input_file );
-Input_file_path = [Input_file_path '\'];
 
 signal_info.c = 343; % Speed of sound in metres/sec
 signal_info.Fs = 16000; % Sampling frequency
@@ -15,8 +13,8 @@ signal_info.f_low  = 150;  % Hz
 signal_info.f_high = 8000; % Hz
 signal_info.L_noise_mask = Noise_Mask_dB; % dB
 signal_info.weight = weight;
-signal_info.method = 'ZoneWeightMaskAliasCtrl';
-signal_info.input_filename = Input_file_name;
+signal_info.method = 'ZoneWeightMaskerAliasCtrl';
+signal_info.input_filename = 'Masker';
 
 [Output_path, Output_file_name, Output_file_ext] = ...
     Broadband_Tools.getLoudspeakerSignalPath( setup, signal_info, LUT_resolution, Drive, 'new');
@@ -26,21 +24,16 @@ loudspeakers   = setup.Loudspeaker_Count;
 
 
 
-% Read input signal
-Input_Signal = audioread( Input_file );
+% Generate Input Signal
+level_mag = db2mag(signal_info.L_noise_mask);
+Input_Signal = Perceptual_Tools.GreyNoise( Signal_Length/signal_info.Fs, signal_info.Fs, level_mag );
 
-for sig = 1:2 % Firstly we compute the loudspeaker signals for the input signal then we compute the loudspeaker signals for the additive zone weighted noise
-    
+% Compute the loudspeaker signals for the additive zone weighted noise    
     %% First, Load the relevant look-up tables and check compatability
     method = {'new4', 'new3', 'new2', 'new'};
     for m = 1:2
-        if sig == 1
-            method_ = [method, {'old'}];
-            [DB,err] = Soundfield_Database.loadDatabaseFromSetup( setup, LUT_resolution, Drive, method_{m} );
-        elseif sig == 2
             method_ = [method, {'old_zones_swapped'}];
-            [DB,err] = Soundfield_Database.loadDatabaseFromSetup( setup_mask, LUT_resolution, Drive, method_{m} );
-        end
+            [DB,err] = Soundfield_Database.loadDatabaseFromSetup( setup, LUT_resolution, Drive, method_{m} );
         if ~err
             break;
         end
@@ -58,10 +51,10 @@ for sig = 1:2 % Firstly we compute the loudspeaker signals for the input signal 
     single_weight = false;
     
     len = length(Input_Signal);
-    noise_freqs = linspace(0, Fs/2, len/2 + 1);
+    noise_freqs = linspace(0, signal_info.Fs/2, len/2 + 1);
     noise_freqs = noise_freqs(noise_freqs>=min(Frequencies) & noise_freqs<=max(Frequencies));
-    len = Nfft;
-    freqs = linspace(0, Fs/2, len/2 + 1);
+    len = signal_info.Nfft;
+    freqs = linspace(0, signal_info.Fs/2, len/2 + 1);
     freqs = freqs(freqs>=min(Frequencies) & freqs<=max(Frequencies));
     
     if single_weight
@@ -88,13 +81,13 @@ for sig = 1:2 % Firstly we compute the loudspeaker signals for the input signal 
     % quiet zone. Where there is a large amount of aliasing and hence a
     % large magnitude in the quiet zone, we invert this level and apply it
     % to the noise input signal.
-    if sig == 2
+    
 %         W = -mag2db(DB.Quiet_Sample__Weight_Vs_Frequency);   
 %         W_ = permute( Tools.interpVal_2D(W, Frequencies, Weights, noise_freqs, noise_weights, 'spline'), [2 1]);        
 %         W_=W_(:);
         
         % Equalise signal in target "bright" zone
-        %Input_Signal = applyWeight(Input_Signal, W_, noise_freqs, Fs);       
+        %Input_Signal = applyWeight(Input_Signal, W_, noise_freqs, signal_info.Fs);       
         
         %Find cutoff frequencies for band pass filter
 %         Alias_leakage_threshold = 7.5; %dB
@@ -102,26 +95,31 @@ for sig = 1:2 % Firstly we compute the loudspeaker signals for the input signal 
 %         f_cutoff_low  = noise_freqs(find( W_(1:bandpass_centre) <=Alias_leakage_threshold,1,'last'));
 %         f_cutoff_high = noise_freqs( (bandpass_centre-1) + find( W_(bandpass_centre:end) <=Alias_leakage_threshold,1,'first'));
 %         f_cutoff = [f_cutoff_low, f_cutoff_high];
+
+        % This method formulates the cutoff frequency where aliasing begins to
+        % occur. It is based on the frequency where aliasing occurs for the
+        % reproduction region but not necessarily the individual zones.
+
         R_ = max( [setup.Multizone_Soundfield.Bright_Zone.Radius_q + setup.Multizone_Soundfield.Bright_Zone.Origin_q.Distance; ...
                    setup.Multizone_Soundfield.Quiet_Zone.Radius_q + setup.Multizone_Soundfield.Quiet_Zone.Origin_q.Distance;  ]);
         phiL_rad = setup.Speaker_Arc_Angle / 180 * pi;
         
-        f_cutoff = c * (loudspeakers - 1) / (2 * R_ * phiL_rad);
+        f_cutoff = signal_info.c * (loudspeakers - 1) / (2 * R_ * phiL_rad);
         
-        %Design low pass filter
-        [b,a] = butter(6, f_cutoff./(Fs/2));
+        %Design LOW pass filter
+        [b,a] = butter(6, f_cutoff./(signal_info.Fs/2), 'low');
         
         %Apply low pass filter to noise
         Input_Signal = filter(b,a,Input_Signal(:));
-    end
+
     
     
     %% Third, find the frequency domain representation of the audio file that is wished to be reproduced in the spatial domain.
-    [Z, Frequencies_, ~, Windows] = Broadband_Tools.FFT_custom(Input_Signal, Nfft, Fs, overlap);
+    [Z, Frequencies_, ~, Windows] = Broadband_Tools.FFT_custom(Input_Signal, signal_info.Nfft, signal_info.Fs, signal_info.overlap);
     
     % Truncate to frequencies in the range f_low <-> f_high
-    trunc_index_low  = find(Frequencies_ < f_low , 1, 'last' ) + 1;
-    trunc_index_high = find(Frequencies_ > f_high, 1 ) + 1;
+    trunc_index_low  = find(Frequencies_ < signal_info.f_low , 1, 'last' ) + 1;
+    trunc_index_high = find(Frequencies_ > signal_info.f_high, 1 ) + 1;
     if isempty(trunc_index_low)
         trunc_index_low = 1;
     end
@@ -196,66 +194,36 @@ for sig = 1:2 % Firstly we compute the loudspeaker signals for the input signal 
     % %Loudspeaker_Signals =
     % zeros([(size(Z,1)+ceil(overlap))*size(Z,2)*2*(1-overlap) loudspeakers] ); % pre-allocate memory
     for spkr = 1:loudspeakers
-        Loudspeaker_Signals(:,spkr) = Broadband_Tools.OverlapAdd( Loudspeakers_(:,:,spkr), overlap ); %#ok<AGROW>
+        Loudspeaker_Signals(:,spkr) = Broadband_Tools.OverlapAdd( Loudspeakers_(:,:,spkr), signal_info.overlap ); %#ok<AGROW>
     end
-    Original_ = Broadband_Tools.OverlapAdd( Original, overlap );
+    Original_ = Broadband_Tools.OverlapAdd( Original, signal_info.overlap );
     % clear Loudspeakers_; % Save on memory
     
     
     % Scale signals so they don't clip upon saving
-    if Noise_Mask_dB <= 0
+    if signal_info.L_noise_mask <= 0
         scaler = 1 / (db2mag(0)+1); %Plus one is for the amplitude of the clean signal
-    elseif Noise_Mask_dB > 0 % For a positive masker we scale the signals to save up to a 40db noise masker
+    elseif signal_info.L_noise_mask > 0 % For a positive masker we scale the signals to save up to a 40db noise masker
         scaler = 1 / (db2mag(40)+1);%Plus one is for the amplitude of the clean signal
     end
     
     % Normalise Loudspeaker Signals
-    Loudspeaker_Signals = Loudspeaker_Signals ./ max(abs(Loudspeaker_Signals(:)))  *  scaler; 
+    Loudspeaker_Signals = Loudspeaker_Signals ./ max(abs(Loudspeaker_Signals(:)))  *  scaler  *  level_mag; 
     Original_ = Original_ ./ max(abs(Original_(:)))  *  scaler;
     
-    if sig == 1
-        Loudspeaker_Signals_Input_Signal = Loudspeaker_Signals;
-        Original_Input_Signal = Original_;
-    end
-    
-    %Input_Signal = Tools.generateNoise(Loudspeaker_Signals, Noise_Mask_dB, 'WGN'); % Generate noise to put back into the system and zone weight according to the multizone setup
-    max_Spkrval =  max( abs( Loudspeaker_Signals(:) ) );
-    level_mag = db2mag(Noise_Mask_dB);
-    Input_Signal = Perceptual_Tools.GreyNoise( length(Loudspeaker_Signals)/Fs, Fs, max_Spkrval * level_mag );
-    Input_Signal = Input_Signal(:);
-end
-Original_ = Original_Input_Signal;
-
-
-%% Add Zone Weighted Noise Loudspeaker Signals to Speech Loudspeaker Signals
- % Here we add our loudspeaker signals which reproduce our input signal and a relatively weighted 'zone weighted' noise
- % That is to say, we add the zone weighted noise to the reproduction,
- % however, the zone weighted noise can be varied in level such that 0dB is
- % when the peak noise is equal to the input signal reproduction.
-Loudspeaker_Signals = Loudspeaker_Signals_Input_Signal + db2mag(Noise_Mask_dB) * Loudspeaker_Signals;
-
 
 
 
 
 
 %% Once we have the speaker signals we should save them for later use as .wav files
-filenumbers = num2str((1:loudspeakers)');
-filenumbers(filenumbers==' ') = '_';
-fullpath = [repmat([Output_path Output_file_name], [loudspeakers 1]) ...
-    filenumbers ...
-    repmat(Output_file_ext, [loudspeakers 1]) ];
-
-if ~exist(Output_path,'dir'); mkdir(Output_path); end
-
-for spkr = 1:loudspeakers
-    audiowrite(fullpath(spkr,:), Loudspeaker_Signals(:, spkr), Fs);
-end
-audiowrite([Output_path ...
-    Input_file_name '_' 'Original'
-    Input_file_ext], Original_, Fs);
-
-
+Broadband_Tools.Loudspeaker_Signal_Calculation.saveLoudspeakerSignals( ...
+    Output_path, ...
+    Output_file_name, ...
+    Output_file_ext, ...
+    Loudspeaker_Signals, ...
+    [], [], [], [], ...
+    signal_info.Fs );
 
 
 end

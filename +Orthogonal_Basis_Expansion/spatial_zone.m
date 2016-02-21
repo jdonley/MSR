@@ -174,9 +174,13 @@ classdef spatial_zone
                   y = x;
                   [xx,yy] = meshgrid(x,y);
                   X = complex(xx,yy);    
-                  if strcmp(type,'pw')                      
-                    obj.Soundfield_d = weight .* exp( 1i * (k * (cos(Phi_src)*real(X) + sin(Phi_src)*imag(X)) + phase) ); %Planewave formula ( e^(i*(kx+ky+kz)) )
-                    obj.SourceOrigin.Distance = 0;
+                  if strcmp(type,'pw')
+                      obj.Soundfield_d = weight .* exp( 1i * (k * (cos(Phi_src)*real(X) + sin(Phi_src)*imag(X)) + phase) ); %Planewave formula ( e^(i*(kx+ky+kz)) )
+                      obj.SourceOrigin.Distance = 0;
+                  elseif (strcmp(type, 'ps'))
+                      obj.Soundfield_d = weight .* besselh(0, k * abs(X .* exp(1i.*(pi-Phi_src)) + R_src));
+                  elseif (strcmp(type, 'quiet'))
+                      obj.Soundfield_d = zeros(size(X));
                   end
             else
                 return;

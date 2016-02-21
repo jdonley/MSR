@@ -9,7 +9,7 @@ classdef parametric_soundfield
         field_size = []; % [X, Y]
 
         P1 = 1;
-        P2 = 0.9;
+        P2 = 0.99;
         omega;% Angular frequency of carrier wave
         
         % Modulation parameters

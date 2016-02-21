@@ -1,4 +1,4 @@
-function [Path, err] = getRIRDatabasePath( setup, room, database_workingdir, method )
+function [Path, err, room_details_path, RIR_Name__Details] = getRIRDatabasePath( setup, room, database_workingdir, method )
 %GETDATABASEFROMSETUP Summary of this function goes here
 %   Detailed explanation goes here
 latest_method = 'new2';
