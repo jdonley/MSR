@@ -231,7 +231,7 @@ classdef loudspeaker_setup
                     obj.Loudspeaker_Locations = [a2first spkr_rho]; 
                 else
                     
-                    if iseven(L)
+                    if ~mod(L,2)
                         y = ((wid+space)/2):(wid+space):len/2;
                         y = [flip(-y), y];
                     else

@@ -1,10 +1,14 @@
-function Reverberant_MSR_Analysis_batchfunc( setups, room_setup, signal_types, weight, mask_level, pesqNumber)
+function Reverberant_MSR_Analysis_batchfunc( setups, room_setup, signal_types, weight, mask_level, pesqNumber, RecordingType)
 %% Initialise
 tic;
 % Start Parallel Pool
 para_pool = parpool;
 C = clock;
 fprintf('Started execution at %.0f:%.0f:%.0f on the %.0f/%.0f/%.0f\n',C([4:6 3:-1:1]))
+
+if nargin < 7
+    RecordingType = 'simulated';
+end
 
 %% Setup and Path Info
 Drive = 'Z:\'; % Database drive (storage drive)
@@ -20,6 +24,7 @@ signal_info.f_high = 8000; % Hz
 signal_info.weight = weight;
 signal_info.L_noise_mask = mask_level; % dB
 signal_info.input_filename = [];
+signal_info.recording_type = RecordingType;
 
 signal_type = [signal_types{2:end}];
 if length(signal_types) >= 3
@@ -44,11 +49,18 @@ save([ResultsPath 'Setups.mat'], 'setups');
 
 levels = signal_info.L_noise_mask;
 Recordings_Path = cell(length(levels),length(setups));
-for s = 1:length(setups)
+
+if strcmpi(RecordingType,'simulated')
+    s_1 = 1;
+elseif strcmpi(RecordingType,'realworld')
+    s_1 = 2;
+end
+
+for s = s_1:length(setups)
     signal_info.method = signal_types{s};
-    if isempty(strfind( signal_types{s}, 'Parametric' ))
+    if isempty(strfind( signal_types{s}, 'Parametric' )) % If not parametric
         signal_info.weight = weight;
-    else
+    else % If parametric
         signal_info.weight = 1;
     end
     for m = 1:length(levels)
@@ -57,7 +69,11 @@ for s = 1:length(setups)
         else
             signal_info.L_noise_mask = levels(m);
         end
-        Recordings_Path{m,s} = Results.getRecordingsPath( setups{s}, LUT_resolution, room_setup, signal_info, Drive );
+        if strcmpi(RecordingType,'simulated')
+            Recordings_Path{m,s} = Results.getRecordingsPath( setups{s}, LUT_resolution, room_setup, signal_info, Drive );
+        elseif strcmpi(RecordingType,'realworld')
+            Recordings_Path{m,s} = Hardware_Control.getRealRecordingsPath( setups{1}, LUT_resolution, room_setup, signal_info, Drive );
+        end
     end
 end
 signal_info.L_noise_mask = levels;
@@ -82,8 +98,9 @@ M = length(signal_info.L_noise_mask);
 S = length(setups);
 for m = 1:M
     
-    for s=1:S
-        files_ = Tools.getAllFiles( Recordings_Path{m,s} );
+    for s=s_1:S
+        files_ = Tools.getAllFiles( Recordings_Path{m,s} );        
+        files = {[],[]};
         files{:,s} = sort(files_);
     end
     
@@ -93,32 +110,36 @@ for m = 1:M
     
     for s=2:S
         fileName={};
-        for f=1:2
+        fpos = [1 (s_1+1)];
+        for f=fpos
             [~, fileName{s,f}, ~] = fileparts(files{s}{f});
         end
-        % These should be maskers and if there is more than one they
-        % need to be adjusted to match each other.
-        Rec_Bright_{s} = load(files{s}{1});
-        Rec_Quiet_{s} = load(files{s}{2});
+        % These should be maskers unless realworld recording
+        Rec_Bright_{s} = load(files{s}{fpos(1)});
+        Rec_Quiet_{s} = load(files{s}{fpos(2)});
+        if isfield(Rec_Bright_{s},'fs')
+            Fs = Rec_Bright_{s}.fs;
+        else
+            Fs = signal_info.Fs;
+        end
     end
-    if S == 3 % If two maskers are found
-        [Rec_Bright_, Rec_Quiet_] = adjustHybridMaskers( ...
-            Rec_Bright_, Rec_Quiet_, setups, signal_info);
-    end
+%     if S == 3 % If two maskers are found
+%         [Rec_Bright_, Rec_Quiet_] = adjustHybridMaskers( ...
+%             Rec_Bright_, Rec_Quiet_, setups, signal_info);
+%     end
     
-    F = size(files{1},1);
+    F = size(files{s_1},1);
     for file = 1:F
             
-        [~, fileName{1,file}, ~] = fileparts(files{1}{file});
+        [~, fileName{s_1,file}, ~] = fileparts(files{s_1}{file});
         
         
-        if isempty(strfind(fileName{1,file},'Original')) % Make sure the file being read isn't an original file
+        if isempty(strfind(fileName{s_1,file},'Original')) % Make sure the file being read isn't an original file
             
             % Get the file number and file name
-
-                [Ztypeflip,Stypeflip] = strtok( flip(fileName{1,file}), sc );
-                SignalName = flip( Stypeflip );
-                ZoneType = flip( Ztypeflip );
+            [Ztypeflip,Stypeflip] = strtok( flip(fileName{s_1,file}), sc );
+            SignalName = flip( Stypeflip );
+            ZoneType = flip( Ztypeflip );
 
             
             if ~(isempty(fileName_prev) || strcmp( SignalName, fileName_prev))
@@ -128,17 +149,19 @@ for m = 1:M
             
             if strcmp('Bright',ZoneType)
                 Rec_Bright = [];
-                Rec_Bright_{1} = load(files{1}{file});
-                sigLen = size( Rec_Bright_{1}.Rec_Sigs_B,2);
-                for s=1:S
+                Rec_Bright_{s_1} = load(files{s_1}{file});
+                if s_1==2, Rec_Bright_{s_1}.Rec_Sigs_B = Rec_Bright_{s_1}.Rec_Sigs_B'; end; %TODO: Fix the recording so the dimensions are in the correct place.
+                sigLen = size( Rec_Bright_{s_1}.Rec_Sigs_B,2);
+                for s=s_1:S
                     Rec_Bright(:,:,s) = Rec_Bright_{s}.Rec_Sigs_B(:,1:sigLen);
                 end
                 Rec_Bright = sum( Rec_Bright, 3 );
             elseif strcmp('Quiet',ZoneType)
                 Rec_Quiet = [];
-                Rec_Quiet_{1} = load(files{1}{file});
-                sigLen = size( Rec_Quiet_{1}.Rec_Sigs_Q,2);
-                for s=1:S
+                Rec_Quiet_{s_1} = load(files{s_1}{file});
+                if s_1==2, Rec_Quiet_{s_1}.Rec_Sigs_Q = Rec_Quiet_{s_1}.Rec_Sigs_Q'; end; %TODO: Fix the recording so the dimensions are in the correct place.
+                sigLen = size( Rec_Quiet_{s_1}.Rec_Sigs_Q,2);
+                for s=s_1:S
                     Rec_Quiet(:,:,s) = Rec_Quiet_{s}.Rec_Sigs_Q(:,1:sigLen);
                 end
                 Rec_Quiet = sum( Rec_Quiet, 3 );
@@ -150,17 +173,38 @@ for m = 1:M
                 
                 % Read original file
                 for file_orig = 1:F
-                    if ~isempty( strfind(files{1}{file_orig}, [SignalName 'Original']) )
+                    if ~isempty( strfind(files{s_1}{file_orig}, [SignalName 'Original']) )
                         break
                     end
                 end
                 try
-                    orig = audioread( files{1}{file_orig} );
+                    orig = audioread( files{s_1}{file_orig} );
                 catch err
                     if strcmp(err.identifier, 'MATLAB:audiovideo:audioread:FileTypeNotSupported')
                         continue; % Skip unsupported files
                     end
                 end
+                
+                
+                % BEGIN Downsample realworld recordings
+                if Fs ~= signal_info.Fs
+                    down_rate = Fs / signal_info.Fs ;
+                    Rec_Bright_down = zeros(ceil(size(Rec_Bright).*[1 1/down_rate]));
+                    Rec_Quiet_down = zeros(ceil(size(Rec_Quiet).*[1 1/down_rate]));
+                    for  r = 1:size(Rec_Bright,1)
+                        Rec_Bright_down(r,:) = ...
+                            decimate( Rec_Bright(r,:), down_rate );
+                        Rec_Quiet_down(r,:) = ...
+                            decimate( Rec_Quiet(r,:), down_rate );
+                    end
+                    Rec_Bright = Rec_Bright_down;
+                    Rec_Quiet  = Rec_Quiet_down ;
+                    if ~isempty(orig)
+                        orig = decimate( orig, down_rate );
+                    end
+                end
+                % END Downsample realworld recordings
+                
                 
                 % BEGIN Resize the original speech signal and
                 % Align it with the reverberant signals.
@@ -172,16 +216,26 @@ for m = 1:M
                 %c_speed = 343;%343m/s speed of sound in air
                 %max_delay = speaker_radius*2 / c_speed * signal_info.Fs;
                 max_delay = signal_info.Fs / 2;
-                Original = zeros(room_setup.NoReceivers,2,length(orig));
-                
-                for r = 1:room_setup.NoReceivers
-                    delay = sigalign(Rec_Bright(r,:), orig, [-max_delay 0]) - 1;
-                    Original(r,1,:) = [orig(-delay:end); zeros(-delay-1,1)];
+                Original = zeros(size(Rec_Bright,1),2,length(orig));
+                                
+                for r = 1:size(Rec_Bright,1)
+                    delay = sigalign(Rec_Bright(r,:), orig, [-1 1]*max_delay) - 1;
+                    if delay <= 0
+                        Original(r,1,:) = [orig(-delay:end); zeros(-delay-1,1)];
+                    elseif delay>0
+                        Original(r,1,:) = orig;
+                        Rec_Bright(r,:) = [Rec_Bright(r,delay:end), zeros(1,delay-1)];
+                    end
                     
-                    delay = sigalign( Rec_Quiet(r,:), orig, [-max_delay 0]) - 1;
-                    Original(r,2,:) = [orig(-delay:end); zeros(-delay-1,1)];
+                    delay = sigalign( Rec_Quiet(r,:), orig, [-1 1]*max_delay) - 1;
+                    if delay <= 0
+                        Original(r,2,:) = [orig(-delay:end); zeros(-delay-1,1)];
+                    elseif delay>0
+                        Original(r,2,:) = orig;
+                        Rec_Quiet(r,:) = [Rec_Quiet(r,delay:end), zeros(1,delay-1)];
+                    end
                 end
-                % END resize and align
+                % END resize and align                
                 
                 % BEGIN Calculate and save results
                 
@@ -228,7 +282,7 @@ R_ = max( [BZ.Radius_q + BZ.Origin_q.Distance; ...
     QZ.Radius_q + QZ.Origin_q.Distance;  ]);
 phiL_rad = S.Speaker_Arc_Angle / 180 * pi;
 f_cutoff = SigInfo.c * (S.Loudspeaker_Count - 1) / (2 * R_ * phiL_rad);
-f_cutoff = f_cutoff * (2^0.5);
+f_cutoff = mean(f_cutoff .* [1, 2]);
 
 % Match two signals
 % Adjust second masker to suit first

@@ -26,7 +26,7 @@ end
 results_type = 'PESQ';
 
 %% Calculate Results
-orig_B = squeeze( Original_(:,1,:) );
+orig_B = permute( Original_(:,1,:) ,[1 3 2]);
 for r = 1:size(Rec_Sigs_B,1)
     PESQ_MOS_B(r) = Tools.pesq_mex_vec( orig_B(r,:), Rec_Sigs_B(r,:), Fs , pesqNumber);
 end

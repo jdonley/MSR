@@ -33,7 +33,14 @@ try
         [~,~,room_info_dir1,room_info_dir2] = Room_Acoustics.getRIRDatabasePath( setup, room );
         room_info_dirs = [room_info_dir1, room_info_dir2, filesep];
         
+        if isfield(signal_info, 'recording_type') && strcmpi(signal_info.recording_type, 'realworld')
+            realworld_path = '+Physical_World\';
+        else
+            realworld_path = [];
+        end
+        
         Path = [Recordings_Path ...
+            realworld_path, ...
             reproduction_info_dirs, ...
             room_info_dirs, ...
             spkr_sig_info_dir];

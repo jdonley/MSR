@@ -1,4 +1,4 @@
-function [Path, err] = getRecordingsPath( setup, database_res, room, signal_info, database_workingdir, method )
+function [Path, err, Recordings_Path, path_sub_dirs] = getRecordingsPath( setup, database_res, room, signal_info, database_workingdir, method )
 %GETDATABASEFROMSETUP Summary of this function goes here
 %   Detailed explanation goes here
 latest_method = 'new';
@@ -27,10 +27,12 @@ try
         [~,~,room_info_dir1,room_info_dir2] = Room_Acoustics.getRIRDatabasePath( setup, room );
         room_info_dirs = [room_info_dir1, room_info_dir2, filesep];        
 
-        Path = [Recordings_Path ...
-                reproduction_info_dirs, ...
+        path_sub_dirs = [reproduction_info_dirs, ...
                 room_info_dirs, ...
                 spkr_sig_info_dirs];
+        
+        Path = [Recordings_Path ...
+                path_sub_dirs];
             
         
     elseif strcmpi(method, 'old')

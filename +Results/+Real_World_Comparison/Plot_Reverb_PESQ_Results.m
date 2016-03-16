@@ -6,7 +6,7 @@ clear;
 Plot_ = 'STOI&PESQ';
 %Plot_ = 'STI&PESQ';
 if strcmp(Plot_,'STOI&PESQ')
-    Results.Parametric_Comparison.Plot_Reverb_STOI_Results;
+    Results.Real_World_Comparison.Plot_Reverb_STOI_Results;
     Plot_ = 'STOI&PESQ';
 elseif strcmp(Plot_,'STI&PESQ')
     error( 'Not implemented yet.');
@@ -32,7 +32,7 @@ signal_info.weight = [];
 signal_info.L_noise_mask = []; % dB
 signal_info.input_filename = [];
 
-array_type = 'line';
+array_type = 'circle';
 spkr_radius = 1.3;
 
 parametric_speaker = Parametric_Synthesis.parametric_soundfield;
@@ -102,7 +102,7 @@ Room_Setup.NoReceivers = 32;
 % pw_angle = {0};
 
 mask_type_ = {'Zone Weight Masker AliasCtrl'; ...
-    'Hybrid ZoneWeightMaskerAliasCtrlParametricMaskerAliasCtrlHPF';};
+    'Zone Weight Masker AliasCtrl';};
 
 for i=1:length(mask_type_)
     Version{1,i} = strrep(strrep(mask_type_{i},'Weighted','Weight'),' ','');
@@ -194,9 +194,17 @@ Titles  = {['' mask_type_{1} ]; ... ' and \theta=' num2str(pw_angle{1}) '°']; ..
         %     Results_filepath = [ResultsPath Output_file_path_ext results_type '_Results_' num2str(pw_angle{v}) 'pwAngle_' Version{v} '.csv'];
         %
         signal_info.method = Version{v};
-        Results_filepath = [ ...
-            Results.getResultsPath( Setup, LUT_resolution, Room_Setup, signal_info, Drive ), ...
-            results_type '_Results.csv'];
+        if v==1
+            signal_info.recording_type = 'realworld';
+            Results_filepath = [ ...
+                Results.getResultsPath( Setup, LUT_resolution, Room_Setup, signal_info, Drive ), ...
+                results_type '_Results.csv'];
+        elseif v==2
+            signal_info.recording_type = 'realworld';
+            Results_filepath = [ ...
+                Results.getResultsPath( Setup, LUT_resolution, Room_Setup, signal_info, Drive ), ...
+                results_type '_Results.csv'];
+        end
         
         % Read results
         [NoiseLevel,Result_Bright,ConfInt_Bright_Low,ConfInt_Bright_Up] = Results.import_PESQ_Reverb(Results_filepath);

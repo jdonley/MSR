@@ -1,4 +1,4 @@
-function ZoneWeightedMasker_AliasCtrl( Signal_Length, LUT_resolution, Noise_Mask_dB, weight, setup )
+function ZoneWeightedMasker_AliasCtrl( Signal_Length, LUT_resolution, Noise_Mask_dB, weight, setup, multizone_setup )
 %Clean_from_LUT_ZoneWeightedMask Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -26,9 +26,72 @@ loudspeakers   = setup.Loudspeaker_Count;
 
 % Generate Input Signal
 level_mag = db2mag(signal_info.L_noise_mask);
-Input_Signal = Perceptual_Tools.GreyNoise( Signal_Length/signal_info.Fs, signal_info.Fs, level_mag );
+Input_Signal = v_addnoise( zeros(Signal_Length,1), signal_info.Fs, -Inf); % White noise
+%Input_Signal = Perceptual_Tools.GreyNoise( Signal_Length/signal_info.Fs, signal_info.Fs, level_mag ); % Equal loudness shaped noise (ISO226)
+%Input_Signal = v_addnoise( zeros(Signal_Length,1), signal_info.Fs, -Inf, '', 5 ); % Speech shaped noise (SSN) (ITU-T P.50 Spectrum)
 
-% Compute the loudspeaker signals for the additive zone weighted noise    
+%% Shape the noise to the speech being used
+[spect_sp,frqs_sp]=Tools.LTASS('M:\MSR\+Miscellaneous\+Speech_Files\');
+%octave band smoothing
+% span=floor(length(frqs_sp(frqs_sp>=125 & frqs_sp<=8000))/7);
+span = round(5/100 * length(spect_sp));
+
+spect_sp = smooth( spect_sp, span);
+Input_Signal = Tools.shapeSpectrum( Input_Signal, spect_sp, frqs_sp, signal_info.Fs );
+
+%% Find aliasing frequency for use as cutoff
+% This method formulates the cutoff frequency where aliasing begins to
+% occur. It is based on the frequency where aliasing occurs for the
+% reproduction region but not necessarily the individual zones.
+
+R_ = max( [setup.Multizone_Soundfield.Bright_Zone.Radius_q + setup.Multizone_Soundfield.Bright_Zone.Origin_q.Distance; ...
+    setup.Multizone_Soundfield.Quiet_Zone.Radius_q + setup.Multizone_Soundfield.Quiet_Zone.Origin_q.Distance;  ]);
+
+phiL_rad = setup.Speaker_Arc_Angle / 180 * pi;
+
+f_cutoff = signal_info.c * (loudspeakers - 1) / (2 * R_ * phiL_rad);
+
+%% Shape noise spectrum to match quiet zone leakage spectrum
+[spect,frqs] = Soundfield_Database.getQuietZoneSpectrumFromDB( multizone_setup, LUT_resolution, Drive, signal_info.Fs );
+%spect = spect .^ 0.5; %square root to reduce emphasis of spectral adjustment
+spect2 = spect;
+span2 = round(5/100 * length(spect));
+
+%remove sharp increase from aliasing
+spect_high=spect(frqs>f_cutoff);
+db_drop = 50;
+spect_high_new = linspace( ...
+    spect_high(1), ...
+    db2mag(mag2db(spect_high(1))-db_drop), ...
+    length(spect_high) );
+% spect_high_new = logspace( ...
+%     log10(spect_high(1)), ...
+%     log10(db2mag(mag2db(spect_high(1))-db_drop)), ...
+%     length(spect_high) );
+spect2(frqs>f_cutoff) = spect_high_new;
+
+spect = smooth( spect, span2); %Smooth arbitrary spectral adjustment
+spect2 = smooth( spect2, span2); %Smooth arbitrary spectral adjustment
+
+Input_Signal_toMatch = Tools.shapeSpectrum( Input_Signal, spect, frqs, signal_info.Fs );
+Input_Signal = Tools.shapeSpectrum( Input_Signal, spect2, frqs, signal_info.Fs );
+
+
+%% Adjust the noise to account for the aliasing caused by a limited number of loudspeakers
+%Design LOW pass filter
+ [b,a] = butter(6, f_cutoff./(signal_info.Fs/2), 'low');
+ %[b,a] = cheby2(9, 50, f_cutoff./(signal_info.Fs/2), 'low');
+ 
+ %Apply low pass filter to noise
+ Input_Signal_filt = filter(b,a,Input_Signal(:));
+ 
+ %Adjust the power of the signal in the passband to match the non-filtered version
+ %(power normalisation (equalisation))
+ input_norm_sig = Input_Signal_toMatch(:) ./ max(abs(Input_Signal_toMatch(:)));
+ Input_Signal = Broadband_Tools.power_norm( input_norm_sig, Input_Signal_filt(:), signal_info.Fs, [signal_info.f_low, f_cutoff]);
+
+
+% Compute the loudspeaker signals for the additive zone weighted noise
     %% First, Load the relevant look-up tables and check compatability
     method = {'new4', 'new3', 'new2', 'new'};
     for m = 1:2
@@ -76,45 +139,9 @@ Input_Signal = Perceptual_Tools.GreyNoise( Signal_Length/signal_info.Fs, signal_
         weights = Weights(I);
     end
     
-    %% Second, Adjust the noise to account for the aliasing caused by a limited number of loudspeakers
-    % The amount of aliasing is predicted from the average magnitude in the
-    % quiet zone. Where there is a large amount of aliasing and hence a
-    % large magnitude in the quiet zone, we invert this level and apply it
-    % to the noise input signal.
-    
-%         W = -mag2db(DB.Quiet_Sample__Weight_Vs_Frequency);   
-%         W_ = permute( Tools.interpVal_2D(W, Frequencies, Weights, noise_freqs, noise_weights, 'spline'), [2 1]);        
-%         W_=W_(:);
-        
-        % Equalise signal in target "bright" zone
-        %Input_Signal = applyWeight(Input_Signal, W_, noise_freqs, signal_info.Fs);       
-        
-        %Find cutoff frequencies for band pass filter
-%         Alias_leakage_threshold = 7.5; %dB
-%         [~,bandpass_centre] = max(W_);
-%         f_cutoff_low  = noise_freqs(find( W_(1:bandpass_centre) <=Alias_leakage_threshold,1,'last'));
-%         f_cutoff_high = noise_freqs( (bandpass_centre-1) + find( W_(bandpass_centre:end) <=Alias_leakage_threshold,1,'first'));
-%         f_cutoff = [f_cutoff_low, f_cutoff_high];
-
-        % This method formulates the cutoff frequency where aliasing begins to
-        % occur. It is based on the frequency where aliasing occurs for the
-        % reproduction region but not necessarily the individual zones.
-
-        R_ = max( [setup.Multizone_Soundfield.Bright_Zone.Radius_q + setup.Multizone_Soundfield.Bright_Zone.Origin_q.Distance; ...
-                   setup.Multizone_Soundfield.Quiet_Zone.Radius_q + setup.Multizone_Soundfield.Quiet_Zone.Origin_q.Distance;  ]);
-        phiL_rad = setup.Speaker_Arc_Angle / 180 * pi;
-        
-        f_cutoff = signal_info.c * (loudspeakers - 1) / (2 * R_ * phiL_rad);
-        
-        %Design LOW pass filter
-        [b,a] = butter(6, f_cutoff./(signal_info.Fs/2), 'low');
-        
-        %Apply low pass filter to noise
-        Input_Signal = filter(b,a,Input_Signal(:));
-
     
     
-    %% Third, find the frequency domain representation of the audio file that is wished to be reproduced in the spatial domain.
+    %% Second, find the frequency domain representation of the audio file that is wished to be reproduced in the spatial domain.
     [Z, Frequencies_, ~, Windows] = Broadband_Tools.FFT_custom(Input_Signal, signal_info.Nfft, signal_info.Fs, signal_info.overlap);
     
     % Truncate to frequencies in the range f_low <-> f_high
@@ -131,7 +158,7 @@ Input_Signal = Perceptual_Tools.GreyNoise( Signal_Length/signal_info.Fs, signal_
     
 %     Frequencies_ = Frequencies_(Frequencies_>=min(Frequencies) & Frequencies_<=max(Frequencies));
     
-    %% Fourth, build a flat spectra desired multizone soundfield for all frequencies from the previous fft and save the speaker weights for each frequency bin.
+    %% Third, build a flat spectra desired multizone soundfield for all frequencies from the previous fft and save the speaker weights for each frequency bin.
     [szW, szF] = size(DB.Loudspeaker_Weights__Weight_Vs_Frequency);
     LUT_Loudspeaker_Weights = cell2mat(DB.Loudspeaker_Weights__Weight_Vs_Frequency);
     LUT_Loudspeaker_Weights = permute( reshape(LUT_Loudspeaker_Weights, loudspeakers, szW, szF), [2 3 1] );    
@@ -168,7 +195,7 @@ Input_Signal = Perceptual_Tools.GreyNoise( Signal_Length/signal_info.Fs, signal_
         Loudspeakers_(:,1:end/2,spkr) = Z_l(:,:,spkr) .* Loudspeaker_Weights(:,:,spkr);
         Loudspeakers_(:,end/2+1:end,spkr) = conj( [-Loudspeakers_(:,1,spkr).*0 Loudspeakers_(:,end/2:-1:2,spkr)]);
     end
-    Original = [Z(:,:,1) conj( [-Z(:,1,1).*0 Z(:,end:-1:2,1)] )];
+    Input_toMatch = [Z(:,:,1) conj( [-Z(:,1,1).*0 Z(:,end:-1:2,1)] )];
     % clear Loudspeaker_Weights; % Save on memory
     %
     % % We then want to perform an Inverse FFT (ifft) on each full spectrum frame
@@ -176,7 +203,7 @@ Input_Signal = Perceptual_Tools.GreyNoise( Signal_Length/signal_info.Fs, signal_
         for spkr = 1:loudspeakers
             Loudspeakers_(frame,:,spkr) = ifft( Loudspeakers_(frame,:,spkr) );
         end
-        Original(frame,:) = ifft( Original(frame, :) );
+        Input_toMatch(frame,:) = ifft( Input_toMatch(frame, :) );
     end
     
     %We should apply the second square root hamming window here
@@ -186,7 +213,7 @@ Input_Signal = Perceptual_Tools.GreyNoise( Signal_Length/signal_info.Fs, signal_
     for spkr = 1:loudspeakers
         Loudspeakers_(:,:,spkr) = Loudspeakers_(:,:,spkr) .* Windows;
     end
-    Original = Original .* Windows;
+    Input_toMatch = Input_toMatch .* Windows;
     %end
     
     %
@@ -196,7 +223,7 @@ Input_Signal = Perceptual_Tools.GreyNoise( Signal_Length/signal_info.Fs, signal_
     for spkr = 1:loudspeakers
         Loudspeaker_Signals(:,spkr) = Broadband_Tools.OverlapAdd( Loudspeakers_(:,:,spkr), signal_info.overlap ); %#ok<AGROW>
     end
-    Original_ = Broadband_Tools.OverlapAdd( Original, signal_info.overlap );
+    Input_toMatch_ = Broadband_Tools.OverlapAdd( Input_toMatch, signal_info.overlap );
     % clear Loudspeakers_; % Save on memory
     
     
@@ -208,8 +235,8 @@ Input_Signal = Perceptual_Tools.GreyNoise( Signal_Length/signal_info.Fs, signal_
     end
     
     % Normalise Loudspeaker Signals
-    Loudspeaker_Signals = Loudspeaker_Signals ./ max(abs(Loudspeaker_Signals(:)))  *  scaler  *  level_mag; 
-    Original_ = Original_ ./ max(abs(Original_(:)))  *  scaler;
+    [~,adjVal] = Broadband_Tools.power_norm( Input_Signal(:), Input_toMatch_(:), signal_info.Fs, [signal_info.f_low, f_cutoff]);
+    Loudspeaker_Signals = Loudspeaker_Signals * adjVal  *  scaler  *  level_mag; 
     
 
 

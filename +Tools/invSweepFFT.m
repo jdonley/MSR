@@ -1,9 +1,12 @@
-function [ invirfft ] = invSweepFFT( y, f1, f2, fs )
+function [ invirfft ] = invSweepFFT( y, f1, f2, fs, Nfft )
 %INVSWEEPFFT Summary of this function goes here
 %   Detailed explanation goes here
+if nargin < 5
+    Nfft = length(y);
+end
 
 %%% get fft of sweep to verify that its okay and to use for inverse
-yfft = fft(y);
+yfft = fft(y(:)', Nfft);
 
 % start with the true inverse of the sweep fft
 invirfft = 1./yfft;
