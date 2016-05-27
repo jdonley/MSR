@@ -89,8 +89,8 @@ THD_perc1 = round(db2mag(thd(p1_down,fs,100))*100,4)
 THD_perc2 = round(db2mag(thd(p2_down,fs,100))*100,4)
 
 %% Sound result
-%soundsc(ym_up ,fc_s);
-%pause(3);
+soundsc(ym_up ,fc_s);
+pause(3);
 
 %soundsc(p2_down ,fs);
 Tools.pesq_mex_vec(ym,p1_down,fs)

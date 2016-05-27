@@ -2,7 +2,7 @@ clc;
 %clear;
 close all;
 tic; %Start timing this script
-delete(gcp);
+delete(gcp('nocreate'));
 current_pool = parpool; %Start new pool
 C = clock;
 fprintf('Started execution at %.0f:%.0f:%.0f on the %.0f/%.0f/%.0f\n',C([4:6 3:-1:1]))
@@ -23,7 +23,7 @@ DebugMode = 'DEBUG';        % Set this to 'DEBUG' for a fast aproximate output, 
 
 %%%% NEW LAYOUT %%%%
 LUTlayouts = [1, 2, 3];
-%LUTlayouts = [3];
+LUTlayouts = [1 2 2.1];
 for LUTBUILD = LUTlayouts
     
     % Multizone Speech
@@ -34,13 +34,17 @@ for LUTBUILD = LUTlayouts
     elseif LUTBUILD == 2
         spkr = 1;
         zonelayout = 'masker';
+    % Multizone Masker2
+    elseif LUTBUILD == 2.1
+        spkr = 1;
+        zonelayout = 'masker2';
     % Parametric Masker
     elseif LUTBUILD == 3
         spkr = 2;
         zonelayout = 'masker';
     end
 
-array_type = 'line';
+array_type = 'circle';
 spkr_radius = 1.3;
     
 if strcmp(zonelayout,'speech')
@@ -54,6 +58,12 @@ elseif strcmp(zonelayout,'masker')
               'quietzone_pos_angle',         90, ...
               'brightzone_source_angle',     180, ...
               'brightzone_source_type',      'ps'};
+
+elseif strcmp(zonelayout,'masker2')
+    layout = {'brightzone_pos_angle',        -90, ...
+              'quietzone_pos_angle',         90, ...
+              'brightzone_source_angle',     0, ...
+              'brightzone_source_type',      'pw'};
 end
 
 if strcmp(array_type, 'circle')
@@ -103,10 +113,10 @@ setup = Speaker_Setup.createSetup({...
     'quiet_weight',                 0, ...
     'unattended_weight',            0.05, ...
     'brightzone_source_dist',       x_, ...
-    'brightzone_radius',            0.3, ...
-    'brightzone_pos_distance',      0.6, ...
-    'quietzone_radius',             0.3, ...
-    'quietzone_pos_distance',       0.6, ...
+    'brightzone_radius',            0.30, ...
+    'brightzone_pos_distance',      0.60, ...
+    'quietzone_radius',             0.30, ...
+    'quietzone_pos_distance',       0.60, ...
     'maximum_frequency',            8000, ...
     'angleof_loudspeakerarrcentre',	180, ...
     'loudspeaker_object',           parametric_speaker});

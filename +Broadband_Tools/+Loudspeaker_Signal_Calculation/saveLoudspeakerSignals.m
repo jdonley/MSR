@@ -14,7 +14,7 @@ fullpath = [repmat([path name], [spkr_count 1]) ...
 if ~exist(path,'dir'); mkdir(path); end
 
 for spkr = 1:spkr_count
-    audiowrite(fullpath(spkr,:), spkr_signals(:, spkr), fs);
+    audiowrite(fullpath(spkr,:), spkr_signals(:, spkr), fs, 'BitsPerSample',64);
 end
 
 if ~isempty(original)

@@ -70,8 +70,8 @@ if ~strcmp(Method,'FFT')
     end
 else
     Receiver_Signals = zeros(NReceivers, Receiver_Signals_Length, 'like', Speaker_Signals);
-    parfor rec = 1:NReceivers
-    %for rec = 1:NReceivers
+    %parfor rec = 1:NReceivers
+    for rec = 1:NReceivers
         NRec = length(rec);
         spkr_sig = repmat(Speaker_Signals', 1, NRec);
         rir = reshape(permute(RIRs(rec,:,:),[3 1 2]), NRec * NLoudspeakers, RIR_Length)';

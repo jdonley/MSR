@@ -2,14 +2,15 @@ clear;
 %clear classes;
 %close all;
 fclose all;clc;
-
+delete(gcp('nocreate'));
 %%
 %rooms = [4];
 rooms = [ 1 ];
 
 %setups = [1 2 3 4 5 6 0];
 setups = [10, 10.1, 10.2, 10.3];
-setups = [ 10.1, 10.3];
+setups = [10  10.1 ];
+%setups = [ 10.1, 10.3];
 
 for room = rooms
     
@@ -18,7 +19,7 @@ for room = rooms
     Noise_Mask_Levels = [-40 -35 -30 -25 -20 -15 -10 -5 0 5 10 15 20];% 25 30 35 40];
     Noise_Mask_Levels_=Noise_Mask_Levels; %Backup variable
     
-    array_type = 'line';
+    array_type = 'circle';
     spkr_radius = 1.3;
     
     parametric_speaker = Parametric_Synthesis.parametric_soundfield;
@@ -207,8 +208,8 @@ for room = rooms
             layout = { ...
                 'brightzone_pos_angle',        -90, ...
                 'quietzone_pos_angle',         90, ...
-                'brightzone_source_angle',     180, ...
-                'brightzone_source_type',      'ps'};
+                'brightzone_source_angle',     0, ...
+                'brightzone_source_type',      'pw'};
             N_spkrs = 24;
             loudspeaker_layout = { ...
                 'angleto_firstloudspeaker',      90, ...

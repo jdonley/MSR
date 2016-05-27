@@ -21,6 +21,8 @@ signal_info.Nfft = 1024;% Number of fft components
 signal_info.overlap = 0.5;
 signal_info.f_low  = 150;  % Hz
 signal_info.f_high = 8000; % Hz
+signal_info.f_low_meas = 100; % Hz %Minimum loudspeaker response
+signal_info.f_high_meas = 7000; % Hz %Maximum frequency with accurate response at given sampling rate
 signal_info.weight = weight;
 signal_info.L_noise_mask = mask_level; % dB
 signal_info.input_filename = [];
@@ -34,7 +36,7 @@ signal_info.method = signal_type;
 
 
 if nargin < 5
-   signal_info.L_noise_mask = [];
+    signal_info.L_noise_mask = [];
 end
 if nargin < 6
     pesqNumber = 0;
@@ -98,9 +100,9 @@ M = length(signal_info.L_noise_mask);
 S = length(setups);
 for m = 1:M
     
+    files = {[],[]};
     for s=s_1:S
-        files_ = Tools.getAllFiles( Recordings_Path{m,s} );        
-        files = {[],[]};
+        files_ = Tools.getAllFiles( Recordings_Path{m,s} );
         files{:,s} = sort(files_);
     end
     
@@ -123,14 +125,14 @@ for m = 1:M
             Fs = signal_info.Fs;
         end
     end
-%     if S == 3 % If two maskers are found
-%         [Rec_Bright_, Rec_Quiet_] = adjustHybridMaskers( ...
-%             Rec_Bright_, Rec_Quiet_, setups, signal_info);
-%     end
+    %     if S == 3 % If two maskers are found
+    %         [Rec_Bright_, Rec_Quiet_] = adjustHybridMaskers( ...
+    %             Rec_Bright_, Rec_Quiet_, setups, signal_info);
+    %     end
     
     F = size(files{s_1},1);
     for file = 1:F
-            
+        
         [~, fileName{s_1,file}, ~] = fileparts(files{s_1}{file});
         
         
@@ -140,7 +142,7 @@ for m = 1:M
             [Ztypeflip,Stypeflip] = strtok( flip(fileName{s_1,file}), sc );
             SignalName = flip( Stypeflip );
             ZoneType = flip( Ztypeflip );
-
+            
             
             if ~(isempty(fileName_prev) || strcmp( SignalName, fileName_prev))
                 Rec_Bright = [];
@@ -205,6 +207,21 @@ for m = 1:M
                 end
                 % END Downsample realworld recordings
                 
+                % BEGIN power normalise to bright zone level
+                adjScale = [];
+                for r = 1:size(Rec_Bright,1)
+                    [~,adjScale(r)] = Broadband_Tools.power_norm(orig, Rec_Bright(r,:), signal_info.Fs, [signal_info.f_low_meas signal_info.f_high_meas]);
+                end
+                Rec_Bright = Rec_Bright * mean(adjScale);
+                Rec_Quiet  = Rec_Quiet * mean(adjScale);
+                % END power normalise
+                
+                % BEGIN filter signals to acceptable measurement frequency range
+                [b,a] = butter(6, [signal_info.f_low_meas signal_info.f_high_meas] ./ (signal_info.Fs/2) );
+                orig = filter(b,a,orig);
+                Rec_Bright = filter(b,a,Rec_Bright')';
+                Rec_Quiet  = filter(b,a,Rec_Quiet')';
+                % END filter signals
                 
                 % BEGIN Resize the original speech signal and
                 % Align it with the reverberant signals.
@@ -217,25 +234,29 @@ for m = 1:M
                 %max_delay = speaker_radius*2 / c_speed * signal_info.Fs;
                 max_delay = signal_info.Fs / 2;
                 Original = zeros(size(Rec_Bright,1),2,length(orig));
-                                
+                
                 for r = 1:size(Rec_Bright,1)
                     delay = sigalign(Rec_Bright(r,:), orig, [-1 1]*max_delay) - 1;
-                    if delay <= 0
+                    if delay < 0
                         Original(r,1,:) = [orig(-delay:end); zeros(-delay-1,1)];
+                    elseif delay == 0
+                        Original(r,1,:) = orig;
                     elseif delay>0
                         Original(r,1,:) = orig;
                         Rec_Bright(r,:) = [Rec_Bright(r,delay:end), zeros(1,delay-1)];
                     end
                     
                     delay = sigalign( Rec_Quiet(r,:), orig, [-1 1]*max_delay) - 1;
-                    if delay <= 0
+                    if delay < 0
                         Original(r,2,:) = [orig(-delay:end); zeros(-delay-1,1)];
+                    elseif delay == 0
+                        Original(r,2,:) = orig;
                     elseif delay>0
                         Original(r,2,:) = orig;
                         Rec_Quiet(r,:) = [Rec_Quiet(r,delay:end), zeros(1,delay-1)];
                     end
                 end
-                % END resize and align                
+                % END resize and align
                 
                 % BEGIN Calculate and save results
                 

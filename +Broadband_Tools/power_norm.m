@@ -8,8 +8,8 @@ if length(band) == 1
     band = f_centre .* [1/fd, fd];
 end
 
-bpow_in   = bandpower( sig_orig, Fs, band);
-bpow_diff = bandpower( sig_diff, Fs, band);
+bpow_in   = mean(bandpower( sig_orig, Fs, band));
+bpow_diff = mean(bandpower( sig_diff, Fs, band));
 adjustVal = mean( db2mag( pow2db( bpow_in ./ bpow_diff ) ) );
 sig_matched = sig_diff * adjustVal;
 

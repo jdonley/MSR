@@ -1,25 +1,22 @@
 %clc;
 clear;
-%close all;
+close all;
 tic;
+
+%%
+DocumentPath = 'tex\latex\MSR_Setup_Diagram';
+print_fmt = 'epsc'; %figure image file format
+fileext = 'eps';
+print_res = 600; %dpi
+plot_width = 88.9/10;% + 6.35/10 + 88.9/10; %IEEE full text width
+aspect_ratio = 4.2/3;
+FontSize = 9;
+Font = 'Times';
 
 %%
 room_width = 3.200; % metres
 rad = ( room_width - 2*0.115 - 2*0.085 ) / 2; % metres
 
-% speech_layout = {'brightzone_pos_angle',        180, ...
-%                  'quietzone_pos_angle',         0, ...
-%                  'brightzone_source_angle',     14.5};
-% masker_layout = {'brightzone_pos_angle',        0, ...
-%                  'quietzone_pos_angle',         180, ...
-%                  'brightzone_source_angle',     0};
-
-% speech_layout = {'brightzone_pos_angle',        90, ...
-%                  'quietzone_pos_angle',         -90, ...
-%                  'brightzone_source_angle',     0};
-% masker_layout = {'brightzone_pos_angle',        -90, ...
-%                  'quietzone_pos_angle',         90, ...
-%                  'brightzone_source_angle',     0};
 
 speech_layout = {'brightzone_pos_angle',        90, ...
     'quietzone_pos_angle',         -90, ...
@@ -70,15 +67,15 @@ elseif spkr == 2
 end
 
 setup = Speaker_Setup.createSetup({...
-    'frequency',                    1500, ...
+    'frequency',                    1000, ...
     speech_layout{:}, ...
     array{:}, ...
     'resolution',                   100, ... % Minimum resolution of approx 50 for 8kHz signal to satisfy nyquist theorem. We choose 100 for good measure.
     'reproduction_radius',          1.0, ...
     'bright_weight',                1.0, ...
-    'quiet_weight',                 1e4, ...
+    'quiet_weight',                 0, ...
     'unattended_weight',            0.05, ...
-    'brightzone_radius',            0.30, ...
+    'brightzone_radius',            0.3, ...
     'brightzone_source_dist',       x_, ...
     'brightzone_pos_distance',      0.6, ...
     'quietzone_radius',             0.3, ...
@@ -94,10 +91,17 @@ setup = setup.calc_Loudspeaker_Weights();
 setup = setup.reproduceSoundfield('DEBUG');
 
 %%
-figNums = [101,102];
+figure(123);
+
+set(gcf, 'Units','centimeters', 'Color','w');
+fig_pos = get(gcf,'Position');
+set(gcf, 'PaperUnits','centimeters', ...
+    'Position', [fig_pos(1) fig_pos(2) plot_width plot_width/aspect_ratio], ...
+    'PaperSize', [plot_width plot_width/aspect_ratio]);
+
 hold off;
-realistic = false;
-details.DrawDetails = false;
+realistic = true;
+details.DrawDetails = true;
 details.zoneLineWid = 1.5;
 details.arrowLineWid = 0.4;
 details.arrowLength = 3;
@@ -105,55 +109,62 @@ details.arrowAngle = 30;
 details.arrowBuffer = 2;
 details.lblFontSize = 30;
 
-%pk = max(abs((setup.Bright_Samples(:))));
-pk = max(abs((setup.Quiet_Samples(:))));
-Z = setup.Soundfield_reproduced*setup.res;
-Z2 = abs(Z/setup.res);
+pk = max(abs(real(setup.Bright_Samples(:))));
+Z = setup.Soundfield_reproduced;
 
-Z_ = mag2db((Z)./pk);
-figure(figNums(1))
-setup.plotSoundfield( Z, 'scientific_D1A', realistic, details);
-figure(figNums(2))
-setup.plotSoundfield( Z2, 'scientific_L9', realistic, details);
+setup.plotSoundfield( (Z), 'default', realistic, details);
+plH = gca;
 
-for fn = 1:numel(figNums)
-    figure(figNums(fn));
-    if spkr ==1
-        R = [0 2].*spkr_radius*100 ; xlim(R);ylim(R);
-    elseif spkr == 2
-        R = [0 2].*spkr_radius*100 - (spkr_radius-x_)*100; xlim(R);ylim(R);
-    end
+if spkr ==1
+    R = [0 2].*spkr_radius*100 ; xlim(R);ylim(R);
+elseif spkr == 2
+    R = [0 2].*spkr_radius*100 - (spkr_radius-x_)*100; xlim(R);ylim(R);
 end
-%  caxis([-30, 0] );
+%caxis([-pk, pk] );
 
 
 %title('Small Zone Weight');
 
-%  hold on;
 
-%  Z = setup.Soundfield_reproduced;
-%  %Z_ = -QualityGuidedUnwrap2D_r1(Z);
-%  Z_ = GoldsteinUnwrap2D_r1(Z);
-%
-%  Zs = abs(Z);
-%  Zs = Zs(1:10:end,1:10:end);
-%  Z__ = Z_(1:10:end,1:10:end);
-%
-%  [U,V] = gradient( Z__(2:end-1,2:end-1) );
-%  [X,Y] = meshgrid( 1:size(Z,1) , 1:size(Z,2) );
-%  X = X(1:10:end,1:10:end);
-%  Y = Y(1:10:end,1:10:end);
-%  X = X(2:end-1,2:end-1);
-%  Y = Y(2:end-1,2:end-1);
-%  quiver3( X , Y, ones(size(U))*4, U .* abs(Zs(2:end-1,2:end-1)) , V .* abs(Zs(2:end-1,2:end-1)), zeros(size(U)), 1, 'k' );
-%quiver3( X , Y, ones(size(U))*4, U  , V , zeros(size(U)), 1, 'k' );
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Adjustments for publication
+lims = [xlim(plH) ylim(plH) zlim(plH)];
+axis(plH, lims+[-1 1 -1 1 -0.2 2]*15);
+
+waveFieldAmplification = 0.01;
+waveFieldShift = -1;
+hTmp=findobj(plH.Children,'Type','Surface');
+hTmp(end).ZData = hTmp(end).ZData.*waveFieldAmplification+waveFieldShift;
+plH.CLim = plH.CLim.*waveFieldAmplification+waveFieldShift;
+
+colorbar off
+grid on
+plH.Title=[];
+plH.XLabel=[];
+plH.YLabel=[];
+plH.ZLabel=[];
+plH.XTickLabel=[];
+plH.YTickLabel=[];
+plH.ZTickLabel=[];
+plH.TickLength=[0 0];
 
 
-disp(['Contrast: ' num2str(mag2db(setup.Acoustic_Contrast)) 'dB']);
-disp(['     MSE: ' num2str(mag2db(setup.MSE_Bright)) 'dB']);
+camproj('perspective');
+view([90 35]);
+camzoom(2.15);
+
+
+%% Save Figure
+if ~exist(DocumentPath,'dir'); mkdir(DocumentPath); end
+%export_fig([DocumentPath '\MSR_Layout.' fileext], ['-r' num2str(print_res)]);
+%print([DocumentPath '\MSR_Layout_' array_type '.' fileext], ['-d' print_fmt], ['-r' num2str(print_res)]);
+
+%close all;
+% Update latex File Name DataBase
+%Tools.MiKTeX_FNDB_Refresh;
 
 %%
-%fprintf(Speaker_Setup.printSetupDetails(setup));
+fprintf(Speaker_Setup.printSetupDetails(setup));
 
 %%
 tEnd = toc;

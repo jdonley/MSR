@@ -2,9 +2,16 @@ clc;
 clear;
 
 %%
+%Flip loudspeaker order (effectively flips entire setup) (false if not needed)
+% (Only do this if loudspeakers have been calibrated in reverse order too)
+MirrorSetup = false;
+
 array_type = 'circle';
 spkr_radius = 1.3;
 N_spkrs = 24;
+ref_channel = 24;
+% False or True to record reference signal
+signal_info.reference = false; 
 
 system_info.dev_model = 'ASIO Hammerfall DSP';
 system_info.fs = 48000;
@@ -12,9 +19,17 @@ system_info.playbackChannels = ...
     [ 1  2  3  4  5  6  7  8 ...
     9 10 11 12 13 14 15 16 ...
     17 18 19 20 21 22 23 24];
+
 % First half recordings in Bright zone, second half in Quiet zone
 system_info.recordChannels = ...
     [ 1 2 ];
+
+% Flip loudspeaker and mic order (effectively flips entire setup) 
+if MirrorSetup
+    system_info.playbackChannels = flip(system_info.playbackChannels);
+    system_info.recordChannels = flip(system_info.recordChannels);
+end
+
 
 system_info.sc = '_'; % Separating character for ascii paths
 system_info.Drive = 'Z:\';
@@ -33,6 +48,11 @@ signal_info.L_noise_mask = -Inf; % dB
 signal_info.weight = 1e4; %this is actually auto-calculated from maximum contrast
 signal_info.method = 'NoMask';
 signal_info.input_filename = [];
+
+% False or True to record reference signal
+if signal_info.reference
+    system_info.playbackChannels = ref_channel;
+end
 
 if strcmp(array_type, 'circle')
     [x,y] = pol2cart(-90/180*pi, 0.6);
@@ -97,7 +117,17 @@ masker_signal_info = signal_info;
 masker_signal_info.method = 'ZoneWeightMaskerAliasCtrl';
 
 %%
-for noise_mask = [-40 -35 -30 -25 -20 -15 -10 -5 0 ]
+noise_levels_vec = [-40 -35 -30 -25 -20 -15 -10 -5 0 ];
+%noise_levels_vec = [-40];% -35 -30 -25 -20 -15 -10 -5 0 ];
+
+% Speech only
+% noise_levels_vec = -Inf;
+% Masker_Setup = [];
+
+% Playback master gain
+master_gain = 0; %dB
+
+for noise_mask = noise_levels_vec
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     masker_signal_info.L_noise_mask = noise_mask; % dB
@@ -108,7 +138,8 @@ for noise_mask = [-40 -35 -30 -25 -20 -15 -10 -5 0 ]
     % Recordings = Hardware_Control.playMSR_andRec( Main_Setup, Room_Setup, signal_info, system_info );
     %Recordings = Hardware_Control.playMSR_andRec( Main_Setup, Room_Setup, signal_info, system_info, Masker_Setup, masker_signal_info );
     %Hardware_Control.playMSR_andRec( Main_Setup, Room_Setup, signal_info, system_info );
-    Hardware_Control.playMSR_andRec( Main_Setup, Room_Setup, signal_info, system_info, Masker_Setup, masker_signal_info );
+    %Hardware_Control.playMSR_andRec( Main_Setup, Room_Setup, signal_info, system_info, Masker_Setup, masker_signal_info );
+    Hardware_Control.playMSR_andRec( Main_Setup, Room_Setup, signal_info, system_info, Masker_Setup, masker_signal_info, master_gain );
     
     fprintf('\nFinished noise mask level %d \n\n',noise_mask);
     

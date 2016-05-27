@@ -2,10 +2,16 @@ clc;clear;
 
 
 %% Setup Information
-sc = '_'; % Separating character for ascii paths
-Drive = 'Z:\';
-Filter_dir = '+Speaker_Signals\CalibratedSweeps\';
+%Flip loudspeaker order (effectively flips entire setup) (false if not needed)
+MirrorSetup = false;
+
+system_info.sc = '_'; % Separating character for ascii paths
+system_info.Drive = 'Z:\';
+Calibration_Path = [system_info.Drive '+Calibration_Data' filesep];
+Filters_Dir = ['+Filters' filesep];
+Filter_path = [Calibration_Path Filters_Dir];
 Calibrated_Signals_dir = '+Calibrated_Speaker_Signals\';
+
 
 LUT_resolution = '512f_32w';
 
@@ -60,7 +66,7 @@ masker_layout = { ...
     'quietzone_pos_angle',         90, ...
     'brightzone_source_angle',     180, ...
     'brightzone_source_type',      'ps'};
-loudspeaker_layout = { ...
+loudspeaker_layout = [{ ...
     'angleto_firstloudspeaker',      90, ...
     'angleof_loudspeakerarc',        180 * N_spkrs/(N_spkrs-1) , ...
     'numberof_loudspeakers',         N_spkrs, ...
@@ -69,18 +75,24 @@ loudspeaker_layout = { ...
     'loudspeaker_spacing',           spkr_spacing, ...
     'speaker_array_type',            array_type, ...
     'brightzone_source_dist',        x_, ...
-    other{:}};
+    },other];
 main_loudspeaker_layout = loudspeaker_layout;
 
-Main_Setup = Speaker_Setup.createSetup({ main_layout{:}, main_loudspeaker_layout{:}});
+Main_Setup = Speaker_Setup.createSetup([ main_layout, main_loudspeaker_layout]);
 
 
 
-Setup = Speaker_Setup.createSetup({ masker_layout{:}, loudspeaker_layout{:}});
+Setup = Speaker_Setup.createSetup([ main_layout, loudspeaker_layout]);
 %%
-for noise_mask = [-40 -35 -30 -25 -20 -15 -10 -5 0 5 10 15 20]
+noise_levels = signal_info.L_noise_mask;
+
+% Comment out the following three lines to calibrate clean speech files
+Setup = Speaker_Setup.createSetup({ masker_layout{:}, loudspeaker_layout{:}});
+signal_info.method = 'ZoneWeightMaskerAliasCtrl';
+noise_levels = [-40 -35 -30 -25 -20 -15 -10 -5 0 5 10 15 20];
+
+for noise_mask = noise_levels
     
-    signal_info.method = 'ZoneWeightMaskerAliasCtrl';
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%
     signal_info.L_noise_mask = noise_mask; % dB
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -88,16 +100,21 @@ for noise_mask = [-40 -35 -30 -25 -20 -15 -10 -5 0 5 10 15 20]
     
     %% Get Paths and files
     [Spkr_path,~,~,~,~,~,path_ext] = ...
-        Broadband_Tools.getLoudspeakerSignalPath( Setup, signal_info, LUT_resolution, Drive, 'new');
+        Broadband_Tools.getLoudspeakerSignalPath( Setup, signal_info, LUT_resolution, system_info.Drive, 'new');
     
     files = Tools.getAllFiles(Spkr_path);
     files = sort(files);
     
-    %% Load Loudspeaker Signals
+    filter_location = Tools.getAllFiles(Filter_path);
+    filter_location = sort(filter_location);
     
     
     %% Load Fiters
-    filts = load( [Drive Filter_dir 'EQ_Filters(1st_Good).mat'] );
+    filts = load( filter_location{1} ); % 1st element should be the newest (most recent) set of filters
+    
+    if MirrorSetup
+        filts.EQ = flip(filts.EQ,2);
+    end
     
     %%
     fileName_prev = '';
@@ -117,9 +134,9 @@ for noise_mask = [-40 -35 -30 -25 -20 -15 -10 -5 0 5 10 15 20]
             end
             
             % Get the file number and file name
-            [fnumflip,fnameflip] = strtok( flip(fileName), sc );
+            [fnumflip,fnameflip] = strtok( flip(fileName), system_info.sc );
             Current_Spkr_Num = str2double( flip( fnumflip ) );
-            fileName_curr = flip(sscanf(fnameflip,['%*[' sc ']%s']));
+            fileName_curr = flip(sscanf(fnameflip,['%*[' system_info.sc ']%s']));
             
             if ~(isempty(fileName_prev) || strcmp( fileName_curr, fileName_prev))
                 Speaker_Signals = [];
@@ -134,7 +151,7 @@ for noise_mask = [-40 -35 -30 -25 -20 -15 -10 -5 0 5 10 15 20]
                 %% Read original file
                 if isempty(strfind(signal_info.method, 'Masker')) % If the signals are not Maskers then read the Original audio
                     try
-                        orig = audioread( [Spkr_path, fileName_curr, sc, 'Original', fileExt] ); % Assumes same file extension as loudspeaker audio files
+                        orig = audioread( [Spkr_path, fileName_curr, system_info.sc, 'Original', fileExt] ); % Assumes same file extension as loudspeaker audio files
                     catch err
                         if strcmp(err.identifier, 'MATLAB:audiovideo:audioread:FileTypeNotSupported')
                             error('Error reading the Original audio file for the reproduction.'); % Skip unsupported files
@@ -144,7 +161,7 @@ for noise_mask = [-40 -35 -30 -25 -20 -15 -10 -5 0 5 10 15 20]
                     orig=[];
                 end
                 
-                %% Upsample to 48kHz
+                %% Upsample to the filter sampling frequency
                 up_factor = filts.fs/signal_info.Fs;
                 [b,a] = butter( 9, 1/up_factor );
                 loudspeaker_signals_upsampled = zeros(size(Speaker_Signals,1)*up_factor, Main_Setup.Loudspeaker_Count);
@@ -155,7 +172,6 @@ for noise_mask = [-40 -35 -30 -25 -20 -15 -10 -5 0 5 10 15 20]
                 end
                 
                 if ~isempty(orig)
-                    orig_upsampled = zeros( size(orig,1)*up_factor, 1);
                     orig_upsampled = filter( b, a, interp( orig, up_factor ) );
                 end
                 
@@ -172,23 +188,25 @@ for noise_mask = [-40 -35 -30 -25 -20 -15 -10 -5 0 5 10 15 20]
                 
                 %% Save
                 % Normalise
-                loudspeaker_signals_calibrated = loudspeaker_signals_calibrated ./ max(abs(loudspeaker_signals_calibrated(:)));
+                scale_value = 1 ./ max(abs(loudspeaker_signals_calibrated(:)));
+                loudspeaker_signals_calibrated = loudspeaker_signals_calibrated .* scale_value;
                 if ~isempty(orig)
                     orig_calibrated = orig_calibrated ./ max(abs(orig_calibrated(:)));
                 end
                 
-                output_dir = [Drive Calibrated_Signals_dir path_ext];
+                output_dir = [system_info.Drive Calibrated_Signals_dir path_ext];
                 
-                if ~exist([output_dir],'dir'); mkdir([output_dir]); end
+                if ~exist(output_dir,'dir'); mkdir(output_dir); end
                 
                 for spkr = 1:Main_Setup.Loudspeaker_Count
-                    audiowrite([output_dir fileName_curr sc 'Upsampled' sc num2str(spkr) fileExt], loudspeaker_signals_calibrated(:,spkr), filts.fs);
+                    audiowrite([output_dir fileName_curr system_info.sc 'Upsampled' system_info.sc num2str(spkr) fileExt], loudspeaker_signals_calibrated(:,spkr), filts.fs);
                 end
                 
-                audiowrite([output_dir fileName_curr sc 'Upsampled' fileExt], loudspeaker_signals_calibrated, filts.fs);
+                audiowrite([output_dir fileName_curr system_info.sc 'Upsampled' fileExt], loudspeaker_signals_calibrated, filts.fs);
+                save([output_dir fileName_curr system_info.sc 'Upsampled' '.mat'], 'scale_value');
                          
                 if ~isempty(orig)
-                    audiowrite([output_dir fileName_curr sc 'Original' fileExt], orig_calibrated, filts.fs );
+                    audiowrite([output_dir fileName_curr system_info.sc 'Original' fileExt], orig_calibrated, filts.fs );
                 end
                 
             end

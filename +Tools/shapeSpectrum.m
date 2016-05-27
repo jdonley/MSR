@@ -60,7 +60,9 @@ y_shaped = real(y_shaped(1:N));
 
 % ensure unity standard deviation and zero mean value
 y_shaped = y_shaped - mean(y_shaped);
-yrms = sqrt(mean(y_shaped.^2));
-y_shaped = y_shaped/yrms;
+y_shaped = y_shaped / rms(y_shaped);
+
+
+% BETTER METHOD %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 end

@@ -38,6 +38,7 @@ for v = 1:length(Version)
     [Quiet_trend, ~]  = Results.createFit(double(NoiseLevel),SI_WC_Quiet);
     NoiseLevel = NoiseLevel_Vec(1):NoiseLevel_Vec(end);
     Contrast_fromTrend = Bright_trend(NoiseLevel) - Quiet_trend(NoiseLevel);
+%     Contrast_fromTrend = Bright_trend(NoiseLevel) ./ Quiet_trend(NoiseLevel);
     
     %% Plot results
     figure(1);
@@ -48,7 +49,7 @@ end
 
 hold off;
 title('Speech Intelligibility Contrast for Different Weighting Schemes');
-axis([-46 1 0 100]);
+% axis([-46 1 0 100]);
 grid on;
 %legend([arB(2), arQ(2)], {'Bright Zone';'Quiet Zone'});
 %legend([scB, scQ], {'Bright Zone';'Quiet Zone'});

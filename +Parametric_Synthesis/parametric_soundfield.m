@@ -51,7 +51,7 @@ classdef parametric_soundfield
     
     
     %% Private Methods
-    methods (Access = private)
+    methods (Access = public)
 %         function obj = parametric_soundfield(~)
 %             obj.omega = 2 * pi * obj.f1;
 %         end
@@ -78,7 +78,10 @@ classdef parametric_soundfield
             
         end
         
-        function obj = reproduceSoundfield(obj)
+        function obj = reproduceSoundfield(obj,model)
+            if nargin<2
+                model='';
+            end
             t = 0; %time zero
             
             wi = size(obj.Soundfield,1);
@@ -102,12 +105,21 @@ classdef parametric_soundfield
             R0 = R0 .* mask;
             Th = Th .* mask;
             
-            omega_d = 2*pi*obj.fd;
+            if strcmp(model,'convolutional')
+                
+                p = obj.convolutionalModel(Th,R0,zeros(size(Th)));
+                
+            else
+                
+                omega_d = 2*pi*obj.fd;
+                
+                p = ( obj.Beta * obj.P1 * obj.P2 * omega_d^2) ./ (4*pi*obj.rho*obj.c^4 .* R0 *(obj.alpha1+obj.alpha2)) ...
+                    .* (-1 + 1i*omega_d*tan(Th).^2 / (2*obj.c*(obj.alpha1+obj.alpha2)) ).^(-1) ...
+                    .* exp(-1i*omega_d * (t - R0/obj.c));                            
+                
+            end
             
-            p = ( obj.Beta * obj.P1 * obj.P2 * omega_d^2) ./ (4*pi*obj.rho*obj.c^4 .* R0 *(obj.alpha1+obj.alpha2)) ...
-                .* (-1 + 1i*omega_d*tan(Th).^2 / (2*obj.c*(obj.alpha1+obj.alpha2)) ).^(-1) ...
-                .* exp(-1i*omega_d * (t - R0/obj.c));
-                        
+            
             p( isinf(p) ) = 0;
             
             obj.Soundfield = p ./ max(p(:));
@@ -132,18 +144,42 @@ classdef parametric_soundfield
             Th = Th .* mask;
             R0 = R0 .* mask;            
             
+            psi = linspace(-pi,pi,180)';
+            
             sz_1 = size(Th,1);
             sz_2 = size(Th,2);
-            sz_om = size(omega_d,1);
+            sz_om = size(omega_d,1);     
+            sz_psi= length(psi);
             
-            Th      = permute( repmat( Th     , 1   , 1   , sz_om ), [1 2 3]);
-            R0      = permute( repmat( R0     , 1   , 1   , sz_om ), [1 2 3]);
-            omega_d = permute( repmat( omega_d, 1   , sz_1, sz_2  ), [2 3 1]);
+            Th      = permute( repmat( Th     , 1   , 1   , sz_om, sz_psi ), [1 2 3 4]);
+            R0      = permute( repmat( R0     , 1   , 1   , sz_om, sz_psi ), [1 2 3 4]);
+            omega_d = permute( repmat( omega_d, 1   , sz_1, sz_2 , sz_psi ), [2 3 1 4]);
+            psi_n   = permute( repmat( psi    , 1   , sz_1, sz_2 , sz_om  ), [2 3 4 1]);
             
+            alpha_s = obj.alpha1+obj.alpha2;
+            %spkr_r = sqrt(sum(obj.Spkr_Dimensions(1:2).^2)); % approximate speaker radius
+            spkr_r = sqrt(prod(obj.Spkr_Dimensions(1:2))/pi); % approximate speaker radius
+            k1 = 2*pi*obj.f1/obj.c;
+            k2 = 2*pi*obj.f2/obj.c;
+            k_d = omega_d / obj.c;
+            K = ( obj.Beta * omega_d.^2) ./ (4*pi*obj.rho*obj.c^4 .* R0 * alpha_s);
+            D_W = alpha_s./ sqrt( alpha_s^2 + k_d.^2.*tan(Th-psi_n).^4 );
+%             D_W = 1./ sqrt( 1 + (omega_d.^2 * tan(Th).^2)./(4*obj.c^2*(obj.alpha1+obj.alpha2)^2) );
+            D_1 = exp( -1/4 *(k1*spkr_r)^2 * tan(psi_n).^2);
+            D_2 = exp( -1/4 *(k2*spkr_r)^2 * tan(psi_n).^2);
             
-            p = ( obj.Beta * obj.P1 * obj.P2 * omega_d.^2) ./ (4*pi*obj.rho*obj.c^4 .* R0 *(obj.alpha1+obj.alpha2)) ...
-                .* (-1 + 1i*omega_d.*tan(Th).^2 / (2*obj.c*(obj.alpha1+obj.alpha2)) ).^(-1) ...
-                .* exp(-1i*omega_d .* (t - R0/obj.c));
+%             p = K(:,:,:,1).*cos(omega_d(:,:,:,1)*t - k_d(:,:,:,1).*R0(:,:,:,1)).* sum(D_1.*D_2.*D_W,4);
+            
+              p = K(:,:,:,1) .* sum(D_1.*D_2.*D_W,4) .* exp(-1i*omega_d(:,:,:,1) .* (t - R0(:,:,:,1)/obj.c));
+
+%             p = ( obj.Beta * omega_d(:,:,:,1).^2) ./ (4*pi*obj.rho*obj.c^4 .* R0(:,:,:,1) *(obj.alpha1+obj.alpha2)) ...
+%                  .* sum( D_1 .* D_2 ...
+%                  .* abs((-1 + 1i*omega_d.*tan(Th-psi_n).^2 / (2*obj.c*(obj.alpha1+obj.alpha2)) ).^(-1)) , 4 ) ...
+%                 .* exp(-1i*omega_d(:,:,:,1) .* (t - R0(:,:,:,1)/obj.c));
+            
+%             p = ( obj.Beta * obj.P1 * obj.P2 * omega_d(:,:,:,1).^2) ./ (4*pi*obj.rho*obj.c^4 .* R0(:,:,:,1) *(obj.alpha1+obj.alpha2)) ...
+%                 .* (-1 + 1i*omega_d(:,:,:,1).*tan(Th(:,:,:,1)).^2 / (2*obj.c*(obj.alpha1+obj.alpha2)) ).^(-1) ...
+%                 .* exp(-1i*omega_d(:,:,:,1) .* (t - R0(:,:,:,1)/obj.c));
             
             p = squeeze(p);
         end

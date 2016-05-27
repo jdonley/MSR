@@ -1,10 +1,15 @@
-function Recordings = playMSR_andRec( Main_Setup, Room_Setup, signal_info, system_info, Masker_Setup, masker_signal_info )
+function Recordings = playMSR_andRec( Main_Setup, Room_Setup, signal_info, system_info, Masker_Setup, masker_signal_info, gain_dB )
 %PLAYMSR Summary of this function goes here
 %   Detailed explanation goes here
 if nargin < 5
     Masker_Setup = [];
     masker_signal_info=[];
 end
+
+if nargin < 7
+    gain_dB = 0;
+end
+
 
 %% Get signals
 [SpkrSignals, seg_details] = Hardware_Control.getMSR_Audio( Main_Setup, signal_info, system_info, Masker_Setup, masker_signal_info );
@@ -28,13 +33,13 @@ playrec( 'init', system_info.fs, dev.deviceID, dev.deviceID );
 
 %% Playback and Record
 recID = playrec('playrec', ...
-    SpkrSignals, ...
+    SpkrSignals .* db2mag(gain_dB), ...
     system_info.playbackChannels, ...
     -1, ... % Record the same number of samples as the playback
     system_info.recordChannels);
 
 %% Wait for recording
-fprintf('\n====== Building Look-Up Table (Frequency Weights) ======\n');
+fprintf('\n====== Playing and Recording Multizone Soundfield Reproduction ======\n');
 fprintf('\tCompletion: ');n=0;h=[];t=0;tic;
 
 while ~playrec('isFinished',recID)

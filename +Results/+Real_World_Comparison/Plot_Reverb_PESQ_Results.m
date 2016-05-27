@@ -169,7 +169,7 @@ Titles  = {['' mask_type_{1} ]; ... ' and \theta=' num2str(pw_angle{1}) '°']; ..
     
     
     %Figure Output Settings
-    DocumentPath = 'tex\latex\Parametric';
+    DocumentPath = 'tex\latex\RealWorldComparison';
     print_fmt = 'pdf'; %figure image file format
     print_res = 600; %dpi
     plot_width = 88.9/10 + 6.35/10 + 88.9/10; %IEEE full text width
@@ -195,7 +195,7 @@ Titles  = {['' mask_type_{1} ]; ... ' and \theta=' num2str(pw_angle{1}) '°']; ..
         %
         signal_info.method = Version{v};
         if v==1
-            signal_info.recording_type = 'realworld';
+            signal_info.recording_type = 'simulated';
             Results_filepath = [ ...
                 Results.getResultsPath( Setup, LUT_resolution, Room_Setup, signal_info, Drive ), ...
                 results_type '_Results.csv'];
@@ -306,7 +306,7 @@ Titles  = {['' mask_type_{1} ]; ... ' and \theta=' num2str(pw_angle{1}) '°']; ..
                     'units','pixels',...
                     'fontsize',5);
                 leg_pos = get(leg,'Position');
-                set(leg,'Position', leg_pos + [250 0 0 0]);
+                set(leg,'Position', leg_pos + [280 50 0 0]);
                 
             elseif v==1 && r_==length(rs) && strcmp(Plot_,'STI&PESQ')
                 %Measures

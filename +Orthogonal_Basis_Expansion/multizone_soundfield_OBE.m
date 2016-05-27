@@ -497,21 +497,22 @@ classdef multizone_soundfield_OBE
         end        
         
         function obj = ErrorInBright_Calc(obj)
+
+            desired = obj.Bright_Zone.Soundfield_d .* obj.Bright_Zone.Soundfield_d_mask;
+            actual  = obj.Bright_Field;
+            obj.MSE_Bright_Field = mean( abs(desired(:) - actual(:)) .^ 2 ) / mean( abs(desired(:)) .^ 2 );
             % We calculate the error for every degree of phase and average
             % the result
-            desired = zeros(size(obj.Bright_Zone.Soundfield_d));
-            actual  = zeros(size(obj.Bright_Field));
-            obj.MSE_Bright_Field = 0;
-            
-            for p = 1:360
-                desired = real((obj.Bright_Zone.Soundfield_d * exp(-1i*p/180*pi)) .* obj.Bright_Zone.Soundfield_d_mask);
-                actual  = real(obj.Bright_Field * exp(1i*p/180*pi));
-                
-                % MSE Value
-                obj.MSE_Bright_Field = obj.MSE_Bright_Field + ...
-                                       sum(sum( abs(desired - actual) .^ 2 )) / ...
-                                       sum(sum( abs(   desired      ) .^ 2 )) / 360;
-            end
+            %obj.MSE_Bright_Field = 0;
+%             for p = 1:360
+%                 desired = real((obj.Bright_Zone.Soundfield_d * exp(-1i*p/180*pi)) .* obj.Bright_Zone.Soundfield_d_mask);
+%                 actual  = real(obj.Bright_Field * exp(1i*p/180*pi));
+%                 
+%                 % MSE Value
+%                 obj.MSE_Bright_Field = obj.MSE_Bright_Field + ...
+%                                        sum(sum( abs(desired - actual) .^ 2 )) / ...
+%                                        sum(sum( abs(   desired      ) .^ 2 )) / 360;
+%             end
 
             % Error in Decibels
             obj.Err_dB_Bright_Field = mag2db( obj.MSE_Bright_Field );

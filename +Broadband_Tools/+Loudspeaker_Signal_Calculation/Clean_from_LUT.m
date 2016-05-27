@@ -112,8 +112,12 @@ Input_Signal = audioread( Input_file );
     % % would usually exist.
  Loudspeaker_Weights = [zeros(trunc_index_low-1, loudspeakers); ...
                         Loudspeaker_Weights; ...
-                        zeros( size(Z,2) - trunc_index_high, loudspeakers)];                    
+                        zeros( size(Z,2) - trunc_index_high, loudspeakers)];
+Orig_Weights = [zeros(trunc_index_low-1, 1); ... %For bandpass filtering the original to maintain fair comparison
+                ones(length(Frequencies_),1); ...
+                zeros( size(Z,2) - trunc_index_high, 1)];
  Loudspeaker_Weights = permute( repmat(Loudspeaker_Weights, [1 1 size(Z,1)]), [3 1 2]);
+ Orig_Weights = permute( repmat(Orig_Weights, [1 1 size(Z,1)]), [3 1 2]);
  Z_l = repmat(Z, [1 1 loudspeakers]);
  
     %
@@ -122,7 +126,7 @@ Input_Signal = audioread( Input_file );
         Loudspeakers_(:,1:end/2,spkr) = Z_l(:,:,spkr) .* Loudspeaker_Weights(:,:,spkr);
         Loudspeakers_(:,end/2+1:end,spkr) = conj( [-Loudspeakers_(:,1,spkr).*0 Loudspeakers_(:,end/2:-1:2,spkr)]);
     end
-    Original = [Z(:,:,1) conj( [-Z(:,1,1).*0 Z(:,end:-1:2,1)] )];
+    Original = [Z(:,:,1).*Orig_Weights conj( [-Z(:,1,1).*0 Z(:,end:-1:2,1)] )];
     % clear Loudspeaker_Weights; % Save on memory
     %
     % % We then want to perform an Inverse FFT (ifft) on each full spectrum frame
@@ -156,7 +160,9 @@ Input_Signal = audioread( Input_file );
     
     
     % Normalise Loudspeaker Signals
-    Loudspeaker_Signals = Loudspeaker_Signals ./ max(abs(Loudspeaker_Signals(:)))  ; 
+    scaler = rms(Loudspeaker_Signals(:));
+    %mag2db(max(abs(Loudspeaker_Signals(:)))/scaler) %check the level adjustment needed to avoid clipping
+    Loudspeaker_Signals = Loudspeaker_Signals ./ scaler .* db2mag(-35)  ; % Hope -35dB RMS level is enough to avoid clipping when saving
     Original_ = Original_ ./ max(abs(Original_(:)))  ;
    
 

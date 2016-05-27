@@ -38,6 +38,7 @@ F = length(files);
 for file = 1:F
     try
         [audioSig,fs] = audioread(files{file});
+        audioSig = audioSig ./ rms(audioSig(:));
     catch err
         if strcmp(err.identifier, 'MATLAB:audiovideo:audioread:FileTypeNotSupported')
             continue; % Skip unsupported files
@@ -46,13 +47,58 @@ for file = 1:F
     speech = [speech; audioSig];
 end
 
-spect_ = periodogram(speech,[],nfft,fs);
-spect_(2:end-1) = spect_(2:end-1) / 2;
-spect_ = sqrt( spect_ * fs * nfft );
-% nfft = length(speech);
-% spect_full = fft(speech);
-% spect_ = abs( spect_full(1:nfft/2+1) );
-frqs_ = (0:fs/nfft:fs/2)';
+% spect_ = periodogram(speech,[],nfft,fs);
+% spect_(2:end-1) = spect_(2:end-1) / 2;
+% %spect_ = sqrt( spect_ * fs * nfft );
+% spect_ = sqrt( spect_ * fs * length(speech) );
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+win_=rectwin(nfft);
+ovlap = 0;
+speech_framed = buffer(speech,nfft);
+
+% win_=hamming(nfft);
+% ovlap = 0.5;
+% speech_framed = enframe(speech,win_,nfft*ovlap,'z').';
+
+x=speech;
+[pxx,frqs_]=pwelch(x,win_,nfft*ovlap,nfft,fs,'power');
+
+
+% xdft_Tot = zeros(1,nfft/2+1);
+% for fr = 1:size(speech_framed,2)
+%  x=speech_framed(:,fr);
+% 
+% U = sum(win_)^2;
+% B = size(speech_framed,2);
+% N = length(speech);
+% N_B = nfft;
+% K = length(frqs_);
+% dK = mean(diff(frqs_));
+% [n,k]=ndgrid(0:N_B-1,frqs_);
+% x_ = repmat(x,1,K);
+% xdft_(frqs_/dK + 1) = sum( x_ .* exp(  -2*1j*pi*k.*n / (N_B*dK)  ), 1 );
+% xdft_ = abs(xdft_).^2;
+% xdft_Tot = xdft_Tot + xdft_;
+% end
+% xdft_=xdft_Tot / (B * N_B^2);
+% xdft_(2:end-1) = 2 * xdft_(2:end-1);
+% xdft_=sqrt(xdft_);
+
+
+% figure(1)
+% % plot(frqs_,mag2db(spect_)); 
+% plot(frqs_,mag2db(xdft_));hold on;
+% plot(frqs_,pow2db(pxx));
+% set(gca,'XScale','log');
+% xlim([50 10000]);
+% grid on
+% hold off;
+
+spect_=pxx;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 % frqs = [0, logspace(log10(frqs_(2)),log10(fs/2),nfft/2)]';
 % spect = interp1( frqs_, spect_, frqs );
