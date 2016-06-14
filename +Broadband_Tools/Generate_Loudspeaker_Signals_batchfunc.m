@@ -1,59 +1,81 @@
-function Generate_Loudspeaker_Signals_batchfunc(Zone_Weights, Noise_Mask_Levels, Masker_Type, Main_Setup, Masker_Setup)
+function Generate_Loudspeaker_Signals_batchfunc(SYS_or_Zone_Weights, Noise_Mask_Levels, Masker_Type, Main_Setup, Masker_Setup)
+
+SYS_type = 'Current_Systems.SR_System';
 
 %% Initialise
 tic;
 C = clock;
 fprintf('Started execution at %.0f:%.0f:%.0f on the %.0f/%.0f/%.0f\n',C([4:6 3:-1:1]))
 
+if nargin == 1
+    if isa(SYS_or_Zone_Weights,SYS_type)
+        SYS = SYS_or_Zone_Weights;        
+        Zone_Weights = SYS.signal_info.weight;
+        Noise_Mask_Levels = SYS.signal_info.L_noise_mask;
+        Masker_Type = SYS.signal_info.method;
+        Main_Setup = SYS.Main_Setup;
+        Masker_Setup = SYS.Masker_Setup;
+        LUT_res = SYS.system_info.LUT_resolution;
+        Input_file_path = SYS.signal_info.speech_filepath;                
+    else
+        error(['Single input argument must be of type: ' SYS_type]);
+    end
+elseif nargin == 5
+    Zone_Weights = SYS_or_Zone_Weights;
+    %LUT_res = '512f_256w';
+    LUT_res = '512f_32w';
+    Input_file_path = '+Miscellaneous\+Speech_Files\';
+    %Input_file_path = '+Miscellaneous\+Speech_File_Test\';    
+    %Input_file_path = '+Miscellaneous\+Noise_Files\';
+    %Input_file_path = '+Miscellaneous\+TestAudio_Files\';
+    %Input_file_path = '+Miscellaneous\+STIPA_Test\';
+    %Input_file_path = '+Miscellaneous\+Impulse_Response\';
+    %Input_file_path = '+Miscellaneous\+Sine_Sweep\';
+    SYS.signal_info.Fs = 16000;
+end
 
-%% Analyse broadband signals script
 
-%LUT_res = '512f_256w';
-LUT_res = '512f_32w';
-
-
-Input_file_path = '+Miscellaneous\+Speech_Files\';
-%Input_file_path = '+Miscellaneous\+Speech_File_Test\';
-
-%Input_file_path = '+Miscellaneous\+Noise_Files\';
-%Input_file_path = '+Miscellaneous\+TestAudio_Files\';
-%Input_file_path = '+Miscellaneous\+STIPA_Test\';
-%Input_file_path = '+Miscellaneous\+Impulse_Response\';
-%Input_file_path = '+Miscellaneous\+Sine_Sweep\';
-
+%% Start
 files = Tools.getAllFiles(Input_file_path);
 
-
-%%
 fprintf('\n====== Building Broadband Multizone-Soundfield Loudspeaker-Signals ======\n');
 fprintf(['         Zone Weights: ' strrep(sprintf(strrep(repmat('%d',1,length(Zone_Weights)),'d%','d %'),Zone_Weights),' ',' & ') '\n']);
-fprintf(['    Noise Mask Levels: ' [strrep(sprintf(strrep(repmat('%d',1,length(Noise_Mask_Levels)),'d%','d %'),Noise_Mask_Levels),' ','dB & ') 'dB'] '\n']);
+if ~strcmp(Masker_Type,'NoMask')
+fprintf(['    Noise Mask Levels: ' [strrep(sprintf(strrep(repmat('%d',1,length(Noise_Mask_Levels)),'d%','d %'),Noise_Mask_Levels),' ','dB & ') 'dB'] '\n']); end
 fprintf(['          Masker Type: ' Masker_Type '\n']);
-fprintf(['         Source Angle: ' num2str(Main_Setup.Multizone_Soundfield.Bright_Zone.SourceOrigin.Angle) '\n\n']);n=0;h=[];
+fprintf(['         Source Angle: ' num2str(Main_Setup.Multizone_Soundfield.Bright_Zone.SourceOrigin.Angle) '\n\n']);n=0;
 fprintf('\tCompletion: ');
 
 fileLoopBreak = false; % Break file loop
 weightLoopBreak = false; % Break weight loop
 noiseLoopBreak = false; % Break noise mask level loop
 F=length(files);
-for file = 1:F
-    try
-        audioSig = audioread(files{file});
-    catch err
-        if strcmp(err.identifier, 'MATLAB:audiovideo:audioread:FileTypeNotSupported')
-            continue; % Skip unsupported files
+maxSigLength = 0; % Find maximum signal length for the noise maskers
+if ~isempty(strfind(lower(Masker_Type),'masker'))
+    for file = 1:F
+        try
+            audioSig = audioread(files{file});
+        catch err
+            if strcmp(err.identifier, 'MATLAB:audiovideo:audioread:FileTypeNotSupported')
+                continue; % Skip unsupported files
+            end
         end
-    end
-    
+        ExtraLength_fromFilts = ...
+            (max( SYS.system_info.Calibration_FiltLen , SYS.signal_info.rir_duration) + 0.5) ...
+        * SYS.signal_info.Fs; %Extra noise for the filters plus half a second for good measure
+        maxSigLength = sum([maxSigLength, length(audioSig) + ExtraLength_fromFilts]);
+    end    
+end
+
+for file = 1:F    
     W = length(Zone_Weights);
     for w = 1:W
         
         if strcmp(Masker_Type, 'NoMask')
+                SYS.signal_info.weight = Zone_Weights(w);
                 Broadband_Tools.Loudspeaker_Signal_Calculation.Clean_from_LUT( ...
                     files{file}, ...
-                    LUT_res, ...
-                    Zone_Weights(w), ...
-                    Main_Setup);
+                    SYS);
         end
         M = length(Noise_Mask_Levels);
         for m = 1:M
@@ -102,21 +124,27 @@ for file = 1:F
                     Masker_Setup);     %Leakage Angle into Quiet Zone
                 
                 
-            %%% Maskers Only                
+            %%% Maskers Only
+            elseif strcmp(Masker_Type, 'FlatMasker')
+                SYS.signal_info.L_noise_mask = Noise_Mask_Levels(m);
+                SYS.signal_info.weight = Zone_Weights(w);
+                Broadband_Tools.Loudspeaker_Signal_Calculation.FlatMasker( ...
+                    maxSigLength, ... 
+                    SYS);
+                fileLoopBreak = true; file=F; % Break file loop
+                
             elseif strcmp(Masker_Type, 'ZoneWeightMaskerAliasCtrl')
+                SYS.signal_info.L_noise_mask = Noise_Mask_Levels(m);
+                SYS.signal_info.weight = Zone_Weights(w);
                 Broadband_Tools.Loudspeaker_Signal_Calculation.ZoneWeightedMasker_AliasCtrl( ...
-                    60*16000, ... %60 seconds %length(audioSig), ...
-                    LUT_res, ...
-                    Noise_Mask_Levels(m), ...
-                    Zone_Weights(w), ...
-                    Masker_Setup, ...
-                    Main_Setup);                     
+                    maxSigLength, ... 
+                    SYS);
                 fileLoopBreak = true; file=F; % Break file loop
                 
                 
             elseif strcmp(Masker_Type, 'ParametricMasker')
                 Broadband_Tools.Loudspeaker_Signal_Calculation.ParametricMask( ...
-                    60*16000, ... %60 seconds %length(audioSig), ...
+                    maxSigLength, ... 
                     LUT_res, ...
                     Noise_Mask_Levels(m), ...
                     Masker_Setup, ...
@@ -127,7 +155,7 @@ for file = 1:F
                 
             elseif strcmp(Masker_Type, 'ParametricMaskerAliasCtrlHPF')
                 Broadband_Tools.Loudspeaker_Signal_Calculation.ParametricMask_AliasCtrlHPF( ...
-                    60*16000, ... %60 seconds %length(audioSig), ...
+                    maxSigLength, ... 
                     LUT_res, ...
                     Noise_Mask_Levels(m), ...
                     Masker_Setup, ...
@@ -137,7 +165,7 @@ for file = 1:F
                 
             end
             
-            [n,h] = Tools.showTimeToCompletion( ((file-1)*W*M + (w-1)*M + m) / (F*W*M), n, h);
+            n = Tools.showTimeToCompletion( ((file-1)*W*M + (w-1)*M + m) / (F*W*M), n);
             
             if noiseLoopBreak
                 break

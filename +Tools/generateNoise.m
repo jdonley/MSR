@@ -1,5 +1,5 @@
 function [n_] = generateNoise( x, level, type, add )
-%ADDNOISE Summary of this function goes here
+%ADDNOISE Generates basic noise at a given level with the option to be additive
 % 
 % Syntax:	[n_] = GENERATENOISE( x, level, type, add ) Pass the signal, x, level
 % and type of noise to the function and n_ will be the resulting noise.
@@ -39,7 +39,7 @@ max_val =  max( abs( x(:) ) );
 % Level in magnitude
 level_mag = db2mag(level);
 
-% Seed random number generator based on the current time
+% Seed random number generator based on the current date/time
 rng('shuffle');
 
 if strcmp(type,'UWN') % Uniform White Noise
@@ -52,7 +52,8 @@ if strcmp(type,'UWN') % Uniform White Noise
     
 elseif strcmp(type,'WGN') % White Gaussian Noise
     
-    noise_ = randn( size(x) ) / (2*pi); % WGN
+    noise_ = randn( size(x) ); % WGN
+    noise_ = noise_ / sqrt(bandpower(noise_)); %Normalise 
     if ~add
         x = 0;
     end

@@ -1,3 +1,5 @@
+function SpkrComparison
+
 clc;
 clear;
 close all;
@@ -15,13 +17,19 @@ Font = 'Times';
 lineWid = 0.5;
 
 %%
-h  = figure(str2num(strrep(num2str('Con'*1),' ','')));
-ha = tightPlots(1,4,plot_width,[1 1], [0 0.5], 1, 1,'centimeters');
+axGridSep = [0.5 0.5];
+hCon  = figure(str2num(strrep(num2str('Con'*1),' ','')));
+hCon_ = tightPlots(1,4,plot_width,[1 1], axGridSep.*[0 1], 1, 1,'centimeters');
+hMSE  = figure(str2num(strrep(num2str('MSE'*1),' ','')));
+hMSE_ = tightPlots(1,4,plot_width,[1 1], axGridSep.*[0 1], 1, 1,'centimeters');
+hALL  = figure(str2num(strrep(num2str('ALL'*1),' ','')));
+hALL_ = tightPlots(2,4,plot_width,[1 1], axGridSep.*[1 1], 1, 1,'centimeters');
 
 %%
 results_MSEdb = [];
 results_contrastdb = [];
 results_perc = [];
+leg=matlab.graphics.GraphicsPlaceholder;
 fprintf('\tCompleted: '); n=0;
 
 maxL = ceil(pi*(2*(2*pi*8000/343*0.9)+1)/2/pi)+1;
@@ -127,134 +135,283 @@ for nspkr = 1:length(N_spkrs_)
             [n]=Tools.showTimeToCompletion(((nspkr-1)*2*length(freqs) + (spkr-1)*length(freqs)+f)/(length(freqs)*2*length(N_spkrs_)),n);
         end
     end
-    %%
-    MSRcol = [0 0.8 0];
-    PLAcol = [1 0 0];
-    HYBcol = [0.2 0.2 1];
-    
-    G_low   = sqrt(  1./(1+(freqs/f_cutoff).^(2*n))  );
-    G_low = G_low.*G_low; % cascade butterworth
-    G_high  = sqrt(  1./(1+1./(freqs/f_cutoff).^(2*n))  );
-    G_high = G_high.*G_high; % cascade butterworth
-    
-    result_filt_low  = mag2db(db2mag(results_contrastdb(1,:)/2).*G_low)*2;
-    result_filt_high = mag2db(db2mag(results_contrastdb(2,:)/2).*G_high)*2;
-    hybrid_contrast = mag2db(db2mag(result_filt_low/2)+db2mag(result_filt_high/2))*2;
-    MSR_mean = mean(results_contrastdb(1,:));
-    PLA_mean = mean(results_contrastdb(2,:));
-    Hybrid_mean = mean(hybrid_contrast);
-    
-    fprintf('\n');
-    fprintf('\tNumber of Speakers:   %d\n',     N_spkrs);
-    fprintf('\tMSR Mean Contrast:    %.1fdB\n', MSR_mean);
-    fprintf('\tPL Mean Contrast:     %.1fdB\n', PLA_mean);
-    fprintf('\tHybrid Mean Contrast: %.1fdB\n', Hybrid_mean);
-    fprintf('\tImprovement over MSR: %.1fdB\n', Hybrid_mean-MSR_mean);
-    fprintf('\tImprovement over PL:  %.1fdB\n', Hybrid_mean-PLA_mean);
-    fprintf(['\n' repmat(' ',1,n)]);
-    
-    [~,ind]=max(results_contrastdb);
-    ind1 = logical(mod(ind,2));
-    ind2 = [~ind1(2:end) true];
-    %     subplot(1,4,nspkr);
-    axes(ha(nspkr));
-    [ax,h1,h2]=plotyy(1,1,1,1); delete(h2); hold on;
-    plCUT = plot([f_cutoff f_cutoff],[-1 1]*1e4,'-.k','LineWidth',1);
-    plMSR = plot(freqs,results_contrastdb(1,:),'-','LineWidth',1.0,'Color',[MSRcol 1]);
-    plPLA = plot(freqs,results_contrastdb(2,:),'-','LineWidth',1.0,'Color',[PLAcol 1]);
-    plHYB = plot(freqs,hybrid_contrast,'--','LineWidth',1.5,'Color',[HYBcol 1]);
-    hold off;
-    ax(1).TickDirMode = 'manual';
-    ax(1).TickDir = 'both';
-    ax(1).YTickLabelMode = 'manual';
-    ax(2).YTickLabelMode = 'manual';
-    ax(1).YTickMode = 'manual';
-    ax(2).YTickMode = 'manual';
-    xlim([1e2 1e4]);
-    ax(1).XTick = [10^2 10^3 20^3];
-    ax(1).XTickLabelMode = 'manual';
-    ax(1).XTickLabel = {'0.1' '1' '8'};
-    ax(1).TickLength = ax(1).TickLength .* [1.5 1];
-    ylim([0 150]);
-    ax(1).YColor = [0 0 0];
-    ax(1).YTick = [0:20:140];
-    if nspkr == 1
-        ylbls = mat2cell(num2str([0:20:140]','%.0f'), ones(length([0:20:140]),1), 3);
-        for yl = 1:length(ylbls)
-            ylbls{yl} =  strrep(ylbls{yl},' ','');
-        end
-        ax(1).YTickLabel = ylbls;
-        %     elseif nspkr == 4
-        %         ylim([0 120]);
-        %         ax(1).YTick = [0:20:120];
-        %         ax(1).YTickLabel = num2str([0:20:120]','%.0f');
-    else
-        ax(1).YTickLabel = '';
-    end
-    grid on; grid minor;
-    set(ax(1),'XScale','log');
-    ax(1).FontName = 'fixedwidth';
-    ax(1).FontSize = 10;
-    ax(2).FontName = 'fixedwidth';
-    ax(2).FontSize = 10;
-    if nspkr == 1
-        ylabel(ax(1),'Acoustic Contrast (dB)','fontname','times','fontsize',10);
-    end
-    xlabel(ax(1),'Frequency (kHz)','fontname','times','fontsize',10);
-    if nspkr == 1
-        [leg, legIcons] = legend(ax(1),[plMSR,plPLA,plHYB,plCUT],...
-            {'$\zeta_{\mathrm{MSR}}$';'$\zeta_{\mathrm{PL}}$';'$\zeta_{\mathcal{H}}$';'$k_{\mathrm{u}}$'}, ...
-            'box','off','color','none', ...
-            'location','northeast','fontname','times','fontsize',9,'interpreter','latex');
-        leglines = findobj(legIcons,'Type','line');
-        for ll = 1:2:length(leglines)
-            leglines(ll).XData(1)  = leglines(ll).XData(1) + diff(leglines(ll).XData) .* 1/3;
+    LRorder = 12;
+    leg_ = plotComparisons( N_spkrs, nspkr, LRorder, freqs, f_cutoff, results_contrastdb, results_MSEdb, hCon_, hMSE_, hALL_ );
+    if nspkr ~= length(N_spkrs_), fprintf(repmat('\n',1,n)); end
+    if ~isempty(leg_) && ~isa(leg_,'matlab.graphics.GraphicsPlaceholder')
+        if length(leg)==1 && isa(leg,'matlab.graphics.GraphicsPlaceholder')
+            leg=leg_;
+        else
+            leg(end+1:end+length(leg_))=leg_;
         end
     end
-    hold on;
-    ax(2).YAxisLocation = 'left';
-    ax(2).Color = 'none';
-    ax(2).YColor = ax(1).YColor;
-    ax(2).Box = 'off';
-    ax(2).TickLength = [0 0];
-    ax(2).XTick = [];
-    % ax(2).YTick = sort(round([MSR_mean+1 PLA_mean-1 Hybrid_mean],0));
-    ax(2).YLim = [0 90];
-    % ax(2).YTickLabel = num2str(sort([MSR_mean PLA_mean Hybrid_mean]'),'%.1f');
-    ax(2).YTick = [];
-    ax(2).YTickLabel = '';
-    text(120,140,['(' char(64+nspkr) ')'],'fontname','times','fontsize',10)
-    text(120,110,['$L = ' num2str(N_spkrs) '$'],'interpreter','latex','fontname','times','fontsize',10)
-    hold off;
-    %     ax(1).YRuler.MinorTickValuesMode='manual';%force minor ticks to stay as they are
-    %     ax(2).YRuler.MinorTickValuesMode='manual';%force minor ticks to stay as they are
-    
 end
 
 
 
-%%
-tightfig(h);
-h.Units = 'centimeters';
-h.Color = 'w';
-fig_pos = h.Position;
-h.Position = [fig_pos(1) fig_pos(2) plot_width plot_width/aspect_ratio];
-h.PaperUnits = 'centimeters';
-h.PaperSize = [plot_width plot_width/aspect_ratio];
-tightfig(h);
-h.Position = h.Position + [0 0 0 1];
-% leg.Position = leg.Position + [0.01 -0.06 0 0];
-leg.Position = leg.Position + [0.02 +0.05 0 0];
+%% Separated Figures
+saveComparisons(hCon, leg(1), ...
+    'Acoustic Contrast for Reproduction Methods', ...
+    DocumentPath, plot_width, aspect_ratio, [0.02 +0.05], -0.08, 1)
 
-ht=suptitle('Acoustic Contrast for Reproduction Methods');
-ht.FontName = 'times';
-ht.FontSize = 10;
-ht.Position = ht.Position + [0 -0.08 0];
+saveComparisons(hMSE, leg(3), ...
+    'Mean Squared Error for Reproduction Methods', ...
+    DocumentPath, plot_width, aspect_ratio, [0.04 +0.05], -0.08, 1)
 
-if ~exist(DocumentPath,'dir'); mkdir(DocumentPath); end
-% print(['-d' print_fmt], [DocumentPath '\MSR_PL_HYB_AcousticContrast_matlab.pdf']);
-export_fig([DocumentPath '\MSR_PL_HYB_AcousticContrast.pdf']);
+%% Combined Figures
+for s = 1:length(leg(2).String)
+leg(2).String{s} = strrep(leg(2).String{s},'\zeta_','');
+end
+axs = findobj(hALL.Children,'type','axes'); axPos=[];keepflag=true;
+for a = 1:length(axs)
+    if ~strcmpi(axs(a).XLabel.String,' ') && ~isempty(axs(a).XLabel.String)
+        tmpUnit = axs(a).Units;
+        axs(a).Units = 'Centimeters';
+        axPos(end+1,:) = axs(a).Position(1);
+        axs(a).Units = tmpUnit;
+        if ~keepflag
+            axs(a).XLabel.String = ' ';
+        else
+            axs_no = a; 
+        end
+        keepflag = false;
+    end
+end
+tmpUnit1 = axs(axs_no).XLabel.Units; tmpUnit2 = axs(axs_no).Units;
+axs(axs_no).XLabel.Units = 'Centimeters'; axs(axs_no).Units = 'Centimeters';
+axs(axs_no).XLabel.Position(1) = axs(axs_no).XLabel.Position(1) + mean(axPos,1) ...
+    -axs(axs_no).Position(1);
+axs(axs_no).XLabel.Units = tmpUnit1; axs(axs_no).Units = tmpUnit2;
+leg(4).Visible = 'off';
+
+saveComparisons(hALL, leg([2 4]), ...
+    'Acoustic Contrast and Mean Squared Error for Reproduction Methods', ...
+    DocumentPath, plot_width, aspect_ratio, [0.02 -0.02; 0.04 +0.01], -0.06, 2)
+
 
 %%
 tEnd = toc;
 fprintf('Execution time: %dmin(s) %fsec(s)\n', floor(tEnd/60), rem(tEnd,60)); %Time taken to execute this script
+
+end
+
+function  saveComparisons(hFig, hLeg, figTitle, DocumentPath, plot_width, aspect_ratio, legshift, titleshift, rows)
+figure(hFig)
+
+tightfig(hFig);
+hFig.Units = 'centimeters';
+hFig.Color = 'w';
+fig_pos = hFig.Position;
+hFig.Position = [fig_pos(1) fig_pos(2) plot_width plot_width/aspect_ratio*rows];pause(0.05);drawnow;
+hFig.PaperUnits = 'centimeters';
+hFig.PaperSize = [plot_width plot_width/aspect_ratio*rows];
+tightfig(hFig);
+hFig.Position = hFig.Position + [0 0 0 1];pause(0.05);drawnow;
+for l = 1:length(hLeg)
+hLeg(l).Position = hLeg(l).Position + [legshift(l,1) legshift(l,2) 0 0];
+end
+
+ht=suptitle(figTitle);
+ht.FontName = 'times';
+ht.FontSize = 10;
+ht.Position = ht.Position + [0 titleshift 0];
+
+
+if ~exist(DocumentPath,'dir'); mkdir(DocumentPath); end
+export_fig([DocumentPath '\' figTitle '.pdf']);
+end
+
+
+function [leg] = plotComparisons( N_spkrs, nspkr, LRorder, freqs, f_cutoff, results_contrastdb, results_MSEdb, hCon_, hMSE_, hALL_ )
+
+%%
+MSRcol = [0 0.8 0];
+PLAcol = [1 0 0];
+HYBcol = [0.2 0.2 1];
+% MSRcol = [77 175 74]/255;
+% PLAcol = [228 26 28]/255;
+% HYBcol = [55 126 184]/255;
+
+G_low   = sqrt(  1./(1+(freqs/f_cutoff).^LRorder)  );
+G_low = G_low.*G_low; % cascade butterworth
+G_high  = sqrt(  1./(1+1./(freqs/f_cutoff).^LRorder)  );
+G_high = G_high.*G_high; % cascade butterworth
+
+% Acoustic Contrast
+result_filt_low  = mag2db(db2mag(results_contrastdb(1,:)/2).*G_low)*2;
+result_filt_high = mag2db(db2mag(results_contrastdb(2,:)/2).*G_high)*2;
+hybrid_contrast = mag2db(db2mag(result_filt_low/2)+db2mag(result_filt_high/2))*2;
+
+% Mean Squared Error
+result_filt_low  = mag2db(db2mag(results_MSEdb(1,:)).*G_low);
+result_filt_high = mag2db(db2mag(results_MSEdb(2,:)).*G_high);
+hybrid_MSE = mag2db(db2mag(result_filt_low)+db2mag(result_filt_high));
+
+MSR_AC_mean = mean(results_contrastdb(1,:));
+PLA_AC_mean = mean(results_contrastdb(2,:));
+Hybrid_AC_mean = mean(hybrid_contrast);
+MSR_MSE_mean = mean(results_MSEdb(1,:));
+PLA_MSE_mean = mean(results_MSEdb(2,:));
+Hybrid_MSE_mean = mean(hybrid_MSE);
+
+fprintf('\n');
+fprintf('\tNumber of Speakers:   %d\n',     N_spkrs);
+fprintf('\tMSR Mean Contrast:    %.1fdB\n', MSR_AC_mean);
+fprintf('\tPL Mean Contrast:     %.1fdB\n', PLA_AC_mean);
+fprintf('\tHybrid Mean Contrast: %.1fdB\n', Hybrid_AC_mean);
+fprintf('\tMSR Mean MSE:         %.1fdB\n', MSR_MSE_mean);
+fprintf('\tPL Mean MSE:          %.1fdB\n', PLA_MSE_mean);
+fprintf('\tHybrid Mean MSE:      %.1fdB\n', Hybrid_MSE_mean);
+
+leg = matlab.graphics.GraphicsPlaceholder;
+
+leg_ = createPlot( N_spkrs, freqs, f_cutoff, ...
+    results_contrastdb, hybrid_contrast, ...
+    [MSRcol;PLAcol;HYBcol], hCon_, nspkr, 'Acoustic Contrast', '\zeta', 1, 'A', true);
+if ~isempty(leg_),
+    if length(leg)==1 && isa(leg,'matlab.graphics.GraphicsPlaceholder')
+        leg=leg_;
+    else
+        leg(end+1)=leg_;
+    end
+end
+
+leg_ = createPlot( N_spkrs, freqs, f_cutoff, ...
+    results_MSEdb, hybrid_MSE, ...
+    [MSRcol;PLAcol;HYBcol], hMSE_, nspkr, 'Mean Squared Error', '\epsilon', 4, 'A', true);
+if ~isempty(leg_),
+    if length(leg)==1 && isa(leg,'matlab.graphics.GraphicsPlaceholder')
+        leg=leg_;
+    else
+        leg(end+1)=leg_;
+    end
+end
+
+leg_ = createPlot( N_spkrs, freqs, f_cutoff, ...
+    results_contrastdb, hybrid_contrast, ...
+    [MSRcol;PLAcol;HYBcol], hALL_(1:4), nspkr, 'Acoustic Contrast', '\zeta', 1, 'A', false);
+if ~isempty(leg_),
+    if length(leg)==1 && isa(leg,'matlab.graphics.GraphicsPlaceholder')
+        leg=leg_;
+    else
+        leg(end+1)=leg_;
+    end
+end
+
+leg_ = createPlot( N_spkrs, freqs, f_cutoff, ...
+    results_MSEdb, hybrid_MSE, ...
+    [MSRcol;PLAcol;HYBcol], hALL_(5:end), nspkr, 'Mean Squared Error', '\epsilon', 4, 'A'+4, true);
+if ~isempty(leg_),
+    if length(leg)==1 && isa(leg,'matlab.graphics.GraphicsPlaceholder')
+        leg=leg_;
+    else
+        leg(end+1)=leg_;
+    end
+end
+
+end
+
+function leg = createPlot( N_spkrs, freqs, f_cutoff, results, hybrid_result, colors, axes_handle, axes_no, yaxeslbl, measSym, leg_axis, LetterStart, showXlbl)
+MSRcol = colors(1,:);
+PLAcol = colors(2,:);
+HYBcol = colors(3,:);
+[~,ind]=max(results);
+ind1 = logical(mod(ind,2));
+ind2 = [~ind1(2:end) true];
+%     subplot(1,4,nspkr);
+axes(axes_handle(axes_no));
+[ax,h1,h2]=plotyy(1,1,1,1); delete(h2); hold on;
+plCUT = plot([f_cutoff f_cutoff],[-1 1]*1e4,'-.k','LineWidth',1);
+plHYB = plot(freqs,hybrid_result,'-','LineWidth',1.5,'Color',[HYBcol 1]);
+plMSR = plot(freqs,results(1,:),'--','LineWidth',1.0,'Color',[MSRcol 1]);
+plPLA = plot(freqs,results(2,:),'--','LineWidth',1.0,'Color',[PLAcol 1]);
+hold off;
+ax(1).TickDirMode = 'manual';
+ax(1).TickDir = 'both';
+ax(1).YTickLabelMode = 'manual';
+ax(2).YTickLabelMode = 'manual';
+ax(1).YTickMode = 'manual';
+ax(2).YTickMode = 'manual';
+xlim([1e2 20^3]);
+ax(1).XTick = [10^2 10^3 20^3];
+ax(1).XTickLabelMode = 'manual';
+if showXlbl
+    ax(1).XTickLabel = {'0.1' '1' '8'};
+else
+    ax(1).XTickLabel = {};
+end
+ax(1).TickLength = ax(1).TickLength .* [1.5 1];
+ax(1).YColor = [0 0 0];
+switch yaxeslbl
+    case 'Acoustic Contrast'        
+        limit_vec = [0 150];
+        ylim(limit_vec);
+        ax(1).YTick = limit_vec(1):20:limit_vec(end);
+        if axes_no == 1
+            ylbls = mat2cell(num2str(ax(1).YTick','%.0f'), ones(length(ax(1).YTick),1), 3);
+            for yl = 1:length(ylbls)
+                ylbls{yl} =  strrep(ylbls{yl},' ','');
+            end
+            ax(1).YTickLabel = ylbls;
+        else
+            ax(1).YTickLabel = '';
+        end
+        text(120,limit_vec(end)-0.1*diff(limit_vec),['(' char(64+axes_no) ')'],'fontname','times','fontsize',10)
+        text(120,limit_vec(end)-0.25*diff(limit_vec),['$L = ' num2str(N_spkrs) '$'],'interpreter','latex','fontname','times','fontsize',10)
+        
+    case 'Mean Squared Error'
+        limit_vec = [-50 0];
+        y_inc = 10;
+        ylim(limit_vec);
+        ax(1).YTick = limit_vec(1):y_inc:limit_vec(end);
+        if axes_no == 1
+            ylbls = mat2cell(num2str(ax(1).YTick','%.0f'), ones(length(ax(1).YTick),1), 3);
+            for yl = 1:length(ylbls)
+                ylbls{yl} =  strrep(ylbls{yl},' ','');
+            end
+            ax(1).YTickLabel = ylbls;
+        else
+            ax(1).YTickLabel = '';
+        end
+        text(120,limit_vec(end)-0.1*diff(limit_vec),['(' char(LetterStart-1+axes_no) ')'],'fontname','times','fontsize',10)
+        text(120,limit_vec(end)-0.25*diff(limit_vec),['$L = ' num2str(N_spkrs) '$'],'interpreter','latex','fontname','times','fontsize',10)
+end
+grid on; grid minor;
+set(ax(1),'XScale','log');
+ax(1).FontName = 'fixedwidth';
+ax(1).FontSize = 10;
+ax(2).FontName = 'fixedwidth';
+ax(2).FontSize = 10;
+if axes_no == 1
+    ylabel(ax(1),[yaxeslbl ' (dB)'],'fontname','times','fontsize',10);
+end
+if showXlbl
+    xlabel(ax(1),'Frequency (kHz)','fontname','times','fontsize',10);
+end
+leg=[];
+if axes_no == leg_axis
+    [leg, legIcons] = legend(ax(1),[plMSR,plPLA,plHYB,plCUT],...
+        {['$' measSym '_{\mathrm{MSR}}$'];['$' measSym '_{\mathrm{PL}}$'];['$' measSym '_{\mathcal{H}}$'];'$k_{\mathrm{u}}$'}, ...
+        'box','off','color','none', ...
+        'location','northeast','fontname','times','fontsize',9,'interpreter','latex');
+    leglines = findobj(legIcons,'Type','line');
+    for ll = 1:2:length(leglines)
+        leglines(ll).XData(1)  = leglines(ll).XData(1) + diff(leglines(ll).XData) .* 5/12;
+    end
+end
+hold on;
+ax(2).YAxisLocation = 'left';
+ax(2).Color = 'none';
+ax(2).YColor = ax(1).YColor;
+ax(2).Box = 'off';
+ax(2).TickLength = [0 0];
+ax(2).XTick = [];
+% ax(2).YTick = sort(round([MSR_mean+1 PLA_mean-1 Hybrid_mean],0));
+ax(2).YLim = [0 90];
+% ax(2).YTickLabel = num2str(sort([MSR_mean PLA_mean Hybrid_mean]'),'%.1f');
+ax(2).YTick = [];
+ax(2).YTickLabel = '';
+hold off;
+%     ax(1).YRuler.MinorTickValuesMode='manual';%force minor ticks to stay as they are
+%     ax(2).YRuler.MinorTickValuesMode='manual';%force minor ticks to stay as they are
+end

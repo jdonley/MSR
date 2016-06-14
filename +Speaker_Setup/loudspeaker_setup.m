@@ -249,7 +249,7 @@ classdef loudspeaker_setup
             Q0 = obj.Loudspeaker_Count;
             Rl = obj.Radius;
             
-            if strcmp(obj.Speaker_Array_Type, 'circle')
+            if strcmpi(obj.Speaker_Array_Type, 'circle')
                 phi = obj.Speaker_Arc_Angle / 180 * pi;
                 delta_phi_s = phi / Q0;
                 first_spkr_offset = obj.Angle_FirstSpeaker / 180 * pi;
@@ -257,7 +257,7 @@ classdef loudspeaker_setup
                 Rl_ = repmat(Rl, length(phi_q), 1);
                 obj.Loudspeaker_Locations = [(phi_q(:) - pi) Rl_];
                 
-            elseif strcmp(obj.Speaker_Array_Type, 'line')
+            elseif strcmpi(obj.Speaker_Array_Type, 'line')
                 wid = obj.Loudspeaker_Dimensions(1);
                 space = obj.Speaker_Spacing;
                 centre = obj.Speaker_Array_Centre;
@@ -290,7 +290,7 @@ classdef loudspeaker_setup
                     obj.Speaker_Array_Length = 2*obj.Radius*tand(obj.Speaker_Arc_Angle/2); % inclusive of end points
                 end
                 
-            elseif strcmp(obj.Speaker_Array_Type, 'coprime')
+            elseif strcmpi(obj.Speaker_Array_Type, 'coprime')
                 L = obj.Loudspeaker_Count;
                 
                 if ~isprime(L+1) && ~isprime(L)
@@ -549,7 +549,7 @@ classdef loudspeaker_setup
             desired_vec = desired_vec / mean(abs(desired_vec)) .* exp(-1i* angle(desired(O(1),O(2))));
             actual_vec = actual_vec / mean(abs(actual_vec)) .* exp(-1i* angle(actual(O(1),O(2))));
             
-            MSE = mean( abs(desired_vec - actual_vec) .^ 2 ) / mean( abs(desired_vec) .^ 2 );
+            MSE = sum( abs(desired_vec - actual_vec) .^ 2 ) / sum( abs(desired_vec) .^ 2 );
             
         end
         

@@ -1,6 +1,6 @@
 function Recordings = playMSR_andRec( Main_Setup, Room_Setup, signal_info, system_info, Masker_Setup, masker_signal_info, gain_dB )
-%PLAYMSR Summary of this function goes here
-%   Detailed explanation goes here
+%PLAYMSR_ANDREC Summary of this function goes here
+
 if nargin < 5
     Masker_Setup = [];
     masker_signal_info=[];

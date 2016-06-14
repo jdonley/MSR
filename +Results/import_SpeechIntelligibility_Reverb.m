@@ -34,37 +34,45 @@ end
 formatSpec = '%*s%*s%f%*s%f%*s%f%*s%f%*s%f%*s%f%*s%f%[^\n\r]';
 
 %% Open the text file.
-fileID = fopen(filename,'r');
-
-%% Read columns of data according to format string.
-% This call is based on the structure of the file used to generate this
-% code. If an error occurs for a different file, try regenerating the code
-% from the Import Tool.
-dataArray = textscan(fileID, formatSpec, endRow(1)-startRow(1)+1, 'Delimiter', delimiter, 'HeaderLines', startRow(1)-1, 'ReturnOnError', false);
-for block=2:length(startRow)
-    frewind(fileID);
-    dataArrayBlock = textscan(fileID, formatSpec, endRow(block)-startRow(block)+1, 'Delimiter', delimiter, 'HeaderLines', startRow(block)-1, 'ReturnOnError', false);
-    for col=1:length(dataArray)
-        dataArray{col} = [dataArray{col};dataArrayBlock{col}];
+[fileID, errMSG] = fopen(filename,'r');
+if fileID ~= -1
+    %% Read columns of data according to format string.
+    % This call is based on the structure of the file used to generate this
+    % code. If an error occurs for a different file, try regenerating the code
+    % from the Import Tool.
+    dataArray = textscan(fileID, formatSpec, endRow(1)-startRow(1)+1, 'Delimiter', delimiter, 'HeaderLines', startRow(1)-1, 'ReturnOnError', false);
+    for block=2:length(startRow)
+        frewind(fileID);
+        dataArrayBlock = textscan(fileID, formatSpec, endRow(block)-startRow(block)+1, 'Delimiter', delimiter, 'HeaderLines', startRow(block)-1, 'ReturnOnError', false);
+        for col=1:length(dataArray)
+            dataArray{col} = [dataArray{col};dataArrayBlock{col}];
+        end
     end
+    
+    %% Close the text file.
+    fclose(fileID);
+    
+    %% Post processing for unimportable data.
+    % No unimportable data rules were applied during the import, so no post
+    % processing code is included. To generate code which works for
+    % unimportable data, select unimportable cells in a file and regenerate the
+    % script.
+    
+    %% Allocate imported array to column variable names
+    Noise_Mask_Level = dataArray{:, 1};
+    WC_Bright = dataArray{:, 2};
+    WC_Quiet = dataArray{:, 3};
+    ConfInt_Bright_Low = dataArray{:, 4};
+    ConfInt_Bright_Up = dataArray{:, 5};
+    ConfInt_Quiet_Low = dataArray{:, 6};
+    ConfInt_Quiet_Up = dataArray{:, 7};
+else
+    Noise_Mask_Level = fileID;
+    WC_Bright = errMSG;
+    WC_Quiet = [];
+    ConfInt_Bright_Low = [];
+    ConfInt_Bright_Up = [];
+    ConfInt_Quiet_Low = [];
+    ConfInt_Quiet_Up = [];
 end
-
-%% Close the text file.
-fclose(fileID);
-
-%% Post processing for unimportable data.
-% No unimportable data rules were applied during the import, so no post
-% processing code is included. To generate code which works for
-% unimportable data, select unimportable cells in a file and regenerate the
-% script.
-
-%% Allocate imported array to column variable names
-Noise_Mask_Level = dataArray{:, 1};
-WC_Bright = dataArray{:, 2};
-WC_Quiet = dataArray{:, 3};
-ConfInt_Bright_Low = dataArray{:, 4};
-ConfInt_Bright_Up = dataArray{:, 5};
-ConfInt_Quiet_Low = dataArray{:, 6};
-ConfInt_Quiet_Up = dataArray{:, 7};
-
 

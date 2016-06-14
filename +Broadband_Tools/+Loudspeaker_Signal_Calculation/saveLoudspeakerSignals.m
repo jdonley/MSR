@@ -5,22 +5,25 @@ if isempty(spkr_count)
     spkr_count = size(spkr_signals,2);
 end
 
-filenumbers = num2str((1:spkr_count)');
-filenumbers(filenumbers==' ') = '_';
-fullpath = [repmat([path name], [spkr_count 1]) ...
-    filenumbers ...
-    repmat(ext, [spkr_count 1]) ];
+% filenumbers = num2str((1:spkr_count)');
+% filenumbers(filenumbers==' ') = '_';
+% fullpath = [repmat([path name], [spkr_count 1]) ...
+%     filenumbers ...
+%     repmat(ext, [spkr_count 1]) ];
 
 if ~exist(path,'dir'); mkdir(path); end
 
-for spkr = 1:spkr_count
-    audiowrite(fullpath(spkr,:), spkr_signals(:, spkr), fs, 'BitsPerSample',64);
-end
+% for spkr = 1:spkr_count
+%     audiowrite(fullpath(spkr,:), spkr_signals(:, spkr), fs, 'BitsPerSample',64);
+% end
+
+fullpath_multiCh = [path name num2str(spkr_count) 'Ch' ext];
+audiowrite(fullpath_multiCh, spkr_signals, fs, 'BitsPerSample',64);
 
 if ~isempty(original)
     audiowrite([path ...
         orig_name '_' 'Original' ...
-        orig_ext], original, fs);
+        orig_ext], original, fs, 'BitsPerSample',64);
 end
 
 end

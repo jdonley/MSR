@@ -1,4 +1,4 @@
-function [ RIR_Bright, RIR_Quiet, Rec_Bright_Pos, Rec_Quiet_Pos, rec_b, rec_q ] = RIR_from_loudspeaker_setup_rir_generator( loudspeaker_setup, room, reverb_time, n_samples, rec_positions )
+function [ RIR_Bright, RIR_Quiet, Rec_Bright_Pos, Rec_Quiet_Pos, rec_b, rec_q ] = RIR_from_loudspeaker_setup_rir_generator( loudspeaker_setup, room, reverb_time, signal_info, rec_positions )
 %RIR_FROM_LOUDSPEAKER_SETUP Returns the RIR for each sample point in each
 %zone for a given multizone loudspeaker setup using rir_generator
 %   Returns a matrix which contains the RIR (column values) for each
@@ -23,7 +23,7 @@ end
 if nargin < 4
     n = 4096;   % Number of samples
 else
-    n = n_samples;
+    n = signal_info.rir_duration * signal_info.Fs;
 end
 if nargin < 5
     rec_positions = [];
@@ -35,8 +35,8 @@ order = -1;                 % -1 equals maximum reflection order!
 orientation = 0;            % Microphone orientation (rad)
 hp_filter = 0;              % Enable high-pass filter
 
-c = 343;    % Speed of sound (m/s)
-Fs = 16000; % Sample frequency (samples/s) 
+c = signal_info.c;    % Speed of sound (m/s)
+Fs = signal_info.Fs; % Sample frequency (samples/s) 
 
 %Add all sources (loudspeaker locations)
 src = [];
@@ -95,9 +95,19 @@ current_pool = parpool; %Start new pool
 fprintf('\n====== Building RIR Database ======\n');
 parfor_progress( size(src,1) );
 parfor s = 1:size(src,1)
-    RIR_Bright(:,:,s) = rir_generator(c, Fs, Rec_Bright_Pos, src(s,:), room_size, beta, n , mtype, order, dim, orientation, hp_filter);
+    RIR_Bright(:,:,s) = rir_generator( ...
+        c, Fs, ...
+        Rec_Bright_Pos, ...
+        src(s,:), ...
+        room_size, ...
+        beta, n , mtype, order, dim, orientation, hp_filter);
     
-    RIR_Quiet(:,:,s) = rir_generator(c, Fs, Rec_Quiet_Pos, src(s,:), room_size, beta, n , mtype, order, dim, orientation, hp_filter);
+    RIR_Quiet(:,:,s) = rir_generator( ...
+        c, Fs, ...
+        Rec_Quiet_Pos, ...
+        src(s,:), ...
+        room_size, ...
+        beta, n , mtype, order, dim, orientation, hp_filter);
         
 	parfor_progress;
 end

@@ -45,7 +45,7 @@ signal_info.overlap = 0.5;
 signal_info.f_low  = 150;  % Hz
 signal_info.f_high = 8000; % Hz
 signal_info.L_noise_mask = -Inf; % dB
-signal_info.weight = 1e4; %this is actually auto-calculated from maximum contrast
+signal_info.weight = 100; %this is actually auto-calculated from maximum contrast
 signal_info.method = 'NoMask';
 signal_info.input_filename = [];
 

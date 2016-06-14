@@ -37,7 +37,7 @@ virtual_source_dir = '';
             spkr_type_dirstr = ['+' num2str(setup.Loudspeaker_Count) spkrTypeString 'Spkrs' sc];
             
             %%% Speaker array length.
-            switch setup.Speaker_Array_Type
+            switch lower(setup.Speaker_Array_Type)
                 case 'circle'
                     spkr_array_dir  = [spkr_type_dirstr num2str(setup.Speaker_Arc_Angle/180*pi * setup.Radius) 'mLen' '\'];
                     

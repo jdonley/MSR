@@ -1,4 +1,7 @@
-function Reverberant_MSR_Analysis_batchfunc( setups, room_setup, signal_types, weight, mask_level, pesqNumber, RecordingType)
+function Reverberant_MSR_Analysis_batchfunc( SYS_or_setups, room_setup, signal_types, weight, mask_level, pesqNumber, RecordingType)
+
+SYS_type = 'Current_Systems.SR_System';
+
 %% Initialise
 tic;
 % Start Parallel Pool
@@ -6,63 +9,83 @@ para_pool = parpool;
 C = clock;
 fprintf('Started execution at %.0f:%.0f:%.0f on the %.0f/%.0f/%.0f\n',C([4:6 3:-1:1]))
 
-if nargin < 7
-    RecordingType = 'simulated';
+%%
+if nargin == 1
+    if isa(SYS_or_setups,SYS_type)
+        SYS = SYS_or_setups;
+        Mains = mat2cell(SYS.Main_Setup,length(SYS.Main_Setup),1);
+        Maskers = mat2cell(SYS.Masker_Setup,length(SYS.Masker_Setup),1);
+        setups = {Mains{:},Maskers{:}};
+        room_setup = SYS.Room_Setup;
+        signal_types = SYS.signal_info.methods_list;
+        signal_info = SYS.signal_info;
+        system_info = SYS.system_info;
+        isHybrid = size(SYS.signal_info.methods_list_masker,1)>1;
+    else
+        error(['Single input argument must be of type: ' SYS_type]);
+    end
+elseif nargin > 1
+    setups = SYS_or_setups;
+    system_info.Drive = 'Z:\'; % Database drive (storage drive)
+    system_info.LUT_resolution =  '512f_32w'; %Look-Up Table resolution
+    signal_info.c = 343; % Speed of sound in metres/sec
+    signal_info.Fs = 16000; % Sampling frequency
+    signal_info.Nfft = 1024;% Number of fft components
+    signal_info.overlap = 0.5;
+    signal_info.f_low  = 150;  % Hz
+    signal_info.f_high = 8000; % Hz
+    signal_info.f_low_meas = 100; % Hz %Minimum loudspeaker response
+    signal_info.f_high_meas = 7000; % Hz %Maximum frequency with accurate response at given sampling rate
+    signal_info.weight = weight;
+    signal_info.L_noise_mask = mask_level; % dB
+    signal_info.input_filename = [];
+    isHybrid = length(signal_types) >= 3;
+    if nargin < 7
+        RecordingType = 'simulated';
+    end
+    signal_info.recording_type = RecordingType;
+    if nargin < 5
+        signal_info.L_noise_mask = [];
+    end
+    system_info.sc = '_'; % Separating character for ascii paths    
 end
 
-%% Setup and Path Info
-Drive = 'Z:\'; % Database drive (storage drive)
-
-%LUT_resolution =  '512f_256w'; %Look-Up Table resolution
-LUT_resolution =  '512f_32w'; %Look-Up Table resolution
-signal_info.c = 343; % Speed of sound in metres/sec
-signal_info.Fs = 16000; % Sampling frequency
-signal_info.Nfft = 1024;% Number of fft components
-signal_info.overlap = 0.5;
-signal_info.f_low  = 150;  % Hz
-signal_info.f_high = 8000; % Hz
-signal_info.f_low_meas = 100; % Hz %Minimum loudspeaker response
-signal_info.f_high_meas = 7000; % Hz %Maximum frequency with accurate response at given sampling rate
-signal_info.weight = weight;
-signal_info.L_noise_mask = mask_level; % dB
-signal_info.input_filename = [];
-signal_info.recording_type = RecordingType;
-
-signal_type = [signal_types{2:end}];
-if length(signal_types) >= 3
-    signal_type = ['Hybrid' signal_type];
-end
-signal_info.method = signal_type;
-
-
-if nargin < 5
-    signal_info.L_noise_mask = [];
-end
 if nargin < 6
     pesqNumber = 0;
 end
 
-sc = '_'; % Separating character for ascii paths
+% if a realworld recording it is assumed that the noise level does not
+% exceed the level of the clean reproduction signal
+if strcmpi(signal_info.recording_type,'realworld')
+    signal_info.L_noise_mask(signal_info.L_noise_mask>0)=[];
+end
+
+signal_type = [signal_types{2:end}];
+if isHybrid
+    signal_type = ['Hybrid' signal_type];
+end
+signal_info.method = signal_type;
 
 %% Obtain Recordings and Results Directory Path
-ResultsPath = Results.getResultsPath( setups{1}, LUT_resolution, room_setup, signal_info, Drive );
+ResultsPath = Results.getResultsPath( setups{1}, system_info.LUT_resolution, room_setup, signal_info, system_info.Drive );
 if ~exist(ResultsPath,'dir'); mkdir(ResultsPath); end
 save([ResultsPath 'Setups.mat'], 'setups');
 
 levels = signal_info.L_noise_mask;
+weight = signal_info.weight;
 Recordings_Path = cell(length(levels),length(setups));
 
-if strcmpi(RecordingType,'simulated')
+if strcmpi(signal_info.recording_type,'simulated')
     s_1 = 1;
-elseif strcmpi(RecordingType,'realworld')
+elseif strcmpi(signal_info.recording_type,'realworld')
     s_1 = 2;
 end
 
 for s = s_1:length(setups)
     signal_info.method = signal_types{s};
-    if isempty(strfind( signal_types{s}, 'Parametric' )) % If not parametric
+    if setups{s}.Loudspeaker_Count ~=1 && isempty(strfind( signal_types{s}, 'Parametric' )) % If not parametric and more than one loudspeaker
         signal_info.weight = weight;
-    else % If parametric
+    else % If parametric and/or only one loudspeaker
         signal_info.weight = 1;
     end
     for m = 1:length(levels)
@@ -71,10 +94,10 @@ for s = s_1:length(setups)
         else
             signal_info.L_noise_mask = levels(m);
         end
-        if strcmpi(RecordingType,'simulated')
-            Recordings_Path{m,s} = Results.getRecordingsPath( setups{s}, LUT_resolution, room_setup, signal_info, Drive );
-        elseif strcmpi(RecordingType,'realworld')
-            Recordings_Path{m,s} = Hardware_Control.getRealRecordingsPath( setups{1}, LUT_resolution, room_setup, signal_info, Drive );
+        if strcmpi(signal_info.recording_type,'simulated')
+            Recordings_Path{m,s} = Results.getRecordingsPath( setups{s}, system_info.LUT_resolution, room_setup, signal_info, system_info.Drive );
+        elseif strcmpi(signal_info.recording_type,'realworld')
+            Recordings_Path{m,s} = Hardware_Control.getRealRecordingsPath( setups{1}, system_info.LUT_resolution, room_setup, signal_info, system_info.Drive );
         end
     end
 end
@@ -82,6 +105,10 @@ signal_info.L_noise_mask = levels;
 signal_info.weight = weight;
 signal_info.method = signal_type;
 
+%% Warn if there are no recordings to analyse and then return from the function
+%%%%%%%%%%
+% TODO: Add code here to give warning at appropriate time
+%%%%%%%%%%
 
 %% Delete previous results file
 Results.deleteResultsFile( ResultsPath, {'PESQ', 'STOI', 'SNR'});
@@ -91,7 +118,7 @@ fprintf('\n====== Analysing Simulated Reverberant Signals ======\n');
 fprintf(['            Room Size: ' [strrep(sprintf(strrep(repmat('%g',1,length(room_setup.Room_Size)),'g%','g %'),room_setup.Room_Size),' ','m x ') 'm'] '\n']);
 fprintf(['Wall Absorption Coeff: ' num2str(room_setup.Wall_Absorb_Coeff) '\n']);
 fprintf([' Virtual Source Angle: ' num2str(setups{1}.Multizone_Soundfield.Bright_Zone.SourceOrigin.Angle) '\n']);
-fprintf(['    Privacy Weighting: ' signal_info.method '\n\n']);n=0;h=[];
+fprintf(['    Privacy Weighting: ' signal_info.method '\n\n']);n=0;
 fprintf('\tCompletion: ');
 
 
@@ -139,7 +166,7 @@ for m = 1:M
         if isempty(strfind(fileName{s_1,file},'Original')) % Make sure the file being read isn't an original file
             
             % Get the file number and file name
-            [Ztypeflip,Stypeflip] = strtok( flip(fileName{s_1,file}), sc );
+            [Ztypeflip,Stypeflip] = strtok( flip(fileName{s_1,file}), system_info.sc );
             SignalName = flip( Stypeflip );
             ZoneType = flip( Ztypeflip );
             
@@ -280,7 +307,7 @@ for m = 1:M
             
         end
         
-        [n,h] = Tools.showTimeToCompletion( ((m-1)*F + file)/ (F*M), n, h);
+        n = Tools.showTimeToCompletion( ((m-1)*F + file)/ (F*M), n);
         
     end
 end

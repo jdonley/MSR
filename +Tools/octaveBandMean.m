@@ -1,6 +1,33 @@
 function [ magSpect_oct, freqVec_oct ] = octaveBandMean( magSpect, freqVec, octSpace, centerFreq )
-%OCTAVEBANDMEAN Given a magnitude spectrum this function will calculate the
-%average (single or third) octave band magnitude
+%OCTAVEBANDMEAN Given a magnitude spectrum this function will calculate the average (single or third) octave band magnitude
+% 
+% Syntax:	[OUTPUTARGS] = TEMPLATE(INPUTARGS) Explain usage here
+% 
+% Inputs: 
+% 	input1 - Description
+% 	input2 - Description
+% 	input3 - Description
+% 
+% Outputs: 
+% 	output1 - Description
+% 	output2 - Description
+% 
+% Example: 
+% 	Line 1 of example
+% 	Line 2 of example
+% 	Line 3 of example
+% 
+% See also: List related files here
+
+% Author: Jacob Donley
+% University of Wollongong
+% Email: jrd089@uowmail.edu.au
+% Copyright: Jacob Donley 2016
+% Date: 8 July 2016
+% Revision: 0.1
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 if nargin < 4
     centerFreq=1e3;
 end

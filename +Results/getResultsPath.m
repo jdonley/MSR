@@ -1,17 +1,33 @@
-function [Path, err] = getResultsPath( setup, database_res, room, signal_info, database_workingdir, method )
+function [Path, err] = getResultsPath( SYS_or_setup, database_res, room, signal_info, database_workingdir, method )
 %GETDATABASEFROMSETUP Summary of this function goes here
-%   Detailed explanation goes here
+
+SYS_type = 'Current_Systems.SR_System';
+
+%%
 latest_method = 'new';
 if nargin < 6
     method = latest_method;
 end
-if nargin < 5
-    database_workingdir = 'Z:\';
+if nargin == 1
+    if isa(SYS_or_setup,SYS_type)
+        SYS = SYS_or_setup;
+        setup = SYS.Main_Setup;
+        database_res = SYS.system_info.LUT_resolution;
+        room = SYS.Room_Setup;
+        signal_info = SYS.signal_info;
+        database_workingdir = SYS.system_info.Drive;
+    else
+        error(['Single input argument must be of type: ' SYS_type]);
+    end
+elseif nargin > 1
+    setup = SYS_or_setup;
+    if nargin < 5
+        database_workingdir = 'Z:\';
+    end
+    if nargin < 4
+        signal_info = [];
+    end
 end
-if nargin < 4
-    signal_info = [];
-end
-
 
 Recordings_Path = [ ...
     database_workingdir ...
