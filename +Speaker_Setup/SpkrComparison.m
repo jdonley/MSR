@@ -38,7 +38,7 @@ for nspkr = 1:length(N_spkrs_)
     N_spkrs = N_spkrs_(nspkr);
     for spkr = 1:2
         %freqs = (10.0^3) * ((2.0) .^ ([-8:9]./3)); %Third octave
-        freqs = logspace(log10(100),log10(8000),100);
+        freqs = logspace(log10(3000),log10(8000),100);
         for f = 1:length(freqs)
             
             %%

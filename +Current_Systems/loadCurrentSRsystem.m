@@ -3,8 +3,9 @@ function SYS = loadCurrentSRsystem
 
 System_Path = 'M:\MSR\+Current_Systems\'; 
 
-Current_System = 'IEEETransactions_System_A';
-
+% Current_System = 'IEEETransactions_System_A';
+% Current_System = 'MediaAnimation_System_1';
+Current_System = 'ICASSP2017_System_A';
 
 
 

@@ -11,24 +11,27 @@ if nargin < 7
 end
 
 
-%% Get signals
-[SpkrSignals, seg_details] = Hardware_Control.getMSR_Audio( Main_Setup, signal_info, system_info, Masker_Setup, masker_signal_info );
-
-
 %% Find and initialise hardware
 if playrec('isInitialised')
     playrec('reset');
 end
 
 devs = playrec('getDevices');
-for d = 1:length(devs)
-    if strcmpi(devs(d).name,system_info.dev_model)
-        dev = devs(d);
-        break;
-    end
+dev = devs(strcmpi({devs.name}, system_info.dev_model));
+if isempty(dev)
+    wrnCol = [255,100,0]/255;
+    cprintf(wrnCol, 'The hardware device model ''');
+    cprintf(-wrnCol, [system_info.dev_model ' ']);fprintf('\b');
+    cprintf(wrnCol, ''' was not found.\n');
+    cprintf(wrnCol, 'Skipping play and record procedure.\n');
+    return;
 end
 
 playrec( 'init', system_info.fs, dev.deviceID, dev.deviceID );
+
+
+%% Get signals
+[SpkrSignals, seg_details] = Hardware_Control.getMSR_Audio( Main_Setup, signal_info, system_info, Masker_Setup, masker_signal_info );
 
 
 %% Playback and Record

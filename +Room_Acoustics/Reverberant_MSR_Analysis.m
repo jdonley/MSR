@@ -1,7 +1,7 @@
 clear;
 %clear classes;
 %close all;
-fclose all;clc;
+fclose all;
 delete(gcp('nocreate'));
 
 %% Load System
@@ -21,7 +21,7 @@ for rt = 1:numel(SYS.signal_info.recording_type)
                 ml_tmp{c}, ...
                 ml_tmp{m} };
             Room_Acoustics.Apply_RIRs.Reverberant_MSR_Analysis_batchfunc( SYS );
-        
+            
         end
     end
 end

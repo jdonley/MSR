@@ -2,10 +2,14 @@ classdef spatial_zone
     % SPATIAL_ZONE - This class represents a spatial audio zone for
     %                multizone soundfield reproduction.
     %
-    %   This class was implemented based on the publication:
-    %   Y. J. Wu and T. D. Abhayapala, "Spatial multizone soundfield
-    %   reproduction: Theory and design," Audio, Speech, and Language
-    %   Processing, IEEE Transactions on, vol. 19, pp. 1711-1720, 2011.
+    %    This class was implemented based on the publications:
+    %[1] Y. J. Wu and T. D. Abhayapala, "Spatial multizone soundfield
+    %    reproduction: Theory and design," Audio, Speech, and Language
+    %    Processing, IEEE Transactions on, vol. 19, pp. 1711-1720, 2011.
+    %[2] Y. J. Wu and T. D. Abhayapala, "Theory and design of soundfield
+    %    reproduction using continuous loudspeaker concept," IEEE 
+    %    Transactions on Audio, Speech, and Language Processing, vol. 17, 
+    %    pp. 107-116, 2009.
     %
     %   Author: Jacob Donley, University of Wollongong, Australia
     %   Email: Jacob.Donley089@uowmail.edu.au
@@ -134,9 +138,9 @@ end
            obj.Alpha_Coeffs = [];
            for m = -Mq:Mq
             if (strcmp(type, 'pw'))
-            	alpha_ = 1j^m * exp( -1j * m * Phi_src);                 % From reference [17], equation (8)                
+            	alpha_ = 1j^m * exp( -1j * m * Phi_src);                 % From reference [2], equation (8)                
             elseif (strcmp(type, 'ps'))
-                alpha_ = besselh(m, k * R_src) * exp(-1j * m * Phi_src); % From reference [17], equation (11)
+                alpha_ = besselh(m, k * R_src) * exp(-1j * m * Phi_src); % From reference [2], equation (11)
             elseif (strcmp(type, 'quiet'))
                 alpha_ = 0;
             end
@@ -146,8 +150,7 @@ end
            
            
            
-           % TODO: Instead of using a for loop for the cartesian x and y
-           % coords use a for loop for all radii and one revolution
+           % TODO: Vectorise this solution
            for x = 1:length(obj.Soundfield_d)
             for y = 1:length(obj.Soundfield_d)                
                 [OMEGA_q, R_q] = cart2pol(x - O_q_z, y - O_q_z); %Convert to polar coords from centre of the zone

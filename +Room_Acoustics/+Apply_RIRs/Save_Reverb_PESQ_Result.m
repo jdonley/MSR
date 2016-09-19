@@ -28,7 +28,7 @@ results_type = 'PESQ';
 %% Calculate Results
 orig_B = permute( Original_(:,1,:) ,[1 3 2]);
 for r = 1:size(Rec_Sigs_B,1)
-    PESQ_MOS_B(r) = Tools.pesq_mex_vec( orig_B(r,:), Rec_Sigs_B(r,:), Fs , pesqNumber);
+    PESQ_MOS_B(r) = Tools.pesq_mex_vec( orig_B(r,:), Rec_Sigs_B(r,:), Fs );
 end
 ConfInt_95 = Tools.confidence_intervals( [PESQ_MOS_B'] );
 

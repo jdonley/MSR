@@ -32,7 +32,8 @@ Weights = DB.Weights;
 len = length(Input_Signal);
 noise_freqs = linspace(0, signal_info.Fs/2, len/2 + 1);
 noise_freqs = noise_freqs(noise_freqs>=min(Frequencies) & noise_freqs<=max(Frequencies));
-len = signal_info.Nfft;
+
+len = signal_info.Nfft + signal_info.zeropadtime * signal_info.Fs;
 freqs = linspace(0, signal_info.Fs/2, len/2 + 1);
 freqs = freqs(freqs>=min(Frequencies) & freqs<=max(Frequencies));
 
@@ -57,19 +58,24 @@ end
 
 
 %% Second, find the frequency domain representation of the audio file that is wished to be reproduced in the spatial domain.
-[Z, Frequencies_, ~, Windows] = Broadband_Tools.FFT_custom(Input_Signal, signal_info.Nfft, signal_info.Fs, signal_info.overlap);
+si = signal_info;
+if isempty(strfind(lower(signal_info.method),'cancel'))
+    si.time_delay = 0;
+end
+[Z, Frqs, ~, Windows, Zo] = Broadband_Tools.FFT_custom( Input_Signal, si);
 
 % Truncate to frequencies in the range f_low <-> f_high
-trunc_index_low  = find(Frequencies_ < signal_info.f_low , 1, 'last' ) + 1;
-trunc_index_high = find(Frequencies_ > signal_info.f_high, 1 ) + 1;
-if isempty(trunc_index_low)
-    trunc_index_low = 1;
+iLo  = find(Frqs < signal_info.f_low , 1, 'last' ) + 1;
+iHi = find(Frqs > signal_info.f_high, 1 ) + 1;
+if isempty(iLo)
+    iLo = 1;
 end
-if isempty(trunc_index_high)
-    trunc_index_high = length(Frequencies_);
+if isempty(iHi)
+    iHi = length(Frqs);
 end
 
-Frequencies_ = Frequencies_( :, trunc_index_low:trunc_index_high );
+FI = iLo:iHi;
+Frequencies_ = Frqs( :, FI );
 
 %     Frequencies_ = Frequencies_(Frequencies_>=min(Frequencies) & Frequencies_<=max(Frequencies));
 
@@ -82,15 +88,15 @@ LUT_Loudspeaker_Weights = permute( reshape(LUT_Loudspeaker_Weights, setup.Loudsp
 % the interpolation may become close to 180 degrees out of phase which will
 % cause contructive interference instead of destructive and vise versa
 Loudspeaker_Weights = zeros(length(Frequencies_),setup.Loudspeaker_Count);
+ind = 1:(iHi-iLo+1);
 for spkr = 1:setup.Loudspeaker_Count
-    LW = Tools.interpVal_2D(LUT_Loudspeaker_Weights(:,:,spkr), Frequencies, Weights, Frequencies_, weights, 'spline');
+    LW = Tools.interpVal_2D(LUT_Loudspeaker_Weights(:,ind,spkr), Frequencies(ind), Weights, Frequencies_, weights, 'spline');
     Loudspeaker_Weights(:,spkr) = LW(:);
     
-    LW_abs = Tools.interpVal_2D( abs(LUT_Loudspeaker_Weights(:,:,spkr)), Frequencies, Weights, Frequencies_, weights, 'spline');
+    LW_abs = Tools.interpVal_2D( abs(LUT_Loudspeaker_Weights(:,ind,spkr)), Frequencies(ind), Weights, Frequencies_, weights, 'spline');
     Loudspeaker_Weights(:,spkr) = LW_abs(:) ...
         .* exp(1i * angle(Loudspeaker_Weights(:,spkr)));
 end
-
 
 
 %% Finally, apply the speaker weight and reconstruct the loudspeaker signals for each frame of the input signal
@@ -98,14 +104,28 @@ end
 % % We want to form the entire spectrum by adding the conjugate of the frame
 % % to the existing frame where the negative frequencies of the transform
 % % would usually exist.
-Loudspeaker_Weights = [zeros(trunc_index_low-1, setup.Loudspeaker_Count); ...
-    Loudspeaker_Weights; ...
-    zeros( size(Z,2) - trunc_index_high, setup.Loudspeaker_Count)];
-Orig_Weights = [zeros(trunc_index_low-1, 1); ... %For bandpass filtering the original to maintain fair comparison
+N = signal_info.Nfft;
+
+taperWin = tukeywin(N,(iLo+0.05*N)/N);
+
+% test_Weights = [Loudspeaker_Weights(1,8).*ones(iLo-1, 1); ... %For bandpass filtering the original to maintain fair comparison
+%     Loudspeaker_Weights(:,8); ...
+%     zeros( N/2 - iHi, 1)];
+
+Loudspeaker_Weights = [repmat(Loudspeaker_Weights(1,:),iLo-1,1); ...
+    Loudspeaker_Weights;...
+    zeros( N/2 - iHi, setup.Loudspeaker_Count)];
+Orig_Weights = [ones(iLo-1, 1); ... %For bandpass filtering the original to maintain fair comparison
     ones(length(Frequencies_),1); ...
-    zeros( size(Z,2) - trunc_index_high, 1)];
+    zeros( N/2 - iHi, 1)];
+
+% test_Weights = test_Weights .* taperWin;
+% Loudspeaker_Weights = Loudspeaker_Weights .* repmat(taperWin,1,setup.Loudspeaker_Count);
+% Orig_Weights = Orig_Weights .* taperWin;
+
 Loudspeaker_Weights = permute( repmat(Loudspeaker_Weights, [1 1 size(Z,1)]), [3 1 2]);
-Orig_Weights = permute( repmat(Orig_Weights, [1 1 size(Z,1)]), [3 1 2]);
+Orig_Weights = permute( repmat(Orig_Weights, [1 1 size(Zo,1)]), [3 1 2]);
+% test_Weights = permute( repmat(test_Weights, [1 1 size(Z,1)]), [3 1 2]);
 Z_l = repmat(Z, [1 1 setup.Loudspeaker_Count]);
 
 %
@@ -114,18 +134,23 @@ for spkr = 1:setup.Loudspeaker_Count
     Loudspeakers_(:,1:end/2,spkr) = Z_l(:,:,spkr) .* Loudspeaker_Weights(:,:,spkr);
     Loudspeakers_(:,end/2+1:end,spkr) = conj( [-Loudspeakers_(:,1,spkr).*0 Loudspeakers_(:,end/2:-1:2,spkr)]);
 end
-Original = [Z(:,:,1) conj( [-Z(:,1,1).*0 Z(:,end:-1:2,1)] )] .* [Orig_Weights Orig_Weights(:,1) Orig_Weights(:,end:-1:2)];
-Input_toMatch = [Z(:,:,1) conj( [-Z(:,1,1).*0 Z(:,end:-1:2,1)] )];
-% clear Loudspeaker_Weights; % Save on memory
+Original = [Zo(:,:,1) conj( [-Zo(:,1,1).*0 Zo(:,end:-1:2,1)] )] .* [Orig_Weights Orig_Weights(:,1) Orig_Weights(:,end:-1:2)];
+%  Input_toMatch = [Z(:,:,1) conj( [-Z(:,1,1).*0 Z(:,end:-1:2,1)] )].* [test_Weights test_Weights(:,1) test_Weights(:,end:-1:2)];
+
 %
 % % We then want to perform an Inverse FFT (ifft) on each full spectrum frame
 for frame = 1:size(Loudspeakers_, 1)
     for spkr = 1:setup.Loudspeaker_Count
-        Loudspeakers_(frame,:,spkr) = ifft( Loudspeakers_(frame,:,spkr) );
+        Loudspeakers_(frame,:,spkr) = ifft( Loudspeakers_(frame,:,spkr) * size(Loudspeakers_,2) );
     end
-    Original(frame,:) = ifft( Original(frame, :) );
-    Input_toMatch(frame,:) = ifft( Input_toMatch(frame, :) );
 end
+for frame = 1:size(Original,1)
+    Original(frame,:) = ifft( Original(frame, :) * size(Original,2) );
+end
+% for frame = 1:size(Input_toMatch,1)
+%     Input_toMatch(frame,:) = ifft( Input_toMatch(frame, :) * size(Input_toMatch,2) );
+% end
+
 
 %We should apply the second square root hamming window here
 %we should do this to remove artificats caused by our spectral
@@ -134,21 +159,69 @@ end
 for spkr = 1:setup.Loudspeaker_Count
     Loudspeakers_(:,:,spkr) = Loudspeakers_(:,:,spkr) .* Windows;
 end
-Original = Original .* Windows;
-Input_toMatch = Input_toMatch .* Windows;
+Original = Original .* Windows(1:size(Original,1),:);
+% Input_toMatch = Input_toMatch .* Windows(1:size(Input_toMatch,1),:);
 %end
+
+if ~isempty(signal_info.zeropadtime)
+    Npad=signal_info.zeropadtime * signal_info.Fs;
+    Loudspeakers_(:,[1:Npad/2, end-Npad/2+1:end],:)=[];
+    Original(:,[1:Npad/2, end-Npad/2+1:end],:)=[];
+%     Input_toMatch(:,[1:Npad/2, end-Npad/2+1:end],:)=[];
+end
 
 %
 % % Then we should perform the overlap-add method to obtain the complete time domain signal for each speaker
 % %Loudspeaker_Signals =
 % zeros([(size(Z,1)+ceil(overlap))*size(Z,2)*2*(1-overlap) setup.Loudspeaker_Count] ); % pre-allocate memory
 for spkr = 1:setup.Loudspeaker_Count
-    Loudspeaker_Signals(:,spkr) = Broadband_Tools.OverlapAdd( Loudspeakers_(:,:,spkr), signal_info.overlap ); %#ok<AGROW>
+%     Loudspeaker_Signals(:,spkr) = Broadband_Tools.OverlapAdd( real(Loudspeakers_(:,:,spkr)), signal_info.overlap ); %#ok<AGROW>
+    Loudspeaker_Signals(:,spkr) = overlapadd( squeeze(real(Loudspeakers_(:,:,spkr))), ones(signal_info.Nfft,1), (1-signal_info.overlap)*signal_info.Nfft  ); %#ok<AGROW>
+    Loudspeaker_Signals(isnan(Loudspeaker_Signals(:,spkr)),spkr)=0;
 end
-Original_ = Broadband_Tools.OverlapAdd( Original, signal_info.overlap );
-Input_toMatch_ = Broadband_Tools.OverlapAdd( Input_toMatch, signal_info.overlap );
+% Original_ = Broadband_Tools.OverlapAdd( Original, signal_info.overlap );
+Original_ = overlapadd( Original, ones(signal_info.Nfft,1), (1-signal_info.overlap)*signal_info.Nfft  ); %#ok<AGROW>
+% Input_toMatch_ = overlapadd( Input_toMatch, ones(signal_info.Nfft,1), (1-signal_info.overlap)*signal_info.Nfft  ); %#ok<AGROW>
+% Input_toMatch_ = Broadband_Tools.OverlapAdd( Input_toMatch, signal_info.overlap );
 % clear Loudspeakers_; % Save on memory
 
+
+
+%%
+% if ~isempty(signal_info.time_delay)
+%     t_d = signal_info.time_delay;
+% else
+%     t_d = signal_info.Nfft/signal_info.Fs;
+% end
+%     t_d = signal_info.time_delay;
+% if t_d ~= 0 && ~isempty(strfind(lower(signal_info.method),'cancel'))
+% if ~isempty(strfind(lower(signal_info.method),'cancel'))
+    LS_=[];
+    for s=1:setup.Loudspeaker_Count
+        LS = enframe(Loudspeaker_Signals(:,s),signal_info.Nfft/2,signal_info.Nfft/2);
+        LS_(:,s) = reshape(LS(2:2:end,:).',[],1);
+    end
+    Loudspeaker_Signals = LS_;
+    Loudspeaker_Signals(size(Loudspeaker_Signals,1):length(Original_),:)=0;
+    
+%     IM = enframe(Input_toMatch_,signal_info.Nfft/2,signal_info.Nfft/2);
+%     IM_ = reshape(IM(2:2:end,:).',[],1);
+%     Input_toMatch_ = IM_;
+%     Input_toMatch_(size(Input_toMatch_,1):length(Original_),:)=0;
+% end
+% s2=size(Loudspeaker_Signals,2);
+% Zs = zeros(t_d*signal_info.Fs,1);
+% if ~isempty(strfind(lower(signal_info.method),'cancel'))
+%     Loudspeaker_Signals = [repmat(Zs,1,s2); ...
+%         Loudspeaker_Signals];
+%     Original_ = [Original_; Zs];
+% else
+%     Loudspeaker_Signals = [Loudspeaker_Signals; ...
+%         repmat(Zs,1,s2)];
+%     Original_ = [Original_; Zs];
+% end
+
+%%
 
 % Scale signals so they don't clip upon saving
 if signal_info.L_noise_mask <= 0
@@ -158,8 +231,8 @@ elseif signal_info.L_noise_mask > 0 % For a positive masker we scale the signals
 end
 
 % Normalise Loudspeaker Signals
-[~,adjVal] = Broadband_Tools.power_norm( Input_Signal(:), Input_toMatch_(:), signal_info.Fs, [signal_info.f_low_meas, signal_info.f_high_meas]);
-Loudspeaker_Signals = Loudspeaker_Signals * adjVal  *  scaler;
+% [~,adjVal] = Broadband_Tools.power_norm( Input_Signal(:), Input_toMatch_(:), signal_info.Fs, [signal_info.f_low_meas, signal_info.f_high_meas]);
+Loudspeaker_Signals = Loudspeaker_Signals  *  scaler;
 
 
 end

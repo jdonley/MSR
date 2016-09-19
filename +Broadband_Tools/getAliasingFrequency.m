@@ -36,6 +36,10 @@ Bv = B-O; % Vector for point B
 Qv = Q-O; % Vector for point Q
 
 %% Compute Unknown Values
+if strcmpi('2line',setup.Speaker_Array_Type)
+    setup.Speaker_Array_Type = 'line';
+    L=L/2;
+end
 if strcmpi('line',setup.Speaker_Array_Type)
     %% Linear Array %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     C = O + setup.res*Rl*[cos(phi_c) -sin(phi_c) 0;...      % Center point of loudspeaker array
@@ -71,7 +75,12 @@ if strcmpi('line',setup.Speaker_Array_Type)
     
 elseif strcmpi('circle',setup.Speaker_Array_Type)
     %% Circular Array %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    alpha_ = pi +theta - asin(Br*sin(-theta + Bth)/Rl);
+    % Perpendicular distance from planewave vector to center
+    d_pb = abs( Br_*sin(-theta + Bth_) );
+    
+    % Angle to point of intersection of planewave vector and loudspeaker
+    % array
+    alpha_ = pi +theta - asin(d_pb/Rl);
     
     % Find tangent
     P = O + Rl*setup.res * ...
@@ -101,10 +110,6 @@ elseif strcmpi('circle',setup.Speaker_Array_Type)
     end
     d_u = max(d_u); %Choose the farthest from the center (outermost tangent)
     
-    % Perpendicular distance from planewave vector to center
-    PBv = Bv-Pv;
-    d_pb = abs(  Pv.'   * (rotMat_90*PBv  )) ...
-        / sqrt(sum((PBv  ).^2)) / setup.res;
     
     % Maximums allowable aliasing frequency
     if strcmpi('pw',setup.Multizone_Soundfield.Bright_Zone.SourceType) && strcmpi(method,'new')

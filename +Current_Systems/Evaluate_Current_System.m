@@ -1,4 +1,4 @@
-
+clc;clear;clear classes;close all;fclose all;delete(gcp('nocreate'));
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                       COMPLETE EVALUATION SCRIPT                        %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -31,6 +31,7 @@ Hardware_Control.Play_and_Rec_System
 
 %% Measure Recorded Signal Characteristics
 Room_Acoustics.Reverberant_MSR_Analysis
+% TEST_SCRIPT
 
 %% Plot Results
-Results.Plot_Results
+% Results.Plot_Results

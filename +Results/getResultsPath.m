@@ -46,6 +46,11 @@ try
             num2str(signal_info.f_high) 'Hz' sc sc ...
             'method' sc signal_info.method filesep ];
         
+        if ~isempty(signal_info.time_delay)
+            t_del = signal_info.time_delay;
+        else t_del = signal_info.Nfft/signal_info.Fs; end
+        misc_info_dir = ['+' num2str(t_del*1e3) 'msDelay' filesep];
+        
         [~,~,room_info_dir1,room_info_dir2] = Room_Acoustics.getRIRDatabasePath( setup, room );
         room_info_dirs = [room_info_dir1, room_info_dir2, filesep];
         
@@ -59,7 +64,8 @@ try
             realworld_path, ...
             reproduction_info_dirs, ...
             room_info_dirs, ...
-            spkr_sig_info_dir];
+            spkr_sig_info_dir, ...
+            misc_info_dir];
         
         
     elseif strcmpi(method, 'old')

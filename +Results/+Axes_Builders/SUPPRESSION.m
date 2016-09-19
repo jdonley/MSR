@@ -1,7 +1,7 @@
-function [axs, legendStrings] = STOI_PESQ( SYS, axH )
-%STOI_PESQ Generates axes objects with STOI and PESQ results
+function [axs, legendStrings] = SUPPRESSION( SYS, axH )
+%SUPPRESSION Generates axes objects for suppression results
 %
-% Syntax:	[ ax ] = STOI_PESQ( SYS )
+% Syntax:	[ axs, legendStrings ] = SUPPRESSION( SYS, axH )
 %
 % Inputs:
 % 	SYS - Soundfield reproduction system specification object
@@ -18,22 +18,20 @@ function [axs, legendStrings] = STOI_PESQ( SYS, axH )
 % University of Wollongong
 % Email: jrd089@uowmail.edu.au
 % Copyright: Jacob Donley 2016
-% Date: 09 June 2016
+% Date: 04 September 2016
 % Revision: 0.1
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-measures = {'STOI';'PESQ'};
-results_types = {'SpeechIntelligibility';'Quality'};
+measures = SYS.analysis_info.Measures;
+results_types = measures;
 
 colours = {[ ...            R G B  values
-    0.2 0.2 1.0       ; ...       Bright Intelligibility
-    1.0 0.0 0.0       ;];[ ...    Quiet  Intelligibility
-    0.6 0.0 0.6       ];}; %      Bright Quality
+    0.2 0.2 1.0       ; ...       Known Signal
+    1.0 0.0 0.0       ;]}; %      Predicted Signal
 
 markers = {[ ...          Marker Shapes
-    'o'       ; ...       Bright Intelligibility
-    '>'       ;];[ ...    Quiet  Intelligibility
-    'd'       ];}; %      Bright Quality
+    'o'       ; ...       Known Signal
+    '>'       ;]}; %      Predicted Signal
 
 trendAlpha = 0.5;
 
@@ -57,24 +55,8 @@ for rt = 1:numel(measures)
     
     %% Read results
     results_func = str2func(['Results.import_' results_types{rt} '_Reverb']);
-    switch results_types{rt}
-        case 'SpeechIntelligibility'
-            % Read results
-            [NoiseLevel,Result_Bright,Result_Quiet,ConfInt_Bright_Low,ConfInt_Bright_Up,ConfInt_Quiet_Low,ConfInt_Quiet_Up] ...
-                = results_func(Results_filepath);
-            if NoiseLevel == -1
-                Results.Axes_Builders.Helpers.setErrorAxis(ax,Result_Bright,Results_filepath)
-                break
-            end
-            % Generate Plottable data matrices and vectors
-            [Hrz_Vec, Res_Matrix{1}, Res_trend{1}, Res_area{1}, Res_CI{1}, CI_vec] ...
-                = Results.generatePlotData( NoiseLevel, Result_Bright, ConfInt_Bright_Low, ConfInt_Bright_Up);
-            legendStrings = {legendStrings{:}, [measures{rt} ' BZ']};
-            [~, Res_Matrix{2}, Res_trend{2}, Res_area{2}, Res_CI{2}, ~] ...
-                = Results.generatePlotData( NoiseLevel, Result_Quiet, ConfInt_Quiet_Low, ConfInt_Quiet_Up);
-            legendStrings = {legendStrings{:}, [measures{rt} ' QZ']};
-            
-        case 'Quality'
+    switch results_types{rt}          
+        case 'Suppression'
             % Read results
             [NoiseLevel,Result_Bright,ConfInt_Bright_Low,ConfInt_Bright_Up] ...
                 = results_func(Results_filepath);
@@ -96,17 +78,13 @@ for rt = 1:numel(measures)
     mrks = markers{rt};
     
     domain = Hrz_Vec([1 end]);
-    domain_lbl = 'Noise Mask Level ($G$) ($\mathrm{dB}$)';
+    domain_lbl = 'Block Length ($\mathrm{ms}$)';
     
     switch results_types{rt}
-        case 'SpeechIntelligibility'
-            axCurr = ax(1);
-            range = [0 100];
-            range_lbl = 'STOI (\%WC)';
-        case 'Quality'
+        case 'Suppression'
             axCurr = ax(2);
-            range = [1 4.56];
-            range_lbl = 'PESQ (MOS)';
+            range = [-25 0];
+            range_lbl = 'Suppression ($\mathrm{dB}$)';
     end
     
     Results.Axes_Builders.Helpers.setAxisParameters( SYS, axCurr, range, domain, range_lbl, domain_lbl);

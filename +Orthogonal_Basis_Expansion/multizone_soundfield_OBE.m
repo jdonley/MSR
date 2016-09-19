@@ -21,6 +21,7 @@ classdef multizone_soundfield_OBE
         UnattendedZ_Weight  = 0.05;  % Unattended Zone relative importance weight        
         Radius = 1.0;
         k_global = 2000 /343*2*pi;  % Frequency in wavenumber
+        ModeLimitFactor = 1.0;      % Increase/Decrease the Mode Limit by a certain factor (default results in 16% error)
         Quiet_Zone;                 % spatial_zone object for the quiet zone
         Bright_Zone;                % spatial_zone object for the bright zone
         Geometry = 'circle';        % Geometry of the reproduction region
@@ -197,7 +198,7 @@ classdef multizone_soundfield_OBE
         end
 
         function M0 = getGlobalModeLimit(obj)
-            M0 = ceil(obj.k_global * obj.Radius ); 
+            M0 = ceil(obj.k_global * obj.Radius * obj.ModeLimitFactor); 
         end
         
         function radius_p = getRadius_FromZones(obj)
@@ -238,8 +239,8 @@ classdef multizone_soundfield_OBE
                     r0= obj.Radius * obj.res;
                     x = ceil(SpatialZones(q).Origin_q.X * obj.res);
                     y = ceil(SpatialZones(q).Origin_q.Y * obj.res);
-                    xx = (-r:r-1) + x + r0;
-                    yy = (-r:r-1) + y + r0;
+                    xx = (-r+1:r) + x + r0;
+                    yy = (-r+1:r) + y + r0;
 
 
                     if strcmp(SpatialZones(q).SourceType, 'quiet')
@@ -278,7 +279,6 @@ classdef multizone_soundfield_OBE
                 field = obj.Sd .* G_field .* obj.w;
                 obj.C(n) = sum(field(:));
             end
-
         end        
 
 % Planewave set
@@ -312,21 +312,11 @@ classdef multizone_soundfield_OBE
                 x = ((1:width) - cos(phi) * width*3/4 - width/2 - 1) / obj.res;
                 y = ((1:width) - sin(phi) * width*3/4 - width/2 - 1) / obj.res;
                 [xx,yy] = meshgrid(x,y);
+                
                 X = complex(xx,yy);
-                %surf(real(X));view(2);
-                               
-                
                 Fn = exp( 1i * k * (cos(phi)*real(X) + sin(phi)*imag(X))) .* obj.Soundfield_desired_mask; %Planewave formula ( e^(i*(kx+ky+kz)) )
-                %surf(real(Fn), 'LineStyle','none'); view(2);
                 
-                 %d=(cos(phi)*real(X) + sin(phi)*imag(X));
-                 %rho = 1.204;
-                 %c = 343;
-                 %Fn = 1j * rho * c * k * exp( -1j * k * d) ./ (4 * pi * d)  .* obj.Soundfield_desired_mask;
-%                 surf(real(Fn), 'LineStyle','none'); view(2);
-%                 
-                 %Fn = 1j * k * exp( -1j * k * d) ./ (4 * pi * d) .* (1 + 1./(1i*k*d))  .* obj.Soundfield_desired_mask;
-                % surf(real(Fn), 'LineStyle','none'); view(2);caxis([0 100])
+                Fn=Fn.*exp(-1i*angle(Fn(floor(end/2),floor(end/2)))); %norm to centre
                 
                 obj.F(:,:,n) = repmat(Fn, [1 1 1]);
             end
@@ -340,29 +330,8 @@ classdef multizone_soundfield_OBE
             obj.R = zeros(obj.N, obj.N); 
                    
             F_all = reshape(obj.F, [width*width obj.N]);
-            [obj.G, obj.R] = Orthogonal_Basis_Expansion.Gram_Schmidt(F_all, obj.w(:));
-            
-%             %[obj.G, obj.R] = Orthogonal_Basis_Expansion.Gram_Schmidt_mex(F_all, obj.w(:));
-%             
-%             X = zeros(sqrt(size(obj.G,1)));
-%             for i=1:80;
-%                 X = X + reshape(obj.G(:,i),sqrt(size(obj.G,1)),sqrt(size(obj.G,1)));
-%             end
-%             figure(1);surf(real(X),'LineStyle','none');view(2);
-%             figure(2);surf(imag(X),'LineStyle','none');view(2);
-%             figure(3);surf(abs(X),'LineStyle','none');view(2);
-%             figure(4);surf(angle(X),'LineStyle','none');view(2);
-% 
-%             [obj.G, obj.R] = Orthogonal_Basis_Expansion.NNMF_Angle(F_all, obj.w(:));
-%             
-%             X = zeros(sqrt(size(obj.G,1)));
-%             for i=1:80;
-%                 X = X + reshape(obj.G(:,i),sqrt(size(obj.G,1)),sqrt(size(obj.G,1)));
-%             end
-%             figure(5);surf(real(X),'LineStyle','none');view(2);
-%             figure(6);surf(imag(X),'LineStyle','none');view(2);
-%             figure(7);surf(abs(X),'LineStyle','none');view(2);
-%             figure(8);surf(angle(X),'LineStyle','none');view(2);
+            [obj.G, obj.R] = Orthogonal_Basis_Expansion.Gram_Schmidt(F_all, obj.w(:));            
+           %[obj.G, obj.R] = Orthogonal_Basis_Expansion.Gram_Schmidt_mex(F_all, obj.w(:));
         end        
         
 %% One-Dimensional sampling methods

@@ -2,10 +2,14 @@ classdef spatial_zone
     % SPATIAL_ZONE - This class represents a spatial audio zone for
     %                multizone soundfield reproduction.
     %
-    %   This class was implemented based on the publication:
-    %   Y. J. Wu and T. D. Abhayapala, "Spatial multizone soundfield
-    %   reproduction: Theory and design," Audio, Speech, and Language
-    %   Processing, IEEE Transactions on, vol. 19, pp. 1711-1720, 2011.
+    %    This class was implemented based on the publications:
+    %[1] Y. J. Wu and T. D. Abhayapala, "Spatial multizone soundfield
+    %    reproduction: Theory and design," Audio, Speech, and Language
+    %    Processing, IEEE Transactions on, vol. 19, pp. 1711-1720, 2011.
+    %[2] Y. J. Wu and T. D. Abhayapala, "Theory and design of soundfield
+    %    reproduction using continuous loudspeaker concept," IEEE 
+    %    Transactions on Audio, Speech, and Language Processing, vol. 17, 
+    %    pp. 107-116, 2009.
     %
     %   Author: Jacob Donley, University of Wollongong, Australia
     %   Email: Jacob.Donley089@uowmail.edu.au
@@ -46,9 +50,9 @@ classdef spatial_zone
     
     
     methods
-        function obj = spatial_zone(frequency, phase, radius, type, weight, angle, distance)
+        function obj = spatial_zone(frequency, phase, radius, type, weight, angle_, distance)
             if nargin < 7;	distance = obj.SourceOrigin.Distance;
-            if nargin < 6;	angle = obj.SourceOrigin.Angle;
+            if nargin < 6;	angle_ = obj.SourceOrigin.Angle;
             if nargin < 5;	weight = obj.Weight;
             if nargin < 4;	type = obj.SourceType;
             if nargin < 3;	radius = obj.Radius_q; 
@@ -59,9 +63,9 @@ classdef spatial_zone
            obj.Radius_q = radius;
            obj.SourceType = type;
            obj.Weight = weight;
-           obj.SourceOrigin.Angle = angle;
+           obj.SourceOrigin.Angle = angle_;
            obj.SourceOrigin.Distance = distance;
-           %obj = obj.setDesiredSoundfield(frequency, radius, type, weight, angle, distance);
+           %obj = obj.setDesiredSoundfield(frequency, radius, type, weight, angle_, distance);
         end
         
         function obj = setOrigin(obj, X_Coord, Y_Coord)
@@ -88,9 +92,9 @@ classdef spatial_zone
            obj = obj.createEmptySoundfield_d;
         end        
         
-        function obj = setDesiredSoundfield(obj, ideal, frequency, phase, radius, type, weight, angle, distance)
+        function obj = setDesiredSoundfield(obj, ideal, frequency, phase, radius, type, weight, angle_, distance)
             if nargin < 9;  distance = obj.SourceOrigin.Distance;
-            if nargin < 8;     angle = obj.SourceOrigin.Angle;
+            if nargin < 8;     angle_ = obj.SourceOrigin.Angle;
             if nargin < 7;    weight = obj.Weight;
             if nargin < 6;      type = obj.SourceType;
             if nargin < 5;    radius = obj.Radius_q;
@@ -114,7 +118,7 @@ classdef spatial_zone
            obj.Radius_q = radius;
            obj.SourceType = type;
            obj.Weight = weight;
-           obj.SourceOrigin.Angle = angle;
+           obj.SourceOrigin.Angle = angle_;
            obj.SourceOrigin.Distance = distance;
            
            k = frequency / 343 * (2 * pi);
@@ -123,10 +127,10 @@ classdef spatial_zone
             fprintf('\tFrequency: %0.0f Hz\n', frequency );
             fprintf('\tWavenumber: %0.2f m­¹\n', k);
             fprintf('\tPhase: %0.1f °\n', phase/pi*180);
-            fprintf('\tAngle: %0.1f °\n\n', angle);
+            fprintf('\tAngle: %0.1f °\n\n', angle_);
            end
            R_src = distance;
-           Phi_src = angle / 180 * pi; %convert to radians
+           Phi_src = angle_ / 180 * pi; %convert to radians
            obj = obj.createEmptySoundfield_d;
            O_q_z = length(obj.Soundfield_d) / 2; %Set the centre of the zone for indexing
            
@@ -139,10 +143,10 @@ classdef spatial_zone
            % Find Alpha coefficients for the desired soundfield in the zone           
             m = -Mq:Mq;
             if (strcmp(type, 'pw'))
-            	obj.Alpha_Coeffs = 1j.^m .* exp( -1j * m * Phi_src);                 % From reference [17], equation (8)
+            	obj.Alpha_Coeffs = 1j.^m .* exp( -1j * m * Phi_src);                 % From reference [2], equation (8)
                 obj.SourceOrigin.Distance = 0;
             elseif (strcmp(type, 'ps'))
-                obj.Alpha_Coeffs = besselh(m, k * R_src) .* exp(-1j * m * Phi_src); % From reference [17], equation (11)
+                obj.Alpha_Coeffs = besselh(m, k * R_src) .* exp(-1j * m * Phi_src); % From reference [2], equation (11)
             elseif (strcmp(type, 'noise'))
                 obj.Alpha_Coeffs = 1.0;
             elseif (strcmp(type, 'quiet'))
@@ -173,12 +177,15 @@ classdef spatial_zone
                   x = ((1:width) - width/2) / obj.res;
                   y = x;
                   [xx,yy] = meshgrid(x,y);
-                  X = complex(xx,yy);    
+                  X = complex(xx,yy);
                   if strcmp(type,'pw')
                       obj.Soundfield_d = weight .* exp( 1i * (k * (cos(Phi_src)*real(X) + sin(Phi_src)*imag(X)) + phase) ); %Planewave formula ( e^(i*(kx+ky+kz)) )
                       obj.SourceOrigin.Distance = 0;
                   elseif (strcmp(type, 'ps'))
-                      obj.Soundfield_d = weight .* besselh(0, k * abs(X .* exp(1i.*(pi-Phi_src)) + R_src));
+                      obj.Soundfield_d = weight .* 1i .* besselh(0, k * abs(X .* exp(1i.*(pi-Phi_src)) + R_src)); % From reference [2], equation (9)
+                      % This is for 3D
+                      % r = abs(X .* exp(1i.*(pi-Phi_src)) + R_src);
+                      % obj.Soundfield_d = weight * exp(1i*pi/4) * exp(1i*k*r) ./ (4*pi*r); % From eq10 in rir_generator manual (Emanuel Habets)
                   elseif (strcmp(type, 'quiet'))
                       obj.Soundfield_d = zeros(size(X));
                   end

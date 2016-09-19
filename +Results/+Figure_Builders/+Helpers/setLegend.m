@@ -33,9 +33,12 @@ axes( axs(1) ); % Pick the first axes
 ax = gca;
 
 nLegEnts = size(strs,2);
+
 % Just search the first axes
-axEnts = findobj(axs(1).Children,'Type',linetypes);
-axEnts = [axEnts; findobj(axs(2).Children,'Type',linetypes)];
+axEnts=[];
+for a = 1:numel(axs)
+    axEnts = [axEnts; findobj(axs(a).Children,'Type',linetypes)];
+end
 
 FF = SYS.publication_info.LaTeX_FontFamily; % Set fonts for latex interpreter
 FS = SYS.publication_info.FontSize;
@@ -54,6 +57,10 @@ end
     'Interpreter', SYS.publication_info.Interpreter, ...
     'FontName', SYS.publication_info.FontName, ...
     'FontSize', SYS.publication_info.FontSize);
+% [leg] = legend(ax, axEnts ,strs(1,:), ...
+%     'Interpreter', SYS.publication_info.Interpreter, ...
+%     'FontName', SYS.publication_info.FontName, ...
+%     'FontSize', SYS.publication_info.FontSize);
 leg.Box = 'off';
 legli = findobj(legi,'Type','line'); % legend lines
 

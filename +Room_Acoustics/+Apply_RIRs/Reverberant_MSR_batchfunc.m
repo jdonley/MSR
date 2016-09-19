@@ -114,7 +114,7 @@ for m = 1:M
             Current_Spkr_Num = str2double( flip( fnumflip ) );
             fileName_curr = flip(sscanf(fnameflip,['%*[' SYS.system_info.sc ']%s']));
             
-            if sum(size(y)>1) == 1 % If not a multichannel audio file                
+            if sum(size(y)>1) == 1 && setup.Loudspeaker_Count ~= 1 % If not a multichannel audio file                
                 if ~(isempty(fileName_prev) || strcmp( fileName_curr, fileName_prev))
                     Speaker_Signals_ = [];
                 end
@@ -124,7 +124,7 @@ for m = 1:M
                     Speaker_Signals = Speaker_Signals_;
                 end
                 
-            elseif sum(size(y)>1) > 1 % If a multichannel audio file
+            elseif sum(size(y)>1) >= 1 && setup.Loudspeaker_Count >= 1 % If a multichannel audio file
                 Speaker_Signals = y.';
             else
                 error(['Failed to read audio file: ' fileName]);

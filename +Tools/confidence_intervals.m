@@ -1,4 +1,4 @@
-function [ Conf_intervals ] = confidence_intervals( samples, interval )
+function [ Conf_intervals ] = confidence_intervals( samples, interval, islognorm )
 %CONFIDENCE_INTERVALS Find the confidence intervals for a set of data for use with the errorbar function in MATLAB
 % 
 % Syntax:	[Conf_intervals] = CONFIDENCE_INTERVALS( samples, interval )
@@ -35,7 +35,10 @@ function [ Conf_intervals ] = confidence_intervals( samples, interval )
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-if nargin <2
+if nargin < 3
+    islognorm = false;
+end
+if nargin < 2
     interval = 95;	%  Confidence = 95%
 end
 
@@ -43,8 +46,16 @@ L = size(samples,1);
 a = 1 - interval/100;
 ts = tinv([a/2,  1-a/2],L-1);	% T-Score
 
-Conf_intervals(:,1) = ts(1)*std(samples)/sqrt(L);	% Confidence Intervals
-Conf_intervals(:,2) = ts(2)*std(samples)/sqrt(L);	% <-'
+if islognorm
+    v = var(samples);
+    m = mean(samples);
+    sigm = sqrt( log( 1 + v./m.^2 ) );
+else
+    sigm = std(samples);
+end
+
+Conf_intervals(:,1) = ts(1)*sigm/sqrt(L);	% Confidence Intervals
+Conf_intervals(:,2) = ts(2)*sigm/sqrt(L);	% <-'
 
 
 end

@@ -31,7 +31,7 @@ masker_layout = {'brightzone_pos_angle',        -90, ...
     'brightzone_source_angle',     180, ...
     'brightzone_source_type',      'ps'};
 
-array_type = 'circle';
+array_type = '2line';
 spkr_radius = 1.3;
 spkr=1;
 
@@ -41,7 +41,7 @@ if strcmp(array_type, 'circle')
     th_c = atan2(y,-x_);
     th = th_c;
     spkr_spacing = []; %Auto-calculate spacing
-elseif strcmp(array_type, 'line')
+elseif ~isempty(strfind(array_type, 'line'))
     x_=spkr_radius;
     th_c = 180;
     th = atan2(-0.6,-spkr_radius);
@@ -68,9 +68,10 @@ elseif spkr == 2
         'loudspeaker_spacing',          0.01, ...
         'speaker_array_type',           'line'};
 end
-
+f = 1000;
+c=343;
 setup = Speaker_Setup.createSetup({...
-    'frequency',                    1500, ...
+    'frequency',                    f, ...
     speech_layout{:}, ...
     array{:}, ...
     'resolution',                   100, ... % Minimum resolution of approx 50 for 8kHz signal to satisfy nyquist theorem. We choose 100 for good measure.
@@ -87,10 +88,15 @@ setup = Speaker_Setup.createSetup({...
     'angleof_loudspeakerarrcentre', 180, ...
     'loudspeaker_object',           Parametric_Synthesis.parametric_soundfield});
 
+setup.ExtendedField = true;
+setup.Origin   = [0.0,1.3];
 %%
 setup.Multizone_Soundfield = setup.Multizone_Soundfield.createSoundfield('DEBUG');
 
 setup = setup.calc_Loudspeaker_Weights();
+[x,y]=pol2cart(setup.Loudspeaker_Locations([1 end],1),setup.Loudspeaker_Locations([1 end],2));
+d = sum(diff([x,y]).^2).^0.5;
+setup.Loudspeaker_Weights(1:end/2) = setup.Loudspeaker_Weights(1:end/2)*exp(1i* (-d*f/c * pi+pi));
 setup = setup.reproduceSoundfield('DEBUG');
 
 %%
@@ -107,8 +113,8 @@ details.lblFontSize = 30;
 
 %pk = max(abs((setup.Bright_Samples(:))));
 pk = max(abs((setup.Quiet_Samples(:))));
-Z = setup.Soundfield_reproduced*setup.res;
-Z2 = abs(Z/setup.res);
+Z = setup.Soundfield_reproduced;
+Z2 = abs(Z);
 
 Z_ = mag2db((Z)./pk);
 figure(figNums(1))
@@ -116,14 +122,14 @@ setup.plotSoundfield( Z, 'scientific_D1A', realistic, details);
 figure(figNums(2))
 setup.plotSoundfield( Z2, 'scientific_L9', realistic, details);
 
-for fn = 1:numel(figNums)
-    figure(figNums(fn));
-    if spkr ==1
-        R = [0 2].*spkr_radius*100 ; xlim(R);ylim(R);
-    elseif spkr == 2
-        R = [0 2].*spkr_radius*100 - (spkr_radius-x_)*100; xlim(R);ylim(R);
-    end
-end
+% for fn = 1:numel(figNums)
+%     figure(figNums(fn));
+%     if spkr ==1
+%         R = [0 2].*spkr_radius*100 ; xlim(R);ylim(R);
+%     elseif spkr == 2
+%         R = [0 2].*spkr_radius*100 - (spkr_radius-x_)*100; xlim(R);ylim(R);
+%     end
+% end
 %  caxis([-30, 0] );
 
 

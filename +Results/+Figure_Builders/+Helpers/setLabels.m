@@ -49,6 +49,7 @@ for y = 1:nY
             if lr == 2 %Axes numbers                
                 ax.Title.String = ['(' char( 64 + axInd(1) ) ')'];
                 if strcmpi(SYS.publication_info.Interpreter, 'latex')
+                    ax.Title.Interpreter = SYS.publication_info.Interpreter;
                     ax.Title.String = [latexFontSettings ...
                         ax.Title.String '}'];
                 end

@@ -1,8 +1,11 @@
-clc;
+
 clear;
 
 %%
 SYS = Current_Systems.loadCurrentSRsystem;
+
+% If a realworld recording is not specified in the system then abort
+if ~any(strcmpi(SYS.signal_info.recording_type,'realworld')), delete(gcp('nocreate')); return; end
 
 %%
 %Flip loudspeaker order (effectively flips entire setup) (false if not needed)
@@ -23,7 +26,7 @@ end
 
 %%
 % Playback master gain
-master_gain = 0; %dB
+master_gain = -40; %dB
 
 noise_levels_vec = SYS.signal_info.L_noise_mask;
 noise_levels_vec(noise_levels_vec>0)=[];
@@ -42,11 +45,13 @@ for c = SYS.signal_info.methods_list_clean
         
         for noise_mask = noise_levels_vec
             
+            % masker_signal_info = [];
+            % SYS.Masker_Setup = [];
+            
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             masker_signal_info.L_noise_mask = noise_mask; % dB
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            
-            
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%                        
+             
             %% Playback from setup, setup_info and system_info and record the result
             Hardware_Control.playMSR_andRec( SYS.Main_Setup, SYS.Room_Setup, SYS.signal_info, SYS.system_info, SYS.Masker_Setup, masker_signal_info, master_gain );
             

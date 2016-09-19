@@ -1,4 +1,4 @@
-clc;
+
 %clear;
 close all;
 tic; %Start timing this script
@@ -20,7 +20,13 @@ DebugMode = 'DEBUG';        % Set this to 'DEBUG' for a fast aproximate output, 
 
 
 %%
-Setups = [SYS.Main_Setup; SYS.Masker_Setup];
+Setups = [];
+if ~isempty(SYS.signal_info.methods_list_clean)
+    Setups = [Setups; SYS.Main_Setup];
+end
+if ~isempty(SYS.signal_info.methods_list_masker)
+    Setups = [Setups; SYS.Masker_Setup];
+end
 for s = 1:length(Setups)
     Setup = Setups(s);
     
@@ -29,11 +35,12 @@ for s = 1:length(Setups)
         SYS.signal_info.f_low, ...
         SYS.signal_info.f_high,'lin');
     
+    single_LUT_weight = (SYS.system_info.LUT_weights == 1);
     if Setup.Loudspeaker_Count > 1
         Weights = [0,  logspace(log10( min(SYS.system_info.LUT_weight_range) ), ...
             log10( max(SYS.system_info.LUT_weight_range) ), ...
             SYS.system_info.LUT_weights - 1) ];
-    elseif Setup.Loudspeaker_Count == 1
+    elseif Setup.Loudspeaker_Count == 1 && single_LUT_weight
         Weights = 1;
     end
     
@@ -52,7 +59,7 @@ for s = 1:length(Setups)
     if Setup.Loudspeaker_Count > 1
         Bright_Sample__Weight_Vs_Frequency = zeros(length(Weights), length(Frequencies));
         Quiet_Sample__Weight_Vs_Frequency  = zeros(length(Weights), length(Frequencies));
-    elseif Setup.Loudspeaker_Count == 1
+    elseif Setup.Loudspeaker_Count == 1 && single_LUT_weight
         Bright_Sample__Weight_Vs_Frequency = cell(length(Weights), length(Frequencies));
         Quiet_Sample__Weight_Vs_Frequency  = cell(length(Weights), length(Frequencies));
     end
@@ -92,7 +99,7 @@ for s = 1:length(Setups)
             if parsetup.Loudspeaker_Count > 1
                 Bright_Sample__Weight_Vs_Frequency( w, f ) = parsetup.Bright_Sample;
                 Quiet_Sample__Weight_Vs_Frequency( w, f ) = parsetup.Quiet_Sample;
-            elseif parsetup.Loudspeaker_Count == 1
+            elseif parsetup.Loudspeaker_Count == 1 && single_LUT_weight
                 Bright_Sample__Weight_Vs_Frequency{ w, f } = parsetup.Bright_Samples;
                 Quiet_Sample__Weight_Vs_Frequency{ w, f } = parsetup.Quiet_Samples;
             end

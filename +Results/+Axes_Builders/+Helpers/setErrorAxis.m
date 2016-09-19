@@ -32,6 +32,7 @@ for i =1:numel(ax)
     axC.YTick = [];
     axC.YColor = [0,0,0];
 end
-warning([errMSG ': ''' filepath '''']);
+wrnCol = [255,100,0]/255;
+cprintf(wrnCol, ['Warning: ' errMSG '\n''' strrep(filepath,'\','\\') '''\n']);
 
 end

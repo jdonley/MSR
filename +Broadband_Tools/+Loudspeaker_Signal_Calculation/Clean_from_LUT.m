@@ -45,15 +45,23 @@ signal_info.input_filename = Input_file_name;
 %% Read input signal
 Input_Signal = audioread( Input_file );
 
+if ~isempty(strfind(lower(signal_info.method), 'cancel'))
+    %%% TODO
+    % Fix this magnitude adjustment which is dependent on the transfer
+    % function for point sources. Originates somewhere in
+    % loudspeaker_setup.m or earlier.
+    magnitudeADJ = 0.8;
+    Input_Signal = conv(-1,Input_Signal) * magnitudeADJ;
+end
 
 %% Generate Loudspeaker Signals
 [Loudspeaker_Signals, Original_] = Broadband_Tools.Loudspeaker_Signal_Calculation.getMSRLoudspeakerSignals( ...
     Input_Signal, setup, signal_info, system_info );
 
 %% Normalise Loudspeaker Signals
-scaler = rms(Loudspeaker_Signals(:));
-Loudspeaker_Signals = Loudspeaker_Signals ./ scaler .* db2mag(-35)  ; % Hope -35dB RMS level is enough to avoid clipping when saving
-Original_ = Original_ ./ max(abs(Original_(:)))  ;
+% scaler = rms(Loudspeaker_Signals(:));
+% Loudspeaker_Signals = Loudspeaker_Signals ./ scaler .* db2mag(-35)  ; % Hope -35dB RMS level is enough to avoid clipping when saving
+Original_ = Original_ ./ max(abs(Original_(:)));
 
 
 

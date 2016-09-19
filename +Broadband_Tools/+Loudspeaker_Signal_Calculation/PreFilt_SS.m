@@ -28,7 +28,7 @@ function [y_SS, spect, frqs] = PreFilt_SS( y, signal_info )
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-[spect,frqs]=Tools.LTASS('M:\MSR\+Miscellaneous\+Speech_Files\');
+[spect,frqs]=Tools.LTASS( signal_info.speech_filepath, signal_info.Nfft );
 
 y_SS = Tools.ArbitraryOctaveFilt(y, spect, frqs, signal_info.Nfft, signal_info.Fs);
 

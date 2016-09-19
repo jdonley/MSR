@@ -16,6 +16,7 @@ classdef SR_System
         Masker_Setup = [];
         signal_info = [];
         system_info = [];
+        analysis_info = [];
         publication_info = [];
         
     end

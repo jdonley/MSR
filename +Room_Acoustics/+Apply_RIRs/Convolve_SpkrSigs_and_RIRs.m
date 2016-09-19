@@ -28,7 +28,7 @@ function [Receiver_Signals] = Convolve_SpkrSigs_and_RIRs( Speaker_Signals, RIRs,
 % Author: Jacob Donley
 % University of Wollongong
 % Email: jrd089@uowmail.edu.au
-% Copyright:  2015
+% Copyright: Jacob Donley 2015
 % Date: 04 August 2015
 % Revision: 0.1
 %
@@ -63,7 +63,7 @@ if ~strcmp(Method,'FFT')
             if strcmp(Method,'builtin')
                 Receiver_Signals( spkr, rec, : ) = conv(spkr_sig,rir);
             elseif strcmp(Method,'FFT_slow')
-                Receiver_Signals( spkr, rec, : ) = Tools.fconv(spkr_sig',rir');
+                Receiver_Signals( spkr, rec, : ) = Tools.fconv(spkr_sig.',rir.');
             end
             
         end
@@ -73,13 +73,13 @@ else
     %parfor rec = 1:NReceivers
     for rec = 1:NReceivers
         NRec = length(rec);
-        spkr_sig = repmat(Speaker_Signals', 1, NRec);
-        rir = reshape(permute(RIRs(rec,:,:),[3 1 2]), NRec * NLoudspeakers, RIR_Length)';
+        spkr_sig = repmat(Speaker_Signals.', 1, NRec);
+        rir = reshape(permute(RIRs(rec,:,:),[3 1 2]), NRec * NLoudspeakers, RIR_Length).';
         
         rec_sig = Tools.fconv( spkr_sig, rir );
         %rec_sig = Tools.fconv( gpuArray(spkr_sig), gpuArray(rir) );
         
-        Receiver_Signals(rec,:) = sum(rec_sig,2)';%reshape( rec_sig', NLoudspeakers, NRec, Receiver_Signals_Length);
+        Receiver_Signals(rec,:) = sum(rec_sig,2).';%reshape( rec_sig', NLoudspeakers, NRec, Receiver_Signals_Length);
     
     end
 end

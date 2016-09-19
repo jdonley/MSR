@@ -13,13 +13,14 @@ fprintf('Started execution at %.0f:%.0f:%.0f on the %.0f/%.0f/%.0f\n',C([4:6 3:-
 if nargin == 1
     if isa(SYS_or_setups,SYS_type)
         SYS = SYS_or_setups;
-        Mains = mat2cell(SYS.Main_Setup,length(SYS.Main_Setup),1);
-        Maskers = mat2cell(SYS.Masker_Setup,length(SYS.Masker_Setup),1);
+        Mains = num2cell(SYS.Main_Setup);
+        Maskers = num2cell(SYS.Masker_Setup);
         setups = {Mains{:},Maskers{:}};
         room_setup = SYS.Room_Setup;
         signal_types = SYS.signal_info.methods_list;
         signal_info = SYS.signal_info;
         system_info = SYS.system_info;
+        analysis_info = SYS.analysis_info;
         isHybrid = size(SYS.signal_info.methods_list_masker,1)>1;
     else
         error(['Single input argument must be of type: ' SYS_type]);
@@ -39,6 +40,7 @@ elseif nargin > 1
     signal_info.weight = weight;
     signal_info.L_noise_mask = mask_level; % dB
     signal_info.input_filename = [];
+    analysis_info.Measures = {'PESQ','STOI','SNR'};
     isHybrid = length(signal_types) >= 3;
     if nargin < 7
         RecordingType = 'simulated';
@@ -47,12 +49,14 @@ elseif nargin > 1
     if nargin < 5
         signal_info.L_noise_mask = [];
     end
-    system_info.sc = '_'; % Separating character for ascii paths    
+    system_info.sc = '_'; % Separating character for ascii paths
 end
 
 if nargin < 6
     pesqNumber = 0;
 end
+Measures = analysis_info.Measures;
+
 
 % if a realworld recording it is assumed that the noise level does not
 % exceed the level of the clean reproduction signal
@@ -83,16 +87,18 @@ end
 
 for s = s_1:length(setups)
     signal_info.method = signal_types{s};
-    if setups{s}.Loudspeaker_Count ~=1 && isempty(strfind( signal_types{s}, 'Parametric' )) % If not parametric and more than one loudspeaker
+    if isempty(strfind( signal_types{s}, 'Parametric' )) % If not parametric and more than one loudspeaker
         signal_info.weight = weight;
     else % If parametric and/or only one loudspeaker
         signal_info.weight = 1;
     end
     for m = 1:length(levels)
-        if s == 1
-            signal_info.L_noise_mask = -Inf; %Masker level is non-existent for setup one (speech setup)
-        else
+        if any(s == signal_info.methods_list_clean)
+            signal_info.L_noise_mask = -Inf; %Masker level is non-existent for clean setup (speech setup)
+        elseif any(s == signal_info.methods_list_masker)
             signal_info.L_noise_mask = levels(m);
+        else
+            error('Setup index not defined in ''methods_list_clean'' or ''methods_list_masker''.')
         end
         if strcmpi(signal_info.recording_type,'simulated')
             Recordings_Path{m,s} = Results.getRecordingsPath( setups{s}, system_info.LUT_resolution, room_setup, signal_info, system_info.Drive );
@@ -105,13 +111,9 @@ signal_info.L_noise_mask = levels;
 signal_info.weight = weight;
 signal_info.method = signal_type;
 
-%% Warn if there are no recordings to analyse and then return from the function
-%%%%%%%%%%
-% TODO: Add code here to give warning at appropriate time
-%%%%%%%%%%
 
 %% Delete previous results file
-Results.deleteResultsFile( ResultsPath, {'PESQ', 'STOI', 'SNR'});
+Results.deleteResultsFile( ResultsPath, {'PESQ', 'STOI', 'SNR', 'Suppression'});
 
 %% Start Evaluation Loop
 fprintf('\n====== Analysing Simulated Reverberant Signals ======\n');
@@ -130,26 +132,36 @@ for m = 1:M
     files = {[],[]};
     for s=s_1:S
         files_ = Tools.getAllFiles( Recordings_Path{m,s} );
+        % Warn if there are no recordings to analyse and then return from the function
+        if isempty(files_)
+            wrnCol = [255,100,0]/255;
+            cprintf(wrnCol, 'There was a problem reading associated recording files.\n');
+            cprintf(wrnCol, ['Do ''' signal_info.recording_type ''' recordings exist?\n']);
+            cprintf(wrnCol, ['Skipping ''' signal_info.recording_type ''' analysis procedure.\n']);
+            delete(gcp('nocreate')); return;
+        end
         files{:,s} = sort(files_);
     end
     
     fileName_prev = '';
     Rec_Bright = [];
     Rec_Quiet = [];
+    Fs = signal_info.Fs;
     
+    % Load maskers
     for s=2:S
-        fileName={};
-        fpos = [1 (s_1+1)];
-        for f=fpos
-            [~, fileName{s,f}, ~] = fileparts(files{s}{f});
-        end
-        % These should be maskers unless realworld recording
-        Rec_Bright_{s} = load(files{s}{fpos(1)});
-        Rec_Quiet_{s} = load(files{s}{fpos(2)});
-        if isfield(Rec_Bright_{s},'fs')
-            Fs = Rec_Bright_{s}.fs;
-        else
-            Fs = signal_info.Fs;
+        if any(s == signal_info.methods_list_masker)
+            fileName={};
+            fpos = [1 (s_1+1)];
+            for f=fpos
+                [~, fileName{s,f}, ~] = fileparts(files{s}{f});
+            end
+            % These should be maskers unless realworld recording
+            Rec_Bright_{s} = load(files{s}{fpos(1)});
+            Rec_Quiet_{s} = load(files{s}{fpos(2)});
+            if isfield(Rec_Bright_{s},'fs')
+                Fs = Rec_Bright_{s}.fs;
+            end
         end
     end
     %     if S == 3 % If two maskers are found
@@ -178,20 +190,24 @@ for m = 1:M
             
             if strcmp('Bright',ZoneType)
                 Rec_Bright = [];
-                Rec_Bright_{s_1} = load(files{s_1}{file});
+                for s = signal_info.methods_list_clean.'
+                    Rec_Bright_{s} = load(files{s}{file});
+                end
                 if s_1==2, Rec_Bright_{s_1}.Rec_Sigs_B = Rec_Bright_{s_1}.Rec_Sigs_B'; end; %TODO: Fix the recording so the dimensions are in the correct place.
-                sigLen = size( Rec_Bright_{s_1}.Rec_Sigs_B,2);
+                sLB = size( Rec_Bright_{s_1}.Rec_Sigs_B,2); %signal Length Bright
                 for s=s_1:S
-                    Rec_Bright(:,:,s) = Rec_Bright_{s}.Rec_Sigs_B(:,1:sigLen);
+                    Rec_Bright(:,:,s) = Rec_Bright_{s}.Rec_Sigs_B(:,1:sLB);
                 end
                 Rec_Bright = sum( Rec_Bright, 3 );
             elseif strcmp('Quiet',ZoneType)
                 Rec_Quiet = [];
-                Rec_Quiet_{s_1} = load(files{s_1}{file});
+                for s = signal_info.methods_list_clean.'
+                    Rec_Quiet_{s} = load(files{s}{file});
+                end
                 if s_1==2, Rec_Quiet_{s_1}.Rec_Sigs_Q = Rec_Quiet_{s_1}.Rec_Sigs_Q'; end; %TODO: Fix the recording so the dimensions are in the correct place.
-                sigLen = size( Rec_Quiet_{s_1}.Rec_Sigs_Q,2);
+                sLQ = size( Rec_Quiet_{s_1}.Rec_Sigs_Q,2); %signal Length Quiet
                 for s=s_1:S
-                    Rec_Quiet(:,:,s) = Rec_Quiet_{s}.Rec_Sigs_Q(:,1:sigLen);
+                    Rec_Quiet(:,:,s) = Rec_Quiet_{s}.Rec_Sigs_Q(:,1:sLQ);
                 end
                 Rec_Quiet = sum( Rec_Quiet, 3 );
             else
@@ -234,71 +250,78 @@ for m = 1:M
                 end
                 % END Downsample realworld recordings
                 
-                % BEGIN power normalise to bright zone level
-                adjScale = [];
-                for r = 1:size(Rec_Bright,1)
-                    [~,adjScale(r)] = Broadband_Tools.power_norm(orig, Rec_Bright(r,:), signal_info.Fs, [signal_info.f_low_meas signal_info.f_high_meas]);
-                end
-                Rec_Bright = Rec_Bright * mean(adjScale);
-                Rec_Quiet  = Rec_Quiet * mean(adjScale);
-                % END power normalise
-                
-                % BEGIN filter signals to acceptable measurement frequency range
-                [b,a] = butter(6, [signal_info.f_low_meas signal_info.f_high_meas] ./ (signal_info.Fs/2) );
-                orig = filter(b,a,orig);
-                Rec_Bright = filter(b,a,Rec_Bright')';
-                Rec_Quiet  = filter(b,a,Rec_Quiet')';
-                % END filter signals
-                
-                % BEGIN Resize the original speech signal and
-                % Align it with the reverberant signals.
-                orig(length(orig):size(Rec_Bright,2))=0; % Resize the original signal because the reverberant signal will be longer
-                if (length(orig) ~= length(Rec_Bright)) || (length(orig) ~= length(Rec_Quiet))
-                    error('Size of the original signal does not match the reproduced signal!');
-                end
-                
-                %c_speed = 343;%343m/s speed of sound in air
-                %max_delay = speaker_radius*2 / c_speed * signal_info.Fs;
-                max_delay = signal_info.Fs / 2;
-                Original = zeros(size(Rec_Bright,1),2,length(orig));
-                
-                for r = 1:size(Rec_Bright,1)
-                    delay = sigalign(Rec_Bright(r,:), orig, [-1 1]*max_delay) - 1;
-                    if delay < 0
-                        Original(r,1,:) = [orig(-delay:end); zeros(-delay-1,1)];
-                    elseif delay == 0
-                        Original(r,1,:) = orig;
-                    elseif delay>0
-                        Original(r,1,:) = orig;
-                        Rec_Bright(r,:) = [Rec_Bright(r,delay:end), zeros(1,delay-1)];
+                if ~any(cell2mat(strfind(upper(Measures),'SUPPRESSION')))
+                    % BEGIN filter signals to acceptable measurement frequency range
+                    [b,a] = butter(6, [signal_info.f_low_meas signal_info.f_high_meas] ./ (signal_info.Fs/2) );
+                    orig = filter(b,a,orig);
+                    Rec_Bright = filter(b,a,Rec_Bright')';
+                    Rec_Quiet  = filter(b,a,Rec_Quiet')';
+                    % END filter signals
+                    
+                    % BEGIN power normalise to bright zone level
+                    adjScale = [];
+                    for r = 1:size(Rec_Bright,1)
+                        [~,adjScale(r)] = Broadband_Tools.power_norm(orig, Rec_Bright(r,:), signal_info.Fs, [signal_info.f_low_meas signal_info.f_high_meas]);
+                    end
+                    Rec_Bright = Rec_Bright * mean(adjScale);
+                    Rec_Quiet  = Rec_Quiet * mean(adjScale);
+                    % END power normalise
+                    
+                    % BEGIN Resize the original speech signal and
+                    % Align it with the reverberant signals.
+                    orig(length(orig):size(Rec_Bright,2))=0; % Resize the original signal because the reverberant signal will be longer
+                    if (length(orig) ~= length(Rec_Bright)) || (length(orig) ~= length(Rec_Quiet))
+                        error('Size of the original signal does not match the reproduced signal!');
                     end
                     
-                    delay = sigalign( Rec_Quiet(r,:), orig, [-1 1]*max_delay) - 1;
-                    if delay < 0
-                        Original(r,2,:) = [orig(-delay:end); zeros(-delay-1,1)];
-                    elseif delay == 0
-                        Original(r,2,:) = orig;
-                    elseif delay>0
-                        Original(r,2,:) = orig;
-                        Rec_Quiet(r,:) = [Rec_Quiet(r,delay:end), zeros(1,delay-1)];
+                    %c_speed = 343;%343m/s speed of sound in air
+                    %max_delay = speaker_radius*2 / c_speed * signal_info.Fs;
+                    max_delay = signal_info.Fs / 2;
+                    Original = zeros( size(Rec_Bright,1), 2, ...
+                        max( [length(orig), size(Rec_Bright,2), size(Rec_Quiet,2)] ) + max_delay );
+                    Rec_BrightTMP = zeros(size(Rec_Bright,1),size(Original,3));
+                    Rec_QuietTMP  = zeros(size(Rec_Quiet ,1),size(Original,3));
+                    for r = 1:size(Rec_Bright,1)
+                        [tmp1, tmp2] = alignsignals( orig, Rec_Bright(r,:), max_delay);
+                        [tmp3, tmp4]  = alignsignals( orig, Rec_Quiet(r,:),  max_delay);
+                        Original(r,1,1:numel(tmp1)) = tmp1;
+                        Rec_BrightTMP(r,1:numel(tmp2)) = tmp2;
+                        Original(r,2,1:numel(tmp3)) = tmp3;
+                        Rec_QuietTMP(r,1:numel(tmp4))  = tmp4;
                     end
+                    Rec_Bright = Rec_BrightTMP;
+                    Rec_Quiet = Rec_QuietTMP;
+                    % END resize and align
                 end
-                % END resize and align
                 
                 % BEGIN Calculate and save results
-                
-                % Perceptual Evaluation of Speech Quality
-                Room_Acoustics.Apply_RIRs.Save_Reverb_PESQ_Result( Original, Rec_Bright, signal_info.Fs, signal_info.L_noise_mask(m), ResultsPath, [], SignalName, pesqNumber );
+                %%% ANALYSIS
+                % Speech Quality
+                if any(cell2mat(strfind(upper(Measures),'PESQ')))
+                    % PESQ - Perceptual Evaluation of Speech Quality
+                    Room_Acoustics.Apply_RIRs.Save_Reverb_PESQ_Result( Original, Rec_Bright, signal_info.Fs, signal_info.L_noise_mask(m), ResultsPath, [], SignalName, pesqNumber );
+                end
                 
                 % Speech Intelligibility
-                % STOI
-                Room_Acoustics.Apply_RIRs.Save_Reverb_STOI_Result( Original, Rec_Bright, Rec_Quiet, signal_info.Fs, signal_info.L_noise_mask(m), ResultsPath, [], SignalName );
-                % STI
-                %Room_Acoustics.Apply_RIRs.Save_Reverb_STI_Result( Original, Rec_Bright, Rec_Quiet, signal_info.Fs, ResultsPath, [], SignalName{1} );
+                if any(cell2mat(strfind(upper(Measures),'STOI')))
+                    % STOI - Short-Time Objective Intelligibility
+                    Room_Acoustics.Apply_RIRs.Save_Reverb_STOI_Result( Original, Rec_Bright, Rec_Quiet, signal_info.Fs, signal_info.L_noise_mask(m), ResultsPath, [], SignalName );
+                end
+                if any(cell2mat(strfind(upper(Measures),'STI')))
+                    % STI - Speech Transmission Index
+                    Room_Acoustics.Apply_RIRs.Save_Reverb_STI_Result( Original, Rec_Bright, Rec_Quiet, signal_info.Fs, ResultsPath, [], SignalName{1} );
+                end
                 
-                % Signal to Noise Ratio
-                Room_Acoustics.Apply_RIRs.Save_Reverb_SNR_Result( Original, Rec_Bright, Rec_Quiet, signal_info.Fs, signal_info.L_noise_mask(m), ResultsPath, [], SignalName );
+                if any(cell2mat(strfind(upper(Measures),'SNR')))
+                    % SNR - Signal to Noise Ratio
+                    Room_Acoustics.Apply_RIRs.Save_Reverb_SNR_Result( Original, Rec_Bright, Rec_Quiet, signal_info.Fs, signal_info.L_noise_mask(m), ResultsPath, [], SignalName );
+                end
                 
+                if any(cell2mat(strfind(upper(Measures),'SUPPRESSION')))
+                    % Interference Suppression
+                    Room_Acoustics.Apply_RIRs.Save_Reverb_Suppression_Result( Rec_Bright_{end}.Rec_Sigs_B(:,1:sLB), Rec_Bright, signal_info.Fs, ...
+                        analysis_info.Nfft, [analysis_info.f_low, analysis_info.f_high], ResultsPath, [], SignalName );
+                end
                 % END calc and save results
                 
             end
