@@ -15,7 +15,7 @@ Room_Acoustics.Generate_RIR_Database
 %% Generate Loudspeaker Signals
 Broadband_Tools.Generate_Loudspeaker_Signals
 
-%% Simulate Recording
+%% Simulate Recording 
 Room_Acoustics.Reverberant_MSR
 
 
@@ -34,4 +34,4 @@ Room_Acoustics.Reverberant_MSR_Analysis
 % TEST_SCRIPT
 
 %% Plot Results
-% Results.Plot_Results
+Results.Plot_Results

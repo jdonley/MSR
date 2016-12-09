@@ -33,12 +33,15 @@ axes( axs(1) ); % Pick the first axes
 ax = gca;
 
 nLegEnts = size(strs,2);
+if ~nLegEnts, return; end
 
-% Just search the first axes
+% Search all axes
 axEnts=[];
 for a = 1:numel(axs)
     axEnts = [axEnts; findobj(axs(a).Children,'Type',linetypes)];
 end
+% Just keep the first few entries
+axEnts = axEnts(1:nLegEnts);
 
 FF = SYS.publication_info.LaTeX_FontFamily; % Set fonts for latex interpreter
 FS = SYS.publication_info.FontSize;
@@ -94,6 +97,7 @@ leg.Units = tmpUnits;
 % Resize entire figure
 titTI_orig = ax.TightInset;
 nXtraLines =  nLegEnts-1;
+if isempty(ax.Title.String),ax.Title.String={ax.Title.String};end
 ax.Title.String = [ax.Title.String{1}; ...
     mat2cell( repmat( ' ', nXtraLines, 1 ), ones(nXtraLines,1) );] ; % minus 1 is for the title
 ax.Parent.Position(4) = ax.Parent.Position(4) + diff( [titTI_orig(4), ax.TightInset(4)] );

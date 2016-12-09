@@ -1,17 +1,17 @@
-function SR_SYSTEM = IEEETransactions_System_A()
+function SR_SYSTEM = IEEETransactions_System_D()
 
 
-array_type = 'circle'; % 'circle' or 'line'
+array_type = {'circle','line'}; % 'circle' or 'line'
 
-SourceAngleSetIndices = [1, 2, 3]; % 1, 2 or 3
+SourceAngleSetIndice = 2; % 1, 2 or 3
 
 N_spkrs = 24; % 16, 24, 32 or 149
+
+lambda_g = [0.0, 0.5, 1.0]; % between 0 and 1
 
 spkr_type  = 'Dynamic';
 spkr_radius = 1.3;
 
-maskers = {'FlatMasker', ...
-    'ZoneWeightMaskerAliasCtrl'};
 
 %% Room Geometry
 Room_Setup = Room_Acoustics.Room;
@@ -28,21 +28,20 @@ Room_Setup.setReproductionCentre( Room_Setup.Room_Size .* [0.5 0.5 0.5] ); % Cen
 Room_Setup = Room_Setup.setWall_Absorb_Coeff(1.0);
 
 %% Multizone Soundfield Geometry and Loudspeaker Array
-Nangs = numel(SourceAngleSetIndices);
-Nmsks = numel(maskers);
-N_sets = Nangs*Nmsks;
+N_sets = numel(lambda_g)*numel(array_type);
 Bx =  0;
 By =  0.6;
 Qx =  0;
 Qy = -0.6;
 
-for masks = 1:Nmsks
-    for setInd = 1:Nangs
-        angInd = SourceAngleSetIndices(setInd);
-        I = sub2ind([Nmsks Nangs],masks,setInd);
+for arr = 1:numel(array_type)
+    array_type_ = array_type{arr};
+    for l = 1:numel(lambda_g)
+%         l_g = lambda_g(l);
+        I = sub2ind([numel(lambda_g) numel(array_type)],l,arr);
         
-        if strcmpi(array_type,'circle')
-            switch angInd
+        if strcmpi(array_type_,'circle')
+            switch SourceAngleSetIndice
                 case 1
                     Theta    =  0;
                     Vartheta = -90+acosd( (abs(By)+abs(Qy)) / sqrt(abs(2*By*Qy)+Qy^2+spkr_radius^2) );
@@ -53,8 +52,8 @@ for masks = 1:Nmsks
                     Theta    =  90-acosd( (abs(By)+abs(Qy)) / sqrt(abs(2*By*Qy)+By^2+spkr_radius^2) );
                     Vartheta =  0;
             end
-        elseif strcmpi(array_type,'line')
-            switch angInd
+        elseif strcmpi(array_type_,'line')
+            switch SourceAngleSetIndice
                 case 1
                     Theta    =  0;
                     Vartheta = -90+atand( spkr_radius / (abs(By)+abs(Qy)) );
@@ -82,18 +81,19 @@ for masks = 1:Nmsks
         Para_Spkr = Parametric_Synthesis.parametric_soundfield;
         Para_Spkr.P1 = db2mag( 100 ); % 100dB amplitude parametric array loudspeaker
         Para_Spkr.P2 = db2mag( 100 ); % 100dB secondary amplitude
-        if strcmpi(array_type, 'Circle')
+        if strcmpi(array_type_, 'Circle')
             [x,y] = pol2cart(-90/180*pi, 0.6);
             x_ = sqrt(spkr_radius^2-y^2);
             th_c = atan2(y,-x_);
             th = th_c;
             spkr_spacing = []; %Auto-calculate spacing
-        elseif strcmpi(array_type, 'Line')
+        elseif strcmpi(array_type_, 'Line')
             x_=spkr_radius;
             th_c = 180;
             th = atan2(-0.6,-spkr_radius);
             spkr_spacing = 0.001; %1mm spacing between adjacent loudspeakers
         end
+        
         if strcmpi(spkr_type, 'Dynamic')
             loudspeaker_layout = { ...
                 'angleto_firstloudspeaker',      90, ...
@@ -102,20 +102,9 @@ for masks = 1:Nmsks
                 'loudspeaker_model',             'Genelec 8010A', ...
                 'loudspeaker_radius',            spkr_radius, ...
                 'loudspeaker_spacing',           spkr_spacing, ...
-                'speaker_array_type',            array_type, ...
+                'speaker_array_type',            array_type_, ...
                 'angleof_loudspeakerarrcentre', 180, ...
                 'quiet_weight',                 1e2};
-        elseif strcmpi(spkr_type, 'Parametric')
-            loudspeaker_layout = {  ...
-                'angleto_firstloudspeaker',     atan2d(-0.6,-x_), ...
-                'angleof_loudspeakerarrcentre', 180, ... +atand(0.6/1.3), ...
-                'loudspeaker_radius',           x_, ... spkr_radius, ...
-                'numberof_loudspeakers',        1, ...
-                'loudspeaker_model',            'Parametric', ...
-                'loudspeaker_spacing',          0.01, ...
-                'speaker_array_type',           'line', ...
-                'brightzone_source_dist',        x_};
-            Para_Spkr = Para_Spkr.set_f1( 40000 );
         end
         Main_Setup(I) = Speaker_Setup.createSetup({...
             'frequency',                    1000, ...
@@ -145,6 +134,8 @@ for masks = 1:Nmsks
             'quietzone_pos_distance',       0.6, ...
             'maximum_frequency',            8000, ...
             'loudspeaker_object',           Para_Spkr });
+        spkrWid = Main_Setup(I).Loudspeaker_Dimensions(1);
+        
     end
 end
 
@@ -167,18 +158,22 @@ signal_info.recording_type = {'simulated'}; % The type of recordings to be analy
 signal_info.weight = 100; % This can be auto-calculated for maximum contrast by setting to 'Auto'
 signal_info.method = ''; % Default empty (temporary variable)
 
+% signal_info.ZWlambda_g = lambda_g; % Special weighting parameter
+lambda_gTxt = num2str(lambda_g.','%0.2f');
 NM = 'NoMask';
-M=mat2cell(repmat(maskers,1,Nangs),1,numel(maskers)*ones(Nangs,1));
+ZWMAC = 'ZoneWeightMaskerAliasCtrl';
 signal_info.methods_list ... % List of methods to synthesize
     = [mat2cell(repmat(NM,1,N_sets),1,numel(NM)*ones(N_sets,1)), ...
-       M{:} ];
+    mat2cell( ...
+    reshape([repmat(ZWMAC,N_sets,1),repmat(lambda_gTxt,numel(array_type),1)].',1,[]), ...
+    1,(numel(ZWMAC)+size(lambda_gTxt,2))*ones(N_sets,1))];
 N=numel(signal_info.methods_list);
 signal_info.methods_list_clean = 1:N/2; %Indices of the clean signals
 signal_info.methods_list_masker = (N/2+1):N; %Indices of the maskers, different hybrids are separated by columns
 % ( e.g. [2,3;4,0;6,7] is two hybrids, the first is 2&4&6, the second is 3&7, indices < 1 are ignored)
 signal_info.methods_list_paired = true; % True or False to evaluate clean and masker methods in corresponding pairs
 
-signal_info.reference = false; % False or True to record reference signal
+signal_info.reference = false; % True or False to record reference signal
 signal_info.reference_channel = 1; %Some arbitrary reference signal channel
 signal_info.rir_duration = 0.5; % Room Impulse Response length in seconds
 signal_info.input_filename = [];
@@ -238,8 +233,20 @@ analysis_info.f_high = 7500; % Hz
 
 %% Publication Figure Setup Information
 publication_info.DocumentPath = 'tex\latex\IEEE_Trans2016';
-publication_info.FigureName = 'IEEE_Trans2016_A';
-publication_info.FigureTitle = 'Quality and Intelligibility - Differing $\theta$';
+publication_info.FigureName = 'IEEE_Trans2016_D';
+publication_info.sigRounding = 3; % number of significant figures rounding
+
+switch SourceAngleSetIndice
+    case 1
+        varTxt = '\theta'; th = Theta;
+    case 2 
+        varTxt = '\theta}={-\vartheta'; th = Theta;
+    case 3
+        varTxt = '\vartheta'; th = Vartheta;
+end
+publication_info.FigureTitle = ['Quality and Intelligibility - Differing ${\lambda}{\grave{}}$' ...
+    ', ${' varTxt '}=' num2str(th,publication_info.sigRounding) '^{\circ}$'];
+
 publication_info.print_fmt = 'pdf'; %figure image file format
 publication_info.print_res = 600; %rastered graphic DPI
 
@@ -247,7 +254,7 @@ publication_info.LatexMacrosFile = 'IEEE_Trans2016_LaTeX_Macros.tex';
 
 publication_info.figure_width = 88.9/10;% + 6.35/10 + 88.9/10; %Figure width in centimeters %IEEE full text width
 publication_info.figure_aspect_ratio = 6/3; %Full figure aspect ratio width/height
-publication_info.subPlotDims = [Nmsks Nangs]; % Dimensions of the subplots ([width height])
+publication_info.subPlotDims = [numel(array_type) numel(lambda_g)]; % Dimensions of the subplots ([width height])
 publication_info.axis_aspect_ratio = [1 0.8]; %Single axis aspect ration [width height]
 publication_info.axes_gap = [0.5 0.5]; %Gap between axes [gap_height gap_width] %centimeters
 publication_info.axes_margins_height = [1 1]; %Axes height margins [lower upper]  %centimeters
@@ -256,7 +263,6 @@ publication_info.axes_grid = 'minor'; % Show axes grid ('on', 'minor' or 'off')
 publication_info.axes_tickdir = 'both'; % Axes tick direction(s) ('in', 'out' or 'both')
 publication_info.axes_NumTicks = [5 9]; % Number of ticks [NumXticks NumYticks];
 publication_info.axes_limitBufs = [0.02 0.02]; % axis limits buffer in percentage [width, height]
-publication_info.sigRounding = 3; % number of significant figures rounding
 
 publication_info.FontSize = 9;  % Font size of text in figure
 publication_info.FontName = 'Times'; % Font name of text in figure

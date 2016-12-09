@@ -31,7 +31,7 @@ LblAxInds = []; %Indices of axes with labels [title; y1Lbl; xLbl; y2Lbl;]
 for y = 1:nY
     for x = 1:nX
         for lr = 1:2 %left right yaxis
-            axInd = [sub2ind([nY,nX],x,y), lr];
+            axInd = [sub2ind([nX,nY],x,y), lr];
             axes( axs( axInd(1), axInd(2) ) );
             ax = gca;
             
@@ -54,7 +54,9 @@ for y = 1:nY
                         ax.Title.String '}'];
                 end
                 tmpUnits = ax.Title.Units; ax.Title.Units = 'points'; %assume points
-                ax.Title.Position(1) = ax.Position(3)*0.05; ax.Title.Units = tmpUnits; % 0.05 => 5 percent of axes width
+                ax.Title.HorizontalAlignment = 'left';
+                ax.Title.Position(1) = 0; ax.Title.Units = tmpUnits; % 0.05 => 5 percent of axes width
+                %ax.Title.Position(1) = ax.Position(3)*0.05; ax.Title.Units = tmpUnits; % 0.05 => 5 percent of axes width
             end
             if ~(y == 1 && x == 1) && lr == 1 % if not top left axis and left y axis
                 ax.Title.String = '';

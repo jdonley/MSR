@@ -22,10 +22,10 @@ DebugMode = 'DEBUG';        % Set this to 'DEBUG' for a fast aproximate output, 
 %%
 Setups = [];
 if ~isempty(SYS.signal_info.methods_list_clean)
-    Setups = [Setups; SYS.Main_Setup];
+    Setups = [Setups(:); SYS.Main_Setup(:)];
 end
 if ~isempty(SYS.signal_info.methods_list_masker)
-    Setups = [Setups; SYS.Masker_Setup];
+    Setups = [Setups(:); SYS.Masker_Setup(:)];
 end
 for s = 1:length(Setups)
     Setup = Setups(s);

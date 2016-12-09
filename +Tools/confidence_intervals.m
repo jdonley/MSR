@@ -7,14 +7,16 @@ function [ Conf_intervals ] = confidence_intervals( samples, interval, islognorm
 % the dataset to analyse
 % 
 % Inputs: 
-% 	samples - A 1D or 2D array of samples where each column is a dataset for
-% 	which the confidence intervals are calculated.
-% 	interval - The confidence interval as a percentage (e.g. 95 for 95%
-% 	confidence intervals).
+% 	samples   - A 1D or 2D array of samples where each column is a dataset
+%               for which the confidence intervals are calculated.
+% 	interval  - The confidence interval as a percentage (e.g. 95 for 95%
+%               confidence intervals).
+%   islognorm - Finds the confidence intervals using the log-normal
+%               variance if set to TRUE.
 % 
 % Outputs: 
 % 	Conf_intervals - Confidence intervals for use with the errorbar
-% 	function in MATLAB.
+%                    function in MATLAB.
 %
 % Example Usage:
 %       load count.dat;
@@ -25,13 +27,13 @@ function [ Conf_intervals ] = confidence_intervals( samples, interval, islognorm
 %       axis([0 25 0 250]);
 % 
 % See also: errorbar.m
-% 
+
 % Author: Jacob Donley
 % University of Wollongong
 % Email: jrd089@uowmail.edu.au
-% Copyright: Jacob Donley 2015
-% Date: 12 June 2015 
-% Revision: 0.1
+% Copyright: Jacob Donley 2016
+% Date: 19 September 2016
+% Revision: 0.2
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

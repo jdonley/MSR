@@ -2,6 +2,16 @@ classdef parametric_soundfield
     %PARAMETRIC_SOUNDFIELD Summary of this class goes here
     %   Detailed explanation goes here
     
+    % Author: Jacob Donley
+    % University of Wollongong
+    % Email: jrd089@uowmail.edu.au
+    % Copyright: Jacob Donley 2016
+    % Date: 13 May 2016
+    % Revision: 0.1
+    %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    
     % Public Properties
     properties (Access = public)
         % Field Parameters
@@ -32,8 +42,8 @@ classdef parametric_soundfield
         rho = 1.225; % Density of medium
         
         %Following ISO 9613-1. http://resource.npl.co.uk/acoustics/techguides/absorption/
-        alpha1 = 1.2560; %Absorption Coefficient of ultrasound primary frequency 1  (20degC, 50%Humid., 60kHz, 101.325kPa)
-        alpha2 = 1.2560; %Absorption Coefficient of ultrasound primary frequency 2  (20degC, 50%Humid., 60kHz, 101.325kPa)
+        alpha1 = 1.1639; %Absorption Coefficient of ultrasound primary frequency 1  (20degC, 50%Humid., 40kHz, 101.325kPa)
+        alpha2 = 1.1639; %Absorption Coefficient of ultrasound primary frequency 2  (20degC, 50%Humid., 40kHz, 101.325kPa)
         
         tau; %Retarded time
         
@@ -44,8 +54,8 @@ classdef parametric_soundfield
     
     % Private Properties
     properties (Access = private)
-        f1 = 60000; % Carrier frequency (Primary frequency 1)
-        f2 = 62000; % Modulated frequency (Primary frequency 2)
+        f1 = 40000; % Carrier frequency (Primary frequency 1)
+        f2 = 42000; % Modulated frequency (Primary frequency 2)
         fd = 2000;  % Message frequency (Difference frequency)        
     end
     

@@ -68,7 +68,7 @@ N_of_frames = size(Frames,1);
 
 %% Predict ahead and frame
 Frames_orig = Frames;
-% if delay ~= 0
+ if signal_info.predict_buff ~= 0
     Inc = (1-Overlap)*Nfft;
     
     Predict_Buffer = [zeros( Nfft/Inc, Nfft*BuffLen); ...
@@ -77,7 +77,7 @@ Frames_orig = Frames;
 
 %     Frames = Broadband_Tools.PredictiveFraming( Frames, Predict_Buffer, delay*Fs , 'burg' );
     Frames = Broadband_Tools.PredictiveFraming( Frames, Predict_Buffer, delay*Fs , 'cov' );
-% end
+ end
 
 %% Zero pad
 if ~isempty(pad)

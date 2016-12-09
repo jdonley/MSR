@@ -1,5 +1,5 @@
 function [ spect, frqs ] = LTASS( speech_folder_OR_vec, nfft, fs )
-%LTASS Computes the Long-Term Average Speech Spectrum from a folder of speech files
+%LTASS Computes the Long-Term Average Speech Spectrum from a folder of speech files or vector of speech samples
 %
 % Syntax:	[ spect, frqs ] = LTASS( speech_folder_OR_vec, nfft )
 %
@@ -7,6 +7,8 @@ function [ spect, frqs ] = LTASS( speech_folder_OR_vec, nfft, fs )
 % 	speech_folder_OR_vec - The path to the folder containing the speech
 %                          files OR a vector of concatenated speech signals
 %   nfft - The number of FFT points used to compute the LTASS
+%   fs - The sampling frequency to use (if not provided then the sampling
+%        frequency of the file is used)
 %
 % Outputs:
 % 	spect - The LTASS spectrum
@@ -54,7 +56,8 @@ end
 win_=rectwin(nfft);
 ovlap = 0;
 
-[spect,frqs]=pwelch(speech,win_,nfft*ovlap,nfft,fs,'power');
+[spect,frqs]=pwelch(speech,win_,nfft*ovlap,nfft,fs,'power'); % Power spectrum
+spect = sqrt(spect); % Magnitude spectrum
 
 end
 

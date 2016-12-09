@@ -66,6 +66,11 @@ for rt = 1:numel(measures)
                 Results.Axes_Builders.Helpers.setErrorAxis(ax,Result_Bright,Results_filepath)
                 break
             end
+            % Remove values outside plot area according to system settings
+            rmI = NoiseLevel<min(SYS.signal_info.L_noise_mask) | NoiseLevel>max(SYS.signal_info.L_noise_mask);
+            NoiseLevel(rmI)=[];Result_Bright(rmI)=[];Result_Quiet(rmI)=[];
+            ConfInt_Bright_Low(rmI)=[];ConfInt_Bright_Up(rmI)=[];ConfInt_Quiet_Low(rmI)=[];ConfInt_Quiet_Up(rmI)=[];
+            
             % Generate Plottable data matrices and vectors
             [Hrz_Vec, Res_Matrix{1}, Res_trend{1}, Res_area{1}, Res_CI{1}, CI_vec] ...
                 = Results.generatePlotData( NoiseLevel, Result_Bright, ConfInt_Bright_Low, ConfInt_Bright_Up);
@@ -82,6 +87,11 @@ for rt = 1:numel(measures)
                 Results.Axes_Builders.Helpers.setErrorAxis(ax,Result_Bright,Results_filepath)
                 break
             end
+            % Remove values outside plot area according to system settings
+            rmI = NoiseLevel<min(SYS.signal_info.L_noise_mask) | NoiseLevel>max(SYS.signal_info.L_noise_mask);
+            NoiseLevel(rmI)=[];Result_Bright(rmI)=[];
+            ConfInt_Bright_Low(rmI)=[];ConfInt_Bright_Up(rmI)=[];
+            
             % Generate Plottable data matrices and vectors
             [Hrz_Vec, Res_Matrix{1}, Res_trend{1}, Res_area{1}, Res_CI{1}, CI_vec] = ...
                 Results.generatePlotData( NoiseLevel, Result_Bright, ConfInt_Bright_Low, ConfInt_Bright_Up, 'smoothingspline', [1.8 1.8]);            

@@ -43,6 +43,12 @@ end
 
 signal_info.input_filename = 'Masker';
 
+
+lambda = sscanf(SYS.signal_info.method,'%*[a-zA-z]%f');
+if isempty(lambda)
+    lambda = 1/2; % lambda in {0,...,1} (Real)
+end
+
 [Output_path, Output_file_name, Output_file_ext] = ...
     Broadband_Tools.getLoudspeakerSignalPath( setup, signal_info, system_info.LUT_resolution, system_info.Drive, 'new');
 
@@ -55,30 +61,49 @@ WGN = v_addnoise( zeros(Signal_Length,1), signal_info.Fs, -Inf); % White noise
     = Broadband_Tools.Loudspeaker_Signal_Calculation.PreFilt_SS( ...
     WGN, signal_info );
 
-%% Shape noise spectrum to match quiet zone leakage spectrum
-[ SSN_QZS, SSN_QZS_low, QZS, QZS_low, f_QZS ] ...
-    = Broadband_Tools.Loudspeaker_Signal_Calculation.PreFilter_QZS( ...
-    SSN, setup, multizone_setup, system_info, signal_info );
+%%
+% %% Shape noise spectrum to match quiet zone leakage spectrum
+% [ SSN_QZS, SSN_QZS_low, QZS, QZS_low, f_QZS ] ...
+%     = Broadband_Tools.Loudspeaker_Signal_Calculation.PreFilter_ZoneSpect( 'Quiet', ...
+%     SSN, setup, multizone_setup, system_info, signal_info );
+
+% Quiet zone leakage spectrum
+[ ~, ~, QZS, QZS_low, f_QZS ] ...
+    = Broadband_Tools.Loudspeaker_Signal_Calculation.PreFilter_ZoneSpect( 'Quiet', ...
+    [], SYS.Masker_Setup(1), SYS.Main_Setup, SYS.system_info, SYS.signal_info );
+
+% Bright zone second order leakage spectrum
+[ ~, ~, BZS, BZS_low, f_BZS ] ...
+    = Broadband_Tools.Loudspeaker_Signal_Calculation.PreFilter_ZoneSpect( 'Quiet', ...
+    [], SYS.Masker_Setup(1), SYS.Masker_Setup(1), SYS.system_info, SYS.signal_info );
+
+if f_QZS ~= f_BZS, error('Frequency vectors don''t match'); end
+ZS_ratio = ( QZS.^(1-lambda) ) ./ ( BZS.^lambda );
+ZS_ratio_low = ( QZS_low.^(1-lambda) ) ./ ( BZS_low.^lambda );
+SSN_ZS = Tools.ArbitraryOctaveFilt(SSN, ZS_ratio, f_QZS, SYS.signal_info.Nfft, SYS.signal_info.Fs, SYS.signal_info.OctaveBandSpace);
+SSN_ZS_low = Tools.ArbitraryOctaveFilt(SSN, ZS_ratio_low, f_QZS, SYS.signal_info.Nfft, SYS.signal_info.Fs, SYS.signal_info.OctaveBandSpace);
+
 
 %% Adjust the noise to account for the aliasing caused by a limited number of loudspeakers
 cheby_order = 9; Rp = 1;
-SSN_QZS_LP = Broadband_Tools.Loudspeaker_Signal_Calculation.PreFilter_AliasCtrl( ...
-    SSN_QZS_low, setup, signal_info, cheby_order, Rp );
+SSN_ZS_LP = Broadband_Tools.Loudspeaker_Signal_Calculation.PreFilter_AliasCtrl( ...
+    SSN_ZS_low, setup, signal_info, cheby_order, Rp );
 
 %% Adjust the power of the signal in the passband to match the non-filtered version (power normalisation (equalisation))
 Noise_Signal = Broadband_Tools.Loudspeaker_Signal_Calculation.PreFilter_PassbandNorm( ...
-    SSN_QZS, SSN_QZS_LP, setup, signal_info, -35 ); % Hope that -35dB RMS level is low enough to avoid clipping upon saving
+    SSN_ZS, SSN_ZS_LP, setup, signal_info ); 
 
 %% Plot Filter Responses for Publication
 if plotPublicationFig
     figure(figN);
     f_cutoff = Broadband_Tools.getAliasingFrequency(setup) * signal_info.c / (2*pi);
-    plotPublicationFigure(SS,f_SS,QZS,QZS_low,f_QZS,Rp,cheby_order,f_cutoff,SSN_QZS_LP);
+    plotPublicationFigure(SS,f_SS,QZS,QZS_low,f_QZS,Rp,cheby_order,f_cutoff,SSN_ZS_LP);
     figure(figN+1)
     return
 end
 
 %% Compute the loudspeaker signals for the additive zone weighted noise
+
 Loudspeaker_Signals = Broadband_Tools.Loudspeaker_Signal_Calculation.getMSRLoudspeakerSignals( ...
     Noise_Signal, setup, signal_info, system_info )...
     *  db2mag(signal_info.L_noise_mask);

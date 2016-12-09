@@ -1,11 +1,17 @@
 function SYS = loadCurrentSRsystem
 %LOADCURRENTSYSTEM Loads the current Soundfield Reproduction system
 
-System_Path = 'M:\MSR\+Current_Systems\'; 
+% System_Path = 'D:\Dropbox\Business and Work\Research Assistance\Novecom Project\MATLAB_Code';
+System_Path = 'M:\MSR\+Current_Systems';
 
-% Current_System = 'IEEETransactions_System_A';
+% Current_System = 'IEEETransactions_System_A'; % Differing Source Angles
+Current_System = 'IEEETransactions_System_B';   % Differing Loudspeaker Count
+% Current_System = 'IEEETransactions_System_C'; % Simulated and Realworld
+% Current_System = 'IEEETransactions_System_D'; % Differing Lambda-Grave Parameter
+
+% Current_System = 'NOVECOM_System';
 % Current_System = 'MediaAnimation_System_1';
-Current_System = 'ICASSP2017_System_A';
+% Current_System = 'ICASSP2017_System_A';
 
 
 
@@ -19,7 +25,7 @@ Current_System = 'ICASSP2017_System_A';
 
 
 FileExt = '.m';
-SYS = loadFromName( [System_Path Current_System FileExt] );
+SYS = loadFromName( [System_Path filesep Current_System FileExt] );
 
 end
 

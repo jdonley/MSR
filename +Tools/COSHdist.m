@@ -1,7 +1,7 @@
-function [y_SS, spect, frqs] = PreFilt_SS( y, signal_info )
-%PREFILT_SS Summary of this function goes here
+function [E,Eps] = COSHdist(H,P)
+%COSHDIST Finds the symmetric Itakura-Saito distance using the hyperbolic cosine function
 % 
-% Syntax:	[OUTPUTARGS] = PREFILT_SS(INPUTARGS) Explain usage here
+% Syntax:	[OUTPUTARGS] = COSHDIST(INPUTARGS) Explain usage here
 % 
 % Inputs: 
 % 	input1 - Description
@@ -23,13 +23,25 @@ function [y_SS, spect, frqs] = PreFilt_SS( y, signal_info )
 % University of Wollongong
 % Email: jrd089@uowmail.edu.au
 % Copyright: Jacob Donley 2016
-% Date: 06 June 2016 
+% Date: 24 October 2016 
 % Revision: 0.1
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-[spect,frqs]=Tools.LTASS( signal_info.speech_filepath, signal_info.Nfft );
+[~,X]=size(P);
+Hx = repmat(H(:),1,X);
 
-y_SS = Tools.ArbitraryOctaveFilt(y, spect, frqs, signal_info.Nfft, signal_info.Fs, signal_info.OctaveBandSpace);
+% K = numel(H);
+% E = 1/K *...
+%      sum(  ...
+%      abs(Hx)./P ...
+%      - log( abs(Hx)./P ) ...
+%      + P./abs(Hx) ...
+%      - log( P./abs(Hx) ) ...
+%      - 2 ) / 2;
+ 
+E = mean( cosh( log( Hx./P ) ) - 1 );
+ 
+ Eps = mean(E);
 
 end

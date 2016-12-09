@@ -319,10 +319,11 @@ classdef loudspeaker_setup
                 else
                     
                     if ~mod(L,2)
-                        y = ((wid+space)/2):(wid+space):len/2;
+%                         y = ((wid+space)/2):(wid+space):len/2;
+                        y = (1/2:L/2)*(wid+space);
                         y = [flip(-y), y];
                     else
-                        y = (wid+space):(wid+space):len/2 + (wid+space)/2;
+                        y = (1:(L-1)/2)*(wid+space);
                         y = [flip(-y), 0, y];
                     end
                     
@@ -628,7 +629,7 @@ classdef loudspeaker_setup
             Atten_dB = [mu_, sigm]; %lognormal mean and std error
         end
         
-        function [Sd_BZ, Sa_BZ] = getNormalisedFieldVectors(obj)
+        function [Sd, Sa] = getNormalisedFieldVectors(obj)
             zoneMask = obj.Multizone_Soundfield.Bright_Zone.Soundfield_d_mask;
             O = floor(size(zoneMask)/2);
             
@@ -641,8 +642,8 @@ classdef loudspeaker_setup
             desired_adj = 1 / rms(abs(desired_vec)) .* exp(-1i* angle(desired(O(1),O(2))));
             actual_adj  = 1 / rms(abs(actual_vec)) .* exp(-1i* angle(actual(O(1),O(2))));
             
-            Sd_BZ = desired_vec .* desired_adj;
-            Sa_BZ = actual_vec .* actual_adj;
+            Sd = desired_vec .* desired_adj;
+            Sa = actual_vec .* actual_adj;
         end
         
         %% Plotting Functions
@@ -668,7 +669,7 @@ classdef loudspeaker_setup
             end
             
             lenDim = size(field,2);
-            NTicks = 11;
+            NTicks = 5;
             XTick = fix(linspace(-1,1,NTicks)*lenDim/obj.res)*obj.res/2 + lenDim/2;
             XTickLabel = (XTick-lenDim/2)/obj.res-obj.Origin(2);
             XTickLabel = num2cell(XTickLabel);
@@ -677,7 +678,7 @@ classdef loudspeaker_setup
             end
             
             lenDim = size(field,1);
-            NTicks = 7;
+            NTicks = 5;
             YTick = fix(linspace(-1,1,NTicks)*lenDim/obj.res)/2*obj.res + lenDim/2;
             YTickLabel = (YTick-lenDim/2)/obj.res-obj.Origin(1);
             YTickLabel = num2cell(YTickLabel);
@@ -926,7 +927,8 @@ classdef loudspeaker_setup
                 
                 Pv = P-O;
                 PQv = Qv-Pv;
-                d = sqrt(sum((Q-P).^2))/obj.res;
+                d = sqrt(sum((Q-P).^2))/obj.res;                
+                Theta = abs(pi - abs(theta) - abs(phi_c) );
                 d_alias=[];
                 gam_found=[];
                 for pm = [-1 1]
@@ -949,8 +951,8 @@ classdef loudspeaker_setup
                     PBv = Bv-Pv;
                     
                     %tmp = asin(r1 / (sqrt(sum(( PBv ).^2)) / obj.res));
-                    tmp=0;
-                    gam_ = pm * ( asin(  2*pi*(L-1) / (k*arrLen) - sin(theta+tmp+(pi-phi_c)) )  + theta+tmp+(pi-phi_c));
+%                     tmp=0;
+                    gam_ = pm * ( asin(  2*pi*(L-1) / (k*arrLen) - sin(Theta) )  + Theta);
                     
                     gv=[cos(gam_) -sin(gam_) 0;...
                         sin(gam_)  cos(gam_) 0;...
@@ -968,7 +970,7 @@ classdef loudspeaker_setup
                 
                 d_alias = max(d_alias);
                 gam_found = max(gam_found);
-                Alias_k =   2*pi*(L-1) / ((sin(gam_found - theta-pi+phi_c) + sin(theta+pi-phi_c))*arrLen)  ;
+                Alias_k =   2*pi*(L-1) / ((sin(gam_found - Theta) + sin(Theta))*arrLen)  ;
                 disp(['Alias Frequency: ' num2str(round(Alias_k/2/pi*obj.c,0)) 'Hz']);
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                 plotCircle(obj, zeros(1,3), P/obj.res, ...
@@ -1146,6 +1148,9 @@ classdef loudspeaker_setup
                 ps_d = obj.Multizone_Soundfield.Bright_Zone.SourceOrigin.Distance;
                 ps_a = obj.Multizone_Soundfield.Bright_Zone.SourceOrigin.Angle/180*pi;
                 [ps_x, ps_y] = pol2cart(ps_a, (ps_d * obj.res)-1);
+            else
+                ps_x = nan;
+                ps_y = nan;
             end
             
             if realistic
@@ -1218,9 +1223,11 @@ classdef loudspeaker_setup
             
             % Plot virtual source
             if strcmpi( obj.Multizone_Soundfield.Bright_Zone.SourceType, 'ps')
+                BZ_O =[obj.Multizone_Soundfield.Bright_Zone.Origin_q.X, ...
+                       obj.Multizone_Soundfield.Bright_Zone.Origin_q.Y]*obj.res;
                 h.sphereVSrc = surf( ...
-                    slx*sphereRad + ps_x + O(1), ...
-                    sly*sphereRad + ps_y + O(2), ...
+                    slx*sphereRad + ps_x + O(1) + BZ_O(1), ...
+                    sly*sphereRad + ps_y + O(2) + BZ_O(2), ...
                     slz*sphereRad + ones(size(ps_x))*maxZ, ...
                     repmat(0.5,[size(slx),3]), ...
                     'linestyle','none');

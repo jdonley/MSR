@@ -1,4 +1,4 @@
-function [ fig ] = IEEE_Trans2016_A( SYS )
+function [ fig ] = IEEE_Trans2016_C( SYS )
 %TEMPLATE Summary of this function goes here
 %
 % Syntax:	[OUTPUTARGS] = TEMPLATE(INPUTARGS) Explain usage here
@@ -31,11 +31,11 @@ function [ fig ] = IEEE_Trans2016_A( SYS )
 fig = figure('Name',SYS.publication_info.FigureName,'NumberTitle','off');
 fig.Color = [1 1 1];
 
-nCol = SYS.publication_info.subPlotDims(1);
-nRow = SYS.publication_info.subPlotDims(2);
+nRT = numel(SYS.signal_info.recording_type);
+nML = size(SYS.signal_info.methods_list_masker,2);
 
 axHndls = tightPlots( ...
-    nRow, nCol, ...
+    nRT, nML, ...
     SYS.publication_info.figure_width, ...
     SYS.publication_info.axis_aspect_ratio, ...
     SYS.publication_info.axes_gap, ...
@@ -47,33 +47,34 @@ newAxs  = [];
 legStrs = [];
 
 %%
-SYStmp = SYS;
-for col = 1:nCol
-    for row = 1:nRow
-        I = sub2ind([nRow nCol],row,col);
-        SYStmp.Main_Setup   = SYS.Main_Setup(I);
-        SYStmp.Masker_Setup = SYS.Masker_Setup(I);
-        
-        SYStmp.signal_info.method = ...
+RTs_tmp = SYS.signal_info.recording_type;
+for rt = 1:nRT
+    SYS.signal_info.recording_type = ...
+        RTs_tmp{rt};
+    
+    for ml = 1:nML
+        SYS.signal_info.method = ...
             SYS.signal_info.methods_list{ ...
-            SYS.signal_info.methods_list_masker(I)};
+            SYS.signal_info.methods_list_masker(:,ml)};
         
+        axNo = sub2ind([nRT,nML],ml,rt);
         [nA, lS] = Results.Axes_Builders.STOI_PESQ( ...
-            SYStmp, ...
-            axHndls( I ) );
+            SYS, ...
+            axHndls( axNo ) );
         newAxs  = [newAxs; nA];
         legStrs = [legStrs; lS];
         
     end
     
 end
+SYS.signal_info.recording_type = RTs_tmp;
 
 drawnow;pause(0.05);
 tightfig(fig);
 
 Results.Figure_Builders.Helpers.setLegend( SYS, newAxs, legStrs, 'errorbar' );
 
-Results.Figure_Builders.Helpers.setLabels( SYS, newAxs, nRow, nCol );
+Results.Figure_Builders.Helpers.setLabels( SYS, newAxs, nRT, nML );
 
 end
 

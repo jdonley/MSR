@@ -2,10 +2,11 @@ clear;
 
 
 %% Setup Information
-%Flip loudspeaker order (effectively flips entire setup) (false if not needed)
-MirrorSetup = false;
-
 SYS_ = Current_Systems.loadCurrentSRsystem;
+
+%Flip loudspeaker order (effectively flips entire setup) (false if not needed)
+if isfield(SYS_.system_info,'MirrorSetup'), MirrorSetup = SYS_.system_info.MirrorSetup;
+else MirrorSetup = false; end
 
 % If a realworld recording is not specified in the system then abort
 if ~any(strcmpi(SYS_.signal_info.recording_type,'realworld')), delete(gcp('nocreate')); return; end
@@ -22,10 +23,10 @@ for ss = 1:numel(SYS_.Main_Setup)
         tmp_levels = SYS.signal_info.L_noise_mask;
         
         if any( typ == SYS.signal_info.methods_list_clean )
-            Setup = SYS.Main_Setup;
+            Setup = SYS.Main_Setup(typ == SYS.signal_info.methods_list_clean);
             noise_levels = -inf;
         elseif any( typ == SYS.signal_info.methods_list_masker )
-            Setup = SYS.Masker_Setup;
+            Setup = SYS.Masker_Setup(typ == SYS.signal_info.methods_list_masker);
             noise_levels = SYS.signal_info.L_noise_mask;
         else
             error(['The method ''' SYS.signal_info.method ''' is not set as a clean or masker signal'])

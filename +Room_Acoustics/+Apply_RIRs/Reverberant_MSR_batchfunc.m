@@ -135,13 +135,17 @@ for m = 1:M
                 % If we have a masker signal then we rescale that signal to
                 % its correct level. This is because it was scaled upon
                 % saving to audio format to prevent clipping.
+                common_scaler = 1/db2mag(signal_info.clipLevelAdjust);
                 if ~isempty(strfind(signal_info.method, 'Masker'))
                     if signal_info.L_noise_mask(m) <= 0
                         scaler = (db2mag(0)+1); %Plus one is for the amplitude of the clean signal
                     elseif signal_info.L_noise_mask(m) > 0 % For a positive masker we scaled the signals to save up to a 40db noise masker
                         scaler = (db2mag(40)+1);%Plus one is for the amplitude of the clean signal
                     end
-                    Speaker_Signals = Speaker_Signals .* scaler;
+                    Speaker_Signals = Speaker_Signals .* scaler .* common_scaler;
+                % The input signal may have also been scaled
+                elseif signal_info.inputSignalNorm
+                    Speaker_Signals = Speaker_Signals .* common_scaler;
                 end
                 
                 %% Parametric Level adjust

@@ -23,8 +23,8 @@ function [ y_PreFilt ] = PreFilter_AliasCtrl( y, setup, signal_info, cheby_order
 % University of Wollongong
 % Email: jrd089@uowmail.edu.au
 % Copyright: Jacob Donley 2016
-% Date: 06 June 2016 
-% Revision: 0.1
+% Date: 07 December 2016 
+% Revision: 0.2
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if nargin < 4
@@ -36,8 +36,13 @@ f_cutoff = Broadband_Tools.getAliasingFrequency(setup) * signal_info.c / (2*pi);
 % Create filter
 [b,a] = cheby1(cheby_order, ripple, f_cutoff./(signal_info.Fs/2), 'low');
 
-% Apply low pass filter to signal
-y_PreFilt = filter(b,a,y(:));
+if isstable(b,a) % Filter the signal if the filter is stable
+    % Apply low pass filter to signal
+    y_PreFilt = filter(b,a,y(:));
+else % If the filter is not stable return the original signal
+     % (filtering is pointless for fringe cases)
+    y_PreFilt = y(:);
+end
 
 end
 

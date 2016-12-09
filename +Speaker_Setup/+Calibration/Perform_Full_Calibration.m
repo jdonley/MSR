@@ -1,6 +1,4 @@
 clear;
-delete(gcp('nocreate'));
-current_pool = parpool; %Start new pool
 
 %% Load System
 SYS = Current_Systems.loadCurrentSRsystem;
@@ -33,7 +31,8 @@ playrec( 'init', SYS.system_info.fs, dev.deviceID, dev.deviceID );
     SYS.system_info.fs,...
     SYS.system_info.f_low,...
     SYS.system_info.f_high,...
-    SYS.system_info.Sweep_EndBuffers*SYS.system_info.fs);
+    SYS.system_info.Sweep_EndBuffers*SYS.system_info.fs, ...
+    -3 );
 y = [zeros(SYS.system_info.Sweep_EndBuffers*SYS.system_info.fs,1); y(:)];
 
 %% Duplicate Signals for Playback
@@ -53,11 +52,11 @@ recID = playrec('playrec', ...
 
 %% Wait for recording
 fprintf('\n====== Playing and Recording Calibration Signals ======\n');
-fprintf('\tCompletion: ');n=0;t=0;tic;
+fprintf('\tCompletion: ');n=0;tic;
 
 while ~playrec('isFinished',recID)
-    pause(1); t=t+1;
-    n = Tools.showTimeToCompletion(t/(size(y_multi,1)/SYS.system_info.fs), n);
+    pause(1);
+    n = Tools.showTimeToCompletion(toc/(size(y_multi,1)/SYS.system_info.fs), n);
 end
 fprintf('\n');
 

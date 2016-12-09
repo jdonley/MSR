@@ -45,6 +45,11 @@ signal_info.input_filename = Input_file_name;
 %% Read input signal
 Input_Signal = audioread( Input_file );
 
+if signal_info.inputSignalNorm
+    % Normalise input signal
+    Input_Signal = Input_Signal ./ rms(Input_Signal);
+end
+
 if ~isempty(strfind(lower(signal_info.method), 'cancel'))
     %%% TODO
     % Fix this magnitude adjustment which is dependent on the transfer
@@ -59,8 +64,10 @@ end
     Input_Signal, setup, signal_info, system_info );
 
 %% Normalise Loudspeaker Signals
-% scaler = rms(Loudspeaker_Signals(:));
-% Loudspeaker_Signals = Loudspeaker_Signals ./ scaler .* db2mag(-35)  ; % Hope -35dB RMS level is enough to avoid clipping when saving
+if signal_info.inputSignalNorm
+    % Prevent clipping upon save
+    Loudspeaker_Signals = Loudspeaker_Signals .* db2mag(signal_info.clipLevelAdjust);
+end
 Original_ = Original_ ./ max(abs(Original_(:)));
 
 

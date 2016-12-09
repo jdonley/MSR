@@ -167,7 +167,7 @@ if ~isempty(signal_info.zeropadtime)
     Npad=signal_info.zeropadtime * signal_info.Fs;
     Loudspeakers_(:,[1:Npad/2, end-Npad/2+1:end],:)=[];
     Original(:,[1:Npad/2, end-Npad/2+1:end],:)=[];
-%     Input_toMatch(:,[1:Npad/2, end-Npad/2+1:end],:)=[];
+    %     Input_toMatch(:,[1:Npad/2, end-Npad/2+1:end],:)=[];
 end
 
 %
@@ -175,7 +175,7 @@ end
 % %Loudspeaker_Signals =
 % zeros([(size(Z,1)+ceil(overlap))*size(Z,2)*2*(1-overlap) setup.Loudspeaker_Count] ); % pre-allocate memory
 for spkr = 1:setup.Loudspeaker_Count
-%     Loudspeaker_Signals(:,spkr) = Broadband_Tools.OverlapAdd( real(Loudspeakers_(:,:,spkr)), signal_info.overlap ); %#ok<AGROW>
+    %     Loudspeaker_Signals(:,spkr) = Broadband_Tools.OverlapAdd( real(Loudspeakers_(:,:,spkr)), signal_info.overlap ); %#ok<AGROW>
     Loudspeaker_Signals(:,spkr) = overlapadd( squeeze(real(Loudspeakers_(:,:,spkr))), ones(signal_info.Nfft,1), (1-signal_info.overlap)*signal_info.Nfft  ); %#ok<AGROW>
     Loudspeaker_Signals(isnan(Loudspeaker_Signals(:,spkr)),spkr)=0;
 end
@@ -196,6 +196,7 @@ Original_ = overlapadd( Original, ones(signal_info.Nfft,1), (1-signal_info.overl
 %     t_d = signal_info.time_delay;
 % if t_d ~= 0 && ~isempty(strfind(lower(signal_info.method),'cancel'))
 % if ~isempty(strfind(lower(signal_info.method),'cancel'))
+if signal_info.predict_buff ~= 0
     LS_=[];
     for s=1:setup.Loudspeaker_Count
         LS = enframe(Loudspeaker_Signals(:,s),signal_info.Nfft/2,signal_info.Nfft/2);
@@ -203,7 +204,7 @@ Original_ = overlapadd( Original, ones(signal_info.Nfft,1), (1-signal_info.overl
     end
     Loudspeaker_Signals = LS_;
     Loudspeaker_Signals(size(Loudspeaker_Signals,1):length(Original_),:)=0;
-    
+end
 %     IM = enframe(Input_toMatch_,signal_info.Nfft/2,signal_info.Nfft/2);
 %     IM_ = reshape(IM(2:2:end,:).',[],1);
 %     Input_toMatch_ = IM_;

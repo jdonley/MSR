@@ -53,7 +53,34 @@ for s = 1:length(Setups)
                 y = audioread_extinsensitive([spkr_calib_dir fileName_curr system_info.sc sigType fileExt]);
                 if isnan(y)
                     continue;
+                end                
+                
+                % Remove the scaling performed during the calibration
+                % which is applied in order to save the audio files without
+                % clipping as the signals are changed during the upsampling
+                % and filtering process.
+                aux_info = load([spkr_calib_dir fileName_curr system_info.sc sigType '.mat']);
+                y = y ./ aux_info.scale_value;
+                % end rescale
+                
+                % Remove the scaling performed during the loudspeaker
+                % generation process where maskers are scaled to prevent
+                % clipping and speech may have also been scaled to prevent
+                % clipping if signal_info.inputSignalNorm was set to true.
+                common_scaler = 1/db2mag(sig_infos{s}.clipLevelAdjust);
+                if ~isempty(strfind(sig_infos{s}.method, 'Masker'))
+                    if sig_infos{s}.L_noise_mask <= 0
+                        scaler = (db2mag(0)+1); %Plus one is for the amplitude of the clean signal
+                    elseif sig_infos{s}.L_noise_mask > 0 % For a positive masker we scaled the signals to save up to a 40db noise masker
+                        scaler = (db2mag(40)+1);%Plus one is for the amplitude of the clean signal
+                    end
+                    y = y .* scaler .* common_scaler;
+                % The clean input signal may have also been scaled
+                elseif sig_infos{s}.inputSignalNorm
+                    y = y .* common_scaler;
                 end
+                % end rescale
+
                 
                 LoudspeakerSignals_MultiChan_ = [LoudspeakerSignals_MultiChan_; y];
                 if s == 1 %speech setup
@@ -64,12 +91,12 @@ for s = 1:length(Setups)
             end
         fileName_prev = fileName_curr;
     end
-    if s>1
+    if s>1 %This assumes when s>1 we have a masker set of loudspeaker signals (perhaps not a good assumption)
         LoudspeakerSignals_MultiChan_(size(LoudspeakerSignals_MultiChan,1)+1:end,:)=[];
         %LoudspeakerSignals_MultiChan_ = LoudspeakerSignals_MultiChan_ .* db2mag(masker_signal_info.L_noise_mask); % A little bit of a hack %TODO: fix this so speaker signals are leveled correctly        
         % previous line's comment possibly fixed with the following        
-        aux_info = load([spkr_calib_dir fileName_curr system_info.sc sigType '.mat']);
-        LoudspeakerSignals_MultiChan_ = LoudspeakerSignals_MultiChan_ ./ aux_info.scale_value;
+%         aux_info = load([spkr_calib_dir fileName_curr system_info.sc sigType '.mat']);
+%         LoudspeakerSignals_MultiChan_ = LoudspeakerSignals_MultiChan_ ./ aux_info.scale_value;
     end
     LoudspeakerSignals_MultiChan(:,:,s)=LoudspeakerSignals_MultiChan_;
 end

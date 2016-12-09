@@ -1,3 +1,13 @@
+
+% Author: Jacob Donley
+% University of Wollongong
+% Email: jrd089@uowmail.edu.au
+% Copyright: Jacob Donley 2016
+% Date: 20 April 2016
+% Revision: 0.1
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 clc;clear;
 %close all
 
@@ -9,7 +19,7 @@ fp = '+Miscellaneous\+Speech_File_Test\Female1_SA2.WAV';
 [ym, fs] = audioread(['M:\MSR\' fp]);
 
 t_ = 0:1/fs:(length(ym)/fs - 1/fs);
-%ym = sin(2*pi*1000*t_);
+ym = sin(2*pi*1000*t_);
 
 % fs is sampling frequency of message
 % fc is frequency of carrier signal
@@ -26,7 +36,7 @@ t = 0:1/fc_s:(length(ym)/fs - 1/fc_s);
 
 
 P = db2mag(100); % Source pressure amplitude
-m = 0.5; % Modulation index
+m = 0.9; % Modulation index
 
 
 
@@ -109,9 +119,9 @@ Z2 = fft(p2_down,Nfft);
 Z_orig = fft(ym,Nfft);
 f = linspace(0,fs/2,Nfft/2);
 f = f(1:end-1);
+plot(f, mag2db(abs( Z1(1:end/2-1) )) ,'r');  hold on;
+plot(f, mag2db(abs( Z2(1:end/2-1) )) ,'b');  hold on;
 plot(f, mag2db(abs( Z_orig(1:end/2-1) )) ,'k'); hold on;
-plot(f, mag2db(abs( Z1(1:end/2-1) )) ,'r');
-plot(f, mag2db(abs( Z2(1:end/2-1) )) ,'b');
 hold off;
 set(gca,'XScale','log');
 %set(gca,'YScale','log');

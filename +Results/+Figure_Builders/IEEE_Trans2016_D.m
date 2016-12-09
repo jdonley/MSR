@@ -1,4 +1,4 @@
-function [ fig ] = IEEE_Trans2016_A( SYS )
+function [ fig ] = IEEE_Trans2016_D( SYS )
 %TEMPLATE Summary of this function goes here
 %
 % Syntax:	[OUTPUTARGS] = TEMPLATE(INPUTARGS) Explain usage here
@@ -23,7 +23,7 @@ function [ fig ] = IEEE_Trans2016_A( SYS )
 % University of Wollongong
 % Email: jrd089@uowmail.edu.au
 % Copyright: Jacob Donley 2016
-% Date: 09 June 2016
+% Date: 28 November 2016
 % Revision: 0.1
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -48,15 +48,17 @@ legStrs = [];
 
 %%
 SYStmp = SYS;
-for col = 1:nCol
-    for row = 1:nRow
-        I = sub2ind([nRow nCol],row,col);
-        SYStmp.Main_Setup   = SYS.Main_Setup(I);
-        SYStmp.Masker_Setup = SYS.Masker_Setup(I);
+for row = 1:nRow
+    for col = 1:nCol
+        I = sub2ind([nCol nRow],col,row);
+        Ir  = sub2ind([nRow nCol],row,col);
+        
+        SYStmp.Main_Setup   = SYS.Main_Setup(Ir);
+        SYStmp.Masker_Setup = SYS.Masker_Setup(Ir);
         
         SYStmp.signal_info.method = ...
             SYS.signal_info.methods_list{ ...
-            SYS.signal_info.methods_list_masker(I)};
+            SYS.signal_info.methods_list_masker(Ir)};
         
         [nA, lS] = Results.Axes_Builders.STOI_PESQ( ...
             SYStmp, ...

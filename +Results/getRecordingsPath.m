@@ -1,5 +1,5 @@
 function [Path, err, Recordings_Path, path_sub_dirs] = getRecordingsPath( SYS_or_setup, database_res, room, signal_info, database_workingdir, method )
-%GETDATABASEFROMSETUP Summary of this function goes here
+%GETRECORDINGSPATH Summary of this function goes here
 
 latest_method = 'new';
 SYS_type = 'Current_Systems.SR_System';
@@ -31,7 +31,7 @@ if nargin == 1
             signal_info.method = signal_info.methods_list{1};
         end
     else
-        error(['Second input argument must be of type: ' SYS_type]);
+        error(['First input argument must be of type: ' SYS_type]);
     end
 else    
     setup = SYS_or_setup;

@@ -18,8 +18,8 @@ function setAxisParameters( SYS, ax, range, domain, range_lbl, domain_lbl)
 % University of Wollongong
 % Email: jrd089@uowmail.edu.au
 % Copyright: Jacob Donley 2016
-% Date: 14 June 2016
-% Revision: 0.1
+% Date: 23 November 2016
+% Revision: 0.2
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -72,6 +72,8 @@ end
 
 ax.XLim = domain + [-1 1]*diff(domain)*axBuf(1);
 ax.YLim = range + [-1 1]*diff(range)*axBuf(2);
+
+ax.TickDir = SYS.publication_info.axes_tickdir; % Set tick direction
 
 ax.XTickMode = 'manual';
 ax.YTickMode = 'manual';

@@ -21,7 +21,13 @@ function setErrorAxis(ax,errMSG,filepath)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 axes(ax(1));
-text(1,1, errMSG, 'HorizontalAlignment','center');
+Nchars = numel(errMSG);
+Nwords = sum(errMSG==' ')+1;
+wid = round(sqrt(Nwords)/Nwords*Nchars);
+
+text(1,1, ...
+    textwrap({errMSG},wid), ...
+    'HorizontalAlignment','center');
 
 for i =1:numel(ax)
     axC = ax(i);

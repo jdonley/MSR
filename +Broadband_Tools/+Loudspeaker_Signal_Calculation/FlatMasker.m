@@ -43,8 +43,10 @@ Loudspeaker_Signals = reshape( v_addnoise( ... % White noise
                             zeros(Signal_Length,setup.Loudspeaker_Count), ...
                             signal_info.Fs, -Inf), ...
                             [],setup.Loudspeaker_Count) ...
+                            * db2mag(signal_info.clipLevelAdjust) ... % Adjust level to avoiding clipping
                             * db2mag(signal_info.L_noise_mask) ... % Adjust level to given value
-                            / sqrt(setup.Loudspeaker_Count); % Adjust level for equal power
+                            / sqrt(setup.Loudspeaker_Count) ... % Adjust level for equal power
+                            * 2 ; %<- Find out why this helps
 
                         
 %% Once we have the speaker signals we should save them for later use as .wav files

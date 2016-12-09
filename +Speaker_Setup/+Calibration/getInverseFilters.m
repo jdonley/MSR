@@ -7,7 +7,7 @@ end
 Nspkrs = size(IRs,2);
 invIRs = zeros(invIRlen*fs,Nspkrs);
 
-parfor spkr = 1:Nspkrs
+for spkr = 1:Nspkrs
     %fprintf('\n\t processing loudspeaker %d ... ',spkr);
     if strcmpi(method, 'kirkeby')
         %invIRs(:,spkr) = Tools.IRcompactingKirkebyFilter(IRs(:,spkr), invIRlen, f_band, fs, reg);

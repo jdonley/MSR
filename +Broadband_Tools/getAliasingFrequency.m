@@ -69,9 +69,9 @@ if strcmpi('line',setup.Speaker_Array_Type)
     end
     
     gam_found = max(gam_found);                             % Choose the angle farthest from the planewave vector
-    k =   2*pi*(L-1) / ((sin(gam_found - theta-pi+phi_c) + sin(theta+pi-phi_c))*D_l) ;    % Equivalent grating lobe frequency
+    Theta = abs(pi - abs(theta) - abs(phi_c) );             % Find adjusted angle from centre of array
+    k =   2*pi*(L-1) / ((sin(gam_found - Theta) + sin(Theta))*D_l) ;    % Equivalent grating lobe frequency
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
-    
     
 elseif strcmpi('circle',setup.Speaker_Array_Type)
     %% Circular Array %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -111,7 +111,7 @@ elseif strcmpi('circle',setup.Speaker_Array_Type)
     d_u = max(d_u); %Choose the farthest from the center (outermost tangent)
     
     
-    % Maximums allowable aliasing frequency
+    % Maximum allowable aliasing frequency
     if strcmpi('pw',setup.Multizone_Soundfield.Bright_Zone.SourceType) && strcmpi(method,'new')
         k = max( ...
             [(2*pi*L - phi_L) / ((d_u + d_pb)*phi_L), ...

@@ -1,4 +1,4 @@
-function [ fig ] = IEEE_Trans2016_A( SYS )
+function [ fig ] = IEEE_Trans2016_B( SYS )
 %TEMPLATE Summary of this function goes here
 %
 % Syntax:	[OUTPUTARGS] = TEMPLATE(INPUTARGS) Explain usage here
@@ -23,7 +23,7 @@ function [ fig ] = IEEE_Trans2016_A( SYS )
 % University of Wollongong
 % Email: jrd089@uowmail.edu.au
 % Copyright: Jacob Donley 2016
-% Date: 09 June 2016
+% Date: 23 November 2016
 % Revision: 0.1
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

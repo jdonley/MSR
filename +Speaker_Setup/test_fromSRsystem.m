@@ -6,15 +6,15 @@ tic;
 %%
 SYS = Current_Systems.loadCurrentSRsystem;
 
-f = 1000;
+f = 2000;
 c = 343;
 
 %%
-setup=Speaker_Setup.loudspeaker_setup;
+setup = [SYS.Main_Setup(:);SYS.Masker_Setup(:)];
 for s = 1:2
-    setup(s) = SYS.Main_Setup(s);
+    
 %         setup(s).Multizone_Soundfield.Radius = 0.91;
-    setup(s).Multizone_Soundfield.UnattendedZ_Weight = 0;
+%     setup(s).Multizone_Soundfield.UnattendedZ_Weight = 0;
     
     setup(s).Multizone_Soundfield.Quiet_Zone = ...
         setup(s).Multizone_Soundfield.Quiet_Zone.setDesiredSoundfield(true, f, 'suppress_output');
@@ -24,11 +24,11 @@ for s = 1:2
     setup(s).Multizone_Soundfield = setup(s).Multizone_Soundfield.createSoundfield('DEBUG');
     
     setup(s) = setup(s).calc_Loudspeaker_Weights();
-    if s == 2
-       setup(s).Radius = (setup(s-1).Loudspeaker_Dimensions(1)*setup(s-1).Loudspeaker_Count/2)/2;
-
-       setup(s).Multizone_Soundfield.Radius = setup(s).Radius;
-   end
+%     if s == 2
+%        setup(s).Radius = (setup(s-1).Loudspeaker_Dimensions(1)*setup(s-1).Loudspeaker_Count/2)/2;
+% 
+%        setup(s).Multizone_Soundfield.Radius = setup(s).Radius;
+%    end
     setup(s) = setup(s).reproduceSoundfield('DEBUG');
     
 end
@@ -36,20 +36,20 @@ end
 %%
 figNums = [101,102,103];
 realistic = false;
-details.DrawDetails = false;
+details.DrawDetails = true;
 details.zoneLineWid = 1.5;
 details.arrowLineWid = 0.4;
 details.arrowLength = 3;
 details.arrowAngle = 30;
 details.arrowBuffer = 2;
-details.lblFontSize = 30;
+details.lblFontSize = 12;
 
 % pk(1) = max(abs((setup(1).Bright_Samples(:))));
 % pk(2) = max(abs((setup(2).Bright_Samples(:))));
 %pk = max(abs((setup.Quiet_Samples(:))));
 
-ZM = setup(1).Soundfield_reproduced*setup(1).res;
-ZT = setup(2).Soundfield_reproduced*setup(2).res;
+ZT = setup(1).Soundfield_reproduced*setup(1).res;
+ZM = setup(2).Soundfield_reproduced*setup(2).res;
 
 % Z2 = angle(Z);
 % Z3 = abs(Z/setup.res);
@@ -65,11 +65,13 @@ SYS.publication_info.axes_margins_height, ...
 SYS.publication_info.axes_margins_width, ...
 'centimeters');
 
+FontSize = 16;
+FontName = 'Times';
 axes(ha(1));
 ax=gca;
 setup(1).plotSoundfield( ZT, 'scientific_D1', realistic, details);
-text(20,300,1e3,'(A)','FontName','Times','FontSize',16)
-ax.Title.String = 'Pressure Soundfield of Talker';
+text(10,size(ZT,2)-FontSize/2-10,1e3,'(A)','FontName',FontName,'FontSize',FontSize)
+ax.Title.String = '';%'Pressure Soundfield of Talker';
 ax.XLabel = [];
 ax.XTickLabel = [];
 clim_=ax.CLim.*0.2;
@@ -78,8 +80,8 @@ colorbar off
 
 axes(ha(2))
 ax=gca;
-setup(1).plotSoundfield( ZT-ZM, 'scientific_D1', realistic, details);
-text(20,300,1e3,'(B)','FontName','Times','FontSize',16)
+setup(2).plotSoundfield( ZT-ZM, 'scientific_D1', realistic, details);
+text(10,size(ZT,2)-FontSize/2-10,1e3,'(B)','FontName',FontName,'FontSize',FontSize)
 ax.Title=[];
 ax.CLim=clim_;
 colorbar off

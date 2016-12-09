@@ -33,6 +33,8 @@ playrec( 'init', system_info.fs, dev.deviceID, dev.deviceID );
 %% Get signals
 [SpkrSignals, seg_details] = Hardware_Control.getMSR_Audio( Main_Setup, signal_info, system_info, Masker_Setup, masker_signal_info );
 
+%% Normalise loudspeaker power
+SpkrSignals = SpkrSignals ./ db2mag(mean(mag2db(rms(SpkrSignals))));
 
 %% Playback and Record
 recID = playrec('playrec', ...
@@ -43,11 +45,11 @@ recID = playrec('playrec', ...
 
 %% Wait for recording
 fprintf('\n====== Playing and Recording Multizone Soundfield Reproduction ======\n');
-fprintf('\tCompletion: ');n=0;h=[];t=0;tic;
+fprintf('\tCompletion: ');n=0;tic;
 
 while ~playrec('isFinished',recID)
-    pause(1); t=t+1;
-    [n,h] = Tools.showTimeToCompletion(t/(size(SpkrSignals,1)/system_info.fs), n, h);
+    pause(1);
+    n = Tools.showTimeToCompletion(toc/(size(SpkrSignals,1)/system_info.fs), n );
 end
 fprintf('\n');
 

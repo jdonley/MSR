@@ -58,11 +58,11 @@ end
 Measures = analysis_info.Measures;
 
 
-% if a realworld recording it is assumed that the noise level does not
-% exceed the level of the clean reproduction signal
-if strcmpi(signal_info.recording_type,'realworld')
-    signal_info.L_noise_mask(signal_info.L_noise_mask>0)=[];
-end
+% % if a realworld recording it is assumed that the noise level does not
+% % exceed the level of the clean reproduction signal
+% if strcmpi(signal_info.recording_type,'realworld')
+%     signal_info.L_noise_mask(signal_info.L_noise_mask>0)=[];
+% end
 
 signal_type = [signal_types{2:end}];
 if isHybrid
@@ -116,7 +116,12 @@ signal_info.method = signal_type;
 Results.deleteResultsFile( ResultsPath, {'PESQ', 'STOI', 'SNR', 'Suppression'});
 
 %% Start Evaluation Loop
-fprintf('\n====== Analysing Simulated Reverberant Signals ======\n');
+if strcmpi(signal_info.recording_type,'simulated')
+    EnvType = 'Simulated';
+elseif strcmpi(signal_info.recording_type,'realworld')
+    EnvType = 'Real-World';
+end
+fprintf(['\n====== Analysing ' EnvType ' Reverberant Signals ======\n']);
 fprintf(['            Room Size: ' [strrep(sprintf(strrep(repmat('%g',1,length(room_setup.Room_Size)),'g%','g %'),room_setup.Room_Size),' ','m x ') 'm'] '\n']);
 fprintf(['Wall Absorption Coeff: ' num2str(room_setup.Wall_Absorb_Coeff) '\n']);
 fprintf([' Virtual Source Angle: ' num2str(setups{1}.Multizone_Soundfield.Bright_Zone.SourceOrigin.Angle) '\n']);
@@ -191,7 +196,11 @@ for m = 1:M
             if strcmp('Bright',ZoneType)
                 Rec_Bright = [];
                 for s = signal_info.methods_list_clean.'
-                    Rec_Bright_{s} = load(files{s}{file});
+                    if ~isempty(files{s})
+                        Rec_Bright_{s} = load(files{s}{file});
+                    else
+                        Rec_Bright_{s_1} = load(files{s_1}{file}); break;
+                    end
                 end
                 if s_1==2, Rec_Bright_{s_1}.Rec_Sigs_B = Rec_Bright_{s_1}.Rec_Sigs_B'; end; %TODO: Fix the recording so the dimensions are in the correct place.
                 sLB = size( Rec_Bright_{s_1}.Rec_Sigs_B,2); %signal Length Bright
@@ -199,10 +208,16 @@ for m = 1:M
                     Rec_Bright(:,:,s) = Rec_Bright_{s}.Rec_Sigs_B(:,1:sLB);
                 end
                 Rec_Bright = sum( Rec_Bright, 3 );
+                [~,Iforce]=sort(size(Rec_Bright)); 
+                Rec_Bright=permute(Rec_Bright,Iforce);% Force smaller dimension first
             elseif strcmp('Quiet',ZoneType)
                 Rec_Quiet = [];
                 for s = signal_info.methods_list_clean.'
-                    Rec_Quiet_{s} = load(files{s}{file});
+                    if ~isempty(files{s})
+                        Rec_Quiet_{s} = load(files{s}{file});
+                    else
+                        Rec_Quiet_{s_1} = load(files{s_1}{file}); break;
+                    end
                 end
                 if s_1==2, Rec_Quiet_{s_1}.Rec_Sigs_Q = Rec_Quiet_{s_1}.Rec_Sigs_Q'; end; %TODO: Fix the recording so the dimensions are in the correct place.
                 sLQ = size( Rec_Quiet_{s_1}.Rec_Sigs_Q,2); %signal Length Quiet
@@ -210,6 +225,8 @@ for m = 1:M
                     Rec_Quiet(:,:,s) = Rec_Quiet_{s}.Rec_Sigs_Q(:,1:sLQ);
                 end
                 Rec_Quiet = sum( Rec_Quiet, 3 );
+                [~,Iforce]=sort(size(Rec_Quiet)); 
+                Rec_Quiet=permute(Rec_Quiet,Iforce);% Force smaller dimension first
             else
                 error('Error reading the recordings. The type of zone read from the file name is not supported');
             end
@@ -253,6 +270,7 @@ for m = 1:M
                 if ~any(cell2mat(strfind(upper(Measures),'SUPPRESSION')))
                     % BEGIN filter signals to acceptable measurement frequency range
                     [b,a] = butter(6, [signal_info.f_low_meas signal_info.f_high_meas] ./ (signal_info.Fs/2) );
+                    %[b,a] = cheby1(6 [signal_info.f_low_meas signal_info.f_high_meas] ./ (signal_info.Fs/2) );
                     orig = filter(b,a,orig);
                     Rec_Bright = filter(b,a,Rec_Bright')';
                     Rec_Quiet  = filter(b,a,Rec_Quiet')';
@@ -309,7 +327,7 @@ for m = 1:M
                 end
                 if any(cell2mat(strfind(upper(Measures),'STI')))
                     % STI - Speech Transmission Index
-                    Room_Acoustics.Apply_RIRs.Save_Reverb_STI_Result( Original, Rec_Bright, Rec_Quiet, signal_info.Fs, ResultsPath, [], SignalName{1} );
+                    Room_Acoustics.Apply_RIRs.Save_Reverb_STI_Result( Original, Rec_Bright, Rec_Quiet, signal_info.Fs, ResultsPath, [], SignalName );
                 end
                 
                 if any(cell2mat(strfind(upper(Measures),'SNR')))
