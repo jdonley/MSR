@@ -36,7 +36,7 @@ if nargin < 6
 end
     X_absdiff = abs(diff(X_vals));
     X_absdiff(X_absdiff == 0)=[];
-    Num_Audio_Files = max(histcounts(X_vals,-100:min(X_absdiff):100));
+    Num_Audio_Files = max(histcounts(X_vals,(min(X_vals)*0.9):min(X_absdiff):(max(X_vals)*1.1)));
             
 % Order Results
     [~,I] = sort(X_vals);

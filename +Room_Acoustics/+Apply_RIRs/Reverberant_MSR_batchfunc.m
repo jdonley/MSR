@@ -93,6 +93,11 @@ for m = 1:M
     files = Tools.getAllFiles( LoudspeakerSignals_Path{m} );
     files = sort(files);
     
+    % Continue with only the files that are contained in the original
+    % source folder
+    files = Tools.keepFilesFromFolder( files, signal_info.speech_filepath);
+    if isempty(files), error('No loudspeaker signals found. Have they been generated?'); end    
+    
     fileName_prev = '';
     Speaker_Signals = [];
     
@@ -135,7 +140,9 @@ for m = 1:M
                 % If we have a masker signal then we rescale that signal to
                 % its correct level. This is because it was scaled upon
                 % saving to audio format to prevent clipping.
-                common_scaler = 1/db2mag(signal_info.clipLevelAdjust);
+                if isfield(signal_info,'clipLevelAdjust')
+                    common_scaler = 1/db2mag(signal_info.clipLevelAdjust);
+                end
                 if ~isempty(strfind(signal_info.method, 'Masker'))
                     if signal_info.L_noise_mask(m) <= 0
                         scaler = (db2mag(0)+1); %Plus one is for the amplitude of the clean signal
@@ -144,7 +151,7 @@ for m = 1:M
                     end
                     Speaker_Signals = Speaker_Signals .* scaler .* common_scaler;
                 % The input signal may have also been scaled
-                elseif signal_info.inputSignalNorm
+                elseif isfield(signal_info,'inputSignalNorm') && signal_info.inputSignalNorm
                     Speaker_Signals = Speaker_Signals .* common_scaler;
                 end
                 

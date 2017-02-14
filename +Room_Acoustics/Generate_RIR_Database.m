@@ -1,10 +1,12 @@
-clear;
+function Generate_RIR_Database( SYS )
+
+%clear;
 % clear classes;
 close all;
 tic;
 
 %%
-SYS = Current_Systems.loadCurrentSRsystem;
+if nargin < 1, SYS = Current_Systems.loadCurrentSRsystem; end
 
 %%
 RIRs = [];

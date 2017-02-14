@@ -7,13 +7,17 @@ spect_pass = spect;
 
 f_cutoff = Broadband_Tools.getAliasingFrequency(setup) * signal_info.c / (2*pi);
 %remove sharp increase from aliasing
-spect_high=spect(frqs>f_cutoff);
-spect_pass(frqs>f_cutoff) = spect_high(1);
+if any(frqs>f_cutoff)
+    spect_high=spect(frqs>f_cutoff);
+    spect_pass(frqs>f_cutoff) = spect_high(1);
+end
 
 %limit to bandwidth of interest
 f_low = max([signal_info.f_low,min(DBfrqs)]);
-spect_low=spect(frqs<f_low);
-spect_pass(frqs<f_low) = spect_low(end);
+if any(frqs<f_low)
+    spect_low=spect(frqs<f_low);
+    spect_pass(frqs<f_low) = spect_low(end);
+end
 
 %filter the signal
 y_ZS     = Tools.ArbitraryOctaveFilt(y,     spect, frqs, signal_info.Nfft, signal_info.Fs, signal_info.OctaveBandSpace);

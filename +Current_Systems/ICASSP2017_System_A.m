@@ -112,6 +112,9 @@ Main_Setup(2) = Speaker_Setup.createSetup({...
     'loudspeaker_object',           Para_Spkr });
 
 
+Falias = 2000;
+Main_Setup(1).DipoleDistance =  343 / (2*pi*Falias);
+
 for s = 1:numel(Main_Setup)
     Main_Setup(s).ExtendedField = true;
     % Masker_Setup.ExtendedField = true;
@@ -125,11 +128,22 @@ Masker_Setup=[];
 %% Signal Setup and Path Info
 signal_info.c = 343; % Speed of sound in metres/sec
 signal_info.Fs = 16000; % Sampling frequency
-signal_info.Nfft = 16 *1e-3*signal_info.Fs;%1024;% Number of fft components
-signal_info.time_delay = [] *1e-3; % Seconds %If empty the time delay will based on the frame length
+signal_info.Nfft = ...
+                    ...4 ...
+                    ...8 ...
+                    ...12 ...
+                    ...16 ...
+                    ...20 ...
+                    ...24 ...
+                    ...28 ...
+                    32 ...
+                    * 1e-3 * signal_info.Fs;%1024;% Number of fft components
+signal_info.time_delay = [0] *1e-3; % Seconds %If empty the time delay will based on the frame length
+signal_info.magnitudeADJ = 0.8;
 signal_info.overlap = 0.50;
 signal_info.zeropadtime = signal_info.Nfft / signal_info.Fs; % miliseconds of zero padding (i.e. maximum time shift before circular convolution)
 signal_info.predict_buff = 2; % Length of prediction buffer as a percentage of a full frame prediction (i.e. 10 is %1000 of frame length)
+signal_info.AR_method = 'lpc';
 signal_info.f_low  = 150;  % Hz
 signal_info.f_high = 8000; % Hz
 signal_info.f_low_meas = 100; % Hz %Minimum loudspeaker response
@@ -198,28 +212,42 @@ system_info.LUT_resolution = [num2str(system_info.LUT_frequencies) 'f' ...
                               num2str(system_info.LUT_weights) 'w'];
                           
 %% Analysis Information
-analysis_info.Measures = {'Suppression'};
-analysis_info.Nfft = 32 *1e-3*signal_info.Fs;%1024;% Number of fft components
+analysis_info.Measures = {'Predicted Signal'; ...
+                          'Actual Signal'};
+analysis_info.Nfft = 32 * 1e-3 * signal_info.Fs;%1024;% Number of fft components
 analysis_info.f_low = 150; % Hz
 analysis_info.f_high = 2000; % Hz
+% analysis_info.f_high = Falias; % Hz
+
 
 %% Publication Figure Setup Information
 publication_info.DocumentPath = 'tex\latex\IEEE_ICASSP2017';
+
+
 publication_info.FigureName = 'IEEE_ICASSP2017_A';
-publication_info.FigureTitle = 'Active Speech Attenuation';
+publication_info.axes_NumTicks = [8 5]; % Number of ticks [NumXticks NumYticks];
+publication_info.axes_limitBufs = [0.02 0.07]; % axis limits buffer in percentage [width, height]
+
+% publication_info.FigureName = 'IEEE_ICASSP2017_B';
+% publication_info.axes_NumTicks = [8 5]; % Number of ticks [NumXticks NumYticks];
+% publication_info.axes_limitBufs = [0.00 0.05]; % axis limits buffer in percentage [width, height]
+% publication_info.axes_Scales = {'log'; 'lin'}; % Axis scales
+% publication_info.XTicks_override = [0.156, 1, 8];
+% publication_info.leg_MarkerSize = 8;
+
+publication_info.FigureTitle = '';%'Active Speech Attenuation';
 publication_info.print_fmt = 'pdf'; %figure image file format
 publication_info.print_res = 600; %rastered graphic DPI
 
-publication_info.figure_width = 88.9/10 + 6.35/10 + 88.9/10; %Figure width in centimeters %IEEE full text width
+publication_info.figure_width = 88.9/10;% + 6.35/10 + 88.9/10; %Figure width in centimeters %IEEE full text width
 publication_info.figure_aspect_ratio = 6/3; %Full figure aspect ration width/height
 publication_info.axis_aspect_ratio = [1 0.4]; %Single axis aspect ration [width height]
 publication_info.axes_gap = [0.5 0.5]; %Gap between axes [gap_height gap_width] %centimeters
 publication_info.axes_margins_height = [1 1]; %Axes height margins [lower upper]  %centimeters
 publication_info.axes_margins_width = [1 1]; %Axes width margins [left right]  %centimeters
 publication_info.axes_grid = 'minor'; % Show axes grid ('on', 'minor' or 'off')
-publication_info.axes_NumTicks = [5 6]; % Number of ticks [NumXticks NumYticks];
-publication_info.axes_limitBufs = [0.02 0.02]; % axis limits buffer in percentage [width, height]
 publication_info.sigRounding = 3; % number of significant figures rounding
+publication_info.axes_tickdir = 'both'; % Axes tick direction(s) ('in', 'out' or 'both')
 
 publication_info.FontSize = 9;  % Font size of text in figure
 publication_info.FontName = 'Times'; % Font name of text in figure

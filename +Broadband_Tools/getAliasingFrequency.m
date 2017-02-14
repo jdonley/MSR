@@ -57,9 +57,12 @@ if strcmpi('line',setup.Speaker_Array_Type)
     PQv = Qv-Pv;                                            % Intersection to Quiet zone vector
     d = sqrt(sum((Q-P).^2))/setup.res;                      % Length of PQ vector
     gam_found=[];
-    for pm = [-1 1]                                         % Find tangent either side of the zone         
+    for pm = [-1 1]                                         % Find tangent either side of the zone
+        if abs(r1+r2) <= d
         alph_=pm*asin((r1+r2)/d);                           % Maximum allowable angle of grating lobe
                                                             % Numerator in arcsin gives distance from quiet zone center to consider aliasing frequency
+        else alph_=pm*pi/2;
+        end
         PAv=[cos(alph_) -sin(alph_) 0;...                   % Tangent
             sin(alph_)  cos(alph_) 0;...
             0           0      1] * PQv;                        
@@ -70,7 +73,7 @@ if strcmpi('line',setup.Speaker_Array_Type)
     
     gam_found = max(gam_found);                             % Choose the angle farthest from the planewave vector
     Theta = abs(pi - abs(theta) - abs(phi_c) );             % Find adjusted angle from centre of array
-    k =   2*pi*(L-1) / ((sin(gam_found - Theta) + sin(Theta))*D_l) ;    % Equivalent grating lobe frequency
+    k =   2*pi*(L-1) / (abs(sin(gam_found - Theta) + sin(Theta))*D_l) ;    % Equivalent grating lobe frequency
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
     
 elseif strcmpi('circle',setup.Speaker_Array_Type)

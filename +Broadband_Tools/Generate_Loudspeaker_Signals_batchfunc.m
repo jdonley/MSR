@@ -136,6 +136,14 @@ for file = 1:F
                     SYS);
                 fileLoopBreak = true; file=F; % Break file loop
                 
+            elseif strcmp(Signal_Type, 'ZoneWeightMasker')
+                SYS.signal_info.L_noise_mask = Noise_Mask_Levels(m);
+                SYS.signal_info.weight = Zone_Weights(w);
+                Broadband_Tools.Loudspeaker_Signal_Calculation.ZoneWeightedMasker( ...
+                    maxSigLength, ... 
+                    SYS);
+                fileLoopBreak = true; file=F; % Break file loop
+                
             elseif ~isempty(strfind(Signal_Type, 'ZoneWeightMaskerAliasCtrl'))
                 SYS.signal_info.L_noise_mask = Noise_Mask_Levels(m);
                 SYS.signal_info.weight = Zone_Weights(w);

@@ -1,3 +1,4 @@
+function Build_LUT( SYS )
 
 %clear;
 close all;
@@ -10,7 +11,7 @@ fprintf('Started execution at %.0f:%.0f:%.0f on the %.0f/%.0f/%.0f\n',C([4:6 3:-
 
 
 %% Settings
-SYS = Current_Systems.loadCurrentSRsystem;
+if nargin < 1, SYS = Current_Systems.loadCurrentSRsystem; end
 
 
 

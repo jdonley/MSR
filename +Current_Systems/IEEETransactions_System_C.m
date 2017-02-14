@@ -11,11 +11,12 @@ lambda_g = [0.0, 0.5, 1.0]; % between 0 and 1
 lambda_gTxt = num2str(lambda_g.','%0.2f');
 ZWMAC = 'ZoneWeightMaskerAliasCtrl';
 masker_types = [{'FlatMasker'}, ...
+    {'ZoneWeightMasker'}, ...
     mat2cell( ...
     reshape([repmat(ZWMAC,numel(lambda_g),1),repmat(lambda_gTxt,1,1)].',1,[]), ...
     1,(numel(ZWMAC)+size(lambda_gTxt,2))*ones(numel(lambda_g),1))];
 
-rec_types = {'simulated'; 'realworld'}; % The type of recordings to be analysed
+rec_types = {'simulated'; 'real-world'}; % The type of recordings to be analysed
 
 spkr_type  = 'Dynamic';
 spkr_radius = 1.3;
@@ -147,7 +148,7 @@ Masker_Setup = Speaker_Setup.createSetup({...
     'maximum_frequency',            8000, ...
     'loudspeaker_object',           Para_Spkr });
 
-Masker_Setup(2) = Masker_Setup;
+Masker_Setup(2:numel(masker_types)) = Masker_Setup;
 
 %% Signal Setup and Path Info
 signal_info.c = 343; % Speed of sound in metres/sec
@@ -173,7 +174,7 @@ signal_info.methods_list ... % List of methods to synthesize
     = {'NoMask', ... % Speech Signal
        masker_types{:}};   
 signal_info.methods_list_clean = [1]; %Indices of the clean signals
-signal_info.methods_list_masker = [2, 3, 4, 5]; %Indices of the maskers, different hybrids are separated by columns
+signal_info.methods_list_masker = [2, 3, 4, 5, 6]; %Indices of the maskers, different hybrids are separated by columns
 % ( e.g. [2,3;4,0;6,7] is two hybrids, the first is 2&4&6, the second is 3&7, indices < 1 are ignored)
 signal_info.reference = false; % False or True to record reference signal
 
@@ -221,7 +222,6 @@ elseif strcmpi(zone,'quiet')
 end
 
 
-
 system_info.calibrationRecChannel = ...
     [ 5 ];
 
@@ -256,13 +256,13 @@ analysis_info.f_high = 7500; % Hz
 %% Publication Figure Setup Information
 publication_info.DocumentPath = 'tex\latex\IEEE_Trans2016';
 publication_info.FigureName = 'IEEE_Trans2016_C';
-publication_info.FigureTitle = 'Quality and Intelligibility - Simulated and Realworld';
+publication_info.FigureTitle = 'Quality and Intelligibility - Simulated and Real-World';
 publication_info.print_fmt = 'pdf'; %figure image file format
 publication_info.print_res = 600; %rastered graphic DPI
 
 publication_info.LatexMacrosFile = 'IEEE_Trans2016_LaTeX_Macros.tex';
 
-publication_info.figure_width = 88.9/10;% + 6.35/10 + 88.9/10; %Figure width in centimeters %IEEE full text width
+publication_info.figure_width = 88.9/10 + 6.35/10 + 88.9/10; %Figure width in centimeters %IEEE full text width
 publication_info.figure_aspect_ratio = 6/3; %Full figure aspect ratio width/height
 publication_info.axis_aspect_ratio = [1 0.8]; %Single axis aspect ration [width height]
 publication_info.axes_gap = [0.5 0.5]; %Gap between axes [gap_height gap_width] %centimeters

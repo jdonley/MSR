@@ -10,19 +10,24 @@ end
 %%
 LoudspeakerSignals_MultiChan=[];
 segment_details = [];
-Setups = {Main_Setup; Masker_Setup};
-sig_infos = {signal_info; masker_signal_info};
+Setups = [Main_Setup(:); Masker_Setup(:)];
+sig_infos = [signal_info(:); masker_signal_info(:)];
 for s = 1:length(Setups)
-    if isempty(Setups{s}) || isempty(sig_infos{s})
+    if isempty(Setups(s)) || isempty(sig_infos(s))
         break;
     end
     
     %% Get Paths and files
     [Spkr_path,~,~,~,~,~,path_ext] = ...
-        Broadband_Tools.getLoudspeakerSignalPath( Setups{s}, sig_infos{s}, system_info.LUT_resolution, system_info.Drive, 'new');
+        Broadband_Tools.getLoudspeakerSignalPath( Setups(s), sig_infos(s), system_info.LUT_resolution, system_info.Drive, 'new');
     
     files = Tools.getAllFiles(Spkr_path);
     files = sort(files);
+    
+    % Continue with only the files that are contained in the original
+    % source folder
+    files = Tools.keepFilesFromFolder( files, signal_info.speech_filepath);
+    if isempty(files), error('No loudspeaker signals found. Have they been generated?'); end
     
     
     spkr_calib_dir = [system_info.Drive system_info.Calibrated_Signals_dir path_ext];
@@ -67,16 +72,16 @@ for s = 1:length(Setups)
                 % generation process where maskers are scaled to prevent
                 % clipping and speech may have also been scaled to prevent
                 % clipping if signal_info.inputSignalNorm was set to true.
-                common_scaler = 1/db2mag(sig_infos{s}.clipLevelAdjust);
-                if ~isempty(strfind(sig_infos{s}.method, 'Masker'))
-                    if sig_infos{s}.L_noise_mask <= 0
+                common_scaler = 1/db2mag(sig_infos(s).clipLevelAdjust);
+                if ~isempty(strfind(sig_infos(s).method, 'Masker'))
+                    if sig_infos(s).L_noise_mask <= 0
                         scaler = (db2mag(0)+1); %Plus one is for the amplitude of the clean signal
-                    elseif sig_infos{s}.L_noise_mask > 0 % For a positive masker we scaled the signals to save up to a 40db noise masker
+                    elseif sig_infos(s).L_noise_mask > 0 % For a positive masker we scaled the signals to save up to a 40db noise masker
                         scaler = (db2mag(40)+1);%Plus one is for the amplitude of the clean signal
                     end
                     y = y .* scaler .* common_scaler;
                 % The clean input signal may have also been scaled
-                elseif sig_infos{s}.inputSignalNorm
+                elseif sig_infos(s).inputSignalNorm
                     y = y .* common_scaler;
                 end
                 % end rescale

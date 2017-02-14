@@ -1,12 +1,12 @@
 %clc;
-%clear;
+clear;
 %close all;
 tic;
 
 %%
 SYS = Current_Systems.loadCurrentSRsystem;
 
-f = 2000;
+f = 1000;
 c = 343;
 
 %%
@@ -36,7 +36,7 @@ end
 %%
 figNums = [101,102,103];
 realistic = false;
-details.DrawDetails = true;
+details.DrawDetails = false;
 details.zoneLineWid = 1.5;
 details.arrowLineWid = 0.4;
 details.arrowLength = 3;
@@ -80,7 +80,7 @@ colorbar off
 
 axes(ha(2))
 ax=gca;
-setup(2).plotSoundfield( ZT-ZM, 'scientific_D1', realistic, details);
+% setup(2).plotSoundfield( ZT-ZM, 'scientific_D1', realistic, details);
 text(10,size(ZT,2)-FontSize/2-10,1e3,'(B)','FontName',FontName,'FontSize',FontSize)
 ax.Title=[];
 ax.CLim=clim_;

@@ -1,11 +1,12 @@
-clear;
+function Reverberant_MSR_Analysis(SYS)
+% clear;
 %clear classes;
 %close all;
 fclose all;
 delete(gcp('nocreate'));
 
 %% Load System
-SYS = Current_Systems.loadCurrentSRsystem;
+if nargin < 1, SYS = Current_Systems.loadCurrentSRsystem; end
 
 %%
 paired = isfield(SYS.signal_info,'methods_list_paired') && SYS.signal_info.methods_list_paired;

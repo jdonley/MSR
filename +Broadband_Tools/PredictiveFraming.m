@@ -38,12 +38,16 @@ if n1 ~= n2
     error('Number of frames mismatches with buffer.')
 end
 
-if strcmpi(method,'lpc')
+if strcmpi(method,'lpc') % Stable
     a = lpc(B,m-1);
-elseif strcmpi(method,'burg')
+elseif strcmpi(method,'yule') % Yule-Walker (yule) and Autocorrelation method of Least-Squares (lpc) are equivalent
+    a = aryule(B,m-1);
+elseif strcmpi(method,'burg') % Stable
     a = arburg(B,m-1);
-elseif strcmpi(method,'cov')
+elseif strcmpi(method,'cov') % Unstable
     a = arcov(B,m/2);
+elseif strcmpi(method,'mcov') % Unstable
+    a = armcov(B,m-1);
 end
 
 A = -[zeros(n1,1) a(:,2:end)].';
@@ -60,12 +64,7 @@ F_p = [F_p(m/2+1:end,:); ... %Latest part-frame known values
     y_p(1:m/2,:); ...
     y_p];
 
-% F_p = [zeros(size(F_p,1),2), F_p(:,1:end-2)];
-
 Frames = reshape(F_p,m,[]).';
-
-
-
 
 end
 

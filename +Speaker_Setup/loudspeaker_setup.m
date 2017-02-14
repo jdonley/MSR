@@ -23,7 +23,8 @@ classdef loudspeaker_setup
         Loudspeaker_Dimensions;
         Loudspeaker_Type = 'Genelec 8010A'; % 'Genelec 8010A' or 'Genelec 8020C' or 'Meyer MM-4XP' or 'Parametric'
         Loudspeaker_Object = [];
-        DipoleDistance = 343/12/1000; % a distance of [343m/s / (12 x 1kHz)] will give approximately equal magnitude on one side of dipole array at 1kHz
+%         DipoleDistance = 343/12/1000; % a distance of [343m/s / (12 x 1kHz)] will give approximately equal magnitude on one side of dipole array at 1kHz
+        DipoleDistance = 343/(2*pi*2000); % Follows formula in Donley et al, "Active Speech Control using Wave-Domain Processing with a Linear Wall of Dipole Secondary Sources", ICASSP, IEEE, 2017.
         k_global = 2000 /343*2*pi;  % Frequency in wavenumber
         c = 343;
         Multizone_Soundfield;       % multizone_soundfield object for reproduction
@@ -669,7 +670,7 @@ classdef loudspeaker_setup
             end
             
             lenDim = size(field,2);
-            NTicks = 5;
+            NTicks = 11;
             XTick = fix(linspace(-1,1,NTicks)*lenDim/obj.res)*obj.res/2 + lenDim/2;
             XTickLabel = (XTick-lenDim/2)/obj.res-obj.Origin(2);
             XTickLabel = num2cell(XTickLabel);
@@ -678,7 +679,7 @@ classdef loudspeaker_setup
             end
             
             lenDim = size(field,1);
-            NTicks = 5;
+            NTicks = 7;
             YTick = fix(linspace(-1,1,NTicks)*lenDim/obj.res)/2*obj.res + lenDim/2;
             YTickLabel = (YTick-lenDim/2)/obj.res-obj.Origin(1);
             YTickLabel = num2cell(YTickLabel);

@@ -1,7 +1,7 @@
 function SR_SYSTEM = IEEETransactions_System_A()
 
 
-array_type = 'circle'; % 'circle' or 'line'
+array_type = {'circle','line'}; % 'circle' or 'line'
 
 SourceAngleSetIndices = [1, 2, 3]; % 1, 2 or 3
 
@@ -10,8 +10,8 @@ N_spkrs = 24; % 16, 24, 32 or 149
 spkr_type  = 'Dynamic';
 spkr_radius = 1.3;
 
-maskers = {'FlatMasker', ...
-    'ZoneWeightMaskerAliasCtrl'};
+% masker = 'FlatMasker';
+masker = 'ZoneWeightMasker';
 
 %% Room Geometry
 Room_Setup = Room_Acoustics.Room;
@@ -29,19 +29,20 @@ Room_Setup = Room_Setup.setWall_Absorb_Coeff(1.0);
 
 %% Multizone Soundfield Geometry and Loudspeaker Array
 Nangs = numel(SourceAngleSetIndices);
-Nmsks = numel(maskers);
-N_sets = Nangs*Nmsks;
+Ntyps = numel(array_type);
+N_sets = Nangs*Ntyps;
 Bx =  0;
 By =  0.6;
 Qx =  0;
 Qy = -0.6;
 
-for masks = 1:Nmsks
+for typs = 1:Ntyps
+    arrTyp = array_type{typs};
     for setInd = 1:Nangs
         angInd = SourceAngleSetIndices(setInd);
-        I = sub2ind([Nmsks Nangs],masks,setInd);
+        I = sub2ind([Ntyps Nangs],typs,setInd);
         
-        if strcmpi(array_type,'circle')
+        if strcmpi(arrTyp,'circle')
             switch angInd
                 case 1
                     Theta    =  0;
@@ -53,7 +54,7 @@ for masks = 1:Nmsks
                     Theta    =  90-acosd( (abs(By)+abs(Qy)) / sqrt(abs(2*By*Qy)+By^2+spkr_radius^2) );
                     Vartheta =  0;
             end
-        elseif strcmpi(array_type,'line')
+        elseif strcmpi(arrTyp,'line')
             switch angInd
                 case 1
                     Theta    =  0;
@@ -66,7 +67,7 @@ for masks = 1:Nmsks
                     Vartheta =  0;
             end
         end
-        
+%         fprintf(['theta: ', num2str(Theta,3), '\tvartheta: ', num2str(Vartheta,3), '\n']);
         gemoetrical_layout = { ...
             'brightzone_pos_angle',        90, ...
             'quietzone_pos_angle',         -90, ...
@@ -82,13 +83,13 @@ for masks = 1:Nmsks
         Para_Spkr = Parametric_Synthesis.parametric_soundfield;
         Para_Spkr.P1 = db2mag( 100 ); % 100dB amplitude parametric array loudspeaker
         Para_Spkr.P2 = db2mag( 100 ); % 100dB secondary amplitude
-        if strcmpi(array_type, 'Circle')
+        if strcmpi(arrTyp, 'Circle')
             [x,y] = pol2cart(-90/180*pi, 0.6);
             x_ = sqrt(spkr_radius^2-y^2);
             th_c = atan2(y,-x_);
             th = th_c;
             spkr_spacing = []; %Auto-calculate spacing
-        elseif strcmpi(array_type, 'Line')
+        elseif strcmpi(arrTyp, 'Line')
             x_=spkr_radius;
             th_c = 180;
             th = atan2(-0.6,-spkr_radius);
@@ -102,7 +103,7 @@ for masks = 1:Nmsks
                 'loudspeaker_model',             'Genelec 8010A', ...
                 'loudspeaker_radius',            spkr_radius, ...
                 'loudspeaker_spacing',           spkr_spacing, ...
-                'speaker_array_type',            array_type, ...
+                'speaker_array_type',            arrTyp, ...
                 'angleof_loudspeakerarrcentre', 180, ...
                 'quiet_weight',                 1e2};
         elseif strcmpi(spkr_type, 'Parametric')
@@ -168,7 +169,7 @@ signal_info.weight = 100; % This can be auto-calculated for maximum contrast by 
 signal_info.method = ''; % Default empty (temporary variable)
 
 NM = 'NoMask';
-M=mat2cell(repmat(maskers,1,Nangs),1,numel(maskers)*ones(Nangs,1));
+M=mat2cell(repmat(masker,1,N_sets),1,numel(masker)*ones(N_sets,1));
 signal_info.methods_list ... % List of methods to synthesize
     = [mat2cell(repmat(NM,1,N_sets),1,numel(NM)*ones(N_sets,1)), ...
        M{:} ];
@@ -247,7 +248,7 @@ publication_info.LatexMacrosFile = 'IEEE_Trans2016_LaTeX_Macros.tex';
 
 publication_info.figure_width = 88.9/10;% + 6.35/10 + 88.9/10; %Figure width in centimeters %IEEE full text width
 publication_info.figure_aspect_ratio = 6/3; %Full figure aspect ratio width/height
-publication_info.subPlotDims = [Nmsks Nangs]; % Dimensions of the subplots ([width height])
+publication_info.subPlotDims = [Ntyps Nangs]; % Dimensions of the subplots ([width height])
 publication_info.axis_aspect_ratio = [1 0.8]; %Single axis aspect ration [width height]
 publication_info.axes_gap = [0.5 0.5]; %Gap between axes [gap_height gap_width] %centimeters
 publication_info.axes_margins_height = [1 1]; %Axes height margins [lower upper]  %centimeters

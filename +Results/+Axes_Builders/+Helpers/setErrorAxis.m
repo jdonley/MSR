@@ -19,6 +19,9 @@ function setErrorAxis(ax,errMSG,filepath)
 % Revision: 0.1
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if nargin < 3
+    filepath = '';
+end
 
 axes(ax(1));
 Nchars = numel(errMSG);

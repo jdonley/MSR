@@ -1,71 +1,58 @@
-function [Noise_Mask_Level,PESQ_Bright,ConfInt_Bright_Low,ConfInt_Bright_Up] = import_Suppression_Reverb(filename, startRow, endRow)
-%IMPORTFILE Import numeric data from a text file as column vectors.
-%   [DOMAIN_VEC,SUPP_BRIGHT,CONFINT_BRIGHT_LOW,CONFINT_BRIGHT_UP]
+function [BlockLen,SUPP,ConfInt_Low,ConfInt_Up] = import_Suppression_Reverb( SYS )
+%import_Suppression_Reverb Import numeric data from a text file as column vectors.
+%   [BlockLen,SUPP,ConfInt_Low,ConfInt_Up]
 %   = import_Suppression_Reverb(FILENAME) Reads data from text file FILENAME for the
 %   default selection.
 %
-%   [NOISE_MASK_LEVEL,PESQ_BRIGHT,CONFINT_BRIGHT_LOW,CONFINT_BRIGHT_UP]
-%   = import_PESQ_Reverb(FILENAME, STARTROW, ENDROW) Reads data from rows STARTROW
+%   [BlockLen,SUPP,ConfInt_Low,ConfInt_Up]
+%   = import_Suppression_Reverb(FILENAME, STARTROW, ENDROW) Reads data from rows STARTROW
 %   through ENDROW of text file FILENAME.
 %
 % Example:
-%   [Noise_Mask_Level,PESQ_Bright,ConfInt_Bright_Low,ConfInt_Bright_Up] = import_PESQ_Reverb('PESQ_Results_10000weight__withFlatMask.csv',1, 180);
+%   [BlockLen,SUPP,ConfInt_Low,ConfInt_Up] = import_Suppression_Reverb('Suppression_Results.mat',1, 180);
 %
-%    See also TEXTSCAN.
 
 
-%% Initialize variables.
-delimiter = ',';
-if nargin<=2
-    startRow = 1;
-    endRow = inf;
-end
+N_vec = (4:4:32).'*1e-3*SYS.signal_info.Fs;
+td_vec = {0,[]};
 
-%% Format string for each line of text:
-%   column3: double (%f)
-%	column5: double (%f)
-%   column7: double (%f)
-%	column9: double (%f)
-%   column11: double (%f)
-%	column13: double (%f)
-%   column15: double (%f)
-% For more information, see the TEXTSCAN documentation.
-formatSpec = '%*s%*s%f%*s%f%*s%f%*s%f%[^\n\r]';
+SUPP = zeros(numel(N_vec),numel(td_vec));
+ConfInt_Low = SUPP;
 
-%% Open the text file.
-[fileID, errMSG] = fopen(filename,'r');
-if fileID ~= -1
-    %% Read columns of data according to format string.
-    % This call is based on the structure of the file used to generate this
-    % code. If an error occurs for a different file, try regenerating the code
-    % from the Import Tool.
-    dataArray = textscan(fileID, formatSpec, endRow(1)-startRow(1)+1, 'Delimiter', delimiter, 'HeaderLines', startRow(1)-1, 'ReturnOnError', false);
-    for block=2:length(startRow)
-        frewind(fileID);
-        dataArrayBlock = textscan(fileID, formatSpec, endRow(block)-startRow(block)+1, 'Delimiter', delimiter, 'HeaderLines', startRow(block)-1, 'ReturnOnError', false);
-        for col=1:length(dataArray)
-            dataArray{col} = [dataArray{col};dataArrayBlock{col}];
+for td_ = 1:numel(td_vec)
+    for N_ = 1:numel(N_vec)
+        SYS.signal_info.Nfft = N_vec(N_);
+        SYS.signal_info.time_delay = td_vec{td_};
+        SYS.signal_info.zeropadtime = SYS.signal_info.Nfft / SYS.signal_info.Fs;
+        SYS.system_info.LUT_frequencies = (SYS.signal_info.Nfft + SYS.signal_info.zeropadtime * SYS.signal_info.Fs)/2;
+        SYS.system_info.LUT_resolution = [num2str(SYS.system_info.LUT_frequencies) 'f' ...
+                              SYS.system_info.sc ...
+                              num2str(SYS.system_info.LUT_weights) 'w'];
+        SYS.Main_Setup = SYS.Main_Setup(1);
+        SYS.signal_info.method = SYS.signal_info.methods_list{end};
+        load([Results.getResultsPath(SYS) 'Suppression_Results.mat']);
+        A = [S{:}]; sk = size(S{1},2);
+        B = [A{2:sk:end}];
+        C = [A{3:sk:end}];
+        C2=[];
+        for i=1:20
+            tmp= Tools.confidence_intervals( [A{sk*(i-1)+1}].' , 95);
+            C2(:,i)= tmp(:,2);
         end
+
+        mu_ = mean(B,2).';
+        sigm = mean(C2,2).';
+        f_ = S{1}{4};
+        f_(1)=[];mu_(1)=[];sigm(1)=[];
+
+        fi=(f_>=SYS.analysis_info.f_low & f_<=SYS.analysis_info.f_high);
+        mu_oct = Tools.octaveBandMean(mu_(fi),f_(fi),1/6,1000);
+        mu_sigm = Tools.octaveBandMean(sigm(fi),f_(fi),1/6,1000);
+        SUPP(N_,td_) = mean(mu_oct);
+        ConfInt_Low(N_,td_) = mean(mu_sigm);
+
     end
-    
-    %% Close the text file.
-    fclose(fileID);
-    
-    %% Post processing for unimportable data.
-    % No unimportable data rules were applied during the import, so no post
-    % processing code is included. To generate code which works for
-    % unimportable data, select unimportable cells in a file and regenerate the
-    % script.
-    
-    %% Allocate imported array to column variable names
-    Noise_Mask_Level = dataArray{:, 1};
-    PESQ_Bright = dataArray{:, 2};
-    ConfInt_Bright_Low = dataArray{:, 3};
-    ConfInt_Bright_Up = dataArray{:, 4};
-    
-else
-    Noise_Mask_Level = fileID;
-    PESQ_Bright = errMSG;
-    ConfInt_Bright_Low = [];
-    ConfInt_Bright_Up = [];
 end
+
+BlockLen = N_vec/1e-3/SYS.signal_info.Fs;
+ConfInt_Up = ConfInt_Low;
