@@ -63,9 +63,13 @@ for ss = 1:numel(SYS.Main_Setup)
             files = Tools.getAllFiles(Spkr_path);
             files = sort(files);
             
+            isMasker = ~isempty(strfind(lower(SYS_.signal_info.method), 'masker')); %if a masker
             % Continue with only the files that are contained in the original
-            % source folder
-            files = Tools.keepFilesFromFolder( files, SYS_.signal_info.speech_filepath);
+            % source folder unless a Masker signal is being processed (these are
+            % named as Maskers)
+            if ~isMasker
+                files = Tools.keepFilesFromFolder( files, SYS_.signal_info.speech_filepath);
+            end
             if isempty(files), error('No loudspeaker signals found. Have they been generated?'); end
             
             %%

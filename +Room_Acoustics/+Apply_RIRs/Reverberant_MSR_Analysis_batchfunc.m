@@ -143,8 +143,13 @@ for m = 1:M
     files = {[],[]};
     for s=s_1:S
         files_ = Tools.getAllFiles( Recordings_Path{m,s} );
-        % Continue with only the files that are contained in the original source folder
-        files_ = Tools.keepFilesFromFolder( files_, signal_info.speech_filepath);
+        isMasker = ~isempty(strfind(lower(signal_info.method), 'masker')); %if a masker
+        % Continue with only the files that are contained in the original
+        % source folder unless a Masker signal is being processed (these are
+        % named as Maskers)
+        if ~isMasker
+            files = Tools.keepFilesFromFolder( files, signal_info.speech_filepath);
+        end
         % Warn if there are no recordings to analyse and then return from the function
         if isempty(files_)
             wrnCol = [255,100,0]/255;
@@ -164,9 +169,9 @@ for m = 1:M
     % Load maskers
     for s=s_1:S
         if any(s == signal_info.methods_list_masker) || ...
-            (signal_info.methods_list_masker==0 && any(strcmp(analysis_info.Measures,'SPL')))
+            (all(signal_info.methods_list_masker==0) && any(strcmp(analysis_info.Measures,'SPL')))
             fileName={};
-            i=(signal_info.methods_list_masker==0 && any(strcmp(analysis_info.Measures,'SPL')))*1;
+            i=(all(signal_info.methods_list_masker==0) && any(strcmp(analysis_info.Measures,'SPL')))*1;
             fpos = [1 (s_1+1+i)];
             for f=fpos
                 [~, fileName{s,f}, ~] = fileparts(files{s}{f});
