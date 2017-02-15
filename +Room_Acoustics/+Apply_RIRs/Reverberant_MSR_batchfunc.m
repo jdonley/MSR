@@ -46,8 +46,9 @@ if nargin < 6
     Conv_Type = 'FFT';
 end
 
+isMasker = ~isempty(strfind(lower(signal_info.method), 'masker')); %if a masker
 %% Set values depending on setup type (masker or clean)
-if isempty(strfind(lower(signal_info.method), 'masker')) %if not a masker (clean)    
+if ~isMasker %if not a masker (clean)
     setup = main_setup;
     levels = -inf;
 else %if a masker
@@ -94,8 +95,11 @@ for m = 1:M
     files = sort(files);
     
     % Continue with only the files that are contained in the original
-    % source folder
-    files = Tools.keepFilesFromFolder( files, signal_info.speech_filepath);
+    % source folder unless a Masker signal is being processed (these are
+    % named as Maskers)
+    if ~isMasker
+        files = Tools.keepFilesFromFolder( files, signal_info.speech_filepath);
+    end
     if isempty(files), error('No loudspeaker signals found. Have they been generated?'); end    
     
     fileName_prev = '';
