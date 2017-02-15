@@ -89,12 +89,16 @@ for arr = 1:numel(array_type)
             x_=spkr_radius;
             th_c = 180;
             th = atan2(-0.6,-spkr_radius);
-            spkr_spacing = 0.001; %1mm spacing between adjacent loudspeakers
-            if L==N_spkrs(end)
-               gam_found = 1.297223326711613;
-               DL = 2*pi*(L-1) / (2*pi*8000/343)/(sin(gam_found-Theta/180*pi)+sin(Theta/180*pi));
-               spkr_spacing = (DL / (L-1)) - spkrWid;
-            end
+%             spkr_spacing = 0.001; %1mm spacing between adjacent loudspeakers
+            spkr_gap = Main_Setup(I-1).Speaker_Arc_Angle/180*pi*Main_Setup(I-1).Radius / Main_Setup(I-1).Loudspeaker_Count;
+            
+%             if L==N_spkrs(end)
+%                gam_found = 1.297223326711613;
+%                DL = 2*pi*(L-1) / (2*pi*8000/343)/(sin(gam_found-Theta/180*pi)+sin(Theta/180*pi));
+%                spkr_gap = (DL / (L-1));
+%                spkr_spacing = spkr_gap - spkrWid;
+%             end
+               spkr_spacing = spkr_gap - spkrWid;
         end
         
         if strcmpi(spkr_type, 'Dynamic')
@@ -139,6 +143,7 @@ for arr = 1:numel(array_type)
             'maximum_frequency',            8000, ...
             'loudspeaker_object',           Para_Spkr });
         spkrWid = Main_Setup(I).Loudspeaker_Dimensions(1);
+%         disp(['Fc = ' num2str(Broadband_Tools.getAliasingFrequency(Main_Setup(I))/2/pi*343,'%0.0f') 'Hz']);
     end
 end
 

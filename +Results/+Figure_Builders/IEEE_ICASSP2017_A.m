@@ -31,11 +31,11 @@ function [ fig ] = IEEE_ICASSP2017_A( SYS )
 fig = figure('Name',SYS.publication_info.FigureName,'NumberTitle','off');
 fig.Color = [1 1 1];
 
-nRT = numel(SYS.signal_info.recording_type);
-nML = size(SYS.signal_info.methods_list_masker,2);
+Nrow = numel(SYS.signal_info.recording_type);
+Ncol = size(SYS.signal_info.methods_list_masker,2);
 
 axHndls = tightPlots( ...
-    nRT, nML, ...
+    Nrow, Ncol, ...
     SYS.publication_info.figure_width, ...
     SYS.publication_info.axis_aspect_ratio, ...
     SYS.publication_info.axes_gap, ...
@@ -47,18 +47,15 @@ newAxs  = [];
 legStrs = [];
 
 %%
-RTs_tmp = SYS.signal_info.recording_type;
-for rt = 1:nRT
-    SYS.signal_info.recording_type = ...
-        RTs_tmp{rt};
+
+for r = 1:Nrow
     
-    for ml = 1:nML
-        SYS.signal_info.method = ...
-            SYS.signal_info.methods_list{ ...
-            SYS.signal_info.methods_list_masker(:,ml)};
+    for c = 1:Ncol
         
-        axNo = sub2ind([nRT,nML],ml,rt);
-        [nA, lS] = Results.Axes_Builders.STOI_PESQ( ...
+        SYS.signal_info.method = SYS.signal_info.methods_list{end};
+        
+        axNo = sub2ind([Nrow,Ncol],c,r);
+        [nA, lS] = Results.Axes_Builders.SUPPRESSION( ...
             SYS, ...
             axHndls( axNo ) );
         newAxs  = [newAxs; nA];
@@ -67,14 +64,16 @@ for rt = 1:nRT
     end
     
 end
-SYS.signal_info.recording_type = RTs_tmp;
 
+
+%%
 drawnow;pause(0.05);
 tightfig(fig);
 
 Results.Figure_Builders.Helpers.setLegend( SYS, newAxs, legStrs, 'errorbar' );
 
-Results.Figure_Builders.Helpers.setLabels( SYS, newAxs, nRT, nML );
+% Results.Figure_Builders.Helpers.setLabels( SYS, newAxs, Nrow, Ncol );
+
 
 end
 

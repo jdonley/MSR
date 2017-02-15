@@ -1,5 +1,5 @@
 function [ Responses, Input_NoPad ] = SplitRecording( Recording, InputSignal, Nspkrs, Duration, Fs, PaddingDuration)
-%SPLITRECORDING Splits a single recording file into a matrix contatining
+%SPLITRECORDING Splits a single recording file into a matrix containing
 %each speakers individual response recoridng
 
 if nargin < 6

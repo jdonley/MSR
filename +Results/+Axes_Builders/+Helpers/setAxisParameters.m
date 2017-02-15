@@ -70,18 +70,53 @@ if strcmpi(ax.YLabel.Interpreter, 'latex')
     ax.YLabel.String = [latexFontSettings ax.YLabel.String '}'];
 end
 
-ax.XLim = domain + [-1 1]*diff(domain)*axBuf(1);
-ax.YLim = range + [-1 1]*diff(range)*axBuf(2);
+if isfield(SYS.publication_info,'axes_Scales')
+    ax.XScale = SYS.publication_info.axes_Scales{1};
+    ax.YScale = SYS.publication_info.axes_Scales{2};    
+end
 
 ax.TickDir = SYS.publication_info.axes_tickdir; % Set tick direction
 
 ax.XTickMode = 'manual';
 ax.YTickMode = 'manual';
 
-ax.XTick = round( domain(1):diff(domain)/(nXT-1):domain(end) , ...
-    sigRounding, 'significant');
-ax.YTick = round( range(1):diff(range)/(nYT-1):range(end), ...
-    sigRounding, 'significant');
+if ~isempty(strfind(ax.XScale, 'lin'))
+    ax.XTick = round( domain(1):diff(domain)/(nXT-1):domain(end) , ...
+        sigRounding, 'significant');
+elseif ~isempty(strfind(ax.XScale, 'log'))
+    ax.XTick = 10.^round( log10(domain(1)):diff(log10(domain))/(nXT-1):log10(domain(end)) , ...
+        sigRounding, 'significant');
+end
+if ~isempty(strfind(ax.YScale, 'lin'))
+    ax.YTick = round( range(1):diff(range)/(nYT-1):range(end), ...
+        sigRounding, 'significant');
+elseif ~isempty(strfind(ax.YScale, 'log'))
+    ax.YTick = 10.^round( log10(range(1)):diff(log10(range))/(nYT-1):log10(range(end)), ...
+        sigRounding, 'significant');
+end
+
+if isfield(SYS.publication_info,'XTicks_override')
+    ax.XTick = SYS.publication_info.XTicks_override;
+    domain = SYS.publication_info.XTicks_override([1 end]);
+end
+if isfield(SYS.publication_info,'YTicks_override')
+    ax.YTick = SYS.publication_info.YTicks_override;
+    range = SYS.publication_info.YTicks_override([1 end]);
+end
+
+if ~isempty(strfind(ax.XScale, 'lin'))
+    diffSepDomain = diff(domain)*axBuf(1);
+elseif ~isempty(strfind(ax.XScale, 'log'))
+    diffSepDomain = diff(domain)*axBuf(1);
+end
+if ~isempty(strfind(ax.YScale, 'lin'))
+    diffSepRange = diff(range)*axBuf(2);
+elseif ~isempty(strfind(ax.YScale, 'log'))
+    diffSepRange = diff(range)*axBuf(2);
+end
+
+ax.XLim = domain + [-1 1]*diffSepDomain;
+ax.YLim = range + [-1 1]*diffSepRange;
 
 ax.TickLabelInterpreter = SYS.publication_info.Interpreter;
 if strcmpi(ax.TickLabelInterpreter, 'latex')
@@ -95,6 +130,7 @@ end
 
 ax.YColor = [0,0,0]; %Hard coded black axes colors
 
+grid(ax, 'off');
 if strcmp(SYS.publication_info.axes_grid, 'minor') %if minor then turn on major and minor
     grid(ax, 'on');
 end

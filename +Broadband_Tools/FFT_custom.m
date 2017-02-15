@@ -71,12 +71,16 @@ Frames_orig = Frames;
  if signal_info.predict_buff ~= 0
     Inc = (1-Overlap)*Nfft;
     
-    Predict_Buffer = [zeros( Nfft/Inc, Nfft*BuffLen); ...
+    Predict_Buffer = [zeros( Nfft/Inc * (signal_info.predict_buff-1), Nfft*BuffLen); ...
         enframe( [x((Nfft-delay*Fs+1):end); zeros(Nfft-delay*Fs,1)], ...
         Nfft*BuffLen, Inc )];
 
-%     Frames = Broadband_Tools.PredictiveFraming( Frames, Predict_Buffer, delay*Fs , 'burg' );
-    Frames = Broadband_Tools.PredictiveFraming( Frames, Predict_Buffer, delay*Fs , 'cov' );
+    if isfield(signal_info,'AR_method')
+        Frames = Broadband_Tools.PredictiveFraming( ...
+            Frames, Predict_Buffer, delay*Fs , signal_info.AR_method );
+    else
+        Frames = Broadband_Tools.PredictiveFraming( Frames, Predict_Buffer, delay*Fs , 'burg' );
+    end
  end
 
 %% Zero pad

@@ -148,6 +148,7 @@ for rt = 1:numel(measures)
 end
 
 grid(axs(2),'off'); % Turn off the second y axis grid because both y axes have the same grid
+axs(2).Box = 'off';
 
 end
 

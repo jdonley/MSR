@@ -1,10 +1,9 @@
-
-clear;
+function Plot_Results( SYS )
+if nargin < 1
+    % Load System
+    SYS = Current_Systems.loadCurrentSRsystem;
+end
 close all;
-
-
-%% Load System
-SYS = Current_Systems.loadCurrentSRsystem;
 
 %% Build Figure
 figFunc = str2func( ['Results.Figure_Builders.' SYS.publication_info.FigureName] );

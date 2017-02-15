@@ -68,6 +68,9 @@ signal_type = [signal_types{2:end}];
 if isHybrid
     signal_type = ['Hybrid' signal_type];
 end
+if isempty(signal_type) && any(strcmp(analysis_info.Measures,'SPL'))
+    signal_type = 'Sweep'; % An exponential sine sweep is what is used to measure SPL with this framework
+end
 signal_info.method = signal_type;
 
 %% Obtain Recordings and Results Directory Path
@@ -83,6 +86,9 @@ if strcmpi(signal_info.recording_type,'simulated')
     s_1 = 1;
 elseif strcmpi(signal_info.recording_type,'realworld')
     s_1 = 2;
+    if strcmpi(signal_type,'sweep')
+        s_1 = 1;
+    end 
 end
 
 for s = s_1:length(setups)
@@ -113,7 +119,7 @@ signal_info.method = signal_type;
 
 
 %% Delete previous results file
-Results.deleteResultsFile( ResultsPath, {'PESQ', 'STOI', 'SNR', 'Suppression'});
+Results.deleteResultsFile( ResultsPath, analysis_info.Measures);
 
 %% Start Evaluation Loop
 if strcmpi(signal_info.recording_type,'simulated')
@@ -137,6 +143,8 @@ for m = 1:M
     files = {[],[]};
     for s=s_1:S
         files_ = Tools.getAllFiles( Recordings_Path{m,s} );
+        % Continue with only the files that are contained in the original source folder
+        files_ = Tools.keepFilesFromFolder( files_, signal_info.speech_filepath);
         % Warn if there are no recordings to analyse and then return from the function
         if isempty(files_)
             wrnCol = [255,100,0]/255;
@@ -154,10 +162,12 @@ for m = 1:M
     Fs = signal_info.Fs;
     
     % Load maskers
-    for s=2:S
-        if any(s == signal_info.methods_list_masker)
+    for s=s_1:S
+        if any(s == signal_info.methods_list_masker) || ...
+            (signal_info.methods_list_masker==0 && any(strcmp(analysis_info.Measures,'SPL')))
             fileName={};
-            fpos = [1 (s_1+1)];
+            i=(signal_info.methods_list_masker==0 && any(strcmp(analysis_info.Measures,'SPL')))*1;
+            fpos = [1 (s_1+1+i)];
             for f=fpos
                 [~, fileName{s,f}, ~] = fileparts(files{s}{f});
             end
@@ -339,6 +349,12 @@ for m = 1:M
                     % Interference Suppression
                     Room_Acoustics.Apply_RIRs.Save_Reverb_Suppression_Result( Rec_Bright_{end}.Rec_Sigs_B(:,1:sLB), Rec_Bright, signal_info.Fs, ...
                         analysis_info.Nfft, [analysis_info.f_low, analysis_info.f_high], ResultsPath, [], SignalName );
+                end
+                
+                if any(cell2mat(strfind(upper(Measures),'SPL')))
+                    % Sound Pressure Levels
+                    Room_Acoustics.Apply_RIRs.Save_Reverb_SPLs_Result( Rec_Bright, Rec_Quiet, signal_info.Fs, ...
+                        analysis_info.Nfft, [analysis_info.f_low, analysis_info.f_high], ResultsPath, [], SignalName, SYS );
                 end
                 % END calc and save results
                 

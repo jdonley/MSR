@@ -45,7 +45,7 @@ signal_info.input_filename = Input_file_name;
 %% Read input signal
 Input_Signal = audioread( Input_file );
 
-if signal_info.inputSignalNorm
+if isfield(signal_info,'inputSignalNorm') && signal_info.inputSignalNorm
     % Normalise input signal
     Input_Signal = Input_Signal ./ rms(Input_Signal);
 end
@@ -64,7 +64,7 @@ end
     Input_Signal, setup, signal_info, system_info );
 
 %% Normalise Loudspeaker Signals
-if signal_info.inputSignalNorm
+if isfield(signal_info,'clipLevelAdjust') && isfield(signal_info,'inputSignalNorm') && signal_info.inputSignalNorm
     % Prevent clipping upon save
     Loudspeaker_Signals = Loudspeaker_Signals .* db2mag(signal_info.clipLevelAdjust);
 end
