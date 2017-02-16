@@ -143,13 +143,9 @@ for m = 1:M
     files = {[],[]};
     for s=s_1:S
         files_ = Tools.getAllFiles( Recordings_Path{m,s} );
-        isMasker = ~isempty(strfind(lower(signal_info.method), 'masker')); %if a masker
         % Continue with only the files that are contained in the original
-        % source folder unless a Masker signal is being processed (these are
-        % named as Maskers)
-        if ~isMasker
-            files = Tools.keepFilesFromFolder( files, signal_info.speech_filepath);
-        end
+        % source folder
+        files = Tools.keepFilesFromFolder( files, signal_info.speech_filepath);
         % Warn if there are no recordings to analyse and then return from the function
         if isempty(files_)
             wrnCol = [255,100,0]/255;

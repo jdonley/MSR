@@ -18,8 +18,8 @@ rir_rec = repmat(rir_rec,size(rir_sim,1)/size(rir_rec,1),1,1);
 
 
 newRIRs = RIRs;
-newRIRs.Bright_RIRs = rir_rec;
-newRIRs.Quiet_RIRs = flip(rir_rec,3);
+newRIRs.Quiet_RIRs = rir_rec;
+newRIRs.Bright_RIRs = flip(rir_rec,3);
 
 [fpath,fname,fext]=fileparts(RIR_FilePath);
 save(RIR_FilePath,'RIRs');
