@@ -57,21 +57,23 @@ if nargin < 6
 end
 Measures = analysis_info.Measures;
 
-
-% % if a realworld recording it is assumed that the noise level does not
-% % exceed the level of the clean reproduction signal
-% if strcmpi(signal_info.recording_type,'realworld')
-%     signal_info.L_noise_mask(signal_info.L_noise_mask>0)=[];
-% end
-
 signal_type = [signal_types{2:end}];
+
+
+signal_info.recording_type = strrep(signal_info.recording_type,'-','');
+isSimulated = strcmpi(signal_info.recording_type,'simulated');
+isRealworld = strcmpi(signal_info.recording_type,'realworld');
+isSweep     = isempty(signal_type) && any(strcmp(analysis_info.Measures,'SPL'));
+
+
 if isHybrid
     signal_type = ['Hybrid' signal_type];
 end
-if isempty(signal_type) && any(strcmp(analysis_info.Measures,'SPL'))
+if isSweep
     signal_type = 'Sweep'; % An exponential sine sweep is what is used to measure SPL with this framework
 end
 signal_info.method = signal_type;
+
 
 %% Obtain Recordings and Results Directory Path
 ResultsPath = Results.getResultsPath( setups{1}, system_info.LUT_resolution, room_setup, signal_info, system_info.Drive );
@@ -82,11 +84,11 @@ levels = signal_info.L_noise_mask;
 weight = signal_info.weight;
 Recordings_Path = cell(length(levels),length(setups));
 
-if strcmpi(signal_info.recording_type,'simulated')
+if isSimulated
     s_1 = 1;
-elseif strcmpi(signal_info.recording_type,'realworld')
+elseif isRealworld
     s_1 = 2;
-    if strcmpi(signal_type,'sweep')
+    if isSweep
         s_1 = 1;
     end 
 end
@@ -106,9 +108,9 @@ for s = s_1:length(setups)
         else
             error('Setup index not defined in ''methods_list_clean'' or ''methods_list_masker''.')
         end
-        if strcmpi(signal_info.recording_type,'simulated')
+        if isSimulated
             Recordings_Path{m,s} = Results.getRecordingsPath( setups{s}, system_info.LUT_resolution, room_setup, signal_info, system_info.Drive );
-        elseif strcmpi(signal_info.recording_type,'realworld')
+        elseif isRealworld
             Recordings_Path{m,s} = Hardware_Control.getRealRecordingsPath( setups{1}, system_info.LUT_resolution, room_setup, signal_info, system_info.Drive );
         end
     end
@@ -122,9 +124,9 @@ signal_info.method = signal_type;
 Results.deleteResultsFile( ResultsPath, analysis_info.Measures);
 
 %% Start Evaluation Loop
-if strcmpi(signal_info.recording_type,'simulated')
+if isSimulated
     EnvType = 'Simulated';
-elseif strcmpi(signal_info.recording_type,'realworld')
+elseif isRealworld
     EnvType = 'Real-World';
 end
 fprintf(['\n====== Analysing ' EnvType ' Reverberant Signals ======\n']);
@@ -145,7 +147,9 @@ for m = 1:M
         files_ = Tools.getAllFiles( Recordings_Path{m,s} );
         % Continue with only the files that are contained in the original
         % source folder
-        files = Tools.keepFilesFromFolder( files, signal_info.speech_filepath);
+        if s==s_1
+            files_ = Tools.keepFilesFromFolder( files_, signal_info.speech_filepath);
+        end
         % Warn if there are no recordings to analyse and then return from the function
         if isempty(files_)
             wrnCol = [255,100,0]/255;

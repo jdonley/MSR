@@ -27,7 +27,7 @@ Input_Signal = v_addnoise( zeros(Signal_Length,1), signal_info.Fs, -Inf); % Whit
 %Input_Signal = v_addnoise( zeros(Signal_Length,1), signal_info.Fs, -Inf, '', 5 ); % Speech shaped noise (SSN) (ITU-T P.50 Spectrum)
 
 %% Shape the noise to the speech being used
-[spect_sp,frqs_sp]=Tools.LTASS('M:\MSR\+Miscellaneous\+Speech_Files\');
+[spect_sp,frqs_sp]=Tools.LTASS('+Miscellaneous\+Speech_Files\');
 % span=floor(length(frqs_sp(frqs_sp>=125 & frqs_sp<=8000))/7);
 span = round(5/100 * length(spect_sp));
 
