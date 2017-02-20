@@ -1,6 +1,7 @@
 function setPathsFromList
 %SETPATHSFROMLIST Sets and saves the dependency paths
 global Settings
+All_Settings.Global_Settings
 
 if (isfield(Settings, 'FirstRun') && Settings.FirstRun) || ...
         ~isfield(Settings, 'FirstRun')

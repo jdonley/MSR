@@ -1,6 +1,3 @@
-%% Load Global Settings
-All_Settings.Global_Settings
-
 %% Update Dependencies
 Dependencies.setPathsFromList
 
