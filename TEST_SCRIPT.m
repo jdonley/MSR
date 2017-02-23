@@ -2,12 +2,13 @@ clc;clear;
 
 RIR_FilePath = 'Z:\+Room_Acoustics\+RIR_Database\+CIRCLEarray_1.3mPerpDist_180degCentre\+24Genelec8010ASpkrs_4.2616mLen\+0Bx_0.6By_0Qx_-0.6Qy\+10x10x10Dim_1Ab\Simulated_RIRs__32Rec_5x5x5Ctr.mat';
 load(RIR_FilePath)
-load('Z:\+Calibration_Data\+Filters\Transfer_Functions_2017-02-13_15.53.mat')
+% load('Z:\+Calibration_Data\+Filters\Transfer_Functions_2017-02-13_15.53.mat')
+load('Z:\+Calibration_Data\+Filters\Transfer_Functions_2017-02-23_16.27.mat')
 
 rir_sim = RIRs.Bright_RIRs;
 
 rir_rec=[];
-for r=1:4
+for r=1:5
 for s = 1:24
 tmp = decimate(TF(:,s,r),48000/16000);
 rir_rec(r,:,s) = tmp(1:size(rir_sim,2));
