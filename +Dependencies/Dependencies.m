@@ -16,6 +16,10 @@ d(end+1).Name           = 'arrow';
 d(end+1).Name           = 'DSP_Tools';
   d(end).URL            = '';
   d(end).IncludeSubDirs = true;
+  
+d(end+1).Name           = 'export_fig';
+  d(end).URL            = 'https://github.com/altmany/export_fig';
+  d(end).Required       = true;
               
 d(end+1).Name           = 'fastISM';
   d(end).URL            = 'https://au.mathworks.com/matlabcentral/fileexchange/25965-fast-simulation-of-acoustic-room-impulse-responses--image-source-method-';
