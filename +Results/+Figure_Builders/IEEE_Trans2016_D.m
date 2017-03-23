@@ -33,6 +33,11 @@ fig.Color = [1 1 1];
 
 nCol = SYS.publication_info.subPlotDims(1);
 nRow = SYS.publication_info.subPlotDims(2);
+if numel(SYS.publication_info.subPlotDims)==3
+    nPag = SYS.publication_info.subPlotDims(3);
+else
+    nPag = 1;
+end
 
 axHndls = tightPlots( ...
     nRow, nCol, ...
@@ -50,32 +55,40 @@ legStrs = [];
 SYStmp = SYS;
 for row = 1:nRow
     for col = 1:nCol
-        I = sub2ind([nCol nRow],col,row);
-        Ir  = sub2ind([nRow nCol],row,col);
-        
-        SYStmp.Main_Setup   = SYS.Main_Setup(Ir);
-        SYStmp.Masker_Setup = SYS.Masker_Setup(Ir);
-        
-        SYStmp.signal_info.method = ...
-            SYS.signal_info.methods_list{ ...
-            SYS.signal_info.methods_list_masker(Ir)};
-        
-        [nA, lS] = Results.Axes_Builders.STOI_PESQ( ...
-            SYStmp, ...
-            axHndls( I ) );
+        for pag = 1:nPag
+            
+            I = sub2ind([nCol nRow],col,row);
+            Ir  = sub2ind([nRow nCol],row,col);
+            Ir = arrayfun(@(x) sub2ind([nRow nCol nPag],row,col,x), 1:3);
+            
+            SYStmp.Main_Setup   = SYS.Main_Setup(Ir);
+            SYStmp.Masker_Setup = SYS.Masker_Setup(Ir);
+            
+            SYStmp.signal_info.method = ...
+                SYS.signal_info.methods_list{ ...
+                SYS.signal_info.methods_list_masker(Ir)};
+            
+            [nA, lS] = Results.Axes_Builders.STOI_PESQ( ...
+                SYStmp, ...
+                axHndls( I ) );
+            
+        end
         newAxs  = [newAxs; nA];
         legStrs = [legStrs; lS];
         
     end
     
 end
+SYS_ = SYS;
+SYS_.Main_Setup(row*col+1:end)=[];
+SYS_.Masker_Setup(row*col+1:end)=[];
 
 drawnow;pause(0.05);
 tightfig(fig);
 
-Results.Figure_Builders.Helpers.setLegend( SYS, newAxs, legStrs, 'errorbar' );
+Results.Figure_Builders.Helpers.setLegend( SYS_, newAxs, legStrs, 'errorbar' );
 
-Results.Figure_Builders.Helpers.setLabels( SYS, newAxs, nRow, nCol );
+Results.Figure_Builders.Helpers.setLabels( SYS_, newAxs, nRow, nCol );
 
 end
 
