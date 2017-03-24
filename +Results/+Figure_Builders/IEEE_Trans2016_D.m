@@ -22,9 +22,9 @@ function [ fig ] = IEEE_Trans2016_D( SYS )
 % Author: Jacob Donley
 % University of Wollongong
 % Email: jrd089@uowmail.edu.au
-% Copyright: Jacob Donley 2016
+% Copyright: Jacob Donley 2016-2017
 % Date: 28 November 2016
-% Revision: 0.1
+% Revision: 0.2 (23 March 2017)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

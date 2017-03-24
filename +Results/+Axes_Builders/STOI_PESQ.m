@@ -17,9 +17,9 @@ function [axs, legendStrings] = STOI_PESQ( SYS, axH )
 % Author: Jacob Donley
 % University of Wollongong
 % Email: jrd089@uowmail.edu.au
-% Copyright: Jacob Donley 2016
+% Copyright: Jacob Donley 2016-2017
 % Date: 09 June 2016
-% Revision: 0.1
+% Revision: 0.2 (23 March 2017)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 measures = {'STOI';'PESQ'};
@@ -49,6 +49,8 @@ axs = ax;
 set(axs,'Color','none'); %Transparent axes backgrounds
 legendStrings = {};
 
+mergeLines = true;
+
 %% Repeat for each line on axis
 SYS_AllLines = SYS;
 Nlines = numel(SYS.Main_Setup);
@@ -62,10 +64,10 @@ for li = 1:Nlines
             Results.getResultsPath( SYS  ), ...
             measures{rt}, '_Results.csv'];
         
-        Res_Matrix = cell(2,1);
-        Res_trend = cell(2,1);
-        Res_area = cell(2,1);
-        Res_CI = cell(2,1);
+        Res_Matrix  = cell(2,1);
+        Res_trend   = cell(2,1);
+        Res_area    = cell(2,1);
+        Res_CI      = cell(2,1);        
         
         %% Read results
         results_func = str2func(['Results.import_' results_types{rt} '_Reverb']);
@@ -120,62 +122,100 @@ for li = 1:Nlines
         end
         
         %%
-        cols = colours{rt};
-        mrks = markers{rt};
-        
-        domain = Hrz_Vec([1 end]);
-        domain_lbl = 'Noise Mask Level ($G$) ($\mathrm{dB}$)';
-        
-        switch results_types{rt}
-            case 'SpeechIntelligibility'
-                axCurr = ax(1);
-                range = [0 100];
-                range_lbl = 'STOI (\%WC)';
-            case 'Quality'
-                axCurr = ax(2);
-                range = [1 4.56];
-                range_lbl = 'PESQ (MOS)';
+        trend_vec = linspace(Hrz_Vec(1),Hrz_Vec(end),numel(Hrz_Vec)*10);
+        cfArgs={'UniformOutput', false};
+        if mergeLines && li>1
+            
+            Res_trend_{rt}  = cellfun( @(v1,v2) v1(trend_vec)+v2, ...
+                Res_trend(~cellfun('isempty',Res_trend)), ...
+                Res_trend_{rt}(~cellfun('isempty',Res_trend_{rt})), 'un',0);
+            
+            Res_Matrix_{rt} = cellfun( @(v1,v2) v1 + v2 , ...
+                Res_Matrix(~cellfun('isempty',Res_Matrix)), ...
+                Res_Matrix_{rt}(~cellfun('isempty',Res_Matrix_{rt})), 'un',0);
+            
+            Res_CI_{rt}     = cellfun( @(v1,v2) v1 + v2 , ...
+                Res_CI(~cellfun('isempty',Res_CI)), ...
+                Res_CI_{rt}(~cellfun('isempty',Res_CI_{rt})), 'un',0);
+            
+        else            
+            Res_trend_{rt}  = cellfun(@(v1) v1(trend_vec), ...
+                Res_trend(~cellfun('isempty',Res_trend)), 'un',0);
+            Res_Matrix_{rt} = Res_Matrix;
+            Res_CI_{rt}     = Res_CI;
         end
-        
-        Results.Axes_Builders.Helpers.setAxisParameters( SYS, axCurr, range, domain, range_lbl, domain_lbl);
-        
-        for pl = size(cols,1):-1:1 % for each plottable set of data (plot in reverse order to keep axes order)
-            
-            PlDetails = { ...
-                'Color',cols(pl,:), ...
-                'LineWidth',SYS.publication_info.lineWid};
-            
-            if Nlines > 1
-                PlOnlyDetails = {'LineStyle', lineStys{li}};
-            else
-                PlOnlyDetails={};
+        %%
+        if (mergeLines && li==Nlines) || ~mergeLines
+            if mergeLines
+                Res_trend_  = cellfun(@(v1) ...
+                    cellfun(@(v2) v2/Nlines, v1, 'un',0 ), ...
+                    Res_trend_, 'un',0);
+                Res_Matrix_  = cellfun(@(v1) ...
+                    cellfun(@(v2) v2/Nlines, v1, 'un',0 ), ...
+                    Res_Matrix_, 'un',0);
+                Res_CI_  = cellfun(@(v1) ...
+                    cellfun(@(v2) v2/Nlines, v1, 'un',0 ), ...
+                    Res_CI_, 'un',0);
             end
             
-            erPlDetails = { ...
-                mrks(pl), ...
-                PlDetails{:}, ...
-                'MarkerSize',SYS.publication_info.markerSize};
             
-            v=ver('matlab');
-            if str2num(v.Version)>=9.2
-                erPlDetails = {erPlDetails{:}, 'CapSize',SYS.publication_info.capSize};
+            cols = colours{rt};
+            mrks = markers{rt};
+            
+            domain = Hrz_Vec([1 end]);
+            domain_lbl = 'Noise Mask Level ($G$) ($\mathrm{dB}$)';
+            
+            switch results_types{rt}
+                case 'SpeechIntelligibility'
+                    axCurr = ax(1);
+                    range = [0 100];
+                    range_lbl = 'STOI (\%WC)';
+                case 'Quality'
+                    axCurr = ax(2);
+                    range = [1 4.56];
+                    range_lbl = 'PESQ (MOS)';
             end
             
-            axes(axCurr);
-            hold on;
+            Results.Axes_Builders.Helpers.setAxisParameters( SYS, axCurr, range, domain, range_lbl, domain_lbl);
             
-            trend_vec = linspace(Hrz_Vec(1),Hrz_Vec(end),numel(Hrz_Vec)*10);
-            Pl = plot(axCurr,trend_vec,Res_trend{pl}(trend_vec),PlDetails{:},PlOnlyDetails{:});
-            Pl.Color(4) = trendAlpha;
-            
-            erPl = errorbar(axCurr,Hrz_Vec,mean(Res_Matrix{pl}),Res_CI{pl}(:,1),Res_CI{pl}(:,2),...
-                erPlDetails{:});
-            
-            hold off;            
-            
-            if li ~= 1
-                Pl.Tag = 'noLegend';
-                erPl.Tag = 'noLegend';
+            for pl = size(cols,1):-1:1 % for each plottable set of data (plot in reverse order to keep axes order)
+                
+                PlDetails = { ...
+                    'Color',cols(pl,:), ...
+                    'LineWidth',SYS.publication_info.lineWid};
+                
+                if Nlines > 1
+                    PlOnlyDetails = {'LineStyle', lineStys{li}};
+                else
+                    PlOnlyDetails={};
+                end
+                
+                erPlDetails = { ...
+                    mrks(pl), ...
+                    PlDetails{:}, ...
+                    'MarkerSize',SYS.publication_info.markerSize};
+                
+                v=ver('matlab');
+                if str2num(v.Version)>=9.2
+                    erPlDetails = {erPlDetails{:}, 'CapSize',SYS.publication_info.capSize};
+                end
+                
+                axes(axCurr);
+                hold on;
+                
+                Pl = plot(axCurr,trend_vec,Res_trend_{rt}{pl},PlDetails{:},PlOnlyDetails{:});
+                Pl.Color(4) = trendAlpha;
+                
+                erPl = errorbar(axCurr,Hrz_Vec,mean(Res_Matrix_{rt}{pl}),Res_CI_{rt}{pl}(:,1),Res_CI_{rt}{pl}(:,2),...
+                    erPlDetails{:});
+                
+                hold off;
+                
+                if li ~= 1
+                    Pl.Tag = 'noLegend';
+                    erPl.Tag = 'noLegend';
+                end
+                
             end
             
         end
