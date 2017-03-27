@@ -33,7 +33,8 @@ fig.Color = [1 1 1];
 
 nCol = SYS.publication_info.subPlotDims(1);
 nRow = SYS.publication_info.subPlotDims(2);
-if numel(SYS.publication_info.subPlotDims)==3
+if numel(SYS.publication_info.subPlotDims)==3 ...
+        && ~SYS.publication_info.MergeLines
     nPag = SYS.publication_info.subPlotDims(3);
 else
     nPag = 1;
@@ -58,8 +59,13 @@ for row = 1:nRow
         for pag = 1:nPag
             
             I = sub2ind([nCol nRow],col,row);
-            Ir  = sub2ind([nRow nCol],row,col);
-            Ir = arrayfun(@(x) sub2ind([nRow nCol nPag],row,col,x), 1:3);
+            %             Ir  = sub2ind([nRow nCol],row,col);
+            if SYS.publication_info.MergeLines
+                nPag_ = SYS.publication_info.subPlotDims(3);
+            else
+                nPag_ = nPag;
+            end
+            Ir = arrayfun(@(x) sub2ind([nRow nCol nPag_],row,col,x), 1:nPag_);
             
             SYStmp.Main_Setup   = SYS.Main_Setup(Ir);
             SYStmp.Masker_Setup = SYS.Masker_Setup(Ir);

@@ -49,11 +49,17 @@ axs = ax;
 set(axs,'Color','none'); %Transparent axes backgrounds
 legendStrings = {};
 
-mergeLines = true;
+mergeLines = SYS.publication_info.MergeLines;
+
 
 %% Repeat for each line on axis
 SYS_AllLines = SYS;
 Nlines = numel(SYS.Main_Setup);
+
+if mergeLines
+   lineStys{Nlines} = '-';
+end
+
 for li = 1:Nlines
     SYS.Main_Setup = SYS_AllLines.Main_Setup(li);
     SYS.Masker_Setup = SYS_AllLines.Masker_Setup(li);
@@ -147,15 +153,12 @@ for li = 1:Nlines
         %%
         if (mergeLines && li==Nlines) || ~mergeLines
             if mergeLines
-                Res_trend_  = cellfun(@(v1) ...
-                    cellfun(@(v2) v2/Nlines, v1, 'un',0 ), ...
-                    Res_trend_, 'un',0);
-                Res_Matrix_  = cellfun(@(v1) ...
-                    cellfun(@(v2) v2/Nlines, v1, 'un',0 ), ...
-                    Res_Matrix_, 'un',0);
-                Res_CI_  = cellfun(@(v1) ...
-                    cellfun(@(v2) v2/Nlines, v1, 'un',0 ), ...
-                    Res_CI_, 'un',0);
+                Res_trend_{rt}  = cellfun(@(v1) v1/Nlines, ...
+                    Res_trend_{rt}, 'un',0);
+                Res_Matrix_{rt}  = cellfun(@(v1) v1/Nlines, ...
+                    Res_Matrix_{rt}, 'un',0);
+                Res_CI_{rt}  = cellfun(@(v1) v1/Nlines, ...
+                    Res_CI_{rt}, 'un',0);
             end
             
             
@@ -211,7 +214,7 @@ for li = 1:Nlines
                 
                 hold off;
                 
-                if li ~= 1
+                if li ~= 1 && ~SYS.publication_info.MergeLines
                     Pl.Tag = 'noLegend';
                     erPl.Tag = 'noLegend';
                 end
