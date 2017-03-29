@@ -190,7 +190,8 @@ system_info.playbackChannels = ...
     [ 1  2  3  4  5  6  7  8 ...
     9 10 11 12 13 14 15 16 ...
     17 18 19 20 21 22 23 24];
-
+% system_info.playbackChannels = ...
+%     [ 1  ];
 % system_info.recordChannels = ...
 %     [ 1 2 ];
 % system_info.recordChZoneAlloc = ... % Allocation of the recorded channels to their respective zones (1 is for Bright Zone, 2 is for Quiet Zone)
@@ -269,6 +270,8 @@ publication_info.axes_gap = [0.5 0.5]; %Gap between axes [gap_height gap_width] 
 publication_info.axes_margins_height = [1 1]; %Axes height margins [lower upper]  %centimeters
 publication_info.axes_margins_width = [1 1]; %Axes width margins [left right]  %centimeters
 publication_info.axes_grid = 'minor'; % Show axes grid ('on', 'minor' or 'off')
+publication_info.axes_gridMinorY = 'off'; % Override minor grid for Y axis ('on' or 'off')
+publication_info.axes_gridMinorX = 'on'; % Override minor grid for X axis ('on' or 'off')
 publication_info.axes_tickdir = 'both'; % Axes tick direction(s) ('in', 'out' or 'both')
 publication_info.sigRounding = 3; % number of significant figures rounding
 

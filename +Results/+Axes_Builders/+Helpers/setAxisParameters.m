@@ -135,5 +135,7 @@ if strcmp(SYS.publication_info.axes_grid, 'minor') %if minor then turn on major 
     grid(ax, 'on');
 end
 grid(ax, SYS.publication_info.axes_grid);
+ax.YMinorGrid = SYS.publication_info.axes_gridMinorY;
+ax.XMinorGrid = SYS.publication_info.axes_gridMinorX;
 
 end

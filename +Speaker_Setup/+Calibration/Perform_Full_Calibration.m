@@ -102,6 +102,7 @@ for EQorTFloop = 1:(RecordTF+1)
         EQ = EQs(:,:,1:NCalibChans);
     elseif EQorTFloop == 2
         TF = TFs(:,:,(NCalibChans+1):(NCalibChans+NRecChans));
+%         TF=TFs;
     end
 end
 
