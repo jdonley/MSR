@@ -7,7 +7,8 @@ SourceAngleSetIndices = [1, 2, 3]; % 1, 2 or 3
 
 N_spkrs = 24; % 16, 24, 32 or 149
 
-lambda_g = [0.0, 0.5, 1.0]; % between 0 and 1
+% lambda_g = [0.0, 0.5, 1.0]; % between 0 and 1
+lambda_g = [     0.5     ]; % between 0 and 1
 
 spkr_type  = 'Dynamic';
 spkr_radius = 1.3;
@@ -259,7 +260,9 @@ if numel(SourceAngleSetIndices)==1
 else
     angleTxt='';
 end
-publication_info.FigureTitle = ['Quality and Intelligibility - Differing ${\lambda}{\grave{}}$' ...
+% publication_info.FigureTitle = ['Quality and Intelligibility - Differing ${\lambda}{\grave{}}$' ...
+%     angleTxt];
+publication_info.FigureTitle = ['Quality and Intelligibility - ${\lambda}{\grave{}}=0.5$' ...
     angleTxt];
 
 publication_info.print_fmt = 'pdf'; %figure image file format
