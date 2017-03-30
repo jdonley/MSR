@@ -145,7 +145,8 @@ LegendHeightScaleFactor = 1.1;
 
 
 % Start Plotting
-ha = tightPlots(3,1,plot_width,[2.0 1], [0.2 0.2], 1, 1,'centimeters');
+ha = tightPlots(3,1,plot_width,[2.0 0.9], [0.1 0.1], 1, 1,'centimeters');
+
 xlims = [0.15 8];
 ylims = [-50 0];
 numXTicks = 3;
