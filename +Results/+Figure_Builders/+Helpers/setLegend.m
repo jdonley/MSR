@@ -114,7 +114,7 @@ axPos=reshape([allAxs.Position],4,[])';
 fullWidHigh = max(axPos(:,1:2),[],1) ...
             + max(axPos(:,3:4),[],1);
 if strcmpi(linetypes,'line')
-    fullWidHigh(1)  = fullWidHigh(1) + max(axPos(:,1),1);
+    fullWidHigh(1)  = fullWidHigh(1) + max(axPos(:,1));
 end
 
 % Relocate legend

@@ -12,6 +12,7 @@ if (isfield(Settings, 'FirstRun') && Settings.FirstRun) || ...
 end
 if Settings.ChangeUserpath
     userpath(Settings.ToolboxPath);
+    cd(userpath); % Required from R2017a onwards
 end
 addpath(Dependencies.DependencyList);
 rmpath(Dependencies.FolderExceptionList);

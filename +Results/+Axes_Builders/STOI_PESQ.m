@@ -49,8 +49,11 @@ axs = ax;
 set(axs,'Color','none'); %Transparent axes backgrounds
 legendStrings = {};
 
-mergeLines = SYS.publication_info.MergeLines;
-
+if isfield(SYS.publication_info,'MergeLines')
+    mergeLines = SYS.publication_info.MergeLines;
+else
+    mergeLines = false;
+end
 
 %% Repeat for each line on axis
 SYS_AllLines = SYS;
@@ -163,11 +166,11 @@ for li = 1:Nlines
                     Res_Matrix_{rt}, 'un',0);
             end
             
-            if rt==2
-                STOIQ=mean(Res_trend_{1}{2})/100;
-                PESQB=mean(Res_trend_{2}{1})/4.56;
-                sum(PESQB)-sum(STOIQ)
-            end
+%             if rt==2
+%                 STOIQ=mean(Res_trend_{1}{2})/100;
+%                 PESQB=mean(Res_trend_{2}{1})/4.56;
+%                 sum(PESQB)-sum(STOIQ);
+%             end
             
             cols = colours{rt};
             mrks = markers{rt};
@@ -221,7 +224,7 @@ for li = 1:Nlines
                 
                 hold off;
                 
-                if li ~= 1 && ~SYS.publication_info.MergeLines
+                if li ~= 1 && ~mergeLines
                     Pl.Tag = 'noLegend';
                     erPl.Tag = 'noLegend';
                 end

@@ -30,7 +30,7 @@ latexFontSettings = ['{\fontfamily{' FF '}' ...
 LblAxInds = []; %Indices of axes with labels [title; y1Lbl; xLbl; y2Lbl;]
 for y = 1:nY
     for x = 1:nX
-        for lr = 1:2 %left right yaxis
+        for lr = 1:size(axs,2) %left right yaxis
             axInd = [sub2ind([nX,nY],x,y), lr];
             axes( axs( axInd(1), axInd(2) ) );
             ax = gca;
@@ -46,7 +46,7 @@ for y = 1:nY
                 ax.YTickLabel = '';
             end
             
-            if lr == 2 %Axes numbers                
+            if lr == size(axs,2) %Axes numbers                
                 ax.Title.String = ['(' char( 64 + axInd(1) ) ')'];
                 if strcmpi(SYS.publication_info.Interpreter, 'latex')
                     ax.Title.Interpreter = SYS.publication_info.Interpreter;
@@ -105,7 +105,7 @@ for lbl = 1:size(LblAxInds,1)
     tmpObj.Units = tmpUnit;
     ax.LooseInset = ax.TightInset;
     
-    if LblAxInds(lbl,2) == 1 %if a left y axis then reset right y axis on top
+    if size(axs,2) > 1 && LblAxInds(lbl,2) == 1 %if a left y axis then reset right y axis on top
         axes( axs(LblAxInds(lbl,1), 2 ) );
     end
 end
