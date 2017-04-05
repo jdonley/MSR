@@ -150,7 +150,9 @@ classdef loudspeaker_setup
             
             % Normalise to the maximum of the absolute bright zone values
             bMask = obj.Multizone_Soundfield.Bright_Zone.Soundfield_d_mask;
-            maxBrightVal = mean(abs(obj.Bright_Samples(bMask))); % Changed to find the average as our goal is to have the bright zone fit on average.
+            BrightSamples = obj.Bright_Samples;
+            BrightSamples(isnan(BrightSamples))=0;
+            maxBrightVal = mean(abs(BrightSamples(bMask))); % Changed to find the average as our goal is to have the bright zone fit on average.
             % Normalise phase about desired bright zone centre
 %             O = floor(size(obj.Bright_Samples)/2);
 %             centBrightAngle = angle(obj.Bright_Samples(O(1),O(2))) ...
@@ -470,7 +472,9 @@ classdef loudspeaker_setup
             obj.Loudspeaker_Object.res = obj.res;
             obj = obj.createEmptySoundfield;
             obj.Loudspeaker_Object.field_size = size(obj.Soundfield_reproduced) / obj.res;
-            obj.Loudspeaker_Object = obj.Loudspeaker_Object.set_fd(obj.k_global*obj.c/2/pi);
+            if isfield(obj.Loudspeaker_Object,'set_fd')
+                obj.Loudspeaker_Object = obj.Loudspeaker_Object.set_fd(obj.k_global*obj.c/2/pi);
+            end
         end
         
         function obj = calcDesiredMask(obj)
@@ -492,7 +496,7 @@ classdef loudspeaker_setup
         
         function obj = setWavenumberFromChild(obj)
             obj.k_global = obj.Multizone_Soundfield.k_global;
-            if ~isempty(obj.Loudspeaker_Object)
+            if ~isempty(obj.Loudspeaker_Object) && isfield(obj.Loudspeaker_Object,'set_fd')
                 obj.Loudspeaker_Object = obj.Loudspeaker_Object.set_fd(obj.k_global*obj.c/2/pi);
             end
         end
