@@ -30,6 +30,7 @@ addOptional(p,'loudspeaker_object',             [] );                           
 addOptional(p,'angleof_loudspeakerarrcentre',   180,               @isnumeric); % 24
 addOptional(p,'loudspeaker_spacing',            0.01,              @isnumeric); % 25
 addOptional(p,'speaker_array_type',             'circle',          @ischar);    % 26
+addOptional(p,'room_size',                      [],                @isnumeric); % 27
 
 parse(p, settings{:});
 
@@ -59,7 +60,8 @@ setup = MultizoneSoundfieldSetup( ...
     p.Results.loudspeaker_object, ...           23
     p.Results.angleof_loudspeakerarrcentre, ... 24
     p.Results.loudspeaker_spacing, ...          25
-    p.Results.speaker_array_type);%             26
+    p.Results.speaker_array_type, ...           26
+    p.Results.room_size);%                      27
 
 end
 
@@ -89,7 +91,8 @@ function setup = MultizoneSoundfieldSetup( ...
     spkrobj,...  23
     phiLcent,... 24
     spkrspace,...25
-    arr_type)%   26
+    arr_type,... 26
+    roomSz)%     27
 %%
 c = 343;
 k = (f/c)*2*pi;
@@ -122,6 +125,7 @@ soundfield = soundfield.setN( floor(N) );
 
 %%
 setup = Speaker_Setup.loudspeaker_setup;
+setup = setup.setRoomSize(roomSz);
 setup = setup.addMultizone_Soundfield(soundfield);
 setup = setup.setRadius( Rl );
 

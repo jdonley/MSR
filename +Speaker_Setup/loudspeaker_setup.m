@@ -12,6 +12,7 @@ classdef loudspeaker_setup
         res = 50;  % samples per metre %Resolution of soundfield
         Loudspeaker_Count = 32;     % Number of speakers used in the reproduction (Number of speakers required = ceil( Angular_Window * (2*M + 1) / (2*pi) ) ).
         Origin = [0,0];             % [y,x]
+        RoomSize = [];
         Radius = 1.5;               % Radius of speaker layout
         Speaker_Arc_Angle = 180;    % Angle of the arc of speakers (360 = full circle, 180 = semi-circle)
         Angle_FirstSpeaker = 0;     % The angle where the first speaker of the array occurs
@@ -23,7 +24,7 @@ classdef loudspeaker_setup
         Loudspeaker_Dimensions;
         Loudspeaker_Type = 'Genelec 8010A'; % 'Genelec 8010A' or 'Genelec 8020C' or 'Meyer MM-4XP' or 'Parametric'
         Loudspeaker_Object = [];
-%         DipoleDistance = 343/12/1000; % a distance of [343m/s / (12 x 1kHz)] will give approximately equal magnitude on one side of dipole array at 1kHz
+        %         DipoleDistance = 343/12/1000; % a distance of [343m/s / (12 x 1kHz)] will give approximately equal magnitude on one side of dipole array at 1kHz
         DipoleDistance = 343/(2*pi*2000); % Follows formula in Donley et al, "Active Speech Control using Wave-Domain Processing with a Linear Wall of Dipole Secondary Sources", ICASSP, IEEE, 2017.
         k_global = 2000 /343*2*pi;  % Frequency in wavenumber
         c = 343;
@@ -84,10 +85,12 @@ classdef loudspeaker_setup
         
         function [width, height] = getFieldSize(obj)
             thisRadius = obj.Radius;
-            if obj.Loudspeaker_Count == 1;
+            if obj.Loudspeaker_Count == 1
                 thisRadius = 0;
             end
-            R = max([thisRadius, obj.Multizone_Soundfield.Radius]);
+            if isempty(obj.RoomSize)
+                R = max([thisRadius, obj.Multizone_Soundfield.Radius]);
+            end
             if obj.ExtendedField
                 if ~isempty(strfind(obj.Speaker_Array_Type,'line')) % Mirror accross linear array instead
                     L = obj.Loudspeaker_Count;
@@ -101,9 +104,12 @@ classdef loudspeaker_setup
                     width = int16(obj.res * 3*R * 2);
                     height = width;
                 end
-            else
+            elseif isempty(obj.RoomSize)
                 width = int16(obj.res * R * 2);
                 height = width;
+            else
+                width  = obj.RoomSize(2)*obj.res;
+                height = obj.RoomSize(1)*obj.res;
             end
             
         end
@@ -120,7 +126,7 @@ classdef loudspeaker_setup
             if nargin < 2
                 obj = obj.setRadius(obj.Radius);
                 Debug = '';
-            elseif nargin < 3
+            elseif nargin < 3 || isempty(Radius)
                 obj = obj.setRadius(obj.Radius);
             else
                 obj = obj.setRadius(Radius);
@@ -154,11 +160,11 @@ classdef loudspeaker_setup
             BrightSamples(isnan(BrightSamples))=0;
             maxBrightVal = mean(abs(BrightSamples(bMask))); % Changed to find the average as our goal is to have the bright zone fit on average.
             % Normalise phase about desired bright zone centre
-%             O = floor(size(obj.Bright_Samples)/2);
-%             centBrightAngle = angle(obj.Bright_Samples(O(1),O(2))) ...
-%                 -angle(obj.Multizone_Soundfield.Bright_Zone.Soundfield_d(O(1),O(2)));
-%             spkrAngleNorm = angle(obj.Loudspeaker_Weights(ceil(end/2)));%Normalise to centre of loudspeaker array
-%             adjAngle = 0;%spkrAngleNorm;% + centBrightAngle;
+            %             O = floor(size(obj.Bright_Samples)/2);
+            %             centBrightAngle = angle(obj.Bright_Samples(O(1),O(2))) ...
+            %                 -angle(obj.Multizone_Soundfield.Bright_Zone.Soundfield_d(O(1),O(2)));
+            %             spkrAngleNorm = angle(obj.Loudspeaker_Weights(ceil(end/2)));%Normalise to centre of loudspeaker array
+            %             adjAngle = 0;%spkrAngleNorm;% + centBrightAngle;
             
             % Normalise and align phase to bright zone
             obj.Loudspeaker_Weights     = obj.Loudspeaker_Weights   / maxBrightVal;% * exp(-1i*adjAngle); %Added to keep speaker weights tied with their response
@@ -250,7 +256,7 @@ classdef loudspeaker_setup
                 m=m_(:,:,1);
                 phi_q = repmat(obj.Loudspeaker_Locations(:,1),1,2*M+1) + pi;
                 R_q = repmat(obj.Loudspeaker_Locations(:,2),1,2*M+1);
-
+                
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                 
                 obj.Loudspeaker_Weights = sum(2 * exp(1i*m.*phi_q) * delta_phi_s .*   sum( P_j .* 1i.^m_ .* exp( -1i * m_ .* phi_p ),3) ...
@@ -277,18 +283,18 @@ classdef loudspeaker_setup
             obj.Loudspeaker_Weights = obj.Loudspeaker_Weights' ;
             
             if strcmpi(obj.Speaker_Array_Type, '2line') %this is a dipole setup (infinitesimal spacing)
-               % Here we perform a delay and sum beamforming opperation to
-               % create better dipole directivity for the '2line' case
-               d = obj.DipoleDistance;
-               f = obj.getFrequency;
-               Q = obj.Loudspeaker_Count;
-               LW= obj.Loudspeaker_Weights;               
-               dpF = exp(-1i*pi/2) * ...
+                % Here we perform a delay and sum beamforming opperation to
+                % create better dipole directivity for the '2line' case
+                d = obj.DipoleDistance;
+                f = obj.getFrequency;
+                Q = obj.Loudspeaker_Count;
+                LW= obj.Loudspeaker_Weights;
+                dpF = exp(-1i*pi/2) * ...
                     [exp( 1i*pi), ...
-                     exp( 1i*pi*2*d*f/obj.c)];
-               dpFs = reshape(repmat(dpF,Q/2,1),[],1);               
-               LW(1:end/2) = LW(end:-1:end/2+1);
-               obj.Loudspeaker_Weights = LW .* dpFs;
+                    exp( 1i*pi*2*d*f/obj.c)];
+                dpFs = reshape(repmat(dpF,Q/2,1),[],1);
+                LW(1:end/2) = LW(end:-1:end/2+1);
+                obj.Loudspeaker_Weights = LW .* dpFs;
             end
             
         end
@@ -322,7 +328,7 @@ classdef loudspeaker_setup
                 else
                     
                     if ~mod(L,2)
-%                         y = ((wid+space)/2):(wid+space):len/2;
+                        %                         y = ((wid+space)/2):(wid+space):len/2;
                         y = (1/2:L/2)*(wid+space);
                         y = [flip(-y), y];
                     else
@@ -346,7 +352,7 @@ classdef loudspeaker_setup
             elseif strcmpi(obj.Speaker_Array_Type, '2line') %this is a dipole setup (infinitesimal spacing)
                 
                 wid = obj.Loudspeaker_Dimensions(1);
-                dist_=obj.DipoleDistance; 
+                dist_=obj.DipoleDistance;
                 space = obj.Speaker_Spacing;
                 centre = obj.Speaker_Array_Centre;
                 Ltot = obj.Loudspeaker_Count;
@@ -501,6 +507,10 @@ classdef loudspeaker_setup
             end
         end
         
+        function obj = setRoomSize(obj, RoomSize)
+            obj.RoomSize = RoomSize;
+        end
+        
         function obj = setRadius(obj, Radius)
             obj.Radius = Radius;
             obj = obj.calcDesiredMask();
@@ -614,10 +624,10 @@ classdef loudspeaker_setup
             contrast = mean( abs( obj.Bright_Samples(bMask) ) .^ 2 ) / mean( abs( obj.Quiet_Samples(qMask) ) .^ 2 );
         end
         
-        function MSE = getBrightError(obj)            
+        function MSE = getBrightError(obj)
             
-            [desired_vec, actual_vec] = obj.getNormalisedFieldVectors;            
-            MSE = sum( abs(desired_vec - actual_vec) .^ 2 ) / sum( abs(desired_vec) .^ 2 );            
+            [desired_vec, actual_vec] = obj.getNormalisedFieldVectors;
+            MSE = sum( abs(desired_vec - actual_vec) .^ 2 ) / sum( abs(desired_vec) .^ 2 );
             
         end
         
@@ -654,9 +664,9 @@ classdef loudspeaker_setup
         %% Plotting Functions
         function h = plotSoundfield(obj, field, colour, realistic, details)
             if nargin < 5; details.DrawDetails = false; end
-            if nargin < 4; realistic = false; end;
-            if nargin < 3; colour = 'default'; end;
-            if nargin < 2; field = obj.Soundfield_reproduced; end;
+            if nargin < 4; realistic = false; end
+            if nargin < 3; colour = 'default'; end
+            if nargin < 2; field = obj.Soundfield_reproduced; end
             
             ZaxisSize = max(abs(real(field(:))));
             f = real(field) .* obj.Desired_Mask;
@@ -674,17 +684,17 @@ classdef loudspeaker_setup
             end
             
             lenDim = size(field,2);
-            NTicks = 11;
-            XTick = fix(linspace(-1,1,NTicks)*lenDim/obj.res)*obj.res/2 + lenDim/2;
+            XTick = fix(linspace(-1,1,details.NTicks(1))*lenDim/obj.res)*obj.res/2 + lenDim/2;
             XTickLabel = (XTick-lenDim/2)/obj.res-obj.Origin(2);
             XTickLabel = num2cell(XTickLabel);
-            for i=1:2:numel(XTickLabel)
-                XTickLabel{i}=[];
+            if diff(details.NTicks)<0
+                for i=1:2:numel(XTickLabel)
+                    XTickLabel{i}=[];
+                end
             end
             
             lenDim = size(field,1);
-            NTicks = 7;
-            YTick = fix(linspace(-1,1,NTicks)*lenDim/obj.res)/2*obj.res + lenDim/2;
+            YTick = fix(linspace(-1,1,details.NTicks(2))*lenDim/obj.res)/2*obj.res + lenDim/2;
             YTickLabel = (YTick-lenDim/2)/obj.res-obj.Origin(1);
             YTickLabel = num2cell(YTickLabel);
             
@@ -693,7 +703,7 @@ classdef loudspeaker_setup
                 drawnow; pause(0.05);
                 h.FaceAlpha = 0.5;
             end
-            if ~isempty(strfind(colour,'scientific'))
+            if contains(colour,'scientific')
                 colormap(cmap( strrep(colour,'scientific_','') ));
             else
                 colormap(colour);
@@ -702,7 +712,7 @@ classdef loudspeaker_setup
             axis equal;
             box on;
             if realistic
-                room = ([4.815, 3.3]-0.10)*obj.res;  %The subtraction is the wall thickness compensation for the anechoic chamber
+                room = details.SYS.Room_Setup.Room_Size([2 1])*obj.res;
                 axis([(size(field,2)/2-room(1)/2) (size(field,2)/2+room(1)/2) (size(field,1)/2-room(2)/2) (size(field,1)/2+room(2)/2)]);
             else
                 axis([0 size(field,2)+1 0 size(field,1)+1]);
@@ -735,6 +745,9 @@ classdef loudspeaker_setup
             hCB.FontName = 'Times';
             hCB.FontSize = 16;
             
+            details.ZoneGeometry = obj.Multizone_Soundfield.Geometry;
+            details.ReproRegionSize = obj.Multizone_Soundfield.ReproRegionSize;
+            
             obj.zonePlots(real(field),realistic, details);
             obj.sourcePlots(real(field),realistic);
             if details.DrawDetails
@@ -746,7 +759,7 @@ classdef loudspeaker_setup
         function zonePlots(obj, field, realistic, details)
             if nargin < 4; details.DrawDetails = false; end
             if nargin < 3; realistic = false; end
-            if nargin < 2; field = obj.Soundfield_reproduced; end;
+            if nargin < 2; field = obj.Soundfield_reproduced; end
             
             if details.DrawDetails
                 LineWid = details.zoneLineWid;
@@ -758,6 +771,8 @@ classdef loudspeaker_setup
             GlobalZone_temp = obj.Multizone_Soundfield.Bright_Zone;
             GlobalZone_temp.Origin_q = struct('X',0,'Y',0);
             GlobalZone_temp.Radius_q = obj.Multizone_Soundfield.Radius;
+            GlobalZone_temp.ZoneGeometry = obj.Multizone_Soundfield.Geometry;
+            GlobalZone_temp.ZoneSize = obj.Multizone_Soundfield.ReproRegionSize;
             
             if realistic
                 maxZ = 0;
@@ -774,10 +789,17 @@ classdef loudspeaker_setup
                 O = [flip(size(field))/2 0] + [flip(obj.Origin)*obj.res 0];
                 CentreP=[SpatialZones(q).Origin_q.X, ...
                     SpatialZones(q).Origin_q.Y, maxZ];
-                plotCircle(obj, O, ...
-                    CentreP, ...
-                    SpatialZones(q).Radius_q, ...
-                    {linestyles{q}, 'Color', [0 0 0], 'LineWidth', LineWid});
+                if contains( lower(SpatialZones(q).ZoneGeometry), 'circle' )
+                    plotCircle(obj, O, ...
+                        CentreP, ...
+                        SpatialZones(q).Radius_q, ...
+                        {linestyles{q}, 'Color', [0 0 0], 'LineWidth', LineWid});
+                elseif contains( lower(SpatialZones(q).ZoneGeometry), 'rect' )
+                    plotRectangle(obj, O, ...
+                        CentreP, ...
+                        SpatialZones(q).ZoneSize, ...
+                        {linestyles{q}, 'Color', [0 0 0], 'LineWidth', LineWid});
+                end
                 if details.DrawDetails
                     xunit = LineWid*3*cos(th) + CentreP(1)*obj.res+O(1);
                     yunit = LineWid*3*sin(th) + CentreP(2)*obj.res+O(2);
@@ -932,7 +954,7 @@ classdef loudspeaker_setup
                 
                 Pv = P-O;
                 PQv = Qv-Pv;
-                d = sqrt(sum((Q-P).^2))/obj.res;                
+                d = sqrt(sum((Q-P).^2))/obj.res;
                 Theta = abs(pi - abs(theta) - abs(phi_c) );
                 d_alias=[];
                 gam_found=[];
@@ -956,7 +978,7 @@ classdef loudspeaker_setup
                     PBv = Bv-Pv;
                     
                     %tmp = asin(r1 / (sqrt(sum(( PBv ).^2)) / obj.res));
-%                     tmp=0;
+                    %                     tmp=0;
                     gam_ = pm * ( asin(  2*pi*(L-1) / (k*arrLen) - sin(Theta) )  + Theta);
                     
                     gv=[cos(gam_) -sin(gam_) 0;...
@@ -1229,7 +1251,7 @@ classdef loudspeaker_setup
             % Plot virtual source
             if strcmpi( obj.Multizone_Soundfield.Bright_Zone.SourceType, 'ps')
                 BZ_O =[obj.Multizone_Soundfield.Bright_Zone.Origin_q.X, ...
-                       obj.Multizone_Soundfield.Bright_Zone.Origin_q.Y]*obj.res;
+                    obj.Multizone_Soundfield.Bright_Zone.Origin_q.Y]*obj.res;
                 h.sphereVSrc = surf( ...
                     slx*sphereRad + ps_x + O(1) + BZ_O(1), ...
                     sly*sphereRad + ps_y + O(2) + BZ_O(2), ...
@@ -1240,13 +1262,13 @@ classdef loudspeaker_setup
             end
             [c_x, c_y] = pol2cart(obj.Speaker_Array_Centre/180*pi, (obj.Radius * obj.res));
             
-                h.sphereVSrc = surf( ...
-                    slx*sphereRad + c_x + O(1), ...
-                    sly*sphereRad + c_y + O(2), ...
-                    slz*sphereRad + ones(size(ps_x))*maxZ, ...
-                    repmat(0.5,[size(slx),3]), ...
-                    'linestyle','none');
-                h.sphereVSrc.CData = permute(repmat([1 0 0].',[1,size(slx)]),[2 3 1]);
+            h.sphereVSrc = surf( ...
+                slx*sphereRad + c_x + O(1), ...
+                sly*sphereRad + c_y + O(2), ...
+                slz*sphereRad + ones(size(ps_x))*maxZ, ...
+                repmat(0.5,[size(slx),3]), ...
+                'linestyle','none');
+            h.sphereVSrc.CData = permute(repmat([1 0 0].',[1,size(slx)]),[2 3 1]);
             
             
             hold off;

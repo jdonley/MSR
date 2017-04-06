@@ -44,6 +44,7 @@ details.arrowLength = 3;
 details.arrowAngle = 30;
 details.arrowBuffer = 2;
 details.lblFontSize = 12;
+details.NTicks = [11, 7]; % Number of ticks in X and Y
 
 pk(1) = max(abs(setup(1).Bright_Samples(:)));
 pk(2) = max(abs((setup(2).Bright_Samples(:))));

@@ -12,7 +12,7 @@ c = SYS.signal_info.c;
 
 %%
 setup = [SYS.Main_Setup(:);SYS.Masker_Setup(:)];
-for s = 1:2
+for s = 1:numel(setup)
     
 %         setup(s).Multizone_Soundfield.Radius = 0.91;
     setup(s).Multizone_Soundfield.UnattendedZ_Weight = 0;
@@ -36,7 +36,7 @@ end
 
 %%
 figNums = [101,102,103];
-realistic = false;
+realistic = true;
 details.DrawDetails = false;
 details.zoneLineWid = 1.5;
 details.arrowLineWid = 0.4;
@@ -44,12 +44,16 @@ details.arrowLength = 3;
 details.arrowAngle = 30;
 details.arrowBuffer = 2;
 details.lblFontSize = 12;
+details.NTicks = [5, 5]; % Number of ticks in X and Y
+details.SYS = SYS;
 
 pk(1) = max(abs(setup(1).Bright_Samples(:)));
-pk(2) = max(abs((setup(2).Bright_Samples(:))));
+pk(2) = max(abs(setup(2).Bright_Samples(:) + setup(3).Bright_Samples(:) ));
 
-ZM = setup(1).Soundfield_reproduced*setup(1).res;
+
+ZM = setup(1).Soundfield_reproduced*setup(1).res * SYS.Room_Setup.Wall_Reflect_Coeff;
 ZT = setup(2).Soundfield_reproduced*setup(2).res;
+ZI = setup(3).Soundfield_reproduced*setup(3).res * SYS.Room_Setup.Wall_Reflect_Coeff;
 
 close all;
 
@@ -65,7 +69,7 @@ FontSize = 9;
 FontName = 'Times';
 axes(ha(1));
 ax(1)=gca;
-setup(1).plotSoundfield( ZT, 'scientific_D1', realistic, details);
+setup(1).plotSoundfield( ZT + ZI, 'scientific_D1', realistic, details);
 text(500-10,size(ZT,1)-FontSize*2-10,1e3,'(A)','FontName',FontName,'FontSize',FontSize)
 ax(1).Title.String = '';%'Pressure Soundfield of Talker';
 ax(1).XLabel = [];
@@ -76,7 +80,7 @@ colorbar off
 
 axes(ha(2))
 ax(2)=gca;
-setup(1).plotSoundfield( ZT-ZM, 'scientific_D1', realistic, details);
+setup(1).plotSoundfield( (ZT + ZI) - ZM, 'scientific_D1', realistic, details);
 text(500-10,size(ZT,1)-FontSize*2-10,1e3,'(B)','FontName',FontName,'FontSize',FontSize)
 ax(2).Title=[];
 ax(2).CLim=clim_;
@@ -91,7 +95,7 @@ drawnow;
 pause(1);
 tightfig;
 
-SYS.publication_info.FigureName = 'IEEE_ICASSP2017_1';
+SYS.publication_info.FigureName = 'IEEE_Letters2017_1';
 SYS.publication_info.print_fmt = 'png';
 Publication.saveFigureForPublication( SYS, gcf );
 

@@ -25,6 +25,7 @@ classdef multizone_soundfield_OBE
         Quiet_Zone;                 % spatial_zone object for the quiet zone
         Bright_Zone;                % spatial_zone object for the bright zone
         Geometry = 'circle';        % Geometry of the reproduction region
+        ReproRegionSize = [];
         
         % Results
             % 3D
@@ -76,14 +77,20 @@ classdef multizone_soundfield_OBE
             if nargin < 2
                 Debug = '';
             end
-%             if strcmp(Debug, 'Bright')
-%                 width = int16( ceil(obj.N^(1/2)) + ~mod(ceil(obj.N^(1/2)),2) );
-%                 obj.Soundfield_desired = zeros(width,width);                
-%             else
+            %             if strcmp(Debug, 'Bright')
+            %                 width = int16( ceil(obj.N^(1/2)) + ~mod(ceil(obj.N^(1/2)),2) );
+            %                 obj.Soundfield_desired = zeros(width,width);
+            %             else
+            if strcmpi( obj.Geometry, 'circle' )
                 width = int16(obj.res * obj.Radius * 2);
-                obj.Soundfield_desired = zeros(width,width);
-                obj = obj.calcDesiredMask();
-%             end
+                height = width;
+            elseif contains( lower(obj.Geometry), 'rect' )
+                width  = obj.ReproRegionSize(1) * obj.res;
+                height = obj.ReproRegionSize(2) * obj.res;
+            end
+            obj.Soundfield_desired = zeros(width,height);
+            obj = obj.calcDesiredMask();
+            %             end
         end
         
     end
@@ -107,7 +114,7 @@ classdef multizone_soundfield_OBE
             
             obj = obj.calc_Alpha_Coeffs(Debug);
                         
-            if isempty(strfind(Debug,'DEBUG')) %% && ~strcmp(Debug, 'Bright') && ~strcmp(Debug, 'Quiet')
+            if ~contains(Debug,'DEBUG') %% && ~strcmp(Debug, 'Bright') && ~strcmp(Debug, 'Quiet')
                 obj = obj.createEmptySoundfield;
                 O = length(obj.Soundfield_desired) / 2; %Set the centre of the zone for indexing
                 theta = 0;
@@ -117,7 +124,7 @@ classdef multizone_soundfield_OBE
                 M = -M0:M0;
                 
                 n=0;
-                if isempty(strfind(Debug,'suppress_output'))
+                if ~contains(Debug,'suppress_output')
                     fprintf('--- Creating Global Soundfield ---\n');
                     fprintf('\tQuiet and Bright zones at %.0fHz.\n\tCompletion: ', obj.getFrequency);
                 end
@@ -134,13 +141,13 @@ classdef multizone_soundfield_OBE
                         
                         
                     end
-                    if isempty(strfind(Debug,'suppress_output'))
+                    if ~contains(Debug,'suppress_output')
                         fprintf(repmat('\b',1,n));
                         n=fprintf('%.2f%%', x / (O*2) * 100);
                     end
                 end
                 
-                if isempty(strfind(Debug,'suppress_output')); fprintf('\n\n'); end;
+                if ~contains(Debug,'suppress_output'); fprintf('\n\n'); end;
             end
             
 %             if ~strcmp(Debug, 'Bright') && ~strcmp(Debug, 'Quiet')
@@ -176,7 +183,7 @@ classdef multizone_soundfield_OBE
                                 
             obj = obj.P_build(Debug);  % Finally we build our coefficient set P for the jth planewave function
             
-            if ~isempty(strfind(Debug,'DEBUG'))
+            if contains(Debug,'DEBUG')
                 wid = length(obj.Soundfield_desired);
                 F_r = reshape(obj.F, [wid*wid obj.N]);
                 S_r = (F_r * obj.P');
@@ -264,7 +271,7 @@ classdef multizone_soundfield_OBE
             obj.P = zeros(1,obj.N);
             if( rcond(obj.R) >= 1e-12 )
                 obj.P = obj.C / obj.R';
-            elseif ~isempty(strfind(Debug,'IllCond'))
+            elseif contains(Debug,'IllCond')
                 obj.P = obj.C / obj.R';
             end
         end
@@ -306,7 +313,7 @@ classdef multizone_soundfield_OBE
              
             obj.F_angles = ((1:obj.N)-1) * obj.Delta_phi;
             
-            for n = 1:obj.N; % For each planewave
+            for n = 1:obj.N % For each planewave
                 phi = obj.F_angles(n);
                 
                 x = ((1:width) - cos(phi) * width*3/4 - width/2 - 1) / obj.res;
@@ -400,7 +407,7 @@ classdef multizone_soundfield_OBE
         end
         
         function obj = setN(obj, N)
-            if N>=1;
+            if N>=1
                 obj.N = N;
             else                
                 obj = obj.setWavenumberFromChildZone(); %Incase the child spatial zones have been changed
@@ -410,10 +417,16 @@ classdef multizone_soundfield_OBE
         end
         
         function obj = calcDesiredMask(obj)
-            width = int16(obj.res * obj.Radius * 2);
-            xyvec = linspace(-obj.Radius, obj.Radius , width);
-            [xx,yy] = meshgrid(xyvec,xyvec);
-            obj.Soundfield_desired_mask = xx.^2 + yy.^2 <= (obj.Radius)^2 * ones(width, width);
+            if strcmpi( obj.Geometry, 'circle' )
+                width = int16(obj.res * obj.Radius * 2);
+                xyvec = linspace(-obj.Radius, obj.Radius , width);
+                [xx,yy] = meshgrid(xyvec,xyvec);
+                obj.Soundfield_desired_mask = xx.^2 + yy.^2 <= (obj.Radius)^2 * ones(width, width);
+            elseif contains( lower(obj.Geometry), 'rect' )
+                width  = obj.ReproRegionSize(1) * obj.res;
+                height = obj.ReproRegionSize(2) * obj.res;
+                obj.Soundfield_desired_mask = ones(width, height);
+            end
         end
         
         function obj = norm_soundfield(obj)

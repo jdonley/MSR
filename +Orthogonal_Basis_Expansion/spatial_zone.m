@@ -31,6 +31,10 @@ classdef spatial_zone
         Soundfield_d = [];                                  % The complex values of the desired sound field made from spherical harmonics.
         Sd = [];                                            % Ideal desired soundfield
         Alpha_Coeffs = [];                                  % Alpha_Coeffs is a set of coefficients uniquely representing the qth desired soundfield
+        
+        ZoneGeometry = 'circle';                            % The shape of the zone. This could be 'rect' (rectangular) or 'circle' (circular)
+        ZoneSize     = [1 1];                               % Size of the zone. [1 1] = 1m x 1m (width x height in metres)
+        
     end
     
     
@@ -94,7 +98,7 @@ classdef spatial_zone
         
         function obj = setDesiredSoundfield(obj, ideal, frequency, phase, radius, type, weight, angle_, distance)
             if nargin < 9;  distance = obj.SourceOrigin.Distance;
-            if nargin < 8;     angle_ = obj.SourceOrigin.Angle;
+            if nargin < 8;    angle_ = obj.SourceOrigin.Angle;
             if nargin < 7;    weight = obj.Weight;
             if nargin < 6;      type = obj.SourceType;
             if nargin < 5;    radius = obj.Radius_q;
