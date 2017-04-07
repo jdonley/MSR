@@ -784,7 +784,7 @@ classdef loudspeaker_setup
             SpatialZones = [obj.Multizone_Soundfield.Quiet_Zone ...
                 obj.Multizone_Soundfield.Bright_Zone ...
                 GlobalZone_temp ];
-            linestyles = {'-';'-';'--'};
+            linestyles = {'-';'-';'--'}; % {Quiet Zone, Bright Zone, Reproduction Region}
             for q = 1:length(SpatialZones)
                 O = [flip(size(field))/2 0] + [flip(obj.Origin)*obj.res 0];
                 CentreP=[SpatialZones(q).Origin_q.X, ...
@@ -798,6 +798,7 @@ classdef loudspeaker_setup
                     plotRectangle(obj, O, ...
                         CentreP, ...
                         SpatialZones(q).ZoneSize, ...
+                        0, ... Direction (angle of rotation)
                         {linestyles{q}, 'Color', [0 0 0], 'LineWidth', LineWid});
                 end
                 if details.DrawDetails
@@ -824,10 +825,25 @@ classdef loudspeaker_setup
             hold off;
         end
         
+        function plotRectangle(obj, Origin, Centre, Size, Angle, plotArgs)
+            C(1) = Centre(1) * obj.res + Origin(1);
+            C(2) = Centre(2) * obj.res + Origin(2);
+            C(3) = Centre(3)           + Origin(3);
+            px_=[-1,1,1,-1;-1,1,1,-1];
+            py_=[-1,-1,1,1;-1,-1,1,1];
+            pz_=[-1,-1,-1,-1;1,1,1,1];
+            Xunits = px_*size(1)/2 + C(1);
+            Yunits = py_*size(2)/2 + C(2);
+            Zunits = Xunits*0 + C(3); %planar rectangle plot
+            hold on;
+            plot3(Xunits, Yunits, Zunits, plotArgs{:});
+            hold off;
+        end
+        
         function detailPlots(obj, field, realistic, details)
             if nargin < 4; details.DrawDetails = false; end
             if nargin < 3; realistic = false; end
-            if nargin < 2; field = obj.Soundfield_reproduced; end;
+            if nargin < 2; field = obj.Soundfield_reproduced; end
             if realistic
                 maxZ = 0;
             else
