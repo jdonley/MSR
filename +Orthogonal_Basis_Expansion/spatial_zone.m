@@ -40,13 +40,25 @@ classdef spatial_zone
     
         
     methods (Access = private)
-            
+        
         function obj = createEmptySoundfield_d(obj)
-            width = int16(obj.res * obj.Radius_q * 2);
-            xyvec = linspace(-obj.Radius_q, obj.Radius_q, width);
-            [xx,yy] = meshgrid(xyvec,xyvec);
-            obj.Soundfield_d_mask = xx.^2 + yy.^2 <= (obj.Radius_q)^2 * ones(width, width);
-            obj.Soundfield_d = zeros(width,width);
+            
+            if strcmpi( obj.ZoneGeometry, 'circle' )
+                width = int16(obj.res * obj.Radius_q * 2);
+                height = width;
+                xyvec = linspace(-obj.Radius_q, obj.Radius_q, width);
+                [xx,yy] = meshgrid(xyvec,xyvec);
+                mask = xx.^2 + yy.^2 <= (obj.Radius_q)^2 * ones(width, width);
+                
+            elseif contains( lower(obj.ZoneGeometry), 'rect' )
+                width  = obj.ZoneSize(2)*obj.res;
+                height = obj.ZoneSize(1)*obj.res;
+                mask = ones(width, height);
+                
+            end
+            
+            obj.Soundfield_d = zeros(height,width);
+            obj.Soundfield_d_mask = mask;
         end
         
     end
@@ -95,6 +107,10 @@ classdef spatial_zone
         function obj = createEmptySoundfield(obj)
            obj = obj.createEmptySoundfield_d;
         end        
+        
+        function obj = setZoneSize(obj, ZoneSize)
+            obj.ZoneSize = ZoneSize;
+        end
         
         function obj = setDesiredSoundfield(obj, ideal, frequency, phase, radius, type, weight, angle_, distance)
             if nargin < 9;  distance = obj.SourceOrigin.Distance;
