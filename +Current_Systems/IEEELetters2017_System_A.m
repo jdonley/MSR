@@ -6,6 +6,9 @@ spkr_type  = 'Dynamic';
 spkr_radius = 2.0;
 N_spkrs = 36 * 2; % Times 2 for dipole
 
+% geometry = 'rectangular';
+geometry = 'circle';
+
 %% Room Geometry
 Room_Setup = Room_Acoustics.Room;
 Room_Setup.NoReceivers = 32;
@@ -27,8 +30,8 @@ Bx = 0.0;
 Qy = 0.0;
 Qx = 0.0;
 
-BZr = spkr_radius*0.99;
-QZr = spkr_radius*0.99;
+BZr = spkr_radius*0.8;
+QZr = spkr_radius*0.8;
 
 srcX = -spkr_radius + 1.0;
 srcY = -0.0;
@@ -48,11 +51,13 @@ field_layout = { ...
     'brightzone_source_angle',     imgsrcA/pi*180, ... -atand(0.6/1.3), ...
     'brightzone_source_dist',      imgsrcD, ...
     'brightzone_source_type',      'ps', ...
-    'brightzone_geometry',          'rectangular', ...
-    'brightzone_size',              [BZr BZr]*2, ...
-    'quietzone_geometry',           'rectangular', ...
-    'quietzone_size',               [QZr QZr]*2, ...
-    'room_size',                    Room_Setup.Room_Size};
+    'brightzone_geometry',         geometry, ...
+    'brightzone_size',             [BZr BZr]*2, ...
+    'quietzone_geometry',          geometry, ...
+    'quietzone_size',              [QZr QZr]*2, ...
+    'room_size',                   Room_Setup.Room_Size, ...
+    'reproduction_geometry',       geometry, ...
+    'reproduction_size',           [spkr_radius spkr_radius]*2};
 
 if strcmpi(array_type, 'circle')
     spkr_spacing = []; %Auto-calculate spacing
@@ -147,11 +152,7 @@ Main_Setup(1).DipoleDistance =  343 / (2*pi*Falias);
 for s = 1:numel(Main_Setup)
     Main_Setup(s).ExtendedField = false;
     % Masker_Setup.ExtendedField = true;
-    
     Main_Setup(s).Origin   = Room_Setup.Reproduction_Centre(1:2) - Room_Setup.Room_Size(1:2)./2;
-    Main_Setup(s).Multizone_Soundfield.Geometry = 'rect';
-    Main_Setup(s).Multizone_Soundfield.ReproRegionSize = [4 4];
-
 end
 
 Masker_Setup=[];

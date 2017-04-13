@@ -158,7 +158,7 @@ classdef loudspeaker_setup
             bMask = obj.Multizone_Soundfield.Bright_Zone.Soundfield_d_mask;
             BrightSamples = obj.Bright_Samples;
             BrightSamples(isnan(BrightSamples))=0;
-            maxBrightVal = mean(abs(BrightSamples(bMask))); % Changed to find the average as our goal is to have the bright zone fit on average.
+            maxBrightVal = mean(abs(BrightSamples(bMask(:)))); % Changed to find the average as our goal is to have the bright zone fit on average.
             % Normalise phase about desired bright zone centre
             %             O = floor(size(obj.Bright_Samples)/2);
             %             centBrightAngle = angle(obj.Bright_Samples(O(1),O(2))) ...
@@ -832,11 +832,11 @@ classdef loudspeaker_setup
             px_=[-1,1,1,-1;-1,1,1,-1];
             py_=[-1,-1,1,1;-1,-1,1,1];
             pz_=[-1,-1,-1,-1;1,1,1,1];
-            Xunits = px_*size(1)/2 + C(1);
-            Yunits = py_*size(2)/2 + C(2);
+            Xunits = px_*Size(1)/2*obj.res + C(1);
+            Yunits = py_*Size(2)/2*obj.res + C(2);
             Zunits = Xunits*0 + C(3); %planar rectangle plot
             hold on;
-            plot3(Xunits, Yunits, Zunits, plotArgs{:});
+            plot3(Xunits(:), Yunits(:), Zunits(:), plotArgs{:});
             hold off;
         end
         

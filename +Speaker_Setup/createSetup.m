@@ -7,69 +7,72 @@ p.CaseSensitive = false;
 addOptional(p,'resolution',                     100,               @isnumeric); % 1
 addOptional(p,'frequency',                      2000,              @isnumeric); % 2
 addOptional(p,'reproduction_radius',            1.0,               @isnumeric); % 3
-addOptional(p,'numberof_basisplanewaves',       -1,                @isnumeric); % 4
-addOptional(p,'bright_weight',                  1.0,               @isnumeric); % 5
-addOptional(p,'quiet_weight',                   2.5,               @isnumeric); % 6
-addOptional(p,'unattended_weight',              0.05,              @isnumeric); % 7
-addOptional(p,'brightzone_radius',              0.3,               @isnumeric); % 8
-addOptional(p,'brightzone_pos_angle',           180,               @isnumeric); % 9
-addOptional(p,'brightzone_pos_distance',        0.6,               @isnumeric); % 10
-addOptional(p,'brightzone_geometry',            'circle',          @ischar);    % 11
-addOptional(p,'brightzone_size',                [1 1],             @isnumeric); % 12
-addOptional(p,'brightzone_source_angle',        15,                @isnumeric); % 13
-addOptional(p,'brightzone_source_dist',         1.0,               @isnumeric); % 14
-addOptional(p,'brightzone_source_type',         'pw',              @ischar);    % 15
-addOptional(p,'quietzone_radius',               0.3,               @isnumeric); % 16
-addOptional(p,'quietzone_pos_angle',            0,                 @isnumeric); % 17
-addOptional(p,'quietzone_pos_distance',         0.6,               @isnumeric); % 18
-addOptional(p,'quietzone_geometry',             'circle',          @ischar);    % 19
-addOptional(p,'quietzone_size',                 [1 1],             @isnumeric); % 20
-addOptional(p,'numberof_loudspeakers',          -1,                @isnumeric); % 21
-addOptional(p,'loudspeaker_radius',             1.5,               @isnumeric); % 22
-addOptional(p,'maximum_frequency',              8000,              @isnumeric); % 23
-addOptional(p,'angleto_firstloudspeaker',       90,                @isnumeric); % 24
-addOptional(p,'angleof_loudspeakerarc',         180,               @isnumeric); % 25
-addOptional(p,'loudspeaker_model',              'Genelec 8010A',   @ischar);    % 26
-addOptional(p,'loudspeaker_object',             [] );                           % 27
-addOptional(p,'angleof_loudspeakerarrcentre',   180,               @isnumeric); % 28
-addOptional(p,'loudspeaker_spacing',            0.01,              @isnumeric); % 29
-addOptional(p,'speaker_array_type',             'circle',          @ischar);    % 30
-addOptional(p,'room_size',                      [],                @isnumeric); % 31
-
+addOptional(p,'reproduction_geometry',          'circle',          @ischar);    % 4
+addOptional(p,'reproduction_size',              [1 1],             @isnumeric); % 5
+addOptional(p,'numberof_basisplanewaves',       -1,                @isnumeric); % 6
+addOptional(p,'bright_weight',                  1.0,               @isnumeric); % 7
+addOptional(p,'quiet_weight',                   2.5,               @isnumeric); % 8
+addOptional(p,'unattended_weight',              0.05,              @isnumeric); % 9
+addOptional(p,'brightzone_radius',              0.3,               @isnumeric); % 10
+addOptional(p,'brightzone_pos_angle',           180,               @isnumeric); % 11
+addOptional(p,'brightzone_pos_distance',        0.6,               @isnumeric); % 12
+addOptional(p,'brightzone_geometry',            'circle',          @ischar);    % 13
+addOptional(p,'brightzone_size',                [1 1],             @isnumeric); % 14
+addOptional(p,'brightzone_source_angle',        15,                @isnumeric); % 15
+addOptional(p,'brightzone_source_dist',         1.0,               @isnumeric); % 16
+addOptional(p,'brightzone_source_type',         'pw',              @ischar);    % 17
+addOptional(p,'quietzone_radius',               0.3,               @isnumeric); % 18
+addOptional(p,'quietzone_pos_angle',            0,                 @isnumeric); % 19
+addOptional(p,'quietzone_pos_distance',         0.6,               @isnumeric); % 20
+addOptional(p,'quietzone_geometry',             'circle',          @ischar);    % 21
+addOptional(p,'quietzone_size',                 [1 1],             @isnumeric); % 22
+addOptional(p,'numberof_loudspeakers',          -1,                @isnumeric); % 23
+addOptional(p,'loudspeaker_radius',             1.5,               @isnumeric); % 24
+addOptional(p,'maximum_frequency',              8000,              @isnumeric); % 25
+addOptional(p,'angleto_firstloudspeaker',       90,                @isnumeric); % 26
+addOptional(p,'angleof_loudspeakerarc',         180,               @isnumeric); % 27
+addOptional(p,'loudspeaker_model',              'Genelec 8010A',   @ischar);    % 28
+addOptional(p,'loudspeaker_object',             [] );                           % 29
+addOptional(p,'angleof_loudspeakerarrcentre',   180,               @isnumeric); % 30
+addOptional(p,'loudspeaker_spacing',            0.01,              @isnumeric); % 31
+addOptional(p,'speaker_array_type',             'circle',          @ischar);    % 32
+addOptional(p,'room_size',                      [],                @isnumeric); % 33
 parse(p, settings{:});
 
 setup = MultizoneSoundfieldSetup( ...       
     p.Results.resolution, ...                   1
     p.Results.frequency, ...                    2
     p.Results.reproduction_radius, ...          3
-    p.Results.numberof_basisplanewaves, ...     4
-    p.Results.bright_weight, ...                5
-    p.Results.quiet_weight, ...                 6
-    p.Results.unattended_weight, ...            7
-    p.Results.brightzone_radius, ...            8
-    p.Results.brightzone_pos_angle, ...         9
-    p.Results.brightzone_pos_distance, ...      10
-    p.Results.brightzone_geometry, ...          11
-    p.Results.brightzone_size, ...              12
-    p.Results.brightzone_source_angle, ...      13
-    p.Results.brightzone_source_dist, ...       14
-    p.Results.brightzone_source_type, ...       15
-    p.Results.quietzone_radius, ...             16
-    p.Results.quietzone_pos_angle, ...          17
-    p.Results.quietzone_pos_distance, ...       18
-    p.Results.quietzone_geometry, ...           19
-    p.Results.quietzone_size, ...               20
-    p.Results.numberof_loudspeakers, ...        21
-    p.Results.loudspeaker_radius, ...           22
-    p.Results.maximum_frequency, ...            23
-    p.Results.angleto_firstloudspeaker, ...     24
-    p.Results.angleof_loudspeakerarc, ...       25
-    p.Results.loudspeaker_model, ...            26
-    p.Results.loudspeaker_object, ...           27
-    p.Results.angleof_loudspeakerarrcentre, ... 28
-    p.Results.loudspeaker_spacing, ...          29
-    p.Results.speaker_array_type, ...           30
-    p.Results.room_size);%                      31
+    p.Results.reproduction_geometry, ...        4
+    p.Results.reproduction_size, ...            5
+    p.Results.numberof_basisplanewaves, ...     6
+    p.Results.bright_weight, ...                7
+    p.Results.quiet_weight, ...                 8
+    p.Results.unattended_weight, ...            9
+    p.Results.brightzone_radius, ...            10
+    p.Results.brightzone_pos_angle, ...         11
+    p.Results.brightzone_pos_distance, ...      12
+    p.Results.brightzone_geometry, ...          13
+    p.Results.brightzone_size, ...              14
+    p.Results.brightzone_source_angle, ...      15
+    p.Results.brightzone_source_dist, ...       16
+    p.Results.brightzone_source_type, ...       17
+    p.Results.quietzone_radius, ...             18
+    p.Results.quietzone_pos_angle, ...          19
+    p.Results.quietzone_pos_distance, ...       20
+    p.Results.quietzone_geometry, ...           21
+    p.Results.quietzone_size, ...               22
+    p.Results.numberof_loudspeakers, ...        23
+    p.Results.loudspeaker_radius, ...           24
+    p.Results.maximum_frequency, ...            25
+    p.Results.angleto_firstloudspeaker, ...     26
+    p.Results.angleof_loudspeakerarc, ...       27
+    p.Results.loudspeaker_model, ...            28
+    p.Results.loudspeaker_object, ...           29
+    p.Results.angleof_loudspeakerarrcentre, ... 30
+    p.Results.loudspeaker_spacing, ...          31
+    p.Results.speaker_array_type, ...           32
+    p.Results.room_size);%                      33
 
 end
 
@@ -77,34 +80,36 @@ function setup = MultizoneSoundfieldSetup( ...
     res, ...     1
     f,...        2
     R,...        3
-    N,...        4
-    Wb,...       5
-    Wq,...       6
-    Wu,...       7
-    rb,...       8
-    angb,...     9
-    disb,...     10
-    zoGeomb,...  11
-    zoSizeb,...  12
-    srcangb,...  13
-    srcdistb,... 14
-    srctypeb,... 15
-    rq,...       16
-    angq,...     17
-    disq,...     18
-    zoGeomq,...  19
-    zoSizeq,...  20
-    L,...        21
-    Rl,...       22
-    fmax,...     23
-    phi,...      24
-    phiL,...     25
-    spkrmod,...  26
-    spkrobj,...  27
-    phiLcent,... 28
-    spkrspace,...29
-    arr_type,... 30
-    roomSz)%     31
+    reprGeom,... 4
+    reprSize,... 5
+    N,...        6
+    Wb,...       7
+    Wq,...       8
+    Wu,...       9
+    rb,...       10
+    angb,...     11
+    disb,...     12
+    zoGeomb,...  13
+    zoSizeb,...  14
+    srcangb,...  15
+    srcdistb,... 16
+    srctypeb,... 17
+    rq,...       18
+    angq,...     19
+    disq,...     20
+    zoGeomq,...  21
+    zoSizeq,...  22
+    L,...        23
+    Rl,...       24
+    fmax,...     25
+    phi,...      26
+    phiL,...     27
+    spkrmod,...  28
+    spkrobj,...  29
+    phiLcent,... 30
+    spkrspace,...31
+    arr_type,... 32
+    roomSz)%     33
 %%
 c = 343;
 k = (f/c)*2*pi;
@@ -128,6 +133,8 @@ bright = bright.setDesiredSoundfield(true, 'suppress_output');
 soundfield = Orthogonal_Basis_Expansion.multizone_soundfield_OBE;
 soundfield = soundfield.addSpatialZone(quiet,  disq, angq);
 soundfield = soundfield.addSpatialZone(bright, disb, angb);
+soundfield.Geometry  = reprGeom;
+soundfield = soundfield.setReproRegionSize( reprSize );
 soundfield.Radius = R;
 
 soundfield.BrightZ_Weight     = Wb;

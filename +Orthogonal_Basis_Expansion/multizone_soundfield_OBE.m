@@ -402,6 +402,10 @@ classdef multizone_soundfield_OBE
             f = obj.k_global * 343 / (2 * pi);
         end
         
+        function obj = setReproRegionSize(obj, ReproRegionSize)
+           obj.ReproRegionSize = ReproRegionSize;
+        end
+        
         function obj = setWavenumberFromChildZone(obj)
            obj.k_global = obj.Bright_Zone.getWavenumber();
         end

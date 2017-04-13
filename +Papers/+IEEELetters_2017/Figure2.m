@@ -36,7 +36,7 @@ end
 
 %%
 figNums = [101,102,103];
-realistic = true;
+realistic = false;
 details.DrawDetails = false;
 details.zoneLineWid = 1.5;
 details.arrowLineWid = 0.4;
@@ -80,7 +80,7 @@ colorbar off
 
 axes(ha(2))
 ax(2)=gca;
-setup(1).plotSoundfield( (ZT + ZI) - ZM, 'scientific_D1', realistic, details);
+setup(1).plotSoundfield( ZT + ZI - ZM, 'scientific_D1', realistic, details);
 text(500-10,size(ZT,1)-FontSize*2-10,1e3,'(B)','FontName',FontName,'FontSize',FontSize)
 ax(2).Title=[];
 ax(2).CLim=clim_;
