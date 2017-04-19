@@ -36,9 +36,15 @@ SYS.signal_info.L_noise_mask = -inf;
 masker_signal_info = SYS.signal_info;
 
 %%
+paired = isfield(SYS.signal_info,'methods_list_paired') && SYS.signal_info.methods_list_paired;
+
 ml_tmp = SYS.signal_info.methods_list;
 for c = SYS.signal_info.methods_list_clean
-    for m = SYS.signal_info.methods_list_masker
+    masker_list = SYS.signal_info.methods_list_masker;
+    if paired
+        masker_list = masker_list(c);
+    end
+    for m = masker_list
         m(m<1)=[];
         
         SYS.signal_info.method = [ml_tmp{c}];
@@ -53,21 +59,25 @@ for c = SYS.signal_info.methods_list_clean
         subSYS = SYS;
         subSYS.Main_Setup(~(c==SYS.signal_info.methods_list_clean))=[];
         subSYS.Masker_Setup(~(m==SYS.signal_info.methods_list_masker))=[];
-       
-        for noise_mask = noise_levels_vec
-            
-            % masker_signal_info = [];
-            % SYS.Masker_Setup = [];
-            
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            masker_signal_info.L_noise_mask = noise_mask; % dB
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%                        
-             
-            %% Playback from setup, setup_info and system_info and record the result
-            Hardware_Control.playMSR_andRec( subSYS.Main_Setup, SYS.Room_Setup, SYS.signal_info, SYS.system_info, subSYS.Masker_Setup, masker_signal_info, master_gain );
-            
-            fprintf('\nFinished noise mask level %d \n\n',noise_mask);
-            
+        
+        if strcmpi( ...
+                SYS.system_info.CurrentSpeakerArrayType, ...
+                subSYS.Main_Setup.Speaker_Array_Type)
+            for noise_mask = noise_levels_vec
+                
+                % masker_signal_info = [];
+                % SYS.Masker_Setup = [];
+                
+                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                masker_signal_info.L_noise_mask = noise_mask; % dB
+                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                
+                %% Playback from setup, setup_info and system_info and record the result
+                Hardware_Control.playMSR_andRec( subSYS.Main_Setup, SYS.Room_Setup, SYS.signal_info, SYS.system_info, subSYS.Masker_Setup, masker_signal_info, master_gain );
+                
+                fprintf('\nFinished noise mask level %d \n\n',noise_mask);
+                
+            end
         end
     end
 end

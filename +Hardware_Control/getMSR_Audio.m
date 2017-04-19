@@ -11,6 +11,7 @@ end
 LoudspeakerSignals_MultiChan=[];
 segment_details = [];
 Setups = [Main_Setup(:); Masker_Setup(:)];
+maskers = [zeros(1,numel(Main_Setup)),ones(1,numel(Masker_Setup))];
 sig_infos = [signal_info(:); masker_signal_info(:)];
 for s = 1:length(Setups)
     if isempty(Setups(s)) || isempty(sig_infos(s))
@@ -24,11 +25,12 @@ for s = 1:length(Setups)
     files = Tools.getAllFiles(Spkr_path);
     files = sort(files);
     
-    % Continue with only the files that are contained in the original
-    % source folder
-    files = Tools.keepFilesFromFolder( files, signal_info.speech_filepath);
-    if isempty(files), error('No loudspeaker signals found. Have they been generated?'); end
-    
+    if ~maskers(s)
+        % Continue with only the files that are contained in the original
+        % source folder
+        files = Tools.keepFilesFromFolder( files, signal_info.speech_filepath);
+        if isempty(files), error('No loudspeaker signals found. Have they been generated?'); end
+    end
     
     spkr_calib_dir = [system_info.Drive system_info.Calibrated_Signals_dir path_ext];
     
@@ -40,9 +42,9 @@ for s = 1:length(Setups)
     for f = 1:F
         
         [~, fileName, fileExt] = fileparts(files{f});
-        if isempty( strfind( fileName, 'Original' ) ) && ~signal_info.reference % If not an Original audio file and not a reference recording
+        if ~contains(  fileName, 'Original'  ) && ~signal_info.reference % If not an Original audio file and not a reference recording
            sigType = 'Upsampled';
-        elseif ~isempty( strfind( fileName, 'Original' ) ) && signal_info.reference
+        elseif contains(  fileName, 'Original'  ) && signal_info.reference
             sigType = 'Original';
         else
             continue;

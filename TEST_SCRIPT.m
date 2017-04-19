@@ -5,7 +5,7 @@ RIR_FilePath = 'Z:\+Room_Acoustics\+RIR_Database\+LINEarray_1.3mPerpDist_180degC
 
 load(RIR_FilePath)
 % load('Z:\+Calibration_Data\+Filters\Transfer_Functions_2017-02-23_16.27.mat') % Circular Array TFs
-load('Z:\+Calibration_Data\+Filters\Transfer_Functions_2017-04-18_17.06.mat') % Linear Array TFs
+load('Z:\+Calibration_Data\+Filters\Transfer_Functions_2017-04-19_00.08.mat') % Linear Array TFs
 
 rir_sim = RIRs.Bright_RIRs;
 
