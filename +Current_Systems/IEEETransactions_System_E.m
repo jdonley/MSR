@@ -166,7 +166,7 @@ signal_info.method = ''; % Default empty (temporary variable)
 
 
 signal_info.methods_list ... % List of methods to synthesize
-    = {'NoMask'}; % Speech Signal
+    = {'NoMask';'NoMask'}; % Speech Signal
 
 signal_info.methods_list_clean = [1 2]; %Indices of the clean signals
 signal_info.methods_list_masker = [0];%[2, 3, 4, 5]; %Indices of the maskers, different hybrids are separated by columns
@@ -189,6 +189,7 @@ signal_info.speech_filepath = '+Miscellaneous\+TestAudio_Files\';
 signal_info.InverseFilter_filepath = '+Miscellaneous\+TestAudio_Files_InvFilts\';
 
 %% System Setup
+system_info.CurrentSpeakerArrayType = 'line';
 system_info.dev_model = 'ASIO Hammerfall DSP';
 system_info.fs = 48000;
 system_info.f_low = 100; % Hz %Minimum calibration frequency

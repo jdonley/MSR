@@ -35,6 +35,8 @@ for rt = 1:Nrt
             if paired
                 subSYS.signal_info.methods_list_clean = 1:numel(c);
                 subSYS.signal_info.methods_list_masker = numel(c)+1:numel(c)+numel(m);
+            else
+                subSYS.signal_info.methods_list_clean = 1;
             end
             
             Room_Acoustics.Apply_RIRs.Reverberant_MSR_Analysis_batchfunc( subSYS );
