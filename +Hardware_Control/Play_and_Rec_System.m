@@ -52,7 +52,7 @@ for c = SYS.signal_info.methods_list_clean
         
         % If we are performing an SPL analysis then there is no masker and
         % the masker method is used for the recording path as NoMask
-        if isempty([SYS.signal_info.methods_list{2:end}]) && any(strcmp(SYS.analysis_info.Measures,'SPL'))
+        if isempty(masker_signal_info.method) && any(strcmp(SYS.analysis_info.Measures,'SPL'))
             masker_signal_info.method = SYS.signal_info.method;
         end
         
