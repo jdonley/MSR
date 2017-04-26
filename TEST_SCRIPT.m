@@ -9,10 +9,20 @@ load('Z:\+Calibration_Data\+Filters\Transfer_Functions_2017-04-23_01.46.mat') % 
 
 rir_sim = RIRs.Bright_RIRs;
 
+SYS = Current_Systems.loadCurrentSRsystem;
+isLineArray = contains(SYS.system_info.CurrentSpeakerArrayType, 'line');
+if isLineArray
+    TFAlign = Speaker_Setup.Calibration.linTFalign;
+end
+
 rir_rec=[];
 for r=1:4
+    tftmp = TF(:,:,r);
+    if isLineArray
+        tftmp = Tools.fconv( tftmp, TFAlign.');
+    end
     for s = 1:24
-        tmp = decimate(TF(:,s,r),48000/16000);
+        tmp = decimate(tftmp(:,s),48000/16000);
         rir_rec(r,:,s) = tmp(1:size(rir_sim,2));
     end
 end

@@ -51,6 +51,7 @@ for typ = 1:N
     
     %% Load Fiters
     filter_location = Tools.getAllFiles([SYS_.system_info.Drive SYS_.system_info.FilterData_dir]);
+    filter_location(~contains( filter_location, 'EQ'))=[];
     filter_location = sort(filter_location);
     filts = load( filter_location{1} ); % 1st element should be the newest (most recent) set of filters
     if MirrorSetup
