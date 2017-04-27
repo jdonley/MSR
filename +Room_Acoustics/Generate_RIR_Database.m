@@ -73,8 +73,10 @@ for s = 1:length(Setups)
     RIRDBpath = fileparts(RIR_DB_fullpath);
     
     if ~exist( RIRDBpath,'dir'); mkdir( RIRDBpath ); end
+    isRecordedRIR = false;
     save( RIR_DB_fullpath, ...
-        'RIRs');
+        'RIRs', ...
+        'isRecordedRIR');
     
     if isfield(RIRs,'Matched_Receivers')
         DBPath = RIRs.Matched_Receivers;

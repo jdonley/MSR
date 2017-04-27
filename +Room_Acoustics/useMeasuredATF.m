@@ -38,22 +38,34 @@ isLineArray = contains(ArrType, 'line');
 I = cellfun(@(x) contains(x,ArrType) ,{SYS.Main_Setup.Speaker_Array_Type},'un',0);
 S = SYS.Main_Setup([I{:}]);
 
+if isempty(S), return; end
 
 %% Load current RIRs
 [DB,~,RIR_FilePath] = Room_Acoustics.loadRIRDatabaseFromSetup( S(1), SYS.Room_Setup, SYS.system_info.Drive );
+
+% Get path strings
+[fpath,fname,fext]=fileparts(RIR_FilePath);
 if ~(isfield(DB,'isRecordedRIR') && ~DB.isRecordedRIR)
     
-    % Get path strings
-    [fpath,fname,fext]=fileparts(RIR_FilePath);
     RIRfiles = Tools.getAllFiles(fpath);
     DBs = cellfun(@load , RIRfiles, 'un', 0);
     
     hasIsRecField = cellfun(@(d) isfield(d,'isRecordedRIR'), DBs,'un',0);
-    DBsWithIsRecFld = [DBs{[hasIsRecField{:}]}];
-    SimRIRs = ~[DBsWithIsRecFld.isRecordedRIR];
+    hasIsRecField = [hasIsRecField{:}];
+    DBsWithIsRecFld = [DBs{hasIsRecField}];
+    SimRIRs = hasIsRecField;
+    SimRIRs(hasIsRecField) = ~[DBsWithIsRecFld.isRecordedRIR];
     
     if any(SimRIRs)
-        DB = DBsWithIsRecFld(SimRIRs);
+        potentialSimFile = RIRfiles(SimRIRs); % Hopefully there is just one of these
+        fileinfo1 = dir(potentialSimFile{1});
+        fileinfo2 = dir(RIR_FilePath);
+        
+        oneMin = 60/(60*60*24);
+        if ~(daysdif(fileinfo2.date, fileinfo1.date) > oneMin) % if RIR_FilePath is NOT more than a minute newer than potentialSimFile{1}
+            DB = DBs{SimRIRs};
+        end
+        
     end
 end
 RIRs = DB.RIRs;
@@ -63,7 +75,7 @@ RIRs = DB.RIRs;
 filter_location = Tools.getAllFiles([SYS.system_info.Drive SYS.system_info.FilterData_dir]);
 filter_location(~contains( filter_location, 'Transfer_Functions'))=[];
 filter_location = sort(filter_location);
-filts = load( filter_location{1} ); % 1st element should be the newest (most recent) set of filters
+filts = load( filter_location{end} ); % 1st element should be the newest (most recent) set of filters
 TF = filts.TF;
 fs = filts.fs;
 
@@ -71,7 +83,7 @@ fs = filts.fs;
 rir_sim = RIRs.Bright_RIRs;
 
 if isLineArray
-    TFAlign = Speaker_Setup.Calibration.linTFalign;
+    TFAlign = Speaker_Setup.Calibration.linTFalign(SYS);
 end
 
 rir_rec=[];

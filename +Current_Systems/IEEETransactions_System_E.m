@@ -176,6 +176,7 @@ signal_info.reference = false; % False or True to record reference signal
 
 signal_info.reference_channel = 1; %Some arbitrary reference signal channel
 signal_info.rir_duration = 0.5; % Room Impulse Response length in seconds
+signal_info.UseMeasuredATFs = true; % Use the measured ATFs between loudspeaker and microphone pairs instead of simulated RIRs
 signal_info.input_filename = [];
 signal_info.inputSignalNorm = true; % Normalise the input signal to RMS value
 % signal_info.speech_filepath = '+Miscellaneous\+Speech_Files\';

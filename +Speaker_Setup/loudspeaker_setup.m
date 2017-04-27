@@ -97,6 +97,7 @@ classdef loudspeaker_setup
                     if strcmpi(obj.Speaker_Array_Type, '2line')
                         L = L/2;
                     end
+                    R = max([thisRadius, obj.Multizone_Soundfield.Radius]);                    
                     R = max([R, (obj.Loudspeaker_Dimensions(1)*L)/2]);
                     width = int16(obj.res * 2*R * 2*1.25);
                     height = int16(obj.res * R * 2*1.5);
@@ -155,7 +156,7 @@ classdef loudspeaker_setup
             obj.Loudspeaker_Weights = obj.Loudspeaker_Weights .* T; %Remove effect of frequency dependent decay
             
             % Normalise to the maximum of the absolute bright zone values
-            bMask = obj.Multizone_Soundfield.Bright_Zone.Soundfield_d_mask;
+            bMask = obj.Multizone_Soundfield.Bright_Zone.Soundfield_d_mean_mask;
             BrightSamples = obj.Bright_Samples;
             BrightSamples(isnan(BrightSamples))=0;
             maxBrightVal = mean(abs(BrightSamples(bMask(:)))); % Changed to find the average as our goal is to have the bright zone fit on average.
@@ -836,7 +837,7 @@ classdef loudspeaker_setup
             Yunits = py_*Size(2)/2*obj.res + C(2);
             Zunits = Xunits*0 + C(3); %planar rectangle plot
             hold on;
-            plot3(Xunits(:), Yunits(:), Zunits(:), plotArgs{:});
+            plot3(Xunits([1:end 1]), Yunits([1:end 1]), Zunits([1:end 1]), plotArgs{:});
             hold off;
         end
         
@@ -1247,7 +1248,7 @@ classdef loudspeaker_setup
                     
                 end
             end
-            [slx,sly,slz] = sphere;
+            [slx,sly,slz] = sphere(5);
             if isempty(details)
                 sphereRad = 2; %centimetres
             else

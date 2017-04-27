@@ -27,8 +27,10 @@ classdef spatial_zone
         Phase = 0*pi;                                       % Phase of source
         SourceType = 'pw';                                  % 'pw' = Plane Wave, 'ps' = Point Source, 'quiet' = Quiet Zone
         SourceOrigin = struct('Distance', 1.0, 'Angle', 0); % This location is relative to the origin of this particular zone
-        Soundfield_d_mask;                                  % Circular soundfield mask for a square array
+        Soundfield_d_mask;                                  % Arbitrarily shaped soundfield mask
         Soundfield_d = [];                                  % The complex values of the desired sound field made from spherical harmonics.
+        Soundfield_d_mean_mask;                             % Circular soundfield mask for calculating the mean
+
         Sd = [];                                            % Ideal desired soundfield
         Alpha_Coeffs = [];                                  % Alpha_Coeffs is a set of coefficients uniquely representing the qth desired soundfield
         
@@ -43,18 +45,18 @@ classdef spatial_zone
         
         function obj = createEmptySoundfield_d(obj)
             
-            if strcmpi( obj.ZoneGeometry, 'circle' )
-                width = int16(obj.res * obj.Radius_q * 2);
-                height = width;
-                xyvec = linspace(-obj.Radius_q, obj.Radius_q, width);
-                [xx,yy] = meshgrid(xyvec,xyvec);
-                mask = xx.^2 + yy.^2 <= (obj.Radius_q)^2 * ones(width, width);
-                
-            elseif contains( lower(obj.ZoneGeometry), 'rect' )
+            % if strcmpi( obj.ZoneGeometry, 'circle' )
+            width = int16(obj.res * obj.Radius_q * 2);
+            height = width;
+            xyvec = linspace(-obj.Radius_q, obj.Radius_q, width);
+            [xx,yy] = meshgrid(xyvec,xyvec);
+            mask = xx.^2 + yy.^2 <= (obj.Radius_q)^2 * ones(width, width);
+            obj.Soundfield_d_mean_mask = mask;
+                        
+            if contains( lower(obj.ZoneGeometry), 'rect' )
                 width  = obj.ZoneSize(2)*obj.res;
                 height = obj.ZoneSize(1)*obj.res;
-                mask = ones(width, height);
-                
+                mask = ones(width, height);                
             end
             
             obj.Soundfield_d = zeros(height,width);

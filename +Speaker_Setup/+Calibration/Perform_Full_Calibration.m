@@ -102,20 +102,21 @@ end
 
 %% Save Filters and Transfer Functions
 fs = SYS.system_info.fs;
+ArrayType = SYS.system_info.CurrentSpeakerArrayType;
 FD_dir = [SYS.system_info.Drive SYS.system_info.FilterData_dir];
 
 if exist('EQ','var')
     if ~exist(FD_dir,'dir'); mkdir(FD_dir); end
     save([FD_dir 'EQ_Filters_' ...
         datestr(now,'yyyy-mm-dd_HH.MM') ...
-        '.mat'], 'EQ', 'fs');
+        '.mat'], 'EQ', 'fs', 'ArrayType');
 end
 
 if exist('TF','var')
     if ~exist(FD_dir,'dir'); mkdir(FD_dir); end
     save([FD_dir 'Transfer_Functions_' ...
         datestr(now,'yyyy-mm-dd_HH.MM') ...
-        '.mat'], 'TF', 'fs');
+        '.mat'], 'TF', 'fs', 'ArrayType');
 end
 
 %% Save Recordings
