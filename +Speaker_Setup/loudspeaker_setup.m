@@ -98,7 +98,7 @@ classdef loudspeaker_setup
                         L = L/2;
                     end
                     R = max([thisRadius, obj.Multizone_Soundfield.Radius]);                    
-                    R = max([R, (obj.Loudspeaker_Dimensions(1)*L)/2]);
+%                     R = max([R, (obj.Loudspeaker_Dimensions(1)*L)/2]);
                     width = int16(obj.res * 2*R * 2*1.25);
                     height = int16(obj.res * R * 2*1.5);
                 else

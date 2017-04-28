@@ -54,8 +54,8 @@ classdef spatial_zone
             obj.Soundfield_d_mean_mask = mask;
                         
             if contains( lower(obj.ZoneGeometry), 'rect' )
-                width  = obj.ZoneSize(2)*obj.res;
-                height = obj.ZoneSize(1)*obj.res;
+                width  = int16( obj.ZoneSize(2)*obj.res );
+                height = int16( obj.ZoneSize(1)*obj.res );
                 mask = ones(width, height);                
             end
             

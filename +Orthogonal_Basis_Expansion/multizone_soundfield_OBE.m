@@ -242,7 +242,7 @@ classdef multizone_soundfield_OBE
                 SpatialZones = [obj.Quiet_Zone obj.Bright_Zone];
                 for q = 1:length(SpatialZones) % For each spatial zone
 
-                    r = SpatialZones(q).Radius_q * obj.res;
+                    r = int16( SpatialZones(q).Radius_q * obj.res );
                     r0= obj.Radius * obj.res;
                     x = ceil(SpatialZones(q).Origin_q.X * obj.res);
                     y = ceil(SpatialZones(q).Origin_q.Y * obj.res);
@@ -435,7 +435,7 @@ classdef multizone_soundfield_OBE
         
         function obj = norm_soundfield(obj)
             zone_ = obj.Bright_Zone;
-            r = zone_.Radius_q * obj.res;
+            r = int16( zone_.Radius_q * obj.res );
             r0= obj.Radius * obj.res;
             x = ceil(zone_.Origin_q.X * obj.res);
             y = ceil(zone_.Origin_q.Y * obj.res);
@@ -455,7 +455,7 @@ classdef multizone_soundfield_OBE
                 return
             end
             
-            r = zone_.Radius_q * obj.res;
+            r = int16( zone_.Radius_q * obj.res );
             r0= obj.Radius * obj.res;
             x = ceil(zone_.Origin_q.X * obj.res);
             y = ceil(zone_.Origin_q.Y * obj.res);
