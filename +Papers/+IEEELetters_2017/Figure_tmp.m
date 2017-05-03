@@ -67,7 +67,9 @@ FontName = 'Times';
 axes(ha(1));
 ax(1)=gca;
 setup(1).plotSoundfield( ZT, 'scientific_D1', realistic, details);
-text(500-10,size(ZT,1)-FontSize*2-10,1e3,'(A)','FontName',FontName,'FontSize',FontSize)
+tx = text(30-10,size(ZT,1)-FontSize*2-10,1e3,'(A)','FontName',FontName,'FontSize',FontSize);
+tx.BackgroundColor = [1 1 1 0.9]; tx.Margin = 0.5;
+tx.EdgeColor = [1 1 1 0.5]; tx.LineWidth = 2;
 ax(1).Title.String = '';%'Pressure Soundfield of Talker';
 ax(1).XLabel = [];
 ax(1).XTickLabel = [];
@@ -78,7 +80,9 @@ colorbar off
 axes(ha(2))
 ax(2)=gca;
 setup(1).plotSoundfield( ZT-ZM, 'scientific_D1', realistic, details);
-text(500-10,size(ZT,1)-FontSize*2-10,1e3,'(B)','FontName',FontName,'FontSize',FontSize)
+tx = text(30-10,size(ZT,1)-FontSize*2-10,1e3,'(B)','FontName',FontName,'FontSize',FontSize);
+tx.BackgroundColor = [1 1 1 0.9]; tx.Margin = 0.5;
+tx.EdgeColor = [1 1 1 0.5]; tx.LineWidth = 2;
 ax(2).Title=[];
 ax(2).CLim=clim_;
 colorbar off
@@ -92,7 +96,7 @@ drawnow;
 pause(1);
 tightfig;
 
-% SYS.publication_info.FigureName = 'IEEE_ICASSP2017_1';
+% SYS.publication_info.FigureName = 'IEEE_Letters2017_tmp';
 % SYS.publication_info.print_fmt = 'png';
 % Publication.saveFigureForPublication( SYS, gcf );
 

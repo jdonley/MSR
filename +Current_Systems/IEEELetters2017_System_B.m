@@ -3,7 +3,7 @@ function SR_SYSTEM = IEEELetters2017_System_B()
 
 array_type = '2line';
 spkr_type  = 'Dynamic';
-spkr_radius = 1.0;
+spkr_radius = 1.5;
 N_spkrs = 18 * 2; % Times 2 for dipole
 
  geometry = 'rectangular';

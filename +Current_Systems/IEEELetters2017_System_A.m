@@ -1,10 +1,10 @@
 function SR_SYSTEM = IEEELetters2017_System_A()
 
 
-array_type = '2line';
+array_type = 'line';
 spkr_type  = 'Dynamic';
-spkr_radius = 2.0;
-N_spkrs = 24 * 2; % Times 2 for dipole
+spkr_radius = 1.5;
+N_spkrs = 24 * 1; % Times 2 for dipole
 
  geometry = 'rectangular';
 % geometry = 'circle';
@@ -33,8 +33,8 @@ Bx = 0.0;
 Qy = 0.0;
 Qx = 0.0;
 
-BZr = spkr_radius*0.99;
-QZr = spkr_radius*0.99;
+BZr = spkr_radius;
+QZr = spkr_radius;
 
 srcX = -spkr_radius + 1.0;
 srcY = -0.0;

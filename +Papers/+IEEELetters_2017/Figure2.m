@@ -7,7 +7,7 @@ tic;
 SYS = Current_Systems.IEEELetters2017_System_A;
 
 %%
-f = 1000;
+f = 100;
 c = SYS.signal_info.c;
 
 %%
@@ -60,9 +60,9 @@ pk(2) = max(abs(setup(2).Bright_Samples(:)));
 ZI = setup(3).Soundfield_reproduced*setup(3).res * SYS.Room_Setup.Wall_Reflect_Coeff;
 pk(3) = max(abs(setup(3).Bright_Samples(:)));
 
-a=mean(abs(setup(3).Bright_Samples(:)))
-b = mean(abs(setup(1).Bright_Samples(:)))
-mean(abs(setup(1).Bright_Samples(:) *a/b ))
+a=mean(abs(setup(3).Bright_Samples(:)));
+b = mean(abs(setup(1).Bright_Samples(:)));
+mean(abs(setup(1).Bright_Samples(:) *a/b ));
 
 close all;
 
@@ -78,22 +78,23 @@ FontSize = 9;
 FontName = 'Times';
 axes(ha(1));
 ax(1)=gca;
-setup(1).plotSoundfield( ZT + ZI, 'scientific_D1', realistic, details);
+setup(1).plotSoundfield( abs(ZI)/(pk(3)*setup(3).res), 'scientific_L1', realistic, details);
 text(500-10,size(ZT,1)-FontSize*2-10,1e3,'(A)','FontName',FontName,'FontSize',FontSize)
 ax(1).Title.String = '';%'Pressure Soundfield of Talker';
 ax(1).XLabel = [];
 ax(1).XTickLabel = [];
-clim_=[-1 1].*sum(pk([3]))*setup(3).res;
+% clim_=[-0.5 0.5].*sum(pk([3]))*setup(3).res;
+clim_ = [-20 0];
 ax(1).CLim = clim_;
 colorbar off
 
 axes(ha(2))
 ax(2)=gca;
-setup(1).plotSoundfield(  (-ZM*a/b), 'scientific_D1', realistic, details);
+setup(1).plotSoundfield(  abs(ZI+(-ZM*a/b)) /(pk(3)*setup(3).res), 'scientific_L1', realistic, details);
 text(500-10,size(ZT,1)-FontSize*2-10,1e3,'(B)','FontName',FontName,'FontSize',FontSize)
 ax(2).Title=[];
 % clim_=[-1 1].*abs(sum([-pk(1)*a/b]/2))*setup(1).res;
-% ax(2).CLim = clim_;
+ax(2).CLim = clim_;
 colorbar off
 
 for i = 1:2

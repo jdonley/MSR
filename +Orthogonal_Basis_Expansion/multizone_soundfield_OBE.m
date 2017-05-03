@@ -439,8 +439,10 @@ classdef multizone_soundfield_OBE
             r0= obj.Radius * obj.res;
             x = ceil(zone_.Origin_q.X * obj.res);
             y = ceil(zone_.Origin_q.Y * obj.res);
-            xx = (-r:r-1) + x + r0;
-            yy = (-r:r-1) + y + r0;
+            % xx = (-r:r-1) + x + r0;
+            % yy = (-r:r-1) + y + r0;
+            xx = (-r+1:r) + x + r0;
+            yy = (-r+1:r) + y + r0;
             f_ = obj.Soundfield_desired( yy, xx ) .* zone_.Soundfield_d_mask;
             
             obj.Soundfield_desired = obj.Soundfield_desired ./ max(abs(real(f_(:))));
@@ -459,8 +461,10 @@ classdef multizone_soundfield_OBE
             r0= obj.Radius * obj.res;
             x = ceil(zone_.Origin_q.X * obj.res);
             y = ceil(zone_.Origin_q.Y * obj.res);
-            xx = (-r:r-1) + x + r0;
-            yy = (-r:r-1) + y + r0;
+            % xx = (-r:r-1) + x + r0;
+            % yy = (-r:r-1) + y + r0;
+            xx = (-r+1:r) + x + r0;
+            yy = (-r+1:r) + y + r0;
             
             result = obj.Soundfield_desired( yy, xx ) .* zone_.Soundfield_d_mask;
 

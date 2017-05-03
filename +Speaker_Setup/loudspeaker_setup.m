@@ -91,7 +91,7 @@ classdef loudspeaker_setup
             if isempty(obj.RoomSize)
                 R = max([thisRadius, obj.Multizone_Soundfield.Radius]);
             end
-            if obj.ExtendedField
+            if obj.ExtendedField && isempty(obj.RoomSize)
                 if ~isempty(strfind(obj.Speaker_Array_Type,'line')) % Mirror accross linear array instead
                     L = obj.Loudspeaker_Count;
                     if strcmpi(obj.Speaker_Array_Type, '2line')
@@ -109,10 +109,9 @@ classdef loudspeaker_setup
                 width = int16(obj.res * R * 2);
                 height = width;
             else
-                width  = obj.RoomSize(2)*obj.res;
-                height = obj.RoomSize(1)*obj.res;
+                height = int16(obj.RoomSize(1)*obj.res);
+                width  = int16(obj.RoomSize(2)*obj.res);
             end
-            
         end
         
     end
