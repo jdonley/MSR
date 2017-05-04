@@ -1,10 +1,10 @@
 function SR_SYSTEM = IEEELetters2017_System_A()
 
 
-array_type = 'line';
+array_type = '2line';
 spkr_type  = 'Dynamic';
-spkr_radius = 1.5;
-N_spkrs = 24 * 1; % Times 2 for dipole
+spkr_radius = 3.0;
+N_spkrs = 24 * 2; % Times 2 for dipole
 
  geometry = 'rectangular';
 % geometry = 'circle';
@@ -33,15 +33,17 @@ Bx = 0.0;
 Qy = 0.0;
 Qx = 0.0;
 
+reproRegionAspect = [1.0 1.0]; % [Width, Height] 
+
 BZr = spkr_radius;
 QZr = spkr_radius;
 
 srcX = -spkr_radius + 1.0;
-srcY = -0.0;
+srcY = -1.0;
 [srcA,srcD] = cart2pol(srcX,srcY);
 
 imgsrcX = -2*spkr_radius - srcX;
-imgsrcY = -0.0;
+imgsrcY = -1.0;
 [imgsrcA,imgsrcD] = cart2pol(imgsrcX,imgsrcY);
 
 
@@ -55,12 +57,12 @@ field_layout = { ...
     'brightzone_source_dist',      imgsrcD, ...
     'brightzone_source_type',      'ps', ...
     'brightzone_geometry',         geometry, ...
-    'brightzone_size',             [BZr BZr]*2, ...
+    'brightzone_size',             reproRegionAspect.*[BZr BZr]*2, ...
     'quietzone_geometry',          geometry, ...
-    'quietzone_size',              [QZr QZr]*2, ...
+    'quietzone_size',              reproRegionAspect.*[QZr QZr]*2, ...
     'room_size',                   Room_Setup.Room_Size, ...
     'reproduction_geometry',       geometry, ...
-    'reproduction_size',           [spkr_radius spkr_radius]*2};
+    'reproduction_size',           reproRegionAspect.*[spkr_radius spkr_radius]*2};
 
 if strcmpi(array_type, 'circle')
     spkr_spacing = []; %Auto-calculate spacing

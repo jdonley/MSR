@@ -600,14 +600,16 @@ classdef loudspeaker_setup
             % end
             
             O = zone.Radius_q * obj.res;
+            znSz = zone.ZoneSize * obj.res;
             %Oz = size(obj.Soundfield_reproduced) / 2 / obj.res; %Set the centre of the zone for indexing
             
-            xy = (-O+1:O) / obj.res;
+            y = (-znSz(1)/2+1:znSz(1)/2) / obj.res;
+            x = (-znSz(2)/2+1:znSz(2)/2) / obj.res;
             mask = zone.Soundfield_d_mask;
             maskNaN = 1*mask;
             maskNaN(~mask)=nan;
             
-            [xx,yy] = meshgrid(xy);
+            [xx,yy] = meshgrid(x,y);
             xx = (xx + zone.Origin_q.X ) .* maskNaN ;
             yy = (yy + zone.Origin_q.Y ) .* maskNaN;
             

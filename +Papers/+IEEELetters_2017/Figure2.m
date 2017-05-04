@@ -7,7 +7,7 @@ tic;
 SYS = Current_Systems.IEEELetters2017_System_A;
 
 %%
-f = 100;
+f = 1000;
 c = SYS.signal_info.c;
 
 %%
@@ -90,7 +90,7 @@ colorbar off
 
 axes(ha(2))
 ax(2)=gca;
-setup(1).plotSoundfield(  abs(ZI+(-ZM*a/b)) /(pk(3)*setup(3).res), 'scientific_L1', realistic, details);
+setup(1).plotSoundfield(  (abs((ZI-ZM*a/b)) /(pk(3)*setup(3).res)), 'scientific_L6', realistic, details);
 text(500-10,size(ZT,1)-FontSize*2-10,1e3,'(B)','FontName',FontName,'FontSize',FontSize)
 ax(2).Title=[];
 % clim_=[-1 1].*abs(sum([-pk(1)*a/b]/2))*setup(1).res;

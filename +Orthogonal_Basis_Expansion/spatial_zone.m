@@ -46,17 +46,20 @@ classdef spatial_zone
         function obj = createEmptySoundfield_d(obj)
             
             % if strcmpi( obj.ZoneGeometry, 'circle' )
-            width = int16(obj.res * obj.Radius_q * 2);
-            height = width;
-            xyvec = linspace(-obj.Radius_q, obj.Radius_q, width);
-            [xx,yy] = meshgrid(xyvec,xyvec);
-            mask = xx.^2 + yy.^2 <= (obj.Radius_q)^2 * ones(width, width);
+            znSz = ( obj.ZoneSize * obj.res );
+            width  = znSz(2);
+            height = znSz(1);
+            y = ((-znSz(1)/2+1):(znSz(1)/2));
+            x = ((-znSz(2)/2+1):(znSz(2)/2));
+            [xx,yy] = meshgrid( x/obj.res, y/obj.res );
+            
+            mask = (xx.^2 + yy.^2) <= (min(znSz))^2 * ones(height, width);
             obj.Soundfield_d_mean_mask = mask;
                         
             if contains( lower(obj.ZoneGeometry), 'rect' )
                 width  = int16( obj.ZoneSize(2)*obj.res );
                 height = int16( obj.ZoneSize(1)*obj.res );
-                mask = ones(width, height);                
+                mask = ones(height, width);                
             end
             
             obj.Soundfield_d = zeros(height,width);
@@ -195,9 +198,9 @@ classdef spatial_zone
 % END %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             elseif ideal
                     % Using Planewave formula
-                  width=length(obj.Soundfield_d);
-                  x = ((1:width) - width/2) / obj.res;
-                  y = x;
+                  [height,width] = size(obj.Soundfield_d);
+                  x = ((1:width ) - width/2 ) / obj.res;
+                  y = ((1:height) - height/2) / obj.res;
                   [xx,yy] = meshgrid(x,y);
                   X = complex(xx,yy);
                   if strcmp(type,'pw')

@@ -184,10 +184,10 @@ classdef multizone_soundfield_OBE
             obj = obj.P_build(Debug);  % Finally we build our coefficient set P for the jth planewave function
             
             if contains(Debug,'DEBUG')
-                wid = length(obj.Soundfield_desired);
-                F_r = reshape(obj.F, [wid*wid obj.N]);
+                [h,w] = size(obj.Soundfield_desired);
+                F_r = reshape(obj.F, [h*w obj.N]);
                 S_r = (F_r * obj.P');
-                S=reshape( S_r, [wid wid 1]);
+                S = reshape( S_r, [h w 1]);
                 obj = obj.createEmptySoundfield;
                 obj.Soundfield_desired = S;
             end
@@ -227,9 +227,9 @@ classdef multizone_soundfield_OBE
             if nargin < 2
                 Debug = '';
             end
-            width = length(obj.Soundfield_desired);
-            obj.w  = zeros(width,width);
-            obj.Sd = zeros(width,width);
+            [height, width] = size(obj.Soundfield_desired);
+            obj.w  = zeros(height,width);
+            obj.Sd = zeros(height,width);
             
 %             if strcmp(Debug, 'Bright')
 %                 obj.w = obj.w + obj.BrightZ_Weight;
@@ -238,25 +238,37 @@ classdef multizone_soundfield_OBE
 %                 obj.Sd = obj.Bright_Zone.Soundfield_d(yy,xx);
 %             else
                 obj.w = obj.w + obj.UnattendedZ_Weight; % Apply unattended zone weighting
-
+                
                 SpatialZones = [obj.Quiet_Zone obj.Bright_Zone];
                 for q = 1:length(SpatialZones) % For each spatial zone
-
-                    r = int16( SpatialZones(q).Radius_q * obj.res );
-                    r0= obj.Radius * obj.res;
-                    x = ceil(SpatialZones(q).Origin_q.X * obj.res);
-                    y = ceil(SpatialZones(q).Origin_q.Y * obj.res);
-                    xx = (-r+1:r) + x + r0;
-                    yy = (-r+1:r) + y + r0;
-
-
+                    
+                    %                     znSz = int16( SpatialZones(q).ZoneSize * obj.res );
+                    %                     rpSz = int16( obj.ReproRegionSize * obj.res );
+                    %                     x = ceil(SpatialZones(q).Origin_q.X * obj.res);
+                    %                     y = ceil(SpatialZones(q).Origin_q.Y * obj.res);
+                    %                     yy = ((-znSz(1)/2+1):(znSz(1)/2)) + y + rpSz(1)/2;
+                    %                     xx = ((-znSz(2)/2+1):(znSz(2)/2)) + x + rpSz(2)/2;
+                    
+                    [xx,yy] = obj.getZoneIndices( SpatialZones(q) );
+                    
                     if strcmp(SpatialZones(q).SourceType, 'quiet')
                         obj.w(yy,xx) =  SpatialZones(q).Soundfield_d_mask * (obj.QuietZ_Weight - obj.UnattendedZ_Weight);  % Apply quiet zone weighting
                     else
                         obj.w(yy,xx) = SpatialZones(q).Soundfield_d_mask * (obj.BrightZ_Weight - obj.UnattendedZ_Weight);   % Apply bright zone weighting
                     end
                     obj.w(yy,xx) = obj.w(yy,xx) + obj.UnattendedZ_Weight;
-
+                    
+                    
+%                     znSz = ( SpatialZones(q).ZoneSize * obj.res );
+%                     y = ((-znSz(1)/2+1):(znSz(1)/2));
+%                     x = ((-znSz(2)/2+1):(znSz(2)/2));
+%                     [X,Y] = meshgrid(x/obj.res,y/obj.res);
+%                     W = abs( complex(X,Y) );
+%                     W(W<min(SpatialZones(q).ZoneSize/2)) = min(SpatialZones(q).ZoneSize/2);
+%                     W = W - min(W(:));
+%                     W = W / max(W(:));
+%                     obj.w = W.*50 + 1;
+                    
                     obj.Sd(yy,xx) = SpatialZones(q).Soundfield_d .* SpatialZones(q).Soundfield_d_mask;
 
                 end
@@ -278,11 +290,11 @@ classdef multizone_soundfield_OBE
         
 % Expansion Coefficient set
         function obj = C_build(obj)                  
-            width=length(obj.Soundfield_desired);
+            [height, width] = size(obj.Soundfield_desired);
             obj.C = zeros(1, obj.N);
                         
             for n = 1:obj.N
-                G_field = reshape(obj.G(:,n), [width width]);
+                G_field = reshape(obj.G(:,n), [height width]);
                 field = obj.Sd .* G_field .* obj.w;
                 obj.C(n) = sum(field(:));
             end
@@ -297,30 +309,30 @@ classdef multizone_soundfield_OBE
 %                 [xx,yy] = meshgrid(x,y);
 %                 X = complex(xx,yy);
 %             else
-                width=length(obj.Soundfield_desired);
+                [height, width] = size(obj.Soundfield_desired);
 
 %             end
             
-            obj.F = zeros(width, width, obj.N);
+            obj.F = zeros(height, width, obj.N);
             k = obj.k_global;
             
             %Create alternating basis planewaves centred around desired direction
-%             pos = 1:((obj.N - 1) / 2);
-%             neg = -1:-1:-((obj.N - 1) / 2);
-%             ind = [pos; neg];
-%             ind = [0 ind(:)' obj.N/2];
-%             obj.F_angles = ind * obj.Delta_phi + obj.Bright_Zone.SourceOrigin.Angle/180*pi;
-             
+            %             pos = 1:((obj.N - 1) / 2);
+            %             neg = -1:-1:-((obj.N - 1) / 2);
+            %             ind = [pos; neg];
+            %             ind = [0 ind(:)' obj.N/2];
+            %             obj.F_angles = ind * obj.Delta_phi + obj.Bright_Zone.SourceOrigin.Angle/180*pi;
+            
             obj.F_angles = ((1:obj.N)-1) * obj.Delta_phi;
+            
+            x = ((1:width) - width/2 - 1) / obj.res;
+            y = ((1:height) - height/2 - 1) / obj.res;
+            [xx,yy] = meshgrid(x,y);
+            X = complex(xx,yy);
             
             for n = 1:obj.N % For each planewave
                 phi = obj.F_angles(n);
                 
-                x = ((1:width) - cos(phi) * width*3/4 - width/2 - 1) / obj.res;
-                y = ((1:width) - sin(phi) * width*3/4 - width/2 - 1) / obj.res;
-                [xx,yy] = meshgrid(x,y);
-                
-                X = complex(xx,yy);
                 Fn = exp( 1i * k * (cos(phi)*real(X) + sin(phi)*imag(X))) .* obj.Soundfield_desired_mask; %Planewave formula ( e^(i*(kx+ky+kz)) )
                 
                 Fn=Fn.*exp(-1i*angle(Fn(floor(end/2),floor(end/2)))); %norm to centre
@@ -332,11 +344,11 @@ classdef multizone_soundfield_OBE
 
 % Basis Functions with QR Factorisation & Orthogonalisation using Weighted Gram-Schmidt method
         function obj = RG_build(obj)
-            width=length(obj.Soundfield_desired);
+            [height, width] = size(obj.Soundfield_desired);
             obj.G = zeros(width * width, obj.N); 
             obj.R = zeros(obj.N, obj.N); 
                    
-            F_all = reshape(obj.F, [width*width obj.N]);
+            F_all = reshape(obj.F, [width*height obj.N]);
             [obj.G, obj.R] = Orthogonal_Basis_Expansion.Gram_Schmidt(F_all, obj.w(:));            
            %[obj.G, obj.R] = Orthogonal_Basis_Expansion.Gram_Schmidt_mex(F_all, obj.w(:));
         end        
@@ -420,6 +432,17 @@ classdef multizone_soundfield_OBE
             obj.Delta_phi = 2 * pi / obj.N;
         end
         
+        function [x,y] = getZoneIndices( obj, Zone )
+            
+            znSz = int16( Zone.ZoneSize * obj.res );
+            rpSz = int16( obj.ReproRegionSize * obj.res );
+            x_ = ceil( Zone.Origin_q.X * obj.res );
+            y_ = ceil( Zone.Origin_q.Y * obj.res );
+            y = ((-znSz(1)/2+1):(znSz(1)/2)) + y_ + rpSz(1)/2;
+            x = ((-znSz(2)/2+1):(znSz(2)/2)) + x_ + rpSz(2)/2;
+        
+        end
+        
         function obj = calcDesiredMask(obj)
             if strcmpi( obj.Geometry, 'circle' )
                 width = int16(obj.res * obj.Radius * 2);
@@ -435,14 +458,15 @@ classdef multizone_soundfield_OBE
         
         function obj = norm_soundfield(obj)
             zone_ = obj.Bright_Zone;
-            r = int16( zone_.Radius_q * obj.res );
-            r0= obj.Radius * obj.res;
-            x = ceil(zone_.Origin_q.X * obj.res);
-            y = ceil(zone_.Origin_q.Y * obj.res);
-            % xx = (-r:r-1) + x + r0;
-            % yy = (-r:r-1) + y + r0;
-            xx = (-r+1:r) + x + r0;
-            yy = (-r+1:r) + y + r0;
+%             r = int16( zone_.Radius_q * obj.res );
+%             r0= obj.Radius * obj.res;
+%             x = ceil(zone_.Origin_q.X * obj.res);
+%             y = ceil(zone_.Origin_q.Y * obj.res);
+%             % xx = (-r:r-1) + x + r0;
+%             % yy = (-r:r-1) + y + r0;
+%             xx = (-r+1:r) + x + r0;
+%             yy = (-r+1:r) + y + r0;
+            [xx,yy] = obj.getZoneIndices( zone_ );
             f_ = obj.Soundfield_desired( yy, xx ) .* zone_.Soundfield_d_mask;
             
             obj.Soundfield_desired = obj.Soundfield_desired ./ max(abs(real(f_(:))));
@@ -457,14 +481,16 @@ classdef multizone_soundfield_OBE
                 return
             end
             
-            r = int16( zone_.Radius_q * obj.res );
-            r0= obj.Radius * obj.res;
-            x = ceil(zone_.Origin_q.X * obj.res);
-            y = ceil(zone_.Origin_q.Y * obj.res);
-            % xx = (-r:r-1) + x + r0;
-            % yy = (-r:r-1) + y + r0;
-            xx = (-r+1:r) + x + r0;
-            yy = (-r+1:r) + y + r0;
+%             r = int16( zone_.Radius_q * obj.res );
+%             r0= obj.Radius * obj.res;
+%             x = ceil(zone_.Origin_q.X * obj.res);
+%             y = ceil(zone_.Origin_q.Y * obj.res);
+%             % xx = (-r:r-1) + x + r0;
+%             % yy = (-r:r-1) + y + r0;
+%             xx = (-r+1:r) + x + r0;
+%             yy = (-r+1:r) + y + r0;
+            
+            [xx,yy] = obj.getZoneIndices( zone_ );
             
             result = obj.Soundfield_desired( yy, xx ) .* zone_.Soundfield_d_mask;
 
