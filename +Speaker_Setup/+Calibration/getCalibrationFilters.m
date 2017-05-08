@@ -30,7 +30,7 @@ for chan = flip( 1:size(recording,2) ) % the flip allows 3D matrix initialisatio
         IRs(:,:,chan), FiltLen, F_band, Fs, Reg, 'kirkeby' );
     
     if isLineArray
-        invIRs(:,:,chan) = Tools.fconv( invIRs(:,:,chan), TFAlign.' );
+        invIRs(:,:,chan) = Tools.fconv( invIRs(1:end-size(TFAlign,2)+1,:,chan), TFAlign.' );
     end
 end
 
