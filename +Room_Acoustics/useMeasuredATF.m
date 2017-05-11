@@ -82,16 +82,16 @@ fs = filts.fs;
 %%
 rir_sim = RIRs.Bright_RIRs;
 
-if isLineArray
-    TFAlign = Speaker_Setup.Calibration.linTFalign(SYS);
-end
+% if isLineArray
+%     TFAlign = Speaker_Setup.Calibration.linTFalign(SYS);
+% end
 
 rir_rec=[];
 for r=1:size(TF,3)
     tftmp = TF(:,:,r);
-    if isLineArray
-        tftmp = Tools.fconv( tftmp, TFAlign.');
-    end
+%     if isLineArray
+%         tftmp = Tools.fconv( tftmp, TFAlign.');
+%     end
     for s = 1:size(TF,2)
         tmp = decimate(tftmp(:,s), SYS.system_info.fs/SYS.signal_info.Fs);
         rir_rec(r,:,s) = tmp(1:size(rir_sim,2));

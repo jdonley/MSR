@@ -105,6 +105,10 @@ for s = 1:length(Setups)
 %         aux_info = load([spkr_calib_dir fileName_curr system_info.sc sigType '.mat']);
 %         LoudspeakerSignals_MultiChan_ = LoudspeakerSignals_MultiChan_ ./ aux_info.scale_value;
     end
+    if isempty(LoudspeakerSignals_MultiChan_)
+       LoudspeakerSignals_MultiChan_ = zeros(size(LoudspeakerSignals_MultiChan(:,:,1))); % If empty then make zeros so nothing is added
+    end
+    
     LoudspeakerSignals_MultiChan(:,:,s)=LoudspeakerSignals_MultiChan_;
 end
 LoudspeakerSignals_MultiChan = sum(LoudspeakerSignals_MultiChan,3);
