@@ -6,6 +6,9 @@ function Perform_Full_Calibration(SYS, RecordTF)
 if nargin < 1, SYS = Current_Systems.loadCurrentSRsystem; end
 if nargin < 2, RecordTF = false; end
 
+% If using measured ATFs then record the transfer functions
+if SYS.signal_info.UseMeasuredATFs, RecordTF = true; end
+
 % If a realworld recording is not specified in the system then abort
 if ~any(strcmpi(strrep(SYS.signal_info.recording_type,'-',''),'realworld')), delete(gcp('nocreate')); return; end
 
@@ -90,13 +93,7 @@ for EQorTFloop = 1:(RecordTF+1)
     
     %% Find Equalisation Filters and Get Transfer Functions
     [EQs,TFs] = Speaker_Setup.Calibration.getCalibrationFilters( ...
-        y_multi_rec, ...
-        y, ...
-        [SYS.system_info.f_low, ...
-        SYS.system_info.f_high], ...
-        SYS.system_info.fs, ...
-        SYS.system_info.Calibration_FiltLen, ...
-        SYS.system_info.Calibration_FiltReg );
+        y_multi_rec, y, SYS );
     
     if EQorTFloop == 1
         EQ = EQs(:,:,1:NCalibChans);
@@ -108,20 +105,21 @@ end
 
 %% Save Filters and Transfer Functions
 fs = SYS.system_info.fs;
+ArrayType = SYS.system_info.CurrentSpeakerArrayType;
 FD_dir = [SYS.system_info.Drive SYS.system_info.FilterData_dir];
 
 if exist('EQ','var')
     if ~exist(FD_dir,'dir'); mkdir(FD_dir); end
     save([FD_dir 'EQ_Filters_' ...
         datestr(now,'yyyy-mm-dd_HH.MM') ...
-        '.mat'], 'EQ', 'fs');
+        '.mat'], 'EQ', 'fs', 'ArrayType');
 end
 
 if exist('TF','var')
     if ~exist(FD_dir,'dir'); mkdir(FD_dir); end
     save([FD_dir 'Transfer_Functions_' ...
         datestr(now,'yyyy-mm-dd_HH.MM') ...
-        '.mat'], 'TF', 'fs');
+        '.mat'], 'TF', 'fs', 'ArrayType');
 end
 
 %% Save Recordings
@@ -130,7 +128,7 @@ CR_dir = [SYS.system_info.Drive SYS.system_info.CalibrationRec_dir];
 if ~exist(CR_dir,'dir'); mkdir(CR_dir); end
 audiowrite([CR_dir 'Recording_' ...
     datestr(now,'yyyy-mm-dd_HH.MM') ...
-    '.wav'], y_multi_rec, SYS.system_info.fs);
+    '.wav'], y_multi_rec, SYS.system_info.fs, 'BitsPerSample', 64);
 
 %%
 fprintf('Calibration completed and filters saved.\n\n');

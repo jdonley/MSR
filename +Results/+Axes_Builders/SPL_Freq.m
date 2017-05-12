@@ -54,7 +54,10 @@ trendAlpha = 0.33;
 
 axes(axH);
 [ax,h1,h2]=plotyy(1,1,1,1);delete(h1);delete(h2);
-ax(2).delete;ax(2)=[];
+ax(2).Visible = 'off';
+ax(2).Title.Visible = 'on';
+% ax(2).delete;ax(2)=[]; % Uncomment and delete these to remove the lettered labels from the subplots
+
 
 axs = ax;
 set(axs,'Color','none'); %Transparent axes backgrounds

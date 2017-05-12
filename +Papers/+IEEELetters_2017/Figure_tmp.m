@@ -4,7 +4,7 @@
 tic;
 
 %%
-SYS = Current_Systems.ICASSP2017_System_A;
+SYS = Current_Systems.IEEELetters2017_System_B;
 
 %%
 f = 1000;
@@ -15,7 +15,7 @@ setup = [SYS.Main_Setup(:);SYS.Masker_Setup(:)];
 for s = 1:2
     
 %         setup(s).Multizone_Soundfield.Radius = 0.91;
-    setup(s).Multizone_Soundfield.UnattendedZ_Weight = 0;
+    setup(s).Multizone_Soundfield.UnattendedZ_Weight = 0.1;
     
     setup(s).Multizone_Soundfield.Quiet_Zone = ...
         setup(s).Multizone_Soundfield.Quiet_Zone.setDesiredSoundfield(true, f, 'suppress_output');
@@ -26,7 +26,7 @@ for s = 1:2
     
     setup(s) = setup(s).calc_Loudspeaker_Weights();
     if s == 2
-       setup(s).Radius = (setup(s-1).Loudspeaker_Dimensions(1)*setup(s-1).Loudspeaker_Count/2)/2;
+       setup(s).Radius = setup(s-1).Radius; %(setup(s-1).Loudspeaker_Dimensions(1)*setup(s-1).Loudspeaker_Count/2)/2;
 
        setup(s).Multizone_Soundfield.Radius = setup(s).Radius;
    end
@@ -44,7 +44,7 @@ details.arrowLength = 3;
 details.arrowAngle = 30;
 details.arrowBuffer = 2;
 details.lblFontSize = 12;
-details.NTicks = [11, 7]; % Number of ticks in X and Y
+details.NTicks = [9, 5]; % Number of ticks in X and Y
 
 pk(1) = max(abs(setup(1).Bright_Samples(:)));
 pk(2) = max(abs((setup(2).Bright_Samples(:))));
@@ -67,7 +67,9 @@ FontName = 'Times';
 axes(ha(1));
 ax(1)=gca;
 setup(1).plotSoundfield( ZT, 'scientific_D1', realistic, details);
-text(500-10,size(ZT,1)-FontSize*2-10,1e3,'(A)','FontName',FontName,'FontSize',FontSize)
+tx = text(30-10,size(ZT,1)-FontSize*2-10,1e3,'(A)','FontName',FontName,'FontSize',FontSize);
+tx.BackgroundColor = [1 1 1 0.9]; tx.Margin = 0.5;
+tx.EdgeColor = [1 1 1 0.5]; tx.LineWidth = 2;
 ax(1).Title.String = '';%'Pressure Soundfield of Talker';
 ax(1).XLabel = [];
 ax(1).XTickLabel = [];
@@ -78,7 +80,9 @@ colorbar off
 axes(ha(2))
 ax(2)=gca;
 setup(1).plotSoundfield( ZT-ZM, 'scientific_D1', realistic, details);
-text(500-10,size(ZT,1)-FontSize*2-10,1e3,'(B)','FontName',FontName,'FontSize',FontSize)
+tx = text(30-10,size(ZT,1)-FontSize*2-10,1e3,'(B)','FontName',FontName,'FontSize',FontSize);
+tx.BackgroundColor = [1 1 1 0.9]; tx.Margin = 0.5;
+tx.EdgeColor = [1 1 1 0.5]; tx.LineWidth = 2;
 ax(2).Title=[];
 ax(2).CLim=clim_;
 colorbar off
@@ -92,9 +96,9 @@ drawnow;
 pause(1);
 tightfig;
 
-SYS.publication_info.FigureName = 'IEEE_ICASSP2017_1';
-SYS.publication_info.print_fmt = 'png';
-Publication.saveFigureForPublication( SYS, gcf );
+% SYS.publication_info.FigureName = 'IEEE_Letters2017_tmp';
+% SYS.publication_info.print_fmt = 'png';
+% Publication.saveFigureForPublication( SYS, gcf );
 
 %%
 disp(['   Contrast: ' num2str(mag2db(setup(1).Acoustic_Contrast)) 'dB']);

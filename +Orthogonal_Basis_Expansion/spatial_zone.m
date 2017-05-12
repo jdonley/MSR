@@ -27,22 +27,43 @@ classdef spatial_zone
         Phase = 0*pi;                                       % Phase of source
         SourceType = 'pw';                                  % 'pw' = Plane Wave, 'ps' = Point Source, 'quiet' = Quiet Zone
         SourceOrigin = struct('Distance', 1.0, 'Angle', 0); % This location is relative to the origin of this particular zone
-        Soundfield_d_mask;                                  % Circular soundfield mask for a square array
+        Soundfield_d_mask;                                  % Arbitrarily shaped soundfield mask
         Soundfield_d = [];                                  % The complex values of the desired sound field made from spherical harmonics.
+        Soundfield_d_mean_mask;                             % Circular soundfield mask for calculating the mean
+
         Sd = [];                                            % Ideal desired soundfield
         Alpha_Coeffs = [];                                  % Alpha_Coeffs is a set of coefficients uniquely representing the qth desired soundfield
+        
+        ZoneGeometry = 'circle';                            % The shape of the zone. This could be 'rect' (rectangular) or 'circle' (circular)
+        ZoneSize     = [1 1];                               % Size of the zone. [1 1] = 1m x 1m (width x height in metres)
+        
     end
     
     
         
     methods (Access = private)
-            
+        
         function obj = createEmptySoundfield_d(obj)
-            width = int16(obj.res * obj.Radius_q * 2);
-            xyvec = linspace(-obj.Radius_q, obj.Radius_q, width);
-            [xx,yy] = meshgrid(xyvec,xyvec);
-            obj.Soundfield_d_mask = xx.^2 + yy.^2 <= (obj.Radius_q)^2 * ones(width, width);
-            obj.Soundfield_d = zeros(width,width);
+            
+            % if strcmpi( obj.ZoneGeometry, 'circle' )
+            znSz = ( obj.ZoneSize * obj.res );
+            width  = znSz(2);
+            height = znSz(1);
+            y = ((-znSz(1)/2+1):(znSz(1)/2));
+            x = ((-znSz(2)/2+1):(znSz(2)/2));
+            [xx,yy] = meshgrid( x/obj.res, y/obj.res );
+            
+            mask = (xx.^2 + yy.^2) <= (min(znSz))^2 * ones(height, width);
+            obj.Soundfield_d_mean_mask = mask;
+                        
+            if contains( lower(obj.ZoneGeometry), 'rect' )
+                width  = int16( obj.ZoneSize(2)*obj.res );
+                height = int16( obj.ZoneSize(1)*obj.res );
+                mask = ones(height, width);                
+            end
+            
+            obj.Soundfield_d = zeros(height,width);
+            obj.Soundfield_d_mask = mask;
         end
         
     end
@@ -92,9 +113,13 @@ classdef spatial_zone
            obj = obj.createEmptySoundfield_d;
         end        
         
+        function obj = setZoneSize(obj, ZoneSize)
+            obj.ZoneSize = ZoneSize;
+        end
+        
         function obj = setDesiredSoundfield(obj, ideal, frequency, phase, radius, type, weight, angle_, distance)
             if nargin < 9;  distance = obj.SourceOrigin.Distance;
-            if nargin < 8;     angle_ = obj.SourceOrigin.Angle;
+            if nargin < 8;    angle_ = obj.SourceOrigin.Angle;
             if nargin < 7;    weight = obj.Weight;
             if nargin < 6;      type = obj.SourceType;
             if nargin < 5;    radius = obj.Radius_q;
@@ -173,9 +198,9 @@ classdef spatial_zone
 % END %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             elseif ideal
                     % Using Planewave formula
-                  width=length(obj.Soundfield_d);
-                  x = ((1:width) - width/2) / obj.res;
-                  y = x;
+                  [height,width] = size(obj.Soundfield_d);
+                  x = ((1:width ) - width/2 ) / obj.res;
+                  y = ((1:height) - height/2) / obj.res;
                   [xx,yy] = meshgrid(x,y);
                   X = complex(xx,yy);
                   if strcmp(type,'pw')

@@ -7,7 +7,15 @@ SourceAngleSetIndices = [1, 2, 3]; % 1, 2 or 3
 
 N_spkrs = 24; % 16, 24, 32 or 149
 
-lambda_g = [0.0, 0.5, 1.0]; % between 0 and 1
+lambda_g = [ 0.0, 0.5, 1.0]; % between 0 and 1
+% lambda_g = [     0.5     ]; % between 0 and 1
+
+% FlatMaskerWhite = false;
+ZoneWeightMaskerWhite = true;
+
+if ZoneWeightMaskerWhite
+    lambda_g = [nan lambda_g];
+end
 
 spkr_type  = 'Dynamic';
 spkr_radius = 1.3;
@@ -18,12 +26,12 @@ Room_Setup = Room_Acoustics.Room;
 Room_Setup.NoReceivers = 32;
 % % ROOM 1
 % % Anechoic
-Room_Setup.setRoomSize( [10 10 10] ); %Anechoic
-%Room_Setup.setRoomSize( [4 9 3] ); % 35.G46e
-%Room_Setup.setRoomSize( [8 10 3] ); % 6.107
-%Room_Setup.setRoomSize( [9 14 3] ); % Out to lunch (Cafe)
+Room_Setup = Room_Setup.setRoomSize( [10 10 10] ); %Anechoic
+%Room_Setup = Room_Setup.setRoomSize( [4 9 3] ); % 35.G46e
+%Room_Setup = Room_Setup.setRoomSize( [8 10 3] ); % 6.107
+%Room_Setup = Room_Setup.setRoomSize( [9 14 3] ); % Out to lunch (Cafe)
 
-Room_Setup.setReproductionCentre( Room_Setup.Room_Size .* [0.5 0.5 0.5] ); % Centre of room
+Room_Setup = Room_Setup.setReproductionCentre( Room_Setup.Room_Size .* [0.5 0.5 0.5] ); % Centre of room
 
 Room_Setup = Room_Setup.setWall_Absorb_Coeff(1.0);
 
@@ -167,19 +175,29 @@ signal_info.weight = 100; % This can be auto-calculated for maximum contrast by 
 signal_info.method = ''; % Default empty (temporary variable)
 
 % signal_info.ZWlambda_g = lambda_g; % Special weighting parameter
-lambda_gTxt = num2str(lambda_g.','%0.2f');
+lambda_gTxt = num2str(lambda_g(~isnan(lambda_g)).','%0.2f');
 NM = 'NoMask';
 ZWMAC = 'ZoneWeightMaskerAliasCtrl';
+if ZoneWeightMaskerWhite
+    ZWM_ = 'ZoneWeightMasker';
+else
+    ZWM_ = [];
+end
+J = numel(array_type);
+K = size(lambda_gTxt);
+L = numel(SourceAngleSetIndices);
+% N_sets = N_sets+size(ZWM_,1)*J;
 signal_info.methods_list ... % List of methods to synthesize
     = repmat( ...
-    [mat2cell(repmat(NM,1,N_sets),1,numel(NM)*ones(N_sets,1)), ...
-    mat2cell( ...
-    reshape([repmat(ZWMAC,N_sets,1),repmat(lambda_gTxt,numel(array_type),1)].',1,[]), ...
-    1,(numel(ZWMAC)+size(lambda_gTxt,2))*ones(N_sets,1))], ...
-    1, numel(SourceAngleSetIndices));
+    [mat2cell(repmat(NM,1,N_sets),1,numel(NM)*ones(N_sets,1)), ...%     mat2cell( ...
+    repmat( [{ZWM_}; ...
+        mat2cell([repmat(ZWMAC,K(1),1),lambda_gTxt],ones(K(1),1),size(ZWMAC,2)+K(2))], ...
+        J,1).', ...%     1,(numel(ZWMAC)+size(lambda_gTxt,2))*ones(N_sets,1))...
+    ], ...
+    1, L );
 N=1:numel(signal_info.methods_list);
-signal_info.methods_list_clean = N(logical(repmat([ones(1,N_sets),zeros(1,N_sets)],1, numel(SourceAngleSetIndices)))); %Indices of the clean signals
-signal_info.methods_list_masker = N(~logical(repmat([ones(1,N_sets),zeros(1,N_sets)],1, numel(SourceAngleSetIndices)))); %Indices of the maskers, different hybrids are separated by columns
+signal_info.methods_list_clean = N(logical(repmat([ones(1,N_sets),zeros(1,N_sets)],1, L))); %Indices of the clean signals
+signal_info.methods_list_masker = N(~logical(repmat([ones(1,N_sets),zeros(1,N_sets)],1, L))); %Indices of the maskers, different hybrids are separated by columns
 % ( e.g. [2,3;4,0;6,7] is two hybrids, the first is 2&4&6, the second is 3&7, indices < 1 are ignored)
 signal_info.methods_list_paired = true; % True or False to evaluate clean and masker methods in corresponding pairs
 
@@ -259,8 +277,12 @@ if numel(SourceAngleSetIndices)==1
 else
     angleTxt='';
 end
-publication_info.FigureTitle = ['Quality and Intelligibility - Differing ${\lambda}{\grave{}}$' ...
+publication_info.FigureTitle = ['Quality and Intelligibility - Effects of Masker Spectra' ...
     angleTxt];
+% publication_info.FigureTitle = ['Quality and Intelligibility - Differing ${\lambda}{\grave{}}$' ...
+%     angleTxt];
+% publication_info.FigureTitle = ['Quality and Intelligibility - ${\lambda}{\grave{}}=0.5$' ...
+%     angleTxt];
 
 publication_info.print_fmt = 'pdf'; %figure image file format
 publication_info.print_res = 600; %rastered graphic DPI

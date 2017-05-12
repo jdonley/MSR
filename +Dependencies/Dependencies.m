@@ -13,6 +13,10 @@ d(end+1).Name           = 'amtoolbox';
 d(end+1).Name           = 'arrow';
   d(end).URL            = 'https://au.mathworks.com/matlabcentral/fileexchange/278-arrow';
               
+d(end+1).Name           = 'cprintf';
+  d(end).URL            = 'https://au.mathworks.com/matlabcentral/fileexchange/24093-cprintf-display-formatted-colored-text-in-the-command-window';
+  d(end).Required       = true;
+  
 d(end+1).Name           = 'DSP_Tools';
   d(end).URL            = '';
   d(end).IncludeSubDirs = true;
@@ -51,6 +55,7 @@ d(end+1).Name           = 'newFunction';
               
 d(end+1).Name           = 'Parfor_Progress';
   d(end).URL            = 'http://au.mathworks.com/matlabcentral/fileexchange/32101-progress-monitor--progress-bar--that-works-with-parfor/';
+  d(end).Required       = true;
               
 d(end+1).Name           = 'PESQ';
   d(end).URL            = '<now included in MSR package>';

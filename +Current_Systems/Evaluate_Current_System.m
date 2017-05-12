@@ -15,9 +15,6 @@ Room_Acoustics.Generate_RIR_Database
 %% Generate Loudspeaker Signals
 Broadband_Tools.Generate_Loudspeaker_Signals
 
-%% Simulate Recording 
-Room_Acoustics.Reverberant_MSR
-
 
 %% Obtain Calibration Filters
 Speaker_Setup.Calibration.Perform_Full_Calibration
@@ -28,6 +25,9 @@ Speaker_Setup.Calibration.Calibrate_MSR_Loudspeaker_Signals
 %% Realworld Recording
 Hardware_Control.Play_and_Rec_System
 
+
+%% Simulate Recording 
+Room_Acoustics.Reverberant_MSR
 
 %% Measure Recorded Signal Characteristics
 Room_Acoustics.Reverberant_MSR_Analysis

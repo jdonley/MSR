@@ -32,11 +32,11 @@ function [ fig ] = IEEE_Trans2016_D( SYS )
 fig = figure('Name',SYS.publication_info.FigureName,'NumberTitle','off');
 fig.Color = [1 1 1];
 
-Nrow = numel(SYS.Main_Setup);
-Ncol = size(SYS.signal_info.methods_list_masker,2);
+nRow = numel(SYS.Main_Setup);
+nCol = size(SYS.signal_info.methods_list_masker,2);
 
 axHndls = tightPlots( ...
-    Nrow, Ncol, ...
+    nRow, nCol, ...
     SYS.publication_info.figure_width, ...
     SYS.publication_info.axis_aspect_ratio, ...
     SYS.publication_info.axes_gap, ...
@@ -48,18 +48,21 @@ newAxs  = [];
 legStrs = [];
 
 %%
-
-for r = 1:Nrow
+SYStmp = SYS;
+for row = 1:nRow
     
-    for c = 1:Ncol
+    for col = 1:nCol
+                
+        I = sub2ind([nCol nRow],col,row);
+
+        SYStmp.Main_Setup   = SYS.Main_Setup( I );
         
-        SYS.signal_info.method = SYS.signal_info.methods_list{end};
+        SYStmp.signal_info.method = SYS.signal_info.methods_list{end};
 %         SYS.signal_info.recording_type = SYS.signal_info.recording_type{r};
-        
-        axNo = sub2ind([Nrow,Ncol],c,r);
+                
         [nA, lS] = Results.Axes_Builders.SPL_Freq( ...
-            SYS, ...
-            axHndls( axNo ) );
+            SYStmp, ...
+            axHndls( I ) );
         newAxs  = [newAxs; nA];
         legStrs = [legStrs; lS];
         
@@ -74,7 +77,7 @@ tightfig(fig);
 
 Results.Figure_Builders.Helpers.setLegend( SYS, newAxs, legStrs );
 
-% Results.Figure_Builders.Helpers.setLabels( SYS, newAxs, Nrow, Ncol );
+Results.Figure_Builders.Helpers.setLabels( SYS, newAxs, nRow, nCol );
 
 
 end

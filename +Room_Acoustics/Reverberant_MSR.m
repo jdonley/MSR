@@ -9,6 +9,7 @@ delete(gcp('nocreate'));
 if nargin < 1, SYS = Current_Systems.loadCurrentSRsystem; end
 
 %%
+
 N = length(SYS.signal_info.methods_list_clean(SYS.signal_info.methods_list_clean>=1)) ...
     + length(SYS.signal_info.methods_list_masker(SYS.signal_info.methods_list_masker>=1));
 paired = isfield(SYS.signal_info,'methods_list_paired') && SYS.signal_info.methods_list_paired;
@@ -30,6 +31,14 @@ for typ = 1:N
         end
     end
     
+    if SYS.signal_info.UseMeasuredATFs, Room_Acoustics.useMeasuredATF(subSYS); end
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     Room_Acoustics.Apply_RIRs.Reverberant_MSR_batchfunc( subSYS );
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    if SYS.signal_info.UseMeasuredATFs, Room_Acoustics.useSimulatedATF(subSYS); end % Revert back after use
     
 end
+
+

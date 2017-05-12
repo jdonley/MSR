@@ -31,11 +31,11 @@ function [ fig ] = IEEE_Trans2016_C( SYS )
 fig = figure('Name',SYS.publication_info.FigureName,'NumberTitle','off');
 fig.Color = [1 1 1];
 
-nRT = numel(SYS.signal_info.recording_type);
-nML = size(SYS.signal_info.methods_list_masker,2);
+nCol = SYS.publication_info.subPlotDims(1);
+nRow = SYS.publication_info.subPlotDims(2);
 
 axHndls = tightPlots( ...
-    nRT, nML, ...
+    nRow, nCol, ...
     SYS.publication_info.figure_width, ...
     SYS.publication_info.axis_aspect_ratio, ...
     SYS.publication_info.axes_gap, ...
@@ -47,34 +47,38 @@ newAxs  = [];
 legStrs = [];
 
 %%
-RTs_tmp = SYS.signal_info.recording_type;
-for rt = 1:nRT
-    SYS.signal_info.recording_type = ...
-        RTs_tmp{rt};
+SYStmp = SYS;
+
+for row = 1:nRow
+    SYStmp.signal_info.recording_type = ...
+        SYS.signal_info.recording_type{row};
     
-    for ml = 1:nML
-        SYS.signal_info.method = ...
-            SYS.signal_info.methods_list{ ...
-            SYS.signal_info.methods_list_masker(:,ml)};
+    for col = 1:nCol
+        I = sub2ind([nCol nRow],col,row);
         
-        axNo = sub2ind([nML,nRT],ml,rt);
+        SYStmp.Main_Setup   = SYS.Main_Setup( I );
+        SYStmp.Masker_Setup = SYS.Masker_Setup( I );
+        
+        SYStmp.signal_info.method = ...
+            SYS.signal_info.methods_list{ ...
+            SYS.signal_info.methods_list_masker( I )};
+        
         [nA, lS] = Results.Axes_Builders.STOI_PESQ( ...
-            SYS, ...
-            axHndls( axNo ) );
+            SYStmp, ...
+            axHndls( I ) );
+        
         newAxs  = [newAxs; nA];
         legStrs = [legStrs; lS];
-        
     end
     
 end
-SYS.signal_info.recording_type = RTs_tmp;
 
 drawnow;pause(0.05);
 tightfig(fig);
 
 Results.Figure_Builders.Helpers.setLegend( SYS, newAxs, legStrs, 'errorbar' );
 
-Results.Figure_Builders.Helpers.setLabels( SYS, newAxs, nRT, nML );
+Results.Figure_Builders.Helpers.setLabels( SYS, newAxs, nRow, nCol );
 
 end
 

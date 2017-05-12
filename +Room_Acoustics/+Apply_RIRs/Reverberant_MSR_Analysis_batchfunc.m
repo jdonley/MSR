@@ -217,7 +217,7 @@ for m = 1:M
                         Rec_Bright_{s_1} = load(files{s_1}{file}); break;
                     end
                 end
-                if s_1==2, Rec_Bright_{s_1}.Rec_Sigs_B = Rec_Bright_{s_1}.Rec_Sigs_B'; end; %TODO: Fix the recording so the dimensions are in the correct place.
+                if s_1==2, Rec_Bright_{s_1}.Rec_Sigs_B = Rec_Bright_{s_1}.Rec_Sigs_B'; end %TODO: Fix the recording so the dimensions are in the correct place.
                 sLB = size( Rec_Bright_{s_1}.Rec_Sigs_B,2); %signal Length Bright
                 for s=s_1:S
                     Rec_Bright(:,:,s) = Rec_Bright_{s}.Rec_Sigs_B(:,1:sLB);
