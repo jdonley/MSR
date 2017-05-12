@@ -1,21 +1,35 @@
+clc;clear;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%
+%%% DEMO %%% 
+%%% 
+%%% Turn on the red pre-amplifiers and wait 1 minute
+%%% Run this script as it is (F5)
+%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-noise_levels_vec = [...
+noise_levels_vec = [...play
     -Inf, ...   % Clean Speech is -Inf dB noise
-    -10, ...    % Good Quality and Low Intelligibility is -10 dB noise
+    -10, ...    % Good Quality and Low Intelligibility is -10 dB noise ( Can be any of the currently generated which are -40:5:20 )
     ];
 
+% Playback master gain
+master_gain = -50; %dB ( usually leave at -50dB )
 
+% System to demo (if you're not sure, leave this as it is)
 SYS = Current_Systems.IEEETransactions_System_C; % This is good for circular or line array and Quality/Privacy tuned noise
 
-% Playback master gain
-master_gain = -50; %dB (usually -50dB for recordings)
+%%% To stop the playback
+%%% 1) Press "ctrl + c" in the Command Window
+%%% 2) Run the line "playrec reset"
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
-
-
-
-
-
+%%
+Nsetups = numel(SYS.Main_Setup);
+realworldIndices = Nsetups/2+1:Nsetups;
 
 %%
 % If a realworld recording is not specified in the system then abort
@@ -36,7 +50,6 @@ end
 if SYS.signal_info.reference
     SYS.system_info.playbackChannels = SYS.signal_info.reference_channel;
 end
-
 
 %%
 SYS.signal_info.L_noise_mask = -inf;
@@ -69,7 +82,9 @@ for c = SYS.signal_info.methods_list_clean
         
         if strcmpi( ...
                 SYS.system_info.CurrentSpeakerArrayType, ...
-                subSYS.Main_Setup.Speaker_Array_Type)
+                subSYS.Main_Setup.Speaker_Array_Type) ...
+                && ...
+                any( c == realworldIndices )
             for noise_mask = noise_levels_vec
                 
                 % masker_signal_info = [];
