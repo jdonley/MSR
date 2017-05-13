@@ -1,4 +1,5 @@
 Falias = Broadband_Tools.getAliasingFrequency(SYS.Main_Setup)/2/pi*SYS.signal_info.c / 1e3;
+Falias = min(Falias,1.5938);
 SimCircBright=Res_Matrix{1}(Hrz_Vec>0.15 & Hrz_Vec<Falias);
 SimCircQuiet=Res_Matrix{2}(Hrz_Vec>0.15 & Hrz_Vec<Falias);
 RealCircQuiet=Res_Matrix{4}(Hrz_Vec>0.15 & Hrz_Vec<Falias);

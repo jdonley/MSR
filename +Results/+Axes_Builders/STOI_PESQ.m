@@ -166,11 +166,7 @@ for li = 1:Nlines
                     Res_Matrix_{rt}, 'un',0);
             end
             
-%             if rt==2
-%                 STOIQ=mean(Res_trend_{1}{2})/100;
-%                 PESQB=mean(Res_trend_{2}{1})/4.56;
-%                 sum(PESQB)-sum(STOIQ);
-%             end
+
             
             cols = colours{rt};
             mrks = markers{rt};
@@ -240,7 +236,81 @@ end
 grid(axs(2),'off'); % Turn off the second y axis grid because both y axes have the same grid
 axs(2).Box = 'off';
 
+% Some testing analysis if needed
+if rt==2
+    G = trend_vec;
+    STOIB=(Res_trend_{1}{1})/100;
+    STOIQ=(Res_trend_{1}{2})/100;
+    PESQB=(Res_trend_{2}{1})/4.56;
+    %                 sum(PESQB)-sum(STOIQ);
+    SIC = STOIB-STOIQ;
+    figure(12321);
+    txtOffs = [-0.5 +0.5 -0.5];
+    lambdas = [0.25 1 4];
+    for l = 1:numel(lambdas)
+        lambda = lambdas(l);
+        optCurve = SIC + lambda*PESQB;
+        plot(G,optCurve); hold on;
+        Iopt = optCurve==max(optCurve);
+        Gopt = G(Iopt);
+        plot(Gopt,max(optCurve),'or');
+        text(Gopt,max(optCurve)+txtOffs(l),...
+            {['G = ' num2str(Gopt,3)]; ...
+             ['SIC_{STOI} = ' num2str(SIC(Iopt)*100,3) '%']; ...
+             ['B_{PESQ} = ' num2str(PESQB(Iopt)*4.56,3) 'MOS']},'ho','c');
+    end
+    hold off;
+end
+0; % Breakpoint here to stop at each plot
 end
 
+function saveSelectResultsAsLATEXmacros
+   
+%%
+Results = [Eps_min_dB, ...
+           Eps_minB_dB, ...
+           mag2db(mean(db2mag([Eps_min_dB;Eps_minB_dB])))];
+newcom = '\\newcommand';
+mac_pre = '\\';
+mac_post = 'res';
+mac_names = {'LTASS'; ...
+             'QuietOne'; ...
+             'LowPass'; ...
+             'White'; ...
+             'Pink'; ...
+             'IBLambdaZero'; ...
+             'IBLambdaHalf'; ...
+             'IBLambdaOne'; };
+mac_rownames = {''; ...
+                'B'; ...
+                'AVG';};
+            
+cols = numel(mac_names);
+rows = numel(mac_rownames);
+% mac_post = '';
+% mac_names = num2cell(char((1:cols).' +64));
+% mac_rownames = num2cell(char((1:rows).' +64));           
+M = cellfun(@(a,b) [a,b],...
+    repmat({ mac_pre   },cols,1),...
+             mac_names ,...
+    'UniformOutput',false);
+macros = cellfun(@(a,b,c) [a,b,c],...
+    repmat( M ,rows,1),...
+    reshape(repmat( mac_rownames.' ,cols,1),[],1),...
+    repmat({ mac_post  },rows*cols,1),...
+    'UniformOutput',false);
+      
+FC1 = cellfun(@(m) [newcom '{' m '} {{' ],macros,'UniformOutput',false);
+FC2 = [num2str(round(Results.',3,'significant')) repmat('}}\n',numel(macros),1)];
+
+filecontent = cellfun(@(a,b) [a,b],FC1,mat2cell(FC2,ones(size(FC2,1),1),size(FC2,2)),'UniformOutput',false);
+
+fid = fopen([SYS.publication_info.DocumentPath filesep SYS.publication_info.LatexMacrosFile],'w');
+fprintf(fid,[filecontent{:}]);
+
+fclose(fid);
+
+Tools.MiKTeX_FNDB_Refresh;
+end
 
 
