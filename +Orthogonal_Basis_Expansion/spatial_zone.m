@@ -35,7 +35,7 @@ classdef spatial_zone
         Alpha_Coeffs = [];                                  % Alpha_Coeffs is a set of coefficients uniquely representing the qth desired soundfield
         
         ZoneGeometry = 'circle';                            % The shape of the zone. This could be 'rect' (rectangular) or 'circle' (circular)
-        ZoneSize     = [1 1];                               % Size of the zone. [1 1] = 1m x 1m (width x height in metres)
+        ZoneSize     = [];                                  % Size of the zone. [1 1] = 1m x 1m (width x height in metres)
         
     end
     
@@ -44,6 +44,10 @@ classdef spatial_zone
     methods (Access = private)
         
         function obj = createEmptySoundfield_d(obj)
+            
+            if isempty(obj.ZoneSize)
+                obj = setZoneSize(obj, [1 1] * obj.Radius_q);
+            end
             
             % if strcmpi( obj.ZoneGeometry, 'circle' )
             znSz = ( obj.ZoneSize * obj.res );
