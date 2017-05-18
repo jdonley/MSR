@@ -214,6 +214,7 @@ classdef loudspeaker_setup
                 H = obj.Loudspeaker_Object.convolutionalModel( th1, r, Di, freqs);
             else
                 H = 1i/4 * besselh(0, obj.k_global * r );
+%                 H = 1i/4 * sqrt(pi./(2*obj.k_global * r)) .* besselh(0 + 0.5, obj.k_global * r );
             end
             
             if (ndims(L_) == ndims(H)) && all(size(L_) == size(H))

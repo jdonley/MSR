@@ -44,8 +44,8 @@ details.arrowAngle = 30;
 details.arrowBuffer = 2;
 details.lblFontSize = 12;
 
-% pk(1) = max(abs((setup(1).Bright_Samples(:))));
-% pk(2) = max(abs((setup(2).Bright_Samples(:))));
+ pk(1) = max(abs((setup(1).Bright_Samples(:))))*setup(1).res;
+ pk(2) = max(abs((setup(2).Bright_Samples(:))))*setup(1).res;
 %pk = max(abs((setup.Quiet_Samples(:))));
 
 ZT = setup(1).Soundfield_reproduced*setup(1).res;
@@ -57,34 +57,34 @@ ZM = setup(2).Soundfield_reproduced*setup(2).res;
 
 close all;
 
-ha = tightPlots( 2, 1, ...
-SYS.publication_info.figure_width, ...
-SYS.publication_info.axis_aspect_ratio, ...
-SYS.publication_info.axes_gap, ...
-SYS.publication_info.axes_margins_height, ...
-SYS.publication_info.axes_margins_width, ...
-'centimeters');
+% ha = tightPlots( 2, 1, ...
+% SYS.publication_info.figure_width, ...
+% SYS.publication_info.axis_aspect_ratio, ...
+% SYS.publication_info.axes_gap, ...
+% SYS.publication_info.axes_margins_height, ...
+% SYS.publication_info.axes_margins_width, ...
+% 'centimeters');
 
 FontSize = 16;
 FontName = 'Times';
-axes(ha(1));
+% axes(ha(1));
 ax=gca;
 setup(1).plotSoundfield( ZT, 'scientific_D1', realistic, details);
 text(10,size(ZT,2)-FontSize/2-10,1e3,'(A)','FontName',FontName,'FontSize',FontSize)
 ax.Title.String = '';%'Pressure Soundfield of Talker';
 ax.XLabel = [];
 ax.XTickLabel = [];
-clim_=ax.CLim.*0.2;
+clim_=[-1 1].*pk(1);
 ax.CLim = clim_;
 colorbar off
 
-axes(ha(2))
-ax=gca;
+% axes(ha(2))
+% ax=gca;
 % setup(2).plotSoundfield( ZT-ZM, 'scientific_D1', realistic, details);
-text(10,size(ZT,2)-FontSize/2-10,1e3,'(B)','FontName',FontName,'FontSize',FontSize)
-ax.Title=[];
-ax.CLim=clim_;
-colorbar off
+% text(10,size(ZT,2)-FontSize/2-10,1e3,'(B)','FontName',FontName,'FontSize',FontSize)
+% ax.Title=[];
+% ax.CLim=clim_;
+% colorbar off
 
 tightfig;
 
