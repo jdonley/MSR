@@ -214,8 +214,9 @@ classdef loudspeaker_setup
                 H = obj.Loudspeaker_Object.convolutionalModel( th1, r, Di, freqs);
             else
                 H = 1i/4 * besselh(0, obj.k_global * r ); % 2D
-                H = 1i/4 * sqrt(pi./(2*obj.k_global * r)) .* besselh(0 + 0.5, obj.k_global * r ); % 3D
-                H = exp( -1i*obj.k_global*r ) ./ (4*pi*r); % 3D
+%                 H = 1i/4 * sqrt(pi./(2*obj.k_global * r)) .* besselh(0 + 0.5, obj.k_global * r ); % 3D
+%                 H = exp( -1i*obj.k_global*r ) ./ (4*pi*r); % 3D
+                H = exp( 1i*obj.k_global*r ) ./ (4*pi*r); % 3D
             end
             
             if (ndims(L_) == ndims(H)) && all(size(L_) == size(H))
@@ -260,7 +261,10 @@ classdef loudspeaker_setup
                 R_q = repmat(obj.Loudspeaker_Locations(:,2),1,2*M+1);
                 
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                
+                % 2D
+                obj.Loudspeaker_Weights = sum(2 * exp(1i*m.*phi_q) * delta_phi_s .*   sum( P_j .* 1i.^m_ .* exp( -1i * m_ .* phi_p ),3) ...
+                    ./ (1i*pi*besselh(m, k * R_q))  ,2).';
+                % 3D
                 obj.Loudspeaker_Weights = sum(2 * exp(1i*m.*phi_q) * delta_phi_s .*   sum( P_j .* 1i.^m_ .* exp( -1i * m_ .* phi_p ),3) ...
                     ./ (1i*pi*besselh(m, k * R_q))  ,2).';
                 %                 A=sum( P_j .* 1i.^m_ .* exp( -1i * m_ .* phi_p ),3);A=A(1,:);
@@ -672,7 +676,7 @@ classdef loudspeaker_setup
             if nargin < 3; colour = 'default'; end
             if nargin < 2; field = obj.Soundfield_reproduced; end
             
-            ZaxisSize = max(abs(real(field(:))));
+            ZaxisSize = max(abs(real(field(~isinf(field(:))))));
             f = real(field) .* obj.Desired_Mask;
             if min(real(f(:))) < 0
                 CaxisSize = [-1 1].*ZaxisSize;
