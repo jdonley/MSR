@@ -46,7 +46,7 @@ classdef spatial_zone
         function obj = createEmptySoundfield_d(obj)
             
             if isempty(obj.ZoneSize)
-                obj = setZoneSize(obj, [1 1] * obj.Radius_q);
+                obj = obj.setZoneSize([1 1] * obj.Radius_q);
             end
             
             % if strcmpi( obj.ZoneGeometry, 'circle' )

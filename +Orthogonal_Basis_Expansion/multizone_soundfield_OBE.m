@@ -435,7 +435,7 @@ classdef multizone_soundfield_OBE
         function [x,y] = getZoneIndices( obj, Zone )
             
             znSz = int16( Zone.ZoneSize * obj.res );
-            rpSz = int16( obj.ReproRegionSize * obj.res );
+            rpSz = int16( size(obj.Soundfield_desired) );
             x_ = ceil( Zone.Origin_q.X * obj.res );
             y_ = ceil( Zone.Origin_q.Y * obj.res );
             y = ((-znSz(1)/2+1):(znSz(1)/2)) + y_ + rpSz(1)/2;

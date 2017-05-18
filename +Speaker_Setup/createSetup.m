@@ -8,7 +8,7 @@ addOptional(p,'resolution',                     100,               @isnumeric); 
 addOptional(p,'frequency',                      2000,              @isnumeric); % 2
 addOptional(p,'reproduction_radius',            1.0,               @isnumeric); % 3
 addOptional(p,'reproduction_geometry',          'circle',          @ischar);    % 4
-addOptional(p,'reproduction_size',              [1 1],             @isnumeric); % 5
+addOptional(p,'reproduction_size',              [],                @isnumeric); % 5
 addOptional(p,'numberof_basisplanewaves',       -1,                @isnumeric); % 6
 addOptional(p,'bright_weight',                  1.0,               @isnumeric); % 7
 addOptional(p,'quiet_weight',                   2.5,               @isnumeric); % 8
@@ -17,7 +17,7 @@ addOptional(p,'brightzone_radius',              0.3,               @isnumeric); 
 addOptional(p,'brightzone_pos_angle',           180,               @isnumeric); % 11
 addOptional(p,'brightzone_pos_distance',        0.6,               @isnumeric); % 12
 addOptional(p,'brightzone_geometry',            'circle',          @ischar);    % 13
-addOptional(p,'brightzone_size',                [1 1],             @isnumeric); % 14
+addOptional(p,'brightzone_size',                [],                @isnumeric); % 14
 addOptional(p,'brightzone_source_angle',        15,                @isnumeric); % 15
 addOptional(p,'brightzone_source_dist',         1.0,               @isnumeric); % 16
 addOptional(p,'brightzone_source_type',         'pw',              @ischar);    % 17
@@ -25,7 +25,7 @@ addOptional(p,'quietzone_radius',               0.3,               @isnumeric); 
 addOptional(p,'quietzone_pos_angle',            0,                 @isnumeric); % 19
 addOptional(p,'quietzone_pos_distance',         0.6,               @isnumeric); % 20
 addOptional(p,'quietzone_geometry',             'circle',          @ischar);    % 21
-addOptional(p,'quietzone_size',                 [1 1],             @isnumeric); % 22
+addOptional(p,'quietzone_size',                 [],                @isnumeric); % 22
 addOptional(p,'numberof_loudspeakers',          -1,                @isnumeric); % 23
 addOptional(p,'loudspeaker_radius',             1.5,               @isnumeric); % 24
 addOptional(p,'maximum_frequency',              8000,              @isnumeric); % 25

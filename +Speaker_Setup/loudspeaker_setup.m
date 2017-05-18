@@ -685,6 +685,10 @@ classdef loudspeaker_setup
                 CaxisSize(2) = ceil(max(fb(~isnan(fb))));
             end
             
+            if ~details.DrawDetails
+                details.NTicks = [5 5];
+            end
+            
             lenDim = size(field,2);
             XTick = fix(linspace(-1,1,details.NTicks(1))*lenDim/obj.res)*obj.res/2 + lenDim/2;
             XTickLabel = (XTick-lenDim/2)/obj.res-obj.Origin(2);
