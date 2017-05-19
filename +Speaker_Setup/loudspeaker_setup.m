@@ -265,8 +265,9 @@ classdef loudspeaker_setup
                 obj.Loudspeaker_Weights = sum(2 * exp(1i*m.*phi_q) * delta_phi_s .*   sum( P_j .* 1i.^m_ .* exp( -1i * m_ .* phi_p ),3) ...
                     ./ (1i*pi*besselh(m, k * R_q))  ,2).';
                 % 3D
-                obj.Loudspeaker_Weights = sum(2 * exp(1i*m.*phi_q) * delta_phi_s .*   sum( P_j .* 1i.^m_ .* exp( -1i * m_ .* phi_p ),3) ...
-                    ./ (1i*pi*besselh(m, k * R_q))  ,2).';
+                ATF = 
+                obj.Loudspeaker_Weights = sum(2 * delta_phi_s .*   sum( P_j .* 1i.^m_ .* exp( -1i * m_ .* phi_p ),3) ...
+                    ./ (1i*pi* besselh(m, k * R_q) .* exp(-1i*m.*phi_q))  ,2).';
                 %                 A=sum( P_j .* 1i.^m_ .* exp( -1i * m_ .* phi_p ),3);A=A(1,:);
                 %                 m=(-M:M);
                 %                 phi_p=obj.Multizone_Soundfield.F_angles(:);
