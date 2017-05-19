@@ -55,7 +55,7 @@ ZM = setup(2).Soundfield_reproduced*setup(2).res;
 % Z3 = abs(Z/setup.res);
 % Z_ = mag2db((Z)./pk);
 
-close all;
+% close all;
 
 % ha = tightPlots( 2, 1, ...
 % SYS.publication_info.figure_width, ...
