@@ -51,6 +51,8 @@ details.lblFontSize = 12;
 ZT = setup(1).Soundfield_reproduced*setup(1).res;
 ZM = setup(2).Soundfield_reproduced*setup(2).res;
 
+ZT(abs(ZT)>3*pk(1))=nan;
+ZM(abs(ZM)>3*pk(2))=nan;
 % Z2 = angle(Z);
 % Z3 = abs(Z/setup.res);
 % Z_ = mag2db((Z)./pk);
