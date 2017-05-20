@@ -9,36 +9,37 @@ classdef loudspeaker_setup
     
     properties
         % Settings
-        res = 50;  % samples per metre %Resolution of soundfield
-        Loudspeaker_Count = 32;     % Number of speakers used in the reproduction (Number of speakers required = ceil( Angular_Window * (2*M + 1) / (2*pi) ) ).
-        Origin = [0,0];             % [y,x]
+        res = 50;                           % samples per metre %Resolution of soundfield
+        Dimensionality = 2;                 % 2D, 2.5D, 3D
+        Loudspeaker_Count = 32;             % Number of speakers used in the reproduction (Number of speakers required = ceil( Angular_Window * (2*M + 1) / (2*pi) ) ).
+        Origin = [0,0];                     % [y,x]
         RoomSize = [];
-        Radius = 1.5;               % Radius of speaker layout
-        Speaker_Arc_Angle = 180;    % Angle of the arc of speakers (360 = full circle, 180 = semi-circle)
-        Angle_FirstSpeaker = 0;     % The angle where the first speaker of the array occurs
-        Speaker_Array_Centre = 180;   % Angle of the centre of the loudspeaker arc
-        Speaker_Array_Length = 0;   % Length of array (inclusive of end points)
-        Speaker_Spacing = 0.01;       % The spacing between each consecutive loudspeaker
-        Speaker_Array_Type = 'circle'; % 'circle' or 'line' or 'coprime'
+        Radius = 1.5;                       % Radius of speaker layout
+        Speaker_Arc_Angle = 180;            % Angle of the arc of speakers (360 = full circle, 180 = semi-circle)
+        Angle_FirstSpeaker = 0;             % The angle where the first speaker of the array occurs
+        Speaker_Array_Centre = 180;         % Angle of the centre of the loudspeaker arc
+        Speaker_Array_Length = 0;           % Length of array (inclusive of end points)
+        Speaker_Spacing = 0.01;             % The spacing between each consecutive loudspeaker
+        Speaker_Array_Type = 'circle';      % 'circle' or 'line' or 'coprime'
         ExtendedField = false;
         Loudspeaker_Dimensions;
         Loudspeaker_Type = 'Genelec 8010A'; % 'Genelec 8010A' or 'Genelec 8020C' or 'Meyer MM-4XP' or 'Parametric'
         Loudspeaker_Object = [];
         %         DipoleDistance = 343/12/1000; % a distance of [343m/s / (12 x 1kHz)] will give approximately equal magnitude on one side of dipole array at 1kHz
-        DipoleDistance = 343/(2*pi*2000); % Follows formula in Donley et al, "Active Speech Control using Wave-Domain Processing with a Linear Wall of Dipole Secondary Sources", ICASSP, IEEE, 2017.
-        k_global = 2000 /343*2*pi;  % Frequency in wavenumber
+        DipoleDistance = 343/(2*pi*2000);   % Follows formula in Donley et al, "Active Speech Control using Wave-Domain Processing with a Linear Wall of Dipole Secondary Sources", ICASSP, IEEE, 2017.
+        k_global = 2000 /343*2*pi;          % Frequency in wavenumber
         c = 343;
-        Multizone_Soundfield;       % multizone_soundfield object for reproduction
-        %N_zone_samples = 1;             % The number of samples in each zone
-        %Sampling_method = 'Centre';            % The layout of the samples in the zones. ('Centre', 'Random', 'Square', 'Circlular', 'All')
+        Multizone_Soundfield;               % multizone_soundfield object for reproduction
+        %N_zone_samples = 1;                % The number of samples in each zone
+        %Sampling_method = 'Centre';        % The layout of the samples in the zones. ('Centre', 'Random', 'Square', 'Circlular', 'All')
         
         % Results
         % 3D
         Loudspeaker_Weights = [];
         Loudspeaker_Locations = [];
         Loudspeaker_Directions = [];
-        Soundfield_reproduced = [];    % The complex values of the reproduced sound field that is produced from this class.
-        Soundfield_virtual = []; % The complete virtual source soundfield
+        Soundfield_reproduced = [];         % The complex values of the reproduced sound field that is produced from this class.
+        Soundfield_virtual = [];            % The complete virtual source soundfield
         Desired_Mask = [];
         %         Soundfield_Error = [];         % The error in the bright
         %         field
@@ -213,10 +214,13 @@ classdef loudspeaker_setup
             if strcmp(obj.Loudspeaker_Type, 'Parametric')
                 H = obj.Loudspeaker_Object.convolutionalModel( th1, r, Di, freqs);
             else
-                H = 1i/4 * besselh(0, obj.k_global * r ); % 2D
-%                 H = 1i/4 * sqrt(pi./(2*obj.k_global * r)) .* besselh(0 + 0.5, obj.k_global * r ); % 3D
-%                 H = exp( -1i*obj.k_global*r ) ./ (4*pi*r); % 3D
-                H = exp( 1i*obj.k_global*r ) ./ (4*pi*r); % 3D
+                if obj.Dimensionality == 2
+                    H = 1i/4 * besselh(0, obj.k_global * r ); % 2D
+                elseif obj.Dimensionality == 3
+                    % H = 1i/4 * sqrt(pi./(2*obj.k_global * r)) .* besselh(0 + 0.5, obj.k_global * r ); % 3D
+                    % H = exp( -1i*obj.k_global*r ) ./ (4*pi*r); % 3D
+                    H = exp( 1i*obj.k_global*r ) ./ (4*pi*r); % 3D
+                end
             end
             
             if (ndims(L_) == ndims(H)) && all(size(L_) == size(H))
@@ -261,11 +265,13 @@ classdef loudspeaker_setup
                 R_q = repmat(obj.Loudspeaker_Locations(:,2),1,2*M+1);
                 
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                % 2D
-                ATF = besselh(m, k * R_q ); % 2D
-                
-                % 3D                
-                ATF = sqrt(pi./(2*k*R_q)) .* besselh(m + 0.5, k * R_q ); % 3D
+                if obj.Dimensionality == 2                    
+                    % 2D
+                    ATF = besselh(m, k * R_q ); % 2D
+                elseif obj.Dimensionality == 3
+                    % 3D
+                    ATF = sqrt(pi./(2*k*R_q)) .* besselh(m + 0.5, k * R_q ); % 3D
+                end
                 
                 % Expansion
                 obj.Loudspeaker_Weights = sum(2 * exp(1i*m.*phi_q) * delta_phi_s .*   sum( P_j .* 1i.^m_ .* exp( -1i * m_ .* phi_p ),3) ...
