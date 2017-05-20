@@ -4,14 +4,15 @@ clear;
 tic;
 
 %%
-SYS = Current_Systems.loadCurrentSRsystem;
+% SYS = Current_Systems.loadCurrentSRsystem;
+SYS = Current_Systems.ICASSP2017_System_A;
 
 f = 1000;
 c = 343;
 
 %%
 setup = [SYS.Main_Setup(:);SYS.Masker_Setup(:)];
-for s = 1:2
+for s = 1:1
     
 %         setup(s).Multizone_Soundfield.Radius = 0.91;
 %     setup(s).Multizone_Soundfield.UnattendedZ_Weight = 0;
