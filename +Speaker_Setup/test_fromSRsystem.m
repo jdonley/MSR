@@ -4,15 +4,18 @@ clear;
 tic;
 
 %%
-% SYS = Current_Systems.loadCurrentSRsystem;
-SYS = Current_Systems.ICASSP2017_System_A;
+SYS = Current_Systems.loadCurrentSRsystem;
+% SYS = Current_Systems.ICASSP2017_System_A;
 
-f = 1000;
+f = 1500;
 c = 343;
+
+C=[];E=[];
+for f = 200:100:2000
 
 %%
 setup = [SYS.Main_Setup(:);SYS.Masker_Setup(:)];
-for s = 1:1
+for s = 1:2
     
 %         setup(s).Multizone_Soundfield.Radius = 0.91;
 %     setup(s).Multizone_Soundfield.UnattendedZ_Weight = 0;
@@ -59,7 +62,7 @@ ZM(abs(ZM)>3*pk(2))=nan;
 % Z_ = mag2db((Z)./pk);
 
 % close all;
-
+figure(111);
 % ha = tightPlots( 2, 1, ...
 % SYS.publication_info.figure_width, ...
 % SYS.publication_info.axis_aspect_ratio, ...
@@ -130,11 +133,19 @@ tightfig;
 %  Y = Y(2:end-1,2:end-1);
 %  quiver3( X , Y, ones(size(U))*4, U .* abs(Zs(2:end-1,2:end-1)) , V .* abs(Zs(2:end-1,2:end-1)), zeros(size(U)), 1, 'k' );
 %quiver3( X , Y, ones(size(U))*4, U  , V , zeros(size(U)), 1, 'k' );
+%
+f
+C(end+1) = mag2db(setup(1).Acoustic_Contrast);
+E(end+1) = mag2db(setup(1).MSE_Bright);
+
+end
 %%
-
-
-
-
+figure(1010)
+hold on;
+plot(200:100:2000,C); hold off
+figure(1011)
+hold on;
+plot(200:100:2000,E); hold off
 %%
 disp(['   Contrast: ' num2str(mag2db(setup(1).Acoustic_Contrast)) 'dB']);
 disp(['        MSE: ' num2str(mag2db(setup(1).MSE_Bright)) 'dB']);
