@@ -71,7 +71,7 @@ classdef multizone_soundfield_OBE
     end
 
 %% Private Methods
-    methods (Access = private)
+    methods (Access = public) %(Access = private) % usually private
             
         function obj = createEmptySoundfield(obj, Debug)
             if nargin < 2

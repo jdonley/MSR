@@ -39,11 +39,11 @@ BZr = spkr_radius;
 QZr = spkr_radius;
 
 srcX = -spkr_radius + 1.0;
-srcY = -1.0;
+srcY = -0.0;
 [srcA,srcD] = cart2pol(srcX,srcY);
 
 imgsrcX = -2*spkr_radius - srcX;
-imgsrcY = -1.0;
+imgsrcY = -0.0;
 [imgsrcA,imgsrcD] = cart2pol(imgsrcX,imgsrcY);
 
 
