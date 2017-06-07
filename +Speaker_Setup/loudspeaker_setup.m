@@ -695,10 +695,12 @@ classdef loudspeaker_setup
                 end
             else
                 field = mag2db(field);
-                fb = mag2db(abs(obj.Bright_Samples));
-                fq = mag2db(abs(obj.Quiet_Samples));
-                CaxisSize(1) = floor(min(fq(~isnan(fq))));
-                CaxisSize(2) = ceil(max(fb(~isnan(fb))));
+                %fb = mag2db(abs(obj.Bright_Samples));
+                %fq = mag2db(abs(obj.Quiet_Samples));
+                %CaxisSize(1) = floor(min(fq(~isnan(fq))));
+                %CaxisSize(2) = ceil(max(fb(~isnan(fb))));
+                CaxisSize(1) = floor(min(field(:)));
+                CaxisSize(2) = ceil(max(field(:)));
             end
             
             if ~details.DrawDetails
@@ -720,15 +722,16 @@ classdef loudspeaker_setup
             YTickLabel = (YTick-lenDim/2)/obj.res-obj.Origin(1);
             YTickLabel = num2cell(YTickLabel);
             
-            h = surf(real(field),'EdgeColor','None');
+            ax = gca;
+            h = surf(ax, real(field),'EdgeColor','None');
             if realistic
                 drawnow; pause(0.05);
                 h.FaceAlpha = 0.5;
             end
             if contains(colour,'scientific')
-                colormap(cmap( strrep(colour,'scientific_','') ));
+                colormap(ax, cmap( strrep(colour,'scientific_','') ));
             else
-                colormap(colour);
+                colormap(ax, colour);
             end
             view(2);
             axis equal;

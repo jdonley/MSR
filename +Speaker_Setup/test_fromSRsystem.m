@@ -41,6 +41,8 @@ for s = 1:3
 end
 
 %%
+try close('111'); catch; end
+
 figNums = [101,102,103];
 realistic = false;
 details.DrawDetails = false;
@@ -69,8 +71,8 @@ ZI(abs(ZI)>clipFact*pk(3))=nan;
 
 % close all;
 figure(111);
-ha = tightPlots( 3, 1, ...
-SYS.publication_info.figure_width*2, ...
+ha = tightPlots( 2, 2, ...
+SYS.publication_info.figure_width*4, ...
 SYS.publication_info.axis_aspect_ratio, ...
 SYS.publication_info.axes_gap, ...
 SYS.publication_info.axes_margins_height, ...
@@ -82,7 +84,8 @@ FontName = 'Times';
 axes(ha(1));
 ax=gca;
 setup(1).plotSoundfield( ZI, 'scientific_D1', realistic, details);
-text(10,size(ZT,2)-FontSize/2-10,1e3,'(A)','FontName',FontName,'FontSize',FontSize)
+text(10,size(ZT,1)-FontSize-10,1e3,'(A)',...
+    'BackgroundColor',[1 1 1 0.7],'FontName',FontName,'FontSize',FontSize)
 ax.Title.String = '';%'Pressure Soundfield of Talker';
 ax.XLabel = [];
 ax.XTickLabel = [];
@@ -92,21 +95,36 @@ colorbar off
 
 axes(ha(2))
 ax=gca;
-setup(2).plotSoundfield( -ZM, 'scientific_D1', realistic, details);
-text(10,size(ZT,2)-FontSize/2-10,1e3,'(B)','FontName',FontName,'FontSize',FontSize)
+setup(1).plotSoundfield( -ZM, 'scientific_D1', realistic, details);
+text(10,size(ZT,1)-FontSize-10,1e3,'(B)',...
+    'BackgroundColor',[1 1 1 0.7],'FontName',FontName,'FontSize',FontSize)
 ax.Title=[];
+ax.XLabel = [];
+ax.XTickLabel = [];
+ax.YLabel = [];
+ax.YTickLabel = [];
 ax.CLim=clim_;
 colorbar off
 
 axes(ha(3))
 ax=gca;
-setup(2).plotSoundfield( ZI-ZM, 'scientific_D1', realistic, details);
-text(10,size(ZT,2)-FontSize/2-10,1e3,'(B)','FontName',FontName,'FontSize',FontSize)
+setup(1).plotSoundfield( ZI-ZM, 'scientific_D1', realistic, details);
+text(10,size(ZT,1)-FontSize-10,1e3,'(C)',...
+    'BackgroundColor',[1 1 1 0.7],'FontName',FontName,'FontSize',FontSize)
 ax.Title=[];
 ax.CLim=clim_;
 colorbar off
 
-tightfig;
+
+axes(ha(4))
+ax=gca;
+setup(1).plotSoundfield( abs(ZI-ZM), 'scientific_L3', realistic, details);
+text(10,size(ZT,1)-FontSize-10,1e3,'(C)',...
+    'BackgroundColor',[1 1 1 0.7],'FontName',FontName,'FontSize',FontSize)
+ax.Title=[];
+ax.CLim=clim_;
+colorbar off
+% tightfig;
 
 
 % figure(figNums(2)); hold off

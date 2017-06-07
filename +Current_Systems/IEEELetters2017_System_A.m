@@ -6,10 +6,10 @@ spkr_type  = 'Dynamic';
 spkr_radius = 3.0;
 N_spkrs = 24 * 2; % Times 2 for dipole
 
- geometry = 'rectangular';
+geometry = 'rectangular';
 % geometry = 'circle';
 
-dimensions = 3;
+dimensions = 2;
 
 %% Room Geometry
 Room_Setup = Room_Acoustics.Room;
@@ -40,12 +40,12 @@ reproRegionAspect = [1.0 1.0]; % [Width, Height]
 BZr = spkr_radius;
 QZr = spkr_radius;
 
-srcX = -spkr_radius + 1.0;
+srcX = -spkr_radius + 2.0;
 srcY = -0.0;
 [srcA,srcD] = cart2pol(srcX,srcY);
 
 imgsrcX = -2*spkr_radius - srcX;
-imgsrcY = -0.0;
+imgsrcY = srcY;
 [imgsrcA,imgsrcD] = cart2pol(imgsrcX,imgsrcY);
 
 
