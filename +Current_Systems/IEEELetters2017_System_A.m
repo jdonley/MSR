@@ -9,14 +9,14 @@ N_spkrs = 24 * 2; % Times 2 for dipole
 geometry = 'rectangular';
 % geometry = 'circle';
 
-dimensions = 2;
+dimensions = 3;
 
 %% Room Geometry
 Room_Setup = Room_Acoustics.Room;
 Room_Setup.NoReceivers = 32;
 % % ROOM 1
 % % Anechoic
-% Room_Setup = Room_Setup.setRoomSize( [10 10 10] ); %Anechoic
+% Room_Setup = Room_Setup.setRoomSize( [*1.110 10 10] ); %Anechoic
 % Room_Setup = Room_Setup.setRoomSize( [4 9 3] ); % 35.G46e
 %Room_Setup = Room_Setup.setRoomSize( [8 10 3] ); % 6.107
 %Room_Setup = Room_Setup.setRoomSize( [9 14 3] ); % Out to lunch (Cafe)

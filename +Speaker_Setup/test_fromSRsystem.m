@@ -61,6 +61,11 @@ ZM = setup(1).Soundfield_reproduced*setup(1).res;
 ZT = setup(2).Soundfield_reproduced*setup(2).res;
 ZI = setup(3).Soundfield_reproduced*setup(3).res;
 
+gainNorm = 1/pk(3);
+ZM = ZM*gainNorm; pk(1) = pk(1)*gainNorm;
+ZT = ZT*gainNorm; pk(2) = pk(2)*gainNorm;
+ZI = ZI*gainNorm; pk(3) = pk(3)*gainNorm;
+
 clipFact = 3;
 ZM(abs(ZM)>clipFact*pk(1))=nan;
 ZT(abs(ZT)>clipFact*pk(2))=nan;
@@ -70,7 +75,7 @@ ZI(abs(ZI)>clipFact*pk(3))=nan;
 % Z_ = mag2db((Z)./pk);
 
 % close all;
-figure(111);
+fH = figure(111);
 ha = tightPlots( 2, 2, ...
 SYS.publication_info.figure_width*4, ...
 SYS.publication_info.axis_aspect_ratio, ...
@@ -104,7 +109,9 @@ ax.XTickLabel = [];
 ax.YLabel = [];
 ax.YTickLabel = [];
 ax.CLim=clim_;
-colorbar off
+% colorbar off
+hCB = colorbar; 
+hCB.Visible = 'off';
 
 axes(ha(3))
 ax=gca;
@@ -118,13 +125,20 @@ colorbar off
 
 axes(ha(4))
 ax=gca;
-setup(1).plotSoundfield( abs(ZI-ZM), 'scientific_L3', realistic, details);
-text(10,size(ZT,1)-FontSize-10,1e3,'(C)',...
+setup(1).plotSoundfield( abs(ZI-ZM), 'scientific_L9', realistic, details);
+text(10,size(ZT,1)-FontSize-10,1e3,'(D)',...
     'BackgroundColor',[1 1 1 0.7],'FontName',FontName,'FontSize',FontSize)
 ax.Title=[];
-ax.CLim=clim_;
-colorbar off
-% tightfig;
+ax.YLabel = [];
+ax.YTickLabel = [];
+ax.CLim=[-20 0];
+hCB = colorbar(ax);
+hCB.Ticks = interp1(1:length(caxis),caxis,linspace(1,length(caxis),5));
+hCB.TickLabels = num2str(linspace( ax.CLim(1), ax.CLim(2),5)' );
+hCB.Label.String = 'Magnitude (dB)';
+ 
+fH.Position(4) = fH.Position(4)
+%  tightfig;
 
 
 % figure(figNums(2)); hold off
