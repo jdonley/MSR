@@ -54,8 +54,6 @@ details.lblFontSize = 12;
  pk(1) = max(abs((setup(1).Bright_Samples(:))))*setup(1).res; % Masker (loudspeakers)
  pk(2) = max(abs((setup(2).Bright_Samples(:))))*setup(2).res; % Talker
  pk(3) = max(abs((setup(3).Bright_Samples(:))))*setup(3).res; % Image sources (reflections)
-
-
  
 ZM = setup(1).Soundfield_reproduced*setup(1).res;
 ZT = setup(2).Soundfield_reproduced*setup(2).res;
@@ -71,7 +69,7 @@ ZI(abs(ZI)>3*pk(3))=nan;
 % close all;
 figure(111);
 ha = tightPlots( 3, 1, ...
-SYS.publication_info.figure_width, ...
+SYS.publication_info.figure_width*2, ...
 SYS.publication_info.axis_aspect_ratio, ...
 SYS.publication_info.axes_gap, ...
 SYS.publication_info.axes_margins_height, ...
@@ -87,7 +85,7 @@ text(10,size(ZT,2)-FontSize/2-10,1e3,'(A)','FontName',FontName,'FontSize',FontSi
 ax.Title.String = '';%'Pressure Soundfield of Talker';
 ax.XLabel = [];
 ax.XTickLabel = [];
-clim_=[-1 1].*pk(1);
+clim_=[-1 1].*pk(3);
 ax.CLim = clim_;
 colorbar off
 
