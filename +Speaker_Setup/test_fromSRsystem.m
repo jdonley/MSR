@@ -140,12 +140,12 @@ E(end+1) = mag2db(setup(1).MSE_Bright);
 
 % end
 %%
-figure(1010)
-hold on;
-plot(200:100:2000,C); hold off
-figure(1011)
-hold on;
-plot(200:100:2000,E); hold off
+% figure(1010)
+% hold on;
+% plot(200:100:2000,C); hold off
+% figure(1011)
+% hold on;
+% plot(200:100:2000,E); hold off
 %%
 disp(['   Contrast: ' num2str(mag2db(setup(1).Acoustic_Contrast)) 'dB']);
 disp(['        MSE: ' num2str(mag2db(setup(1).MSE_Bright)) 'dB']);
