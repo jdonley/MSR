@@ -17,7 +17,7 @@ classdef spatial_zone
     
     properties
         res = 50;                                           % Samples per metre %Resolution of soundfield should be inherited
-        Dimensionality = 3;                                 % 2D or 3D
+        Dimensionality = 2;                                 % 2D or 3D
         Radius_q = 0.5;                                     % Radius of the zone in metres
         Origin_q = struct('X', 0, ...                       % Coordinates from the global origin
                           'Y', 0, ...

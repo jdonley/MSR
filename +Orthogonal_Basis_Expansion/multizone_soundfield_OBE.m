@@ -15,7 +15,8 @@ classdef multizone_soundfield_OBE
     
     properties        
         % Settings
-        res = 50;  % samples per metre %Resolution of soundfield        
+        res = 50;  % samples per metre %Resolution of soundfield
+        Dimensionality = 2;          % 2D or 3D
         BrightZ_Weight      = 1.0;   % Bright Zone relative importance weight
         QuietZ_Weight       = 2.5;   % Quiet Zone relative importance weight
         UnattendedZ_Weight  = 0.05;  % Unattended Zone relative importance weight        

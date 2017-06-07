@@ -59,9 +59,10 @@ ZM = setup(1).Soundfield_reproduced*setup(1).res;
 ZT = setup(2).Soundfield_reproduced*setup(2).res;
 ZI = setup(3).Soundfield_reproduced*setup(3).res;
 
-ZM(abs(ZM)>3*pk(1))=nan;
-ZT(abs(ZT)>3*pk(2))=nan;
-ZI(abs(ZI)>3*pk(3))=nan;
+clipFact = 3;
+ZM(abs(ZM)>clipFact*pk(1))=nan;
+ZT(abs(ZT)>clipFact*pk(2))=nan;
+ZI(abs(ZI)>clipFact*pk(3))=nan;
 % Z2 = angle(Z);
 % Z3 = abs(Z/setup.res);
 % Z_ = mag2db((Z)./pk);

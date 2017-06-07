@@ -37,6 +37,7 @@ addOptional(p,'angleof_loudspeakerarrcentre',   180,               @isnumeric); 
 addOptional(p,'loudspeaker_spacing',            0.01,              @isnumeric); % 31
 addOptional(p,'speaker_array_type',             'circle',          @ischar);    % 32
 addOptional(p,'room_size',                      [],                @isnumeric); % 33
+addOptional(p,'dimensionality',                 2,                 @isnumeric); % 34
 parse(p, settings{:});
 
 setup = MultizoneSoundfieldSetup( ...       
@@ -72,7 +73,8 @@ setup = MultizoneSoundfieldSetup( ...
     p.Results.angleof_loudspeakerarrcentre, ... 30
     p.Results.loudspeaker_spacing, ...          31
     p.Results.speaker_array_type, ...           32
-    p.Results.room_size);%                      33
+    p.Results.room_size, ...                    33
+    p.Results.dimensionality);%                 34
 
 end
 
@@ -109,7 +111,8 @@ function setup = MultizoneSoundfieldSetup( ...
     phiLcent,... 30
     spkrspace,...31
     arr_type,... 32
-    roomSz)%     33
+    roomSz,...   33
+    dims)%       34
 %%
 c = 343;
 k = (f/c)*2*pi;
@@ -122,6 +125,8 @@ quiet  = Orthogonal_Basis_Expansion.spatial_zone(f, 0, rq, 'quiet');
 bright = Orthogonal_Basis_Expansion.spatial_zone(f, 0, rb, srctypeb, 1.0, srcangb, srcdistb);
 quiet.res  = res;
 bright.res = quiet.res;
+quiet.Dimensionality  = dims;
+bright.Dimensionality = dims;
 quiet.ZoneGeometry  = zoGeomq;
 bright.ZoneGeometry = zoGeomb;
 quiet  =  quiet.setZoneSize( zoSizeq );
@@ -133,6 +138,7 @@ bright = bright.setDesiredSoundfield(true, 'suppress_output');
 soundfield = Orthogonal_Basis_Expansion.multizone_soundfield_OBE;
 soundfield = soundfield.addSpatialZone(quiet,  disq, angq);
 soundfield = soundfield.addSpatialZone(bright, disb, angb);
+soundfield.Dimensionality = dims;
 soundfield.Geometry  = reprGeom;
 soundfield = soundfield.setReproRegionSize( reprSize );
 soundfield.Radius = R;
@@ -148,6 +154,7 @@ soundfield = soundfield.setN( floor(N) );
 
 %%
 setup = Speaker_Setup.loudspeaker_setup;
+setup.Dimensionality = dims;
 setup = setup.setRoomSize(roomSz);
 setup = setup.addMultizone_Soundfield(soundfield);
 setup = setup.setRadius( Rl );
