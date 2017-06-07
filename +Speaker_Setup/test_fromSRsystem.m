@@ -110,7 +110,7 @@ ax.YLabel = [];
 ax.YTickLabel = [];
 ax.CLim=clim_;
 % colorbar off
-hCB = colorbar; 
+hCB = colorbar(ax); 
 hCB.Visible = 'off';
 
 axes(ha(3))
@@ -132,13 +132,19 @@ ax.Title=[];
 ax.YLabel = [];
 ax.YTickLabel = [];
 ax.CLim=[-20 0];
-hCB = colorbar(ax);
+colorbar off;
+% tightfig;
+
+hCB = colorbar; hCB.Units = 'points';
 hCB.Ticks = interp1(1:length(caxis),caxis,linspace(1,length(caxis),5));
 hCB.TickLabels = num2str(linspace( ax.CLim(1), ax.CLim(2),5)' );
 hCB.Label.String = 'Magnitude (dB)';
- 
-fH.Position(4) = fH.Position(4)
-%  tightfig;
+
+set(fH.Children, 'Units','Points')
+for c = 1:numel(fH.Children)
+ fH.Children(c).Position(2) = fH.Children(c).Position(2)+20;
+end
+
 
 
 % figure(figNums(2)); hold off

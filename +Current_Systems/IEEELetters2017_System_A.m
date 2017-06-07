@@ -9,7 +9,7 @@ N_spkrs = 24 * 2; % Times 2 for dipole
 geometry = 'rectangular';
 % geometry = 'circle';
 
-dimensions = 3;
+dimensions = 2;
 
 %% Room Geometry
 Room_Setup = Room_Acoustics.Room;
