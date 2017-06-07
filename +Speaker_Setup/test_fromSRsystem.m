@@ -7,11 +7,11 @@ tic;
 SYS = Current_Systems.loadCurrentSRsystem;
 % SYS = Current_Systems.ICASSP2017_System_A;
 
-f = 1500;
+f = 1000;
 c = 343;
 
 C=[];E=[];
-for f = 200:100:2000
+% for f = 200:100:2000
 
 %%
 setup = [SYS.Main_Setup(:);SYS.Masker_Setup(:)];
@@ -138,7 +138,7 @@ f
 C(end+1) = mag2db(setup(1).Acoustic_Contrast);
 E(end+1) = mag2db(setup(1).MSE_Bright);
 
-end
+% end
 %%
 figure(1010)
 hold on;
