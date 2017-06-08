@@ -32,7 +32,7 @@ end
 [MAG,f]=Tools.octaveBandMean(SPECT,FREQS,octBandwidth);
 
 % Force even length filter
-if isempty(N), if mod(length(SPECT),2), N=length(SPECT)-1; else N=length(SPECT); end; end;
+if isempty(N), if mod(length(SPECT),2), N=length(SPECT)-1; else N=length(SPECT); end; end
 % Design arbitrary magnitude (linear-phase) filter
 b = fir2(N,f/(fs/2),MAG);
 % Apply filter
