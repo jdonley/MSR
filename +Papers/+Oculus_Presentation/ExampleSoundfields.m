@@ -4,16 +4,15 @@ clear;
 tic;
 
 %%
-SYS = Current_Systems.loadCurrentSRsystem;
+SYS = Current_Systems.OculusPres_System_A;
 
 f = 1000;
 c = 343;
 
-C=[];E=[];
 
 %%
 setup = [SYS.Main_Setup(:);SYS.Masker_Setup(:)];
-for s = 1:3
+for s = 1:1
 
     setup(s).Multizone_Soundfield.Quiet_Zone = ...
         setup(s).Multizone_Soundfield.Quiet_Zone.setDesiredSoundfield(true, f, 'suppress_output');
@@ -65,11 +64,9 @@ clipFact = 3;
 ZM(abs(ZM)>clipFact*pk(1))=nan;
 ZT(abs(ZT)>clipFact*pk(2))=nan;
 ZI(abs(ZI)>clipFact*pk(3))=nan;
-% Z2 = angle(Z);
-% Z3 = abs(Z/setup.res);
-% Z_ = mag2db((Z)./pk);
 
-% close all;
+
+
 fH = figure(111);
 ha = tightPlots( 2, 2, ...
 SYS.publication_info.figure_width*4, ...
