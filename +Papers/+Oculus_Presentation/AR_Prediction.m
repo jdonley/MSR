@@ -2,13 +2,16 @@
 SpeechFilePath = '\+Miscellaneous\+Speech_Files\Female_SA2.WAV';
 
 [x,sig_info.Fs] = audioread(SpeechFilePath);
+x = x/max(x(:));
 
 sig_info.Nfft = 12 * 1e-3 * sig_info.Fs; % Number of fft components
 sig_info.time_delay = []; % Seconds %If empty the time delay will based on the frame length
 sig_info.overlap = 1-1/2;
 sig_info.zeropadtime = 0; % miliseconds of zero padding (i.e. maximum time shift before circular convolution)
 sig_info.predict_buff = 2; % Length of prediction buffer as a percentage of a full frame prediction (i.e. 10 is %1000 of frame length)
-sig_info.AR_method = 'burg';
+% sig_info.AR_method = 'lpc';
+% sig_info.AR_method = 'burg';
+sig_info.AR_method = 'cov';
 sig_info.window = false;
 
 
@@ -58,7 +61,7 @@ hold off
 
 ylabel('Amplitude')
 xlabel('Time (ms)')
-FontSz = 12;
+FontSz = 16;
 txtoffset = 1.1;% factor
 text(-1*sig_info.Nfft/sig_info.Fs*1e3,max(x)*txtoffset,...
     'Past (Known Signal)',...
@@ -69,11 +72,11 @@ text(0.5*sig_info.Nfft/sig_info.Fs*1e3,max(x)*txtoffset,...
     'FontSize',FontSz,'ho','c','co','b')
 
 annotation('textarrow',...
-    ([(0.0+(txtoffset-1)/2) 0.25]*sig_info.Nfft/sig_info.Fs*1e3  - ax.XLim(1))/diff(ax.XLim) + ax.Position(1),...
-    ([min(x)*(1-(txtoffset-1)*2)...
-    residual(0.25*sig_info.Nfft)] - ax.YLim(1))/diff(ax.YLim) + ax.Position(2),...
+    ([(0.20) 0.25]*sig_info.Nfft/sig_info.Fs*1e3  - ax.XLim(1))/diff(ax.XLim)*ax.Position(3) + ax.Position(1),...
+    ([min(x)*(1-(txtoffset-1)*3.5)...
+    residual(0.25*sig_info.Nfft)] - ax.YLim(1))/diff(ax.YLim)*ax.Position(4) + ax.Position(2),...
     'String','Residual',...
-    'FontSize',FontSz,'co','r')
+    'FontSize',FontSz,'ho','l','co','r','linewidth',linewidth)
 
 
 % drawnow;
@@ -82,5 +85,6 @@ annotation('textarrow',...
 
 ax.FontSize = FontSz;
 fH.Color = 'w';
+fH.Position(3) = fH.Position(4)*2.5;
 % drawnow;
 % tightfig;
