@@ -10,8 +10,7 @@ sig_info.overlap = 1-1/2;
 sig_info.zeropadtime = 0; % miliseconds of zero padding (i.e. maximum time shift before circular convolution)
 sig_info.predict_buff = 2; % Length of prediction buffer as a percentage of a full frame prediction (i.e. 10 is %1000 of frame length)
 % sig_info.AR_method = 'lpc';
-% sig_info.AR_method = 'burg';
-sig_info.AR_method = 'cov';
+sig_info.AR_method = 'burg';
 sig_info.window = false;
 
 
