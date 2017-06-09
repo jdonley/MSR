@@ -45,26 +45,26 @@ for typs = 1:Ntyps
         if strcmpi(arrTyp,'circle')
             switch angInd
                 case 1
-                    Theta    =  0;
-                    Vartheta = -90+acosd( (abs(By)+abs(Qy)) / sqrt(abs(2*By*Qy)+Qy^2+spkr_radius^2) );
+                    Theta    =  90-acosd( (abs(By)+abs(Qy)) / sqrt(abs(2*By*Qy)+By^2+spkr_radius^2) );
+                    Vartheta =  0;
                 case 2
                     Theta    =  atand(mean(abs([By,Qy]))/spkr_radius);
                     Vartheta = -atand(mean(abs([By,Qy]))/spkr_radius);
                 case 3
-                    Theta    =  90-acosd( (abs(By)+abs(Qy)) / sqrt(abs(2*By*Qy)+By^2+spkr_radius^2) );
-                    Vartheta =  0;
+                    Theta    =  0;
+                    Vartheta = -90+acosd( (abs(By)+abs(Qy)) / sqrt(abs(2*By*Qy)+Qy^2+spkr_radius^2) );
             end
         elseif strcmpi(arrTyp,'line')
             switch angInd
                 case 1
-                    Theta    =  0;
-                    Vartheta = -90+atand( spkr_radius / (abs(By)+abs(Qy)) );
+                    Theta    =  90-atand( spkr_radius / (abs(By)+abs(Qy)) );
+                    Vartheta =  0;
                 case 2
                     Theta    =  atand(mean(abs([By,Qy]))/spkr_radius);
                     Vartheta = -atand(mean(abs([By,Qy]))/spkr_radius);
                 case 3
-                    Theta    =  90-atand( spkr_radius / (abs(By)+abs(Qy)) );
-                    Vartheta =  0;
+                    Theta    =  0;
+                    Vartheta = -90+atand( spkr_radius / (abs(By)+abs(Qy)) );
             end
         end
 %         fprintf(['theta: ', num2str(Theta,3), '\tvartheta: ', num2str(Vartheta,3), '\n']);
