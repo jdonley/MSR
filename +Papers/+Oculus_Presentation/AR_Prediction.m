@@ -21,7 +21,11 @@ sig_info.window = false;
 [ ~, ~, Frames, ~, ~, Frames_orig] = ...
     Broadband_Tools.FFT_custom(x, sig_info);
 
-EgTime = 0.61; % seconds
+% EgTime = 0.27; % seconds
+% EgTime = 0.61; % seconds
+EgTime = 0.90; % seconds
+
+
 EgFrame = floor(EgTime * sig_info.Fs / ((1-sig_info.overlap) * sig_info.Nfft));
 
 %% Plot Prediction
