@@ -45,14 +45,17 @@ for typs = 1:Ntyps
         if strcmpi(arrTyp,'circle')
             switch angInd
                 case 1
-                    Theta    =  90-acosd( (abs(By)+abs(Qy)) / sqrt(abs(2*By*Qy)+By^2+spkr_radius^2) );
+                    Theta    =  0;
                     Vartheta =  0;
+                    Ba = 90;
                 case 2
-                    Theta    =  atand(mean(abs([By,Qy]))/spkr_radius);
-                    Vartheta = -atand(mean(abs([By,Qy]))/spkr_radius);
+                    Theta    =  0;
+                    Vartheta =  0;
+                    Ba = 90+45;
                 case 3
                     Theta    =  0;
-                    Vartheta = -90+acosd( (abs(By)+abs(Qy)) / sqrt(abs(2*By*Qy)+Qy^2+spkr_radius^2) );
+                    Vartheta =  0;
+                    Ba = 90+45+45;
             end
         elseif strcmpi(arrTyp,'line')
             switch angInd
@@ -69,8 +72,8 @@ for typs = 1:Ntyps
         end
 %         fprintf(['theta: ', num2str(Theta,3), '\tvartheta: ', num2str(Vartheta,3), '\n']);
         gemoetrical_layout = { ...
-            'brightzone_pos_angle',        90, ...
-            'quietzone_pos_angle',         -90, ...
+            'brightzone_pos_angle',        Ba, ...
+            'quietzone_pos_angle',         Ba+180, ...
             'brightzone_source_angle',     Theta, ...
             'brightzone_source_dist',      sqrt(0.6^2+1.3^2), ...
             'brightzone_source_type',      'pw'};
@@ -105,7 +108,7 @@ for typs = 1:Ntyps
                 'loudspeaker_spacing',           spkr_spacing, ...
                 'speaker_array_type',            arrTyp, ...
                 'angleof_loudspeakerarrcentre', 180, ...
-                'quiet_weight',                 1e2};
+                'quiet_weight',                 1};
         elseif strcmpi(spkr_type, 'Parametric')
             loudspeaker_layout = {  ...
                 'angleto_firstloudspeaker',     atan2d(-0.6,-x_), ...
