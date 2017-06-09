@@ -11,7 +11,7 @@ spkr_type  = 'Dynamic';
 spkr_radius = 1.3;
 
 % masker = 'FlatMasker';
-% masker = 'ZoneWeightMasker';
+ masker = 'ZoneWeightMasker';
 
 %% Room Geometry
 Room_Setup = Room_Acoustics.Room;
