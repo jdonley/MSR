@@ -13,6 +13,7 @@ sig_info.predict_buff = 2; % Length of prediction buffer as a percentage of a fu
 sig_info.AR_method = 'burg';
 sig_info.window = false;
 
+plotPredictedAndResidual = true;
 
 %%
 % falias = 2000;
@@ -43,10 +44,12 @@ ax = gca;
 hold on
 plot(t(sig_info.Nfft*2+(1:sig_info.Nfft)), Frames_orig(EgFrame,:),':k','linewidth',linewidth);
 
-plot(t(sig_info.Nfft*2+(0:sig_info.Nfft)),[Frames_orig(EgFrame-N,end) Frames((EgFrame-N)*2,:)],'b','linewidth',linewidth);
-
-residual = Frames_orig(EgFrame,:)-Frames((EgFrame-N)*2,:);
-plot(t(sig_info.Nfft*2+(1:sig_info.Nfft)),residual,'r','linewidth',linewidth);
+if plotPredictedAndResidual
+    plot(t(sig_info.Nfft*2+(0:sig_info.Nfft)),[Frames_orig(EgFrame-N,end) Frames((EgFrame-N)*2,:)],'b','linewidth',linewidth);
+    
+    residual = Frames_orig(EgFrame,:)-Frames((EgFrame-N)*2,:);
+    plot(t(sig_info.Nfft*2+(1:sig_info.Nfft)),residual,'r','linewidth',linewidth);
+end
 
 % ylim(ax.YLim);
 ylim([min(x) max(x)]);
@@ -66,17 +69,25 @@ text(-1*sig_info.Nfft/sig_info.Fs*1e3,max(x)*txtoffset,...
     'Past (Known Signal)',...
     'FontSize',FontSz,'ho','c')
 
-text(0.5*sig_info.Nfft/sig_info.Fs*1e3,max(x)*txtoffset,...
-    'Future (Predicted Signal)',...
-    'FontSize',FontSz,'ho','c','co','b')
-
-annotation('textarrow',...
-    ([(0.20) 0.25]*sig_info.Nfft/sig_info.Fs*1e3  - ax.XLim(1))/diff(ax.XLim)*ax.Position(3) + ax.Position(1),...
-    ([min(x)*(1-(txtoffset-1)*3.5)...
-    residual(0.25*sig_info.Nfft)] - ax.YLim(1))/diff(ax.YLim)*ax.Position(4) + ax.Position(2),...
-    'String','Residual',...
-    'FontSize',FontSz,'ho','l','co','r','linewidth',linewidth)
-
+if plotPredictedAndResidual
+    yLblTxt = 'Future (Predicted Signal)';
+    tH = text(0.5*sig_info.Nfft/sig_info.Fs*1e3,max(x)*txtoffset,...
+        yLblTxt,...
+        'FontSize',FontSz,'ho','c','co','b');
+    
+    annotation('textarrow',...
+        ([(0.20) 0.25]*sig_info.Nfft/sig_info.Fs*1e3  - ax.XLim(1))/diff(ax.XLim)*ax.Position(3) + ax.Position(1),...
+        ([min(x)*(1-(txtoffset-1)*3.5)...
+        residual(0.25*sig_info.Nfft)] - ax.YLim(1))/diff(ax.YLim)*ax.Position(4) + ax.Position(2),...
+        'String','Residual',...
+        'FontSize',FontSz,'ho','l','co','r','linewidth',linewidth)
+    
+else
+    yLblTxt = 'Future (Unknown Signal)';
+    tH = text(0.5*sig_info.Nfft/sig_info.Fs*1e3,max(x)*txtoffset,...
+        yLblTxt,...
+        'FontSize',FontSz,'ho','c','co','k');
+end
 
 % drawnow;
 % pause(1/30);
