@@ -21,6 +21,10 @@ function setLegend( SYS, axs, strs, linetypes )
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+if isfield(SYS.publication_info, 'showlegend') && ~SYS.publication_info.showlegend
+    return;
+end
+
 legEntrySpacing = 0.0; % percentage of entry width
 
 if nargin < 4

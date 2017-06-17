@@ -172,17 +172,29 @@ for li = 1:Nlines
             mrks = markers{rt};
             
             domain = Hrz_Vec([1 end]);
-            domain_lbl = 'Noise Mask Level ($G$) ($\mathrm{dB}$)';
+            if isfield(SYS.publication_info,'xlabel')
+                domain_lbl = SYS.publication_info.xlabel;
+            else
+                domain_lbl = 'Noise Mask Level ($G$) ($\mathrm{dB}$)';
+            end
             
             switch results_types{rt}
                 case 'SpeechIntelligibility'
                     axCurr = ax(1);
                     range = [0 100];
-                    range_lbl = 'STOI (\%WC)';
+                    if isfield(SYS.publication_info,'ylabel')
+                        range_lbl = SYS.publication_info.ylabel;
+                    else
+                        range_lbl = 'STOI (\%WC)';
+                    end
                 case 'Quality'
                     axCurr = ax(2);
                     range = [1 4.56];
-                    range_lbl = 'PESQ (MOS)';
+                    if isfield(SYS.publication_info,'ylabel2')
+                        range_lbl = SYS.publication_info.ylabel2;
+                    else
+                        range_lbl = 'PESQ (MOS)';
+                    end
             end
             
             Results.Axes_Builders.Helpers.setAxisParameters( SYS, axCurr, range, domain, range_lbl, domain_lbl);
