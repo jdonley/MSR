@@ -46,7 +46,7 @@ for typs = 1:Ntyps
             switch angInd
                 case 1
                     Theta    =  0;
-                    Vartheta =  0;
+                    Vartheta = -90+acosd( (abs(By)+abs(Qy)) / sqrt(abs(2*By*Qy)+Qy^2+spkr_radius^2) );
                     Ba = 90;
                 case 2
                     Theta    =  0;
