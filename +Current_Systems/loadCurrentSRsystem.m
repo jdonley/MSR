@@ -8,11 +8,11 @@ System_Path = Settings.DefaultSystemsPath;
 % System_Path = 'D:\Dropbox\Business and Work\Research Assistance\Novecom Project\MATLAB_Code';
 
 %% SYSTEM NAMES
-Current_System = 'IEEELetters2017_System_A';
+% Current_System = 'IEEELetters2017_System_A';
 
 % Current_System = 'IEEETransactions_System_A'; % Differing Source Angles
 % Current_System = 'IEEETransactions_System_B'; % Differing Loudspeaker Count
-% Current_System = 'IEEETransactions_System_C'; % Simulated and Real-World
+Current_System = 'IEEETransactions_System_C'; % Simulated and Real-World
 % Current_System = 'IEEETransactions_System_D'; % Differing Lambda-Grave Parameter
 % Current_System = 'IEEETransactions_System_E'; % Acoustic Brightness Contrast - Simulated and Real-World
 
