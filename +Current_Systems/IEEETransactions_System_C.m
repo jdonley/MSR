@@ -23,7 +23,7 @@ rec_types = {'simulated'; 'real-world'}; % The type of recordings to be analysed
 spkr_type  = 'Dynamic';
 spkr_radius = 1.3;
 
-dimensions = 2;
+dimensions = 3;
 
 %% Room Geometry
 Room_Setup = Room_Acoustics.Room;

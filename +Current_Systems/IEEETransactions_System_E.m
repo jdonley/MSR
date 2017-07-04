@@ -23,6 +23,7 @@ spkr_radius = 1.3;
 % spkr_radius = 1.34;
 % spkr_radius = 1.36;
 
+dimensions = 3;
 
 %% Room Geometry
 Room_Setup = Room_Acoustics.Room;
@@ -139,6 +140,7 @@ for arr = 1:numel(array_type)
         'quietzone_radius',             0.3, ...
         'quietzone_pos_distance',       0.6, ...
         'maximum_frequency',            8000, ...
+        'dimensionality',               dimensions, ...
         'loudspeaker_object',           Para_Spkr });
     Masker_Setup = {};
     
