@@ -28,7 +28,12 @@ end
 if ~isempty(SYS.signal_info.methods_list_masker)
     Setups = [Setups(:); SYS.Masker_Setup(:)];
 end
-for s = 1:length(Setups)
+
+DBsetups = 1:length(Setups);
+if isfield(SYS.system_info,'DB_indices')
+    DBsetups(~SYS.system_info.DB_indices)=[];
+end
+for s = DBsetups
     Setup = Setups(s);
     
     [~, Frequencies] = Soundfield_Database.LUT_Builders.Orthogonal_Planewave_Selection( ...

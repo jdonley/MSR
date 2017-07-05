@@ -56,6 +56,8 @@ for ang = 1:numel(SourceAngleSetIndices)
                 arr, ...
                 ang);
             
+            UniqueDBinds(I) = l==1; %different lambda_g don't require different databases
+            
             if strcmpi(array_type_,'circle')
                 switch SourceAngleSetIndice
                     case 1
@@ -246,6 +248,7 @@ system_info.FilterData_dir = ['+Calibration' system_info.sc 'Data' filesep '+Fil
 system_info.CalibrationRec_dir = ['+Calibration' system_info.sc 'Data' filesep '+Recordings' filesep];
 system_info.Calibrated_Signals_dir = ['+Calibrated' system_info.sc 'Speaker_Signals' filesep];
 
+system_info.DB_indices = [UniqueDBinds UniqueDBinds]; %For Main_Setups and Masker_Setups (paired)
 system_info.LUT_frequencies = 512;
 % system_info.LUT_weights = 32;
 system_info.LUT_weights = 2; % First weight is always zero
