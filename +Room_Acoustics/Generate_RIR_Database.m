@@ -11,7 +11,12 @@ if nargin < 1, SYS = Current_Systems.loadCurrentSRsystem; end
 %%
 RIRs = [];
 Setups = [SYS.Main_Setup; ];
-for s = 1:length(Setups)
+
+DBsetups = 1:length(Setups);
+if isfield(SYS.system_info,'DB_indices')
+    DBsetups(~SYS.system_info.DB_indices)=[];
+end
+for s = DBsetups
     Setup = Setups(s);
     delete(gcp('nocreate'));
     
