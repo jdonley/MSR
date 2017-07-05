@@ -19,7 +19,7 @@ function y = ArbitraryOctaveFilt(x, SPECT, FREQS, N, fs, octBandwidth)
 % Author: Jacob Donley
 % University of Wollongong
 % Email: jrd089@uowmail.edu.au
-% Copyright: Jacob Donley 2016
+% Copyright: Jacob Donley 2017
 % Date: 06 June 2016 
 % Revision: 0.1
 % 
