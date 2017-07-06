@@ -31,13 +31,13 @@ for typ = 1:N
         end
     end
     
-    if SYS.signal_info.UseMeasuredATFs, Room_Acoustics.useMeasuredATF(subSYS); end
+    if isfield(SYS.signal_info, 'UseMeasuredATFs') && SYS.signal_info.UseMeasuredATFs, Room_Acoustics.useMeasuredATF(subSYS); end
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     Room_Acoustics.Apply_RIRs.Reverberant_MSR_batchfunc( subSYS );
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    if SYS.signal_info.UseMeasuredATFs, Room_Acoustics.useSimulatedATF(subSYS); end % Revert back after use
+    if isfield(SYS.signal_info, 'UseMeasuredATFs') && SYS.signal_info.UseMeasuredATFs, Room_Acoustics.useSimulatedATF(subSYS); end % Revert back after use
     
 end
 
