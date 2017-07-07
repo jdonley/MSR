@@ -1,4 +1,4 @@
-function buildDocumentation( WorkingDir, DocDir, MainFile )
+function buildDocumentation( WorkingDir, DocDir, MainFile, RuntimeDependencies )
 %BUILDDOCUMENTATION Generates documentation HTML and builds MATLAB search database for dependencies of a main file
 % 
 % Syntax:	BUILDDOCUMENTATION( WORKINGDIR, DOCDIR, MAINFILE )
@@ -25,6 +25,7 @@ function buildDocumentation( WorkingDir, DocDir, MainFile )
 % Version: 0.1 (07 July 2017)
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if nargin < 4, RuntimeDependencies = false; end
 
 PubOpts ={...
     'format',               'html',             ...
@@ -45,8 +46,17 @@ PubOpts ={...
 %% Get all dependencies of the main file
 flist = matlab.codetools.requiredFilesAndProducts( MainFile );                         % Full dependency file list
 
+%% Get dependencies of the main file during runtime (includes anonymous functions and dynamic function handles)
+% The MATLAB profiler is used here and can take quite some time if the main file is slow to run
+if RuntimeDependencies
+    profile on;                                                                        % Turn the profiler on
+    run([fileparts(WorkingDir) MainFile])                                                                      % Run the main file
+    p = profile('info');                                                               % Stop the profiler after execution and get the profiler information
+    flist = [flist {p.FunctionTable.FileName}];                                        % Append the runtime functions to the list
+end
+
 %% Only keep files in working directory
-docFiles = flist(contains(flist,WorkingDir));                                          % Files to document
+docFiles = unique(flist(contains(flist,WorkingDir)));                                  % Files to document
 
 %% Create documentation directory
 docdirs = strrep(cellfun(@fileparts, strrep(docFiles, WorkingDir, ''),'un',0),'+',''); % Determine structure
