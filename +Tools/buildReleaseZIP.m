@@ -22,7 +22,7 @@ function buildReleaseZIP( WorkingDir, zipFileName, MainFile )
 % Email: jrd089@uowmail.edu.au
 % Copyright: Jacob Donley 2017
 % Date: 07 May 2017
-% Revision: 0.1
+% Version: 0.1 (07 May 2017)
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -33,8 +33,8 @@ flist = matlab.codetools.requiredFilesAndProducts( MainFile );                  
 relFiles = flist(contains(flist,WorkingDir));                                       % Release files
 
 %% Copy to temp directory so zipping retains folder structure
-tmpdir = [tempname filesep];                                                        % Get temp directory
 newdirs = unique(cellfun(@fileparts, strrep(relFiles, WorkingDir, ''),'un',0));     % Determine structure
+tmpdir = [tempname filesep];                                                        % Get temp directory
 cellfun(@(a) mkdir( [tmpdir a] ), newdirs);                                         % Create temp folder structure
 cellfun(@(a,b) copyfile(a,[tmpdir b]), relFiles, strrep(relFiles, WorkingDir, '')); % Copy
 
