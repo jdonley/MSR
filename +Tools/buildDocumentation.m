@@ -50,7 +50,17 @@ flist = matlab.codetools.requiredFilesAndProducts( MainFile );                  
 % The MATLAB profiler is used here and can take quite some time if the main file is slow to run
 if RuntimeDependencies
     profile on;                                                                        % Turn the profiler on
-    run([fileparts(WorkingDir) MainFile])                                                                      % Run the main file
+    try
+        run([WorkingDir MainFile])                                                     % Run the main file
+    catch ex
+        profile off;                                                                   % Stop the profiler to avoid profiling unnecessary error handling
+        if strcmp(ex.identifier, 'MATLAB:run:CannotExecute')
+            [p,f]=fileparts(MainFile);
+            funcH = str2func( strrep(strrep([p filesep f],filesep,'.'),'+','') );      % Deal with class folders and create function handle
+            profile on;                                                                % Turn the profiler on            
+            funcH;                                                                     % Assuming function runs without arguments
+        end
+    end
     p = profile('info');                                                               % Stop the profiler after execution and get the profiler information
     flist = [flist {p.FunctionTable.FileName}];                                        % Append the runtime functions to the list
 end
