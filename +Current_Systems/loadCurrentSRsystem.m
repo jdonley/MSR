@@ -75,7 +75,7 @@ end
 
 function data = replaceFuncName(data,newname)
 NL{1} = char([13, 10]);
-NL{2} = sprintf('\n');
+NL{2} = newline;
 indCRLF = strfind(data', NL{1});
 if isempty(indCRLF)
     indCRLF = strfind(data', NL{2});
