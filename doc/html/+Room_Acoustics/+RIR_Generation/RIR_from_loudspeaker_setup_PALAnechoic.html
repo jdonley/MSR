@@ -1,0 +1,87 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of RIR_from_loudspeaker_setup_PALAnechoic</title>
+  <meta name="keywords" content="RIR_from_loudspeaker_setup_PALAnechoic">
+  <meta name="description" content="RIR_FROM_LOUDSPEAKER_SETUP Returns the RIR for each sample point in each">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="../index.html">+Room_Acoustics</a> &gt; <a href="index.html">+RIR_Generation</a> &gt; RIR_from_loudspeaker_setup_PALAnechoic.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for +Room_Acoustics\+RIR_Generation&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>RIR_from_loudspeaker_setup_PALAnechoic
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>RIR_FROM_LOUDSPEAKER_SETUP Returns the RIR for each sample point in each</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function [ RIR_Bright, RIR_Quiet, Rec_Bright_Pos, Rec_Quiet_Pos ] = RIR_from_loudspeaker_setup_PALAnechoic( loudspeaker_setup, room, signal_info, rec_positions, norm_positions ) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">RIR_FROM_LOUDSPEAKER_SETUP Returns the RIR for each sample point in each
+zone for a given multizone loudspeaker setup using MCRoomSim
+   Returns a matrix which contains the RIR (column values) for each
+   sample point (rows).
+
+
+   Author: Jacob Donley, University of Wollongong, Australia
+   Email: Jacob.Donley089@uowmail.edu.au</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [ RIR_Bright, RIR_Quiet, Rec_Bright_Pos, Rec_Quiet_Pos ] = RIR_from_loudspeaker_setup_PALAnechoic( loudspeaker_setup, room, signal_info, rec_positions, norm_positions )</a>
+0002 <span class="comment">%RIR_FROM_LOUDSPEAKER_SETUP Returns the RIR for each sample point in each</span>
+0003 <span class="comment">%zone for a given multizone loudspeaker setup using MCRoomSim</span>
+0004 <span class="comment">%   Returns a matrix which contains the RIR (column values) for each</span>
+0005 <span class="comment">%   sample point (rows).</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">%</span>
+0008 <span class="comment">%   Author: Jacob Donley, University of Wollongong, Australia</span>
+0009 <span class="comment">%   Email: Jacob.Donley089@uowmail.edu.au</span>
+0010 <span class="comment">%</span>
+0011 n = signal_info.rir_duration * signal_info.Fs;
+0012 
+0013 <span class="keyword">if</span> nargin &lt; 4
+0014     rec_positions = [];
+0015 <span class="keyword">end</span>
+0016 <span class="keyword">if</span> nargin &lt; 5
+0017     norm_positions = [];
+0018 <span class="keyword">end</span>
+0019 
+0020 
+0021 <span class="comment">%% Compute individual directivity impulse responses</span>
+0022 ImpRsp = Room_Acoustics.loudspeakerIR(loudspeaker_setup, room, 0, n, signal_info.Fs, rec_positions, norm_positions);
+0023 
+0024 Rec_Bright_Pos = rec_positions.Bright_Receiver_Positions;
+0025 Rec_Quiet_Pos  = rec_positions.Quiet_Receiver_Positions;
+0026 
+0027 B_Nrec = size(Rec_Bright_Pos,1);
+0028 Q_Nrec = size(Rec_Quiet_Pos,1);
+0029 
+0030 RIR_Bright = ImpRsp(1:B_Nrec,:);
+0031 RIR_Quiet  = ImpRsp((B_Nrec+1):(B_Nrec + Q_Nrec),:);
+0032 <span class="keyword">end</span>
+0033</pre></div>
+<hr><address>Generated on Sun 09-Jul-2017 20:35:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

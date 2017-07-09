@@ -1,0 +1,242 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of getDatabasePath</title>
+  <meta name="keywords" content="getDatabasePath">
+  <meta name="description" content="GETDATABASEPATH Summary of this function goes here">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">+Soundfield_Database</a> &gt; getDatabasePath.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for +Soundfield_Database&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>getDatabasePath
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>GETDATABASEPATH Summary of this function goes here</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [ Path, err, Sub_Path, array_style_dir, spkr_array_dir, zone_positions_dir, virtual_source_dir, database_filename ] = getDatabasePath( setup, database_res, database_workingdir, method ) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">GETDATABASEPATH Summary of this function goes here
+   Detailed explanation goes here</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [ Path, err, Sub_Path, array_style_dir, spkr_array_dir, zone_positions_dir, virtual_source_dir, database_filename ] = getDatabasePath( setup, database_res, database_workingdir, method )</a>
+0002 <span class="comment">%GETDATABASEPATH Summary of this function goes here</span>
+0003 <span class="comment">%   Detailed explanation goes here</span>
+0004 <span class="keyword">if</span> nargin &lt; 4 || isempty(method)
+0005     method = <span class="string">'new4'</span>;
+0006 <span class="keyword">end</span>
+0007 
+0008 <span class="keyword">if</span> nargin &lt; 3 || isempty(database_workingdir)
+0009     database_workingdir = <span class="string">'Z:\'</span>;
+0010 <span class="keyword">end</span>
+0011 
+0012 Sub_Path = <span class="string">''</span>;
+0013 array_style_dir = <span class="string">''</span>;
+0014 spkr_array_dir = <span class="string">''</span>;
+0015 zone_positions_dir = <span class="string">''</span>;
+0016 virtual_source_dir = <span class="string">''</span>;
+0017 
+0018     err = false;
+0019     <span class="keyword">try</span>
+0020                 
+0021 <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%% NEW4 METHOD %%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0022 <span class="comment">% Added virtual source parameters descriptions to dedicated directory</span>
+0023         <span class="keyword">if</span> strcmpi(method, <span class="string">'new4'</span>)
+0024             sc = <span class="string">'_'</span>; <span class="comment">%Separation Character</span>
+0025             
+0026             <span class="comment">%%% Type of database</span>
+0027             pre_dir = [<span class="string">'+'</span> <span class="string">'Soundfield_Database'</span> <span class="string">'\'</span>];
+0028             
+0029             <span class="comment">%%% Speaker array type, perpendicular distance to the centre</span>
+0030             <span class="comment">%%% speaker, angle to the the centre speaker.</span>
+0031             array_style_dir = [<span class="string">'+'</span> num2str(setup.Dimensionality) <span class="string">'D'</span> sc <span class="keyword">...</span>
+0032                                    upper(setup.Speaker_Array_Type) <span class="string">'array'</span> sc <span class="keyword">...</span>
+0033                                    num2str(setup.Radius) <span class="string">'mPerpDist'</span> sc <span class="keyword">...</span>
+0034                                    num2str(setup.Speaker_Array_Centre) <span class="string">'degCentre'</span> <span class="string">'\'</span>];
+0035             
+0036             <span class="comment">%%% Number of loudspeakers and type of loudspeakers</span>
+0037             spkrTypeString = strrep(setup.Loudspeaker_Type, <span class="string">' '</span>,<span class="string">''</span>);
+0038             spkr_type_dirstr = [<span class="string">'+'</span> num2str(setup.Loudspeaker_Count) spkrTypeString <span class="string">'Spkrs'</span> sc];
+0039             
+0040             <span class="comment">%%% Speaker array style.</span>
+0041             <span class="keyword">switch</span> lower(setup.Speaker_Array_Type)
+0042                 <span class="keyword">case</span> <span class="string">'circle'</span>
+0043                     spkr_array_dir  = [spkr_type_dirstr num2str(setup.Speaker_Arc_Angle/180*pi * setup.Radius) <span class="string">'mLen'</span> <span class="string">'\'</span>];
+0044                     
+0045                 <span class="keyword">case</span> <span class="string">'line'</span>
+0046                     spkr_array_dir  = [spkr_type_dirstr <span class="keyword">...</span>
+0047                         num2str( (setup.Loudspeaker_Count-1)  * (setup.Speaker_Spacing + setup.Loudspeaker_Dimensions(1)) ) <span class="string">'mLen'</span> <span class="string">'\'</span>];
+0048                     
+0049                 <span class="keyword">case</span> <span class="string">'2line'</span>
+0050                     spkr_array_dir  = [spkr_type_dirstr <span class="keyword">...</span>
+0051                         num2str( (ceil(setup.Loudspeaker_Count/2)-1)  * (setup.Speaker_Spacing + setup.Loudspeaker_Dimensions(1)) ) <span class="string">'mLen'</span> <span class="string">'\'</span>];
+0052                 <span class="keyword">otherwise</span>
+0053                     error(<span class="string">'Loudspeaker array type (circle, line, etc) from the given loudspeaker setup object does not have a database path defined.'</span>)
+0054             <span class="keyword">end</span>
+0055             
+0056             <span class="comment">%%% Cartesian coordinates of bright zone and quiet zone</span>
+0057             zone_positions_dir = [<span class="string">'+'</span> num2str(round(setup.Multizone_Soundfield.Bright_Zone.Origin_q.X*1e10)/1e10) <span class="string">'Bx'</span> sc <span class="keyword">...</span>
+0058                                       num2str(round(setup.Multizone_Soundfield.Bright_Zone.Origin_q.Y*1e10)/1e10) <span class="string">'By'</span> sc <span class="keyword">...</span>
+0059                                       num2str(round(setup.Multizone_Soundfield.Quiet_Zone.Origin_q.X*1e10)/1e10)  <span class="string">'Qx'</span> sc <span class="keyword">...</span>
+0060                                       num2str(round(setup.Multizone_Soundfield.Quiet_Zone.Origin_q.Y*1e10)/1e10)  <span class="string">'Qy'</span> <span class="string">'\'</span>];
+0061                                   
+0062             <span class="comment">%%% Bright zone virtual source angle, distance and type</span>
+0063             virtual_source_dir = [<span class="string">'+'</span> <span class="string">'VSrc'</span> sc <span class="keyword">...</span>
+0064                                       setup.Multizone_Soundfield.Bright_Zone.SourceType sc <span class="keyword">...</span>
+0065                                       num2str(setup.Multizone_Soundfield.Bright_Zone.SourceOrigin.Angle) <span class="string">'deg'</span> sc <span class="keyword">...</span>
+0066                                       num2str(setup.Multizone_Soundfield.Bright_Zone.SourceOrigin.Distance) <span class="string">'m'</span> <span class="string">'\'</span> ];
+0067                                               
+0068             <span class="comment">%%% Database resolution</span>
+0069             database_filename = [<span class="string">'Database'</span> sc database_res <span class="string">'.mat'</span>];
+0070                               
+0071             Sub_Path = [array_style_dir, <span class="keyword">...</span>
+0072                     spkr_array_dir, <span class="keyword">...</span>
+0073                     zone_positions_dir, <span class="keyword">...</span>
+0074                     virtual_source_dir];
+0075                 
+0076             Path = [database_workingdir, <span class="keyword">...</span>
+0077                     pre_dir, <span class="keyword">...</span>
+0078                     Sub_Path, <span class="keyword">...</span>
+0079                     database_filename];  
+0080                 
+0081 <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%% NEW3 METHOD %%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0082 <span class="comment">% Filepath now includes all parameters used within a loudspeaker setup</span>
+0083         <span class="keyword">elseif</span> strcmpi(method, <span class="string">'new3'</span>)
+0084             
+0085             <span class="comment">%%% Type of database</span>
+0086             pre_dir = <span class="string">'+Soundfield_Database\'</span>;
+0087             
+0088             <span class="comment">%%% Speaker array type, perpendicular distance to the centre</span>
+0089             <span class="comment">%%% speaker, angle to the the centre speaker.</span>
+0090             array_style_dir = [<span class="string">'+'</span> upper(setup.Speaker_Array_Type) <span class="string">'array_'</span> num2str(setup.Radius) <span class="string">'mPerpDist_'</span> num2str(setup.Speaker_Array_Centre) <span class="string">'degCentre\'</span>];
+0091             
+0092             <span class="comment">%%% Number of loudspeakers and speaker array length.</span>
+0093             <span class="keyword">switch</span> setup.Speaker_Array_Type
+0094                 <span class="keyword">case</span> <span class="string">'circle'</span>
+0095                     spkr_array_dir  = [<span class="string">'+'</span> num2str(setup.Loudspeaker_Count) <span class="string">'Spkrs_'</span> num2str(setup.Speaker_Arc_Angle/180*pi * setup.Radius) <span class="string">'mLen\'</span>];
+0096                     
+0097                 <span class="keyword">case</span> <span class="string">'line'</span>
+0098                     spkr_array_dir  = [<span class="string">'+'</span> num2str(setup.Loudspeaker_Count) <span class="string">'Spkrs_'</span> <span class="keyword">...</span>
+0099                         num2str( (setup.Loudspeaker_Count-1)  * (setup.Speaker_Spacing + setup.Loudspeaker_Dimensions(1)) ) <span class="string">'mLen\'</span>];
+0100                 <span class="keyword">otherwise</span>
+0101                     error(<span class="string">'Loudspeaker array type (circle, line, etc) from the given loudspeaker setup object does not have a database path defined.'</span>)
+0102             <span class="keyword">end</span>
+0103             
+0104             <span class="comment">%%% Cartesian coordinates of bright zone and quiet zone</span>
+0105             zone_positions_dir = [<span class="string">'+'</span> num2str(round(setup.Multizone_Soundfield.Bright_Zone.Origin_q.X,10)) <span class="string">'Bx_'</span> <span class="keyword">...</span>
+0106                                       num2str(round(setup.Multizone_Soundfield.Bright_Zone.Origin_q.Y,10)) <span class="string">'By_'</span> <span class="keyword">...</span>
+0107                                       num2str(round(setup.Multizone_Soundfield.Quiet_Zone.Origin_q.X,10))  <span class="string">'Qx_'</span> <span class="keyword">...</span>
+0108                                       num2str(round(setup.Multizone_Soundfield.Quiet_Zone.Origin_q.Y,10))  <span class="string">'Qy\'</span>];
+0109                                   
+0110             <span class="comment">%%% Bright zone virtual source angle, Database resolution</span>
+0111             database_filename = [<span class="string">'Database_'</span> <span class="keyword">...</span>
+0112                                   num2str(setup.Multizone_Soundfield.Bright_Zone.SourceOrigin.Angle) <span class="string">'deg_'</span> <span class="keyword">...</span>
+0113                                   database_res <span class="string">'.mat'</span>];
+0114                               
+0115             Sub_Path = [array_style_dir, <span class="keyword">...</span>
+0116                     spkr_array_dir, <span class="keyword">...</span>
+0117                     zone_positions_dir];
+0118                 
+0119             Path = [database_workingdir, <span class="keyword">...</span>
+0120                     pre_dir, <span class="keyword">...</span>
+0121                     Sub_Path, <span class="keyword">...</span>
+0122                     database_filename];                  
+0123                                   
+0124 <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%% NEW2 METHOD %%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0125 <span class="comment">% Added support for line array database paths</span>
+0126 <span class="comment">% Improved zone position support in database path (full cartesian coords)</span>
+0127         <span class="keyword">elseif</span> strcmpi(method, <span class="string">'new2'</span>)
+0128             
+0129             <span class="keyword">switch</span> setup.Speaker_Array_Type
+0130                 <span class="keyword">case</span> <span class="string">'circle'</span>
+0131                     Database_Path = [database_workingdir <span class="keyword">...</span>
+0132                         <span class="string">'+Soundfield_Database\'</span> <span class="keyword">...</span>
+0133                         <span class="string">'+'</span> num2str(setup.Radius*2) <span class="string">'m_ArrDia\'</span> <span class="keyword">...</span>
+0134                         <span class="string">'+'</span> num2str(setup.Loudspeaker_Count) <span class="string">'Spkrs_'</span> <span class="keyword">...</span>
+0135                         num2str(setup.Speaker_Arc_Angle) <span class="string">'DegArc\'</span>];
+0136                 <span class="keyword">case</span> <span class="string">'line'</span>
+0137                     Database_Path = [database_workingdir <span class="keyword">...</span>
+0138                         <span class="string">'+Soundfield_Database\'</span> <span class="keyword">...</span>
+0139                         <span class="string">'+'</span> num2str( <span class="keyword">...</span>
+0140                         (setup.Loudspeaker_Count-1)  * (setup.Speaker_Spacing + setup.Loudspeaker_Dimensions(1)) <span class="keyword">...</span>
+0141                         ) <span class="string">'m_ArrLen\'</span> <span class="keyword">...</span>
+0142                         <span class="string">'+'</span> num2str(setup.Loudspeaker_Count) <span class="string">'Spkrs_'</span> <span class="keyword">...</span>
+0143                         num2str(setup.Speaker_Spacing) <span class="string">'Spac\'</span>];
+0144                 <span class="keyword">otherwise</span>
+0145                     error(<span class="string">'Loudspeaker array type does not have a database path defined.'</span>)
+0146             <span class="keyword">end</span>
+0147 
+0148             Path = [Database_Path <span class="keyword">...</span>
+0149                 <span class="string">'+'</span> num2str(round(setup.Multizone_Soundfield.Bright_Zone.Origin_q.X,10)) <span class="string">'Bx_'</span> <span class="keyword">...</span>
+0150                 num2str(round(setup.Multizone_Soundfield.Bright_Zone.Origin_q.Y,10)) <span class="string">'By_'</span> <span class="keyword">...</span>
+0151                 num2str(round(setup.Multizone_Soundfield.Quiet_Zone.Origin_q.X,10))  <span class="string">'Qx_'</span> <span class="keyword">...</span>
+0152                 num2str(round(setup.Multizone_Soundfield.Quiet_Zone.Origin_q.Y,10))  <span class="string">'Qy\'</span> <span class="keyword">...</span>
+0153                 <span class="string">'Database_'</span> <span class="keyword">...</span>
+0154                 num2str(setup.Multizone_Soundfield.Bright_Zone.SourceOrigin.Angle) <span class="string">'deg_'</span> <span class="keyword">...</span>
+0155                 database_res <span class="string">'.mat'</span>];
+0156             
+0157 <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%% NEW METHOD %%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0158 <span class="comment">% Added support for zone angle in database path</span>
+0159         <span class="keyword">elseif</span> strcmpi(method, <span class="string">'new'</span>)
+0160                         
+0161             Database_Path = [database_workingdir <span class="string">'+Soundfield_Database\+'</span> num2str(setup.Radius*2) <span class="string">'m_SpkrDia\+'</span> num2str(setup.Loudspeaker_Count) <span class="string">'Spkrs_'</span> num2str(setup.Speaker_Arc_Angle) <span class="string">'DegArc\'</span>];
+0162             Path = [Database_Path <span class="string">'Database_'</span> <span class="keyword">...</span>
+0163                 num2str(setup.Multizone_Soundfield.Bright_Zone.Origin_q.Angle/pi*180) <span class="string">'degB_'</span> <span class="keyword">...</span>
+0164                 num2str(setup.Multizone_Soundfield.Quiet_Zone.Origin_q.Angle/pi*180) <span class="string">'degQ_'</span> <span class="keyword">...</span>
+0165                 num2str(setup.Multizone_Soundfield.Bright_Zone.SourceOrigin.Angle) <span class="string">'deg_'</span> <span class="keyword">...</span>
+0166                 database_res <span class="string">'.mat'</span>];
+0167             
+0168 <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%% OLD METHOD %%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0169         <span class="keyword">elseif</span> strcmpi(method, <span class="string">'old'</span>)
+0170             
+0171             Database_Path = [database_workingdir <span class="string">'+Soundfield_Database\+'</span> num2str(setup.Radius*2) <span class="string">'m_SpkrDia\+'</span> num2str(setup.Loudspeaker_Count) <span class="string">'Spkrs_'</span> num2str(setup.Speaker_Arc_Angle) <span class="string">'DegArc\'</span>];
+0172             Path = [Database_Path <span class="string">'LUT_Weight_vs_Frequency_'</span> num2str(setup.Multizone_Soundfield.Bright_Zone.SourceOrigin.Angle) <span class="string">'deg_'</span> database_res <span class="string">'.mat'</span>];
+0173             
+0174         <span class="keyword">elseif</span> strcmpi(method, <span class="string">'old_zones_swapped'</span>)
+0175             
+0176             Database_Path = [database_workingdir <span class="string">'+Soundfield_Database\+'</span> num2str(setup.Radius*2) <span class="string">'m_SpkrDia\+'</span> num2str(setup.Loudspeaker_Count) <span class="string">'Spkrs_'</span> num2str(setup.Speaker_Arc_Angle) <span class="string">'DegArc\'</span>];
+0177             Path = [Database_Path <span class="string">'LUT_Weight_vs_Frequency_'</span> num2str(setup.Multizone_Soundfield.Bright_Zone.SourceOrigin.Angle) <span class="string">'deg_'</span> database_res <span class="string">'_zones_swapped.mat'</span>];
+0178             
+0179         <span class="keyword">else</span>
+0180             error(<span class="string">'Method to get database path from setup is not supported.'</span>)
+0181         <span class="keyword">end</span>
+0182         
+0183     <span class="keyword">catch</span> ex
+0184         <span class="keyword">switch</span> ex.identifier
+0185             <span class="keyword">case</span> <span class="string">'MATLAB:load:couldNotReadFile'</span>
+0186                 warning([<span class="string">'Could not get database path using the '''</span> method <span class="string">''' method.'</span>]);
+0187                 err = true;
+0188             <span class="keyword">otherwise</span>
+0189                 rethrow(ex)
+0190         <span class="keyword">end</span>
+0191     <span class="keyword">end</span>
+0192 
+0193 <span class="keyword">end</span>
+0194</pre></div>
+<hr><address>Generated on Sun 09-Jul-2017 20:35:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

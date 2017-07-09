@@ -1,0 +1,192 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of getMSR_Audio</title>
+  <meta name="keywords" content="getMSR_Audio">
+  <meta name="description" content="PLAYMSR Summary of this function goes here">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">+Hardware_Control</a> &gt; getMSR_Audio.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for +Hardware_Control&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>getMSR_Audio
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>PLAYMSR Summary of this function goes here</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [LoudspeakerSignals_MultiChan, segment_details] = getMSR_Audio( Main_Setup, signal_info, system_info, Masker_Setup, masker_signal_info ) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">PLAYMSR Summary of this function goes here
+   Detailed explanation goes here</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function y = audioread_extinsensitive(file_path)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [LoudspeakerSignals_MultiChan, segment_details] = getMSR_Audio( Main_Setup, signal_info, system_info, Masker_Setup, masker_signal_info )</a>
+0002 <span class="comment">%PLAYMSR Summary of this function goes here</span>
+0003 <span class="comment">%   Detailed explanation goes here</span>
+0004 <span class="keyword">if</span> nargin &lt; 4
+0005     Masker_Setup = [];
+0006     masker_signal_info=[];
+0007 <span class="keyword">end</span>
+0008 
+0009 
+0010 <span class="comment">%%</span>
+0011 LoudspeakerSignals_MultiChan=[];
+0012 segment_details = [];
+0013 Setups = [Main_Setup(:); Masker_Setup(:)];
+0014 maskers = [zeros(1,numel(Main_Setup)),ones(1,numel(Masker_Setup))];
+0015 sig_infos = [signal_info(:); masker_signal_info(:)];
+0016 <span class="keyword">for</span> s = 1:length(Setups)
+0017     <span class="keyword">if</span> isempty(Setups(s)) || isempty(sig_infos(s))
+0018         <span class="keyword">break</span>;
+0019     <span class="keyword">end</span>
+0020     
+0021     <span class="comment">%% Get Paths and files</span>
+0022     [Spkr_path,~,~,~,~,~,path_ext] = <span class="keyword">...</span>
+0023         Broadband_Tools.getLoudspeakerSignalPath( Setups(s), sig_infos(s), system_info.LUT_resolution, system_info.Drive, <span class="string">'new'</span>);
+0024     
+0025     files = Tools.getAllFiles(Spkr_path);
+0026     files = sort(files);
+0027     
+0028     <span class="keyword">if</span> ~maskers(s)
+0029         <span class="comment">% Continue with only the files that are contained in the original</span>
+0030         <span class="comment">% source folder</span>
+0031         files = Tools.keepFilesFromFolder( files, signal_info.speech_filepath);
+0032         <span class="keyword">if</span> isempty(files), error(<span class="string">'No loudspeaker signals found. Have they been generated?'</span>); <span class="keyword">end</span>
+0033     <span class="keyword">end</span>
+0034     
+0035     spkr_calib_dir = [system_info.Drive system_info.Calibrated_Signals_dir path_ext];
+0036     
+0037     <span class="comment">%% Get signals</span>
+0038     LoudspeakerSignals_MultiChan_ = [];
+0039     fileName_prev = <span class="string">''</span>;
+0040     
+0041     F=length(files);
+0042     <span class="keyword">for</span> f = 1:F
+0043         
+0044         [~, fileName, fileExt] = fileparts(files{f});
+0045         <span class="keyword">if</span> ~contains(  fileName, <span class="string">'Original'</span>  ) &amp;&amp; ~signal_info.reference <span class="comment">% If not an Original audio file and not a reference recording</span>
+0046            sigType = <span class="string">'Upsampled'</span>;
+0047         <span class="keyword">elseif</span> contains(  fileName, <span class="string">'Original'</span>  ) &amp;&amp; signal_info.reference
+0048             sigType = <span class="string">'Original'</span>;
+0049         <span class="keyword">else</span>
+0050             <span class="keyword">continue</span>;
+0051         <span class="keyword">end</span>
+0052         
+0053             <span class="comment">% Get the file number and file name</span>
+0054             [~,fnameflip] = strtok( flip(fileName), system_info.sc );
+0055             fileName_curr = flip(sscanf(fnameflip,[<span class="string">'%*['</span> system_info.sc <span class="string">']%s'</span>]));
+0056             
+0057             <span class="keyword">if</span> (isempty(fileName_prev) || ~strcmp( fileName_curr, fileName_prev))
+0058                 
+0059                
+0060                 y = <a href="#_sub1" class="code" title="subfunction y = audioread_extinsensitive(file_path)">audioread_extinsensitive</a>([spkr_calib_dir fileName_curr system_info.sc sigType fileExt]);
+0061                 <span class="keyword">if</span> isnan(y)
+0062                     <span class="keyword">continue</span>;
+0063                 <span class="keyword">end</span>                
+0064                 
+0065                 <span class="comment">% Remove the scaling performed during the calibration</span>
+0066                 <span class="comment">% which is applied in order to save the audio files without</span>
+0067                 <span class="comment">% clipping as the signals are changed during the upsampling</span>
+0068                 <span class="comment">% and filtering process.</span>
+0069                 aux_info = load([spkr_calib_dir fileName_curr system_info.sc sigType <span class="string">'.mat'</span>]);
+0070                 y = y ./ aux_info.scale_value;
+0071                 <span class="comment">% end rescale</span>
+0072                 
+0073                 <span class="comment">% Remove the scaling performed during the loudspeaker</span>
+0074                 <span class="comment">% generation process where maskers are scaled to prevent</span>
+0075                 <span class="comment">% clipping and speech may have also been scaled to prevent</span>
+0076                 <span class="comment">% clipping if signal_info.inputSignalNorm was set to true.</span>
+0077                 common_scaler = 1/db2mag(sig_infos(s).clipLevelAdjust);
+0078                 <span class="keyword">if</span> ~isempty(strfind(sig_infos(s).method, <span class="string">'Masker'</span>))
+0079                     <span class="keyword">if</span> sig_infos(s).L_noise_mask &lt;= 0
+0080                         scaler = (db2mag(0)+1); <span class="comment">%Plus one is for the amplitude of the clean signal</span>
+0081                     <span class="keyword">elseif</span> sig_infos(s).L_noise_mask &gt; 0 <span class="comment">% For a positive masker we scaled the signals to save up to a 40db noise masker</span>
+0082                         scaler = (db2mag(40)+1);<span class="comment">%Plus one is for the amplitude of the clean signal</span>
+0083                     <span class="keyword">end</span>
+0084                     y = y .* scaler .* common_scaler;
+0085                 <span class="comment">% The clean input signal may have also been scaled</span>
+0086                 <span class="keyword">elseif</span> sig_infos(s).inputSignalNorm
+0087                     y = y .* common_scaler;
+0088                 <span class="keyword">end</span>
+0089                 <span class="comment">% end rescale</span>
+0090 
+0091                 
+0092                 LoudspeakerSignals_MultiChan_ = [LoudspeakerSignals_MultiChan_; y];
+0093                 <span class="keyword">if</span> s == 1 <span class="comment">%speech setup</span>
+0094                     segment_details(end+1).filename = fileName_curr;
+0095                     segment_details(end).fileext = fileExt;
+0096                     segment_details(end).length = size(y,1);
+0097                 <span class="keyword">end</span>
+0098             <span class="keyword">end</span>
+0099         fileName_prev = fileName_curr;
+0100     <span class="keyword">end</span>
+0101     <span class="keyword">if</span> s&gt;1 <span class="comment">%This assumes when s&gt;1 we have a masker set of loudspeaker signals (perhaps not a good assumption)</span>
+0102         LoudspeakerSignals_MultiChan_(size(LoudspeakerSignals_MultiChan,1)+1:<span class="keyword">end</span>,:)=[];
+0103         <span class="comment">%LoudspeakerSignals_MultiChan_ = LoudspeakerSignals_MultiChan_ .* db2mag(masker_signal_info.L_noise_mask); % A little bit of a hack %TODO: fix this so speaker signals are leveled correctly</span>
+0104         <span class="comment">% previous line's comment possibly fixed with the following</span>
+0105 <span class="comment">%         aux_info = load([spkr_calib_dir fileName_curr system_info.sc sigType '.mat']);</span>
+0106 <span class="comment">%         LoudspeakerSignals_MultiChan_ = LoudspeakerSignals_MultiChan_ ./ aux_info.scale_value;</span>
+0107     <span class="keyword">end</span>
+0108     <span class="keyword">if</span> isempty(LoudspeakerSignals_MultiChan_)
+0109        LoudspeakerSignals_MultiChan_ = zeros(size(LoudspeakerSignals_MultiChan(:,:,1))); <span class="comment">% If empty then make zeros so nothing is added</span>
+0110     <span class="keyword">end</span>
+0111     
+0112     LoudspeakerSignals_MultiChan(:,:,s)=LoudspeakerSignals_MultiChan_;
+0113 <span class="keyword">end</span>
+0114 LoudspeakerSignals_MultiChan = sum(LoudspeakerSignals_MultiChan,3);
+0115 
+0116 
+0117 <span class="keyword">end</span>
+0118 
+0119 
+0120 <a name="_sub1" href="#_subfunctions" class="code">function y = audioread_extinsensitive(file_path)</a>
+0121 [p,n,e] = fileparts(file_path);
+0122 p=[p,filesep];
+0123 <span class="keyword">if</span> exist([p,n,e],<span class="string">'file'</span>)
+0124     audiofile = [p,n,e];
+0125 <span class="keyword">elseif</span> exist([p,n,lower(e)],<span class="string">'file'</span>)
+0126     audiofile = [p,n,lower(e)];
+0127 <span class="keyword">elseif</span> exist([p,n,upper(e)],<span class="string">'file'</span>)
+0128     audiofile = [p,n,upper(e)];
+0129 <span class="keyword">else</span>
+0130     y = nan;
+0131     <span class="keyword">return</span>;
+0132 <span class="keyword">end</span>
+0133 
+0134 <span class="keyword">try</span>
+0135     y = audioread(audiofile);
+0136 <span class="keyword">catch</span> err
+0137     <span class="keyword">if</span> strcmp(err.identifier, <span class="string">'MATLAB:audiovideo:audioread:FileTypeNotSupported'</span>)
+0138         y=nan; <span class="comment">% Skip unsupported files</span>
+0139     <span class="keyword">end</span>
+0140 <span class="keyword">end</span>
+0141 <span class="keyword">end</span>
+0142</pre></div>
+<hr><address>Generated on Sun 09-Jul-2017 20:35:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

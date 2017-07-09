@@ -1,0 +1,430 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of Clean_from_LUT_FlatMask</title>
+  <meta name="keywords" content="Clean_from_LUT_FlatMask">
+  <meta name="description" content="Analyse_Broadband_Signals_from_LUT Summary of this function goes here">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="../index.html">+Broadband_Tools</a> &gt; <a href="index.html">+Loudspeaker_Signal_Calculation</a> &gt; Clean_from_LUT_FlatMask.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for +Broadband_Tools\+Loudspeaker_Signal_Calculation&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>Clean_from_LUT_FlatMask
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>Analyse_Broadband_Signals_from_LUT Summary of this function goes here</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function Clean_from_LUT_FlatMask( Input_file, LUT_resolution, Noise_Mask_dB, weight, setup ) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">Analyse_Broadband_Signals_from_LUT Summary of this function goes here
+   Detailed explanation goes here</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function Clean_from_LUT_FlatMask( Input_file, LUT_resolution, Noise_Mask_dB, weight, setup )</a>
+0002 <span class="comment">%Analyse_Broadband_Signals_from_LUT Summary of this function goes here</span>
+0003 <span class="comment">%   Detailed explanation goes here</span>
+0004 
+0005 <span class="comment">%% Setup Variables</span>
+0006 [Input_file_path, Input_file_name, Input_file_ext] = fileparts( Input_file );
+0007 Input_file_path = [Input_file_path <span class="string">'\'</span>];
+0008 
+0009 Fs = 16000; <span class="comment">% Sampling frequency</span>
+0010 Nfft = 1024;<span class="comment">% Number of fft components</span>
+0011 overlap = 0.5;
+0012 f_low  = 150;  <span class="comment">% Hz</span>
+0013 f_high = 8000; <span class="comment">% Hz</span>
+0014 
+0015 angle_pw       = setup.Multizone_Soundfield.Bright_Zone.SourceOrigin.Angle;
+0016 loudspeakers   = setup.Loudspeaker_Count;
+0017 speaker_arc    = setup.Speaker_Arc_Angle;
+0018 speaker_radius = setup.Radius;
+0019 
+0020 Drive = <span class="string">'Z:\'</span>;
+0021 Output_file_path     = [Drive <span class="string">'+Speaker_Signals\'</span>]; <span class="comment">% Can be relative or exact</span>
+0022 Output_file_path_ext = [<span class="string">'+'</span> num2str(speaker_radius*2) <span class="string">'m_SpkrDia\+'</span> num2str(loudspeakers) <span class="string">'Spkrs_'</span> num2str(speaker_arc) <span class="string">'DegArc_LUT_'</span> LUT_resolution <span class="string">'\'</span>];
+0023 SetupInfo            = [<span class="string">'_'</span> num2str(f_low ) <span class="string">'Hz-'</span> <span class="keyword">...</span>
+0024     num2str(f_high) <span class="string">'Hz_'</span> <span class="keyword">...</span>
+0025     num2str(angle_pw) <span class="string">'pwAngle_'</span> <span class="keyword">...</span>
+0026     num2str(Noise_Mask_dB) <span class="string">'dB_'</span> <span class="keyword">...</span>
+0027     num2str(weight) <span class="string">'weight__withFlatMask'</span>];
+0028 Output_file_name     = [Input_file_name <span class="string">'__'</span> <span class="keyword">...</span>
+0029     num2str(loudspeakers) <span class="string">'spkrs_'</span> <span class="keyword">...</span>
+0030     SetupInfo];
+0031 Output_file_ext      = <span class="string">'.WAV'</span>;
+0032 
+0033 
+0034 
+0035 
+0036 
+0037 
+0038 
+0039 
+0040 
+0041 
+0042 <span class="comment">%% Firstly, find the frequency domain representation of an audio file that is wished to be reproduced in the spatial domain.</span>
+0043 [Z, Frequencies_ ~, Windows] = Broadband_Tools.FFT_custom([Input_file_path Input_file_name Input_file_ext], Nfft, Fs, overlap);
+0044 
+0045 <span class="comment">% Truncate to frequencies in the range f_low &lt;-&gt; f_high</span>
+0046 trunc_index_low  = find(Frequencies_ &lt; f_low , 1, <span class="string">'last'</span> ) + 1;
+0047 trunc_index_high = find(Frequencies_ &gt; f_high, 1 ) + 1;
+0048 <span class="keyword">if</span> isempty(trunc_index_low)
+0049     trunc_index_low = 1;
+0050 <span class="keyword">end</span>
+0051 <span class="keyword">if</span> isempty(trunc_index_high)
+0052     trunc_index_high = length(Frequencies_);
+0053 <span class="keyword">end</span>
+0054 <span class="comment">%Z = Z ( :, trunc_index_low:trunc_index_high );</span>
+0055 Frequencies_ = Frequencies_( :, trunc_index_low:trunc_index_high );
+0056 
+0057 <span class="comment">% Work out the coresponding number of planewaves for these frequencies</span>
+0058 f_samples = length(Frequencies_);
+0059 Nplanewaves = round( +Tools.interpVal(ceil((300-30)/((f_samples-1)^4)*(0:(f_samples-1)).^4+30), <span class="keyword">...</span>
+0060     logspace(log10(150),log10(8000),f_samples), <span class="keyword">...</span>
+0061     Frequencies_));
+0062 
+0063 <span class="comment">%Loudspeaker_Weights = zeros(f_samples, loudspeakers);</span>
+0064 Bright_Zone_sample  = zeros(f_samples, 1);
+0065 Quiet_Zone_sample   = zeros(f_samples, 1);
+0066 
+0067 
+0068 
+0069 
+0070 
+0071 
+0072 
+0073 
+0074 
+0075 
+0076 <span class="comment">%% Secondly, build a flat spectra desired multizone soundfield for all frequencies from the previous fft and save the speaker signals for each frequency bin.</span>
+0077 
+0078 load([Drive <span class="string">'+Soundfield_Database\+'</span> num2str(speaker_radius*2) <span class="string">'m_SpkrDia\+'</span> num2str(loudspeakers) <span class="string">'Spkrs_'</span> num2str(speaker_arc) <span class="string">'DegArc\LUT_Weight_vs_Frequency_'</span> num2str(angle_pw) <span class="string">'deg_'</span> LUT_resolution <span class="string">'.mat'</span>]);
+0079 
+0080 <span class="comment">%Loudspeaker capable LUT available?</span>
+0081 <span class="keyword">if</span> ~exist(<span class="string">'Loudspeaker_Weights__Weight_Vs_Frequency'</span>,<span class="string">'var'</span>)
+0082     error(<span class="string">'A Look-Up Table with valid Loudspeaker Weights was not found. Please either choose another LUT or generate a valid LUT.'</span>);
+0083 <span class="keyword">end</span>
+0084 
+0085 LUT_Bright = Bright_Sample__Weight_Vs_Frequency;<span class="comment">%(db2mag(Contrast__Weight_Vs_Frequency).^0.5 .* db2mag(Quiet_SPL__Weight_Vs_Frequency-94));</span>
+0086 LUT_Quiet  = Quiet_Sample__Weight_Vs_Frequency;<span class="comment">%db2mag(Quiet_SPL__Weight_Vs_Frequency-94);</span>
+0087 
+0088 [szW, szF] = size(Loudspeaker_Weights__Weight_Vs_Frequency);
+0089 LUT_Loudspeaker_Weights = cell2mat(Loudspeaker_Weights__Weight_Vs_Frequency);
+0090 LUT_Loudspeaker_Weights = permute( reshape(LUT_Loudspeaker_Weights, loudspeakers, szW, szF), [2 3 1] );
+0091 
+0092 Bright_Zone_sample = permute( Tools.interpVal_2D(LUT_Bright, Frequencies, Weights, Frequencies_, weight), [2 1]);
+0093 Quiet_Zone_sample  = permute( Tools.interpVal_2D(LUT_Quiet, Frequencies, Weights, Frequencies_, weight), [2 1]);
+0094 
+0095 <span class="comment">% When interpolating the angle of the complex loudspeaker weight we need to phase unwrap otherwise</span>
+0096 <span class="comment">% the interpolation may become close to 180 degrees out of phase which will</span>
+0097 <span class="comment">% cause contructive interference instead of destructive and vise versa</span>
+0098 Loudspeaker_Weights = zeros(length(Frequencies_),loudspeakers);
+0099 <span class="keyword">for</span> spkr = 1:loudspeakers
+0100     Loudspeaker_Weights(:,spkr) = permute( Tools.interpVal_2D(LUT_Loudspeaker_Weights(:,:,spkr), Frequencies, Weights, Frequencies_, weight, <span class="string">'spline'</span>), [2 1]);
+0101     
+0102        
+0103 <span class="comment">%     figure(1);</span>
+0104 <span class="comment">%     plot(Frequencies, abs(LUT_Loudspeaker_Weights(end,:,spkr))); hold on;</span>
+0105 <span class="comment">%     plot(Frequencies_, abs(Loudspeaker_Weights(:,spkr))); hold off;</span>
+0106 <span class="comment">%     figure(2);</span>
+0107 <span class="comment">%     plot(Frequencies, unwrap(angle(LUT_Loudspeaker_Weights(end,:,spkr)))); hold on;</span>
+0108 <span class="comment">%     plot(Frequencies_, unwrap(angle(Loudspeaker_Weights(:,spkr)))); hold off;</span>
+0109         
+0110     Loudspeaker_Weights(:,spkr) = permute( Tools.interpVal_2D(abs(LUT_Loudspeaker_Weights(:,:,spkr)), Frequencies, Weights, Frequencies_, weight, <span class="string">'spline'</span>), [2 1]) <span class="keyword">...</span>
+0111                                 .* exp(1i * angle(Loudspeaker_Weights(:,spkr)));
+0112                
+0113 <span class="comment">%     figure(3);</span>
+0114 <span class="comment">%     plot(Frequencies, abs(LUT_Loudspeaker_Weights(end,:,spkr))); hold on;</span>
+0115 <span class="comment">%     plot(Frequencies_, abs(Loudspeaker_Weights(:,spkr))); hold off;</span>
+0116 <span class="comment">%     figure(4);</span>
+0117 <span class="comment">%     plot(Frequencies, unwrap(angle(LUT_Loudspeaker_Weights(end,:,spkr)))); hold on;</span>
+0118 <span class="comment">%     plot(Frequencies_, unwrap(angle(Loudspeaker_Weights(:,spkr)))); hold off;</span>
+0119                             
+0120 <span class="keyword">end</span>
+0121 
+0122 
+0123 <span class="comment">%if ~exist(['+Soundfield_Database\+From_LUT\' Output_file_path_ext],'dir'); mkdir(['+Soundfield_Database\+From_LUT\' Output_file_path_ext]); end</span>
+0124 <span class="comment">%save(['+Soundfield_Database\+From_LUT\' Output_file_path_ext 'Weights_and_Samples__' SetupInfo '.mat'], ...</span>
+0125 <span class="comment">%    'Loudspeaker_Weights', ...</span>
+0126 <span class="comment">%    'Bright_Zone_sample', ...</span>
+0127 <span class="comment">%    'Quiet_Zone_sample' );</span>
+0128 
+0129 
+0130 
+0131 
+0132 
+0133 
+0134 
+0135 
+0136 
+0137 
+0138 <span class="comment">%% Finally, apply the speaker weight and reconstruct the loudspeaker signals for each frame of the input signal</span>
+0139 <span class="comment">%load(['+Soundfield_Database\+From_LUT\' Output_file_path_ext 'Weights_and_Samples__' SetupInfo '.mat']);</span>
+0140 
+0141 <span class="comment">% % Here we want to build the speaker signals for each speaker so that our loudspeaker weights are taken into account.</span>
+0142 <span class="comment">% % We want to form the entire spectrum by adding the conjugate of the frame</span>
+0143 <span class="comment">% % to the existing frame where the negative frequencies of the transform</span>
+0144 <span class="comment">% % would usually exist.</span>
+0145  Loudspeaker_Weights = [zeros(trunc_index_low-1, loudspeakers); <span class="keyword">...</span>
+0146                         Loudspeaker_Weights; <span class="keyword">...</span>
+0147                         zeros( size(Z,2) - trunc_index_high, loudspeakers)];                    
+0148  Loudspeaker_Weights = permute( repmat(Loudspeaker_Weights, [1 1 size(Z,1)]), [3 1 2]);
+0149  Z_l = repmat(Z, [1 1 loudspeakers]);
+0150  
+0151  
+0152 <span class="comment">%</span>
+0153 Loudspeakers_ = zeros( [size(Z_l,1) (size(Z_l,2))*2 size(Z_l,3)] );
+0154 <span class="keyword">for</span> spkr = 1:loudspeakers
+0155     Loudspeakers_(:,1:end/2,spkr) = Z_l(:,:,spkr) .* Loudspeaker_Weights(:,:,spkr);
+0156     Loudspeakers_(:,end/2+1:<span class="keyword">end</span>,spkr) = conj( [-Loudspeakers_(:,1,spkr).*0 Loudspeakers_(:,end/2:-1:2,spkr)]);
+0157 <span class="keyword">end</span>
+0158 Original = [Z(:,:,1) conj( [-Z(:,1,1).*0 Z(:,end:-1:2,1)] )];
+0159 <span class="comment">% clear Loudspeaker_Weights; % Save on memory</span>
+0160 <span class="comment">%</span>
+0161 <span class="comment">% % We then want to perform an Inverse FFT (ifft) on each full spectrum frame</span>
+0162  <span class="keyword">for</span> frame = 1:size(Loudspeakers_, 1)
+0163     <span class="keyword">for</span> spkr = 1:loudspeakers
+0164         Loudspeakers_(frame,:,spkr) = ifft( Loudspeakers_(frame,:,spkr) );
+0165     <span class="keyword">end</span>
+0166      Original(frame,:) = ifft( Original(frame, :) );
+0167  <span class="keyword">end</span> 
+0168  
+0169  
+0170  <span class="comment">%We should apply the second square root hamming window here</span>
+0171  <span class="comment">%we should do this to remove artificats caused by our spectral</span>
+0172  <span class="comment">%modification</span>
+0173   <span class="comment">%for frame = 1:size(Loudspeakers_, 1)</span>
+0174     <span class="keyword">for</span> spkr = 1:loudspeakers
+0175         Loudspeakers_(:,:,spkr) = Loudspeakers_(:,:,spkr) .* Windows;
+0176     <span class="keyword">end</span>
+0177      Original = Original .* Windows;
+0178  <span class="comment">%end</span>
+0179  
+0180  
+0181 
+0182 <span class="comment">%</span>
+0183 <span class="comment">% % Then we should perform the overlap-add method to obtain the complete time domain signal for each speaker</span>
+0184 <span class="comment">% %Loudspeaker_Signals =</span>
+0185 <span class="comment">% zeros([(size(Z,1)+ceil(overlap))*size(Z,2)*2*(1-overlap) loudspeakers] ); % pre-allocate memory</span>
+0186 <span class="keyword">for</span> spkr = 1:loudspeakers
+0187     Loudspeaker_Signals(:,spkr) = Broadband_Tools.OverlapAdd( Loudspeakers_(:,:,spkr), overlap );
+0188 <span class="keyword">end</span>
+0189  Original_ = Broadband_Tools.OverlapAdd( Original, overlap );
+0190 <span class="comment">% clear Loudspeakers_; % Save on memory</span>
+0191 
+0192 
+0193  <span class="comment">% Scale signals so they don't clip upon saving</span>
+0194  <span class="keyword">if</span> Noise_Mask_dB &lt;= 0
+0195      scaler = 1 / (db2mag(0)+1); <span class="comment">%Plus one is for the amplitude of the clean signal</span>
+0196  <span class="keyword">elseif</span> Noise_Mask_dB &gt; 0 <span class="comment">% For a positive masker we scale the signals to save up to a 40db noise masker</span>
+0197      scaler = 1 / (db2mag(40)+1);<span class="comment">%Plus one is for the amplitude of the clean signal</span>
+0198  <span class="keyword">end</span>
+0199 
+0200  <span class="comment">% Normalise Loudspeaker Signals</span>
+0201  Loudspeaker_Signals = Loudspeaker_Signals ./ max(abs(Loudspeaker_Signals(:)))  *  scaler; 
+0202  Original_ = Original_ ./ max(abs(Original_(:)))  *  scaler;
+0203  
+0204  <span class="comment">% Add white noise to Loudspeaker Signals</span>
+0205  Loudspeaker_Signals = Tools.addNoise(Loudspeaker_Signals, Noise_Mask_dB, <span class="string">'UWGN'</span>); 
+0206 
+0207  
+0208  <span class="comment">% % Once we have the speaker signals we should save them for later use as .wav files</span>
+0209 filenumbers = num2str((1:loudspeakers)');
+0210 filenumbers(filenumbers==<span class="string">' '</span>) = <span class="string">'_'</span>;
+0211 fullpath = [repmat([Output_file_path Output_file_path_ext Output_file_name], [loudspeakers 1]) <span class="keyword">...</span>
+0212     filenumbers <span class="keyword">...</span>
+0213     repmat(Output_file_ext, [loudspeakers 1]) ];
+0214 
+0215 <span class="keyword">if</span> ~exist([Output_file_path Output_file_path_ext],<span class="string">'dir'</span>); mkdir([Output_file_path Output_file_path_ext]); <span class="keyword">end</span>
+0216 
+0217 <span class="keyword">for</span> spkr = 1:loudspeakers
+0218     audiowrite(fullpath(spkr,:), Loudspeaker_Signals(:, spkr), Fs);
+0219 <span class="keyword">end</span>
+0220 audiowrite([Output_file_path Output_file_path_ext <span class="keyword">...</span>
+0221     Input_file_name <span class="string">'__Original_'</span> <span class="keyword">...</span>
+0222     num2str(f_low ) <span class="string">'Hz-'</span> <span class="keyword">...</span>
+0223     num2str(f_high) <span class="string">'Hz'</span> <span class="keyword">...</span>
+0224     Input_file_ext], Original_, Fs);
+0225 
+0226 
+0227 
+0228 
+0229 
+0230 
+0231 
+0232 
+0233 
+0234 
+0235  <span class="comment">%%</span>
+0236 <span class="comment">% Bright_Zone_sample = [zeros(trunc_index_low-1, 1); Bright_Zone_sample; zeros( size(Z,2) - trunc_index_high, 1) ];</span>
+0237 <span class="comment">% Bright_Zone_sample = permute( repmat(Bright_Zone_sample, [1 1 size(Z,1)]), [3 1 2]);</span>
+0238 <span class="comment">%</span>
+0239 <span class="comment">% Quiet_Zone_sample  = [zeros(trunc_index_low-1, 1); Quiet_Zone_sample; zeros( size(Z,2) - trunc_index_high, 1) ];</span>
+0240 <span class="comment">% Quiet_Zone_sample  = permute( repmat(Quiet_Zone_sample, [1 1 size(Z,1)]), [3 1 2]);</span>
+0241 <span class="comment">%</span>
+0242 <span class="comment">% Bright = zeros( [size(Z,1) (size(Z,2))*2] );</span>
+0243 <span class="comment">% Quiet  = zeros( [size(Z,1) (size(Z,2))*2] );</span>
+0244 <span class="comment">%</span>
+0245 <span class="comment">% Bright(:,1:end/2)     = squeeze( Z(:,:,1) ) .* Bright_Zone_sample(:,:);</span>
+0246 <span class="comment">% Bright(:,end/2+1:end) = conj( [-Bright(:,1).*0 Bright(:,end/2:-1:2)] );</span>
+0247 <span class="comment">% Quiet(:,1:end/2)      = squeeze( Z(:,:,1) ) .* Quiet_Zone_sample;</span>
+0248 <span class="comment">% Quiet(:,end/2+1:end)  = conj( [-Quiet(:,1).*0 Quiet(:,end/2:-1:2)] );</span>
+0249 <span class="comment">%</span>
+0250 <span class="comment">% % We then want to perform an Inverse FFT (ifft) on each full spectrum frame</span>
+0251 <span class="comment">% for frame = 1:size(Z, 1)</span>
+0252 <span class="comment">%     Bright(frame,:) = ifft( Bright(frame, :) );</span>
+0253 <span class="comment">%     Quiet( frame,:) = ifft( Quiet( frame, :) );</span>
+0254 <span class="comment">% end</span>
+0255 <span class="comment">%</span>
+0256 <span class="comment">% % Then we should perform the overlap-add method to obtain the complete time domain signal for each speaker</span>
+0257 <span class="comment">% Bright_Signal = +Broadband_Tools.OverlapAdd( Bright, overlap );</span>
+0258 <span class="comment">% Quiet_Signal  = +Broadband_Tools.OverlapAdd( Quiet , overlap );</span>
+0259 <span class="comment">%</span>
+0260 <span class="comment">% % Normalise Loudspeaker Signals</span>
+0261 <span class="comment">% maxVal = max(abs(Bright_Signal(:)));</span>
+0262 <span class="comment">% Bright_Signal = Bright_Signal ./ maxVal;</span>
+0263 <span class="comment">% Quiet_Signal  = Quiet_Signal  ./ maxVal;</span>
+0264 <span class="comment">%</span>
+0265 <span class="comment">% %Second method - Correlated Normalisation</span>
+0266 <span class="comment">% [Bright_Signal, Scale] = Tools.correlated_normalisation(Original_,Bright_Signal);</span>
+0267 <span class="comment">% Quiet_Signal = Quiet_Signal / Scale;</span>
+0268 <span class="comment">% maxVal = max(abs([Original_(:); Bright_Signal(:); Quiet_Signal(:)]));</span>
+0269 <span class="comment">% Original_ = Original_ ./ maxVal;</span>
+0270 <span class="comment">% Bright_Signal = Bright_Signal ./ maxVal;</span>
+0271 <span class="comment">% Quiet_Signal  = Quiet_Signal  ./ maxVal;</span>
+0272 <span class="comment">%</span>
+0273 <span class="comment">%</span>
+0274 <span class="comment">%</span>
+0275 <span class="comment">%</span>
+0276 <span class="comment">%</span>
+0277 <span class="comment">%</span>
+0278 <span class="comment">% % Once we have the speaker signals we should save them for later use as .wav files</span>
+0279 <span class="comment">% if ~exist(['+Results\' Output_file_path_ext],'dir'); mkdir(['+Results\' Output_file_path_ext]); end</span>
+0280 <span class="comment">% Original_path = ['+Results\' Output_file_path_ext ...</span>
+0281 <span class="comment">%     Input_file_name '__Original_' ...</span>
+0282 <span class="comment">%     num2str(f_low ) 'Hz-' ...</span>
+0283 <span class="comment">%     num2str(f_high) 'Hz' ...</span>
+0284 <span class="comment">%     Input_file_ext];</span>
+0285 <span class="comment">% audiowrite(Original_path, Original_, Fs);</span>
+0286 <span class="comment">% Bright_path = ['+Results\' Output_file_path_ext ...</span>
+0287 <span class="comment">%     Input_file_name '___Bright_' ...</span>
+0288 <span class="comment">%     SetupInfo ...</span>
+0289 <span class="comment">%     Input_file_ext];</span>
+0290 <span class="comment">% audiowrite(Bright_path, Bright_Signal, Fs);</span>
+0291 <span class="comment">% Quiet_path = ['+Results\' Output_file_path_ext ...</span>
+0292 <span class="comment">%     Input_file_name '___Quiet__' ...</span>
+0293 <span class="comment">%     SetupInfo ...</span>
+0294 <span class="comment">%     Input_file_ext];</span>
+0295 <span class="comment">% audiowrite(Quiet_path, Quiet_Signal, Fs);</span>
+0296 <span class="comment">%</span>
+0297 <span class="comment">%</span>
+0298 <span class="comment">%</span>
+0299 <span class="comment">%</span>
+0300 <span class="comment">%</span>
+0301 <span class="comment">%</span>
+0302 <span class="comment">%</span>
+0303 <span class="comment">%</span>
+0304 <span class="comment">%</span>
+0305 <span class="comment">% %% Calculate and save Mean Squared Error (MSE) Values to the results folder</span>
+0306 <span class="comment">% if ~exist(['+Results\' Output_file_path_ext],'dir'); mkdir(['+Results\' Output_file_path_ext]); end</span>
+0307 <span class="comment">%</span>
+0308 <span class="comment">% fileID = fopen(['+Results\' Output_file_path_ext 'MSE_Results_' num2str(weight) 'weight.csv'],'a');</span>
+0309 <span class="comment">% MSE_Bright = sum((Original_ - Bright_Signal).^2) / numel(Original_);</span>
+0310 <span class="comment">% MSE_Quiet  = sum((Original_ - Quiet_Signal ).^2) / numel(Original_);</span>
+0311 <span class="comment">% fprintf(fileID,'%s,MSE_Bright,%f,MSE_Quiet,%f,\r\n',[Input_file_name SetupInfo], MSE_Bright, MSE_Quiet);</span>
+0312 <span class="comment">% fclose(fileID);</span>
+0313 <span class="comment">%</span>
+0314 <span class="comment">%</span>
+0315 <span class="comment">% %% Calculate and save PESQ Values to the results folder</span>
+0316 <span class="comment">% if ~exist(['+Results\' Output_file_path_ext],'dir'); mkdir(['+Results\' Output_file_path_ext]); end</span>
+0317 <span class="comment">%</span>
+0318 <span class="comment">% fileID = fopen(['+Results\' Output_file_path_ext 'PESQ_Results_' num2str(weight) 'weight.csv'],'a');</span>
+0319 <span class="comment">% PESQ_Bright = pesq(Original_path,Bright_path);</span>
+0320 <span class="comment">% PESQ_Quiet = pesq(Original_path,Quiet_path);</span>
+0321 <span class="comment">% fprintf(fileID,'%s,PESQ_Bright,%f,PESQ_Quiet,%f,\r\n',[Input_file_name SetupInfo], PESQ_Bright, PESQ_Quiet);</span>
+0322 <span class="comment">% fclose(fileID);</span>
+0323 <span class="comment">%</span>
+0324 <span class="comment">% fileID = fopen(['+Results\' Output_file_path_ext 'PESQ_MOS_Results_' num2str(weight) 'weight.csv'],'a');</span>
+0325 <span class="comment">% PESQ_MOS_Bright = pesq2mos(PESQ_Bright);</span>
+0326 <span class="comment">% PESQ_MOS_Quiet = pesq2mos(PESQ_Quiet);</span>
+0327 <span class="comment">% fprintf(fileID,'%s,PESQ_MOS_Bright,%f,PESQ_MOS_Quiet,%f,\r\n',[Input_file_name SetupInfo], PESQ_MOS_Bright, PESQ_MOS_Quiet);</span>
+0328 <span class="comment">% fclose(fileID);</span>
+0329 <span class="comment">%</span>
+0330 <span class="comment">% %% Calculate and save Active Speech Level values to the results folder</span>
+0331 <span class="comment">% if ~exist(['+Results\' Output_file_path_ext],'dir'); mkdir(['+Results\' Output_file_path_ext]); end</span>
+0332 <span class="comment">%</span>
+0333 <span class="comment">% fileID = fopen(['+Results\' Output_file_path_ext 'ASL_Results_' num2str(weight) 'weight.csv'],'a');</span>
+0334 <span class="comment">%</span>
+0335 <span class="comment">% [ASL_Bright_dB, Activity_Bright] = activlev(Bright_Signal, Fs, 'd');</span>
+0336 <span class="comment">% [ASL_Quiet_dB,  Activity_Quiet ] = activlev(Quiet_Signal,  Fs, 'd');</span>
+0337 <span class="comment">%</span>
+0338 <span class="comment">% fprintf(fileID,'%s,ASL_Bright_dB,%f,ASL_Quiet_dB,%f,Activity_Bright,%f,Activity_Quiet,%f,\r\n', ...</span>
+0339 <span class="comment">%         [Input_file_name SetupInfo], ...</span>
+0340 <span class="comment">%         ASL_Bright_dB, ...</span>
+0341 <span class="comment">%         ASL_Quiet_dB, ...</span>
+0342 <span class="comment">%         Activity_Bright, ...</span>
+0343 <span class="comment">%         Activity_Quiet);</span>
+0344 <span class="comment">% fclose(fileID);</span>
+0345 <span class="comment">%</span>
+0346 <span class="comment">%</span>
+0347 <span class="comment">% %% Calculate and save Speech Intelligibility values to the results folder</span>
+0348 <span class="comment">% if ~exist(['+Results\' Output_file_path_ext],'dir'); mkdir(['+Results\' Output_file_path_ext]); end</span>
+0349 <span class="comment">%</span>
+0350 <span class="comment">% fileID = fopen(['+Results\' Output_file_path_ext 'SI_Results_' num2str(weight) 'weight.csv'],'a');</span>
+0351 <span class="comment">%</span>
+0352 <span class="comment">% d_SI_Bright = Tools.stoi(Original_, Bright_Signal, Fs);</span>
+0353 <span class="comment">% d_SI_Quiet  = Tools.stoi(Original_, Quiet_Signal,  Fs);</span>
+0354 <span class="comment">%</span>
+0355 <span class="comment">% % Following the publications by tall2011</span>
+0356 <span class="comment">% %    References:</span>
+0357 <span class="comment">% %      C. H. Taal, R. C. Hendriks, R. Heusdens, and J. Jensen. A Short-Time</span>
+0358 <span class="comment">% %      Objective Intelligibility Measure for Time-Frequency Weighted Noisy</span>
+0359 <span class="comment">% %      Speech. In Acoustics Speech and Signal Processing (ICASSP), pages</span>
+0360 <span class="comment">% %      4214-4217. IEEE, 2010.</span>
+0361 <span class="comment">% %</span>
+0362 <span class="comment">% %      C. H. Taal, R. C. Hendriks, R. Heusdens, and J. Jensen. An Algorithm</span>
+0363 <span class="comment">% %      for Intelligibility Prediction of Time-Frequency Weighted Noisy Speech.</span>
+0364 <span class="comment">% %      IEEE Transactions on Audio, Speech and Language Processing,</span>
+0365 <span class="comment">% %      19(7):2125-2136, 2011.</span>
+0366 <span class="comment">%</span>
+0367 <span class="comment">% % for IEEE English library</span>
+0368 <span class="comment">% f_IEEE_a = -17.4906;</span>
+0369 <span class="comment">% f_IEEE_b = 9.6921;</span>
+0370 <span class="comment">%</span>
+0371 <span class="comment">% WordsCorrect_SI_Bright = 100 / (1 + exp(f_IEEE_a * d_SI_Bright + f_IEEE_b ) );</span>
+0372 <span class="comment">% WordsCorrect_SI_Quiet  = 100 / (1 + exp(f_IEEE_a * d_SI_Quiet  + f_IEEE_b ) );</span>
+0373 <span class="comment">%</span>
+0374 <span class="comment">% fprintf(fileID,'%s,d_SI_Bright,%f,d_SI_Quiet,%f,WordsCorrect_SI_Bright,%f,WordsCorrect_SI_Quiet,%f,\r\n', ...</span>
+0375 <span class="comment">%         [Input_file_name SetupInfo], ...</span>
+0376 <span class="comment">%         d_SI_Bright, ...</span>
+0377 <span class="comment">%         d_SI_Quiet, ...</span>
+0378 <span class="comment">%         WordsCorrect_SI_Bright, ...</span>
+0379 <span class="comment">%         WordsCorrect_SI_Quiet );</span>
+0380 <span class="comment">% fclose(fileID);</span>
+0381 
+0382 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Sun 09-Jul-2017 20:35:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

@@ -1,0 +1,188 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of Build_LUT</title>
+  <meta name="keywords" content="Build_LUT">
+  <meta name="description" content="clear;">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="../index.html">+Soundfield_Database</a> &gt; <a href="index.html">+LUT_Builders</a> &gt; Build_LUT.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for +Soundfield_Database\+LUT_Builders&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>Build_LUT
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>clear;</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function Build_LUT( SYS ) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">clear;</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function Build_LUT( SYS )</a>
+0002 
+0003 <span class="comment">%clear;</span>
+0004 close all;
+0005 tic; <span class="comment">%Start timing this script</span>
+0006 delete(gcp(<span class="string">'nocreate'</span>));
+0007 current_pool = parpool; <span class="comment">%Start new pool</span>
+0008 C = clock;
+0009 fprintf(<span class="string">'Started execution at %.0f:%.0f:%.0f on the %.0f/%.0f/%.0f\n'</span>,C([4:6 3:-1:1]))
+0010 
+0011 
+0012 
+0013 <span class="comment">%% Settings</span>
+0014 <span class="keyword">if</span> nargin &lt; 1, SYS = Current_Systems.loadCurrentSRsystem; <span class="keyword">end</span>
+0015 
+0016 
+0017 
+0018 DebugMode = <span class="string">'DEBUG'</span>;        <span class="comment">% Set this to 'DEBUG' for a fast aproximate output, for complete soundfield contruction replace with ''</span>
+0019 <span class="comment">% You can suppress the output when executing a complete soundfield construction with 'suppress_output'</span>
+0020 
+0021 
+0022 
+0023 <span class="comment">%%</span>
+0024 Setups = [];
+0025 <span class="keyword">if</span> ~isempty(SYS.signal_info.methods_list_clean)
+0026     Setups = [Setups(:); SYS.Main_Setup(:)];
+0027 <span class="keyword">end</span>
+0028 <span class="keyword">if</span> ~isempty(SYS.signal_info.methods_list_masker)
+0029     Setups = [Setups(:); SYS.Masker_Setup(:)];
+0030 <span class="keyword">end</span>
+0031 
+0032 DBsetups = 1:length(Setups);
+0033 <span class="keyword">if</span> isfield(SYS.system_info,<span class="string">'DB_indices'</span>)
+0034     DBsetups(~SYS.system_info.DB_indices)=[];
+0035 <span class="keyword">end</span>
+0036 <span class="keyword">for</span> s = DBsetups
+0037     Setup = Setups(s);
+0038     
+0039     [~, Frequencies] = Soundfield_Database.LUT_Builders.Orthogonal_Planewave_Selection( <span class="keyword">...</span>
+0040         SYS.system_info.LUT_frequencies, 0, 0, <span class="keyword">...</span>
+0041         SYS.signal_info.f_low, <span class="keyword">...</span>
+0042         SYS.signal_info.f_high,<span class="string">'lin'</span>);
+0043     
+0044     single_LUT_weight = (SYS.system_info.LUT_weights == 1);
+0045     <span class="keyword">if</span> Setup.Loudspeaker_Count &gt; 1
+0046         Weights = [0,  logspace(log10( min(SYS.system_info.LUT_weight_range) ), <span class="keyword">...</span>
+0047             log10( max(SYS.system_info.LUT_weight_range) ), <span class="keyword">...</span>
+0048             SYS.system_info.LUT_weights - 1) ];
+0049     <span class="keyword">elseif</span> Setup.Loudspeaker_Count == 1 &amp;&amp; single_LUT_weight
+0050         Weights = 1;
+0051     <span class="keyword">end</span>
+0052     
+0053     
+0054     <span class="comment">%% Path to save the database (Look-Up Table)</span>
+0055     DB_fullpath = Soundfield_Database.getDatabasePath( <span class="keyword">...</span>
+0056         Setup, <span class="keyword">...</span>
+0057         [num2str(SYS.system_info.LUT_frequencies) <span class="string">'f_'</span> num2str(length(Weights)) <span class="string">'w'</span>], <span class="keyword">...</span>
+0058         SYS.system_info.Drive);
+0059     
+0060     DBpath = fileparts(DB_fullpath);
+0061     
+0062     <span class="comment">%% Results</span>
+0063     
+0064     <span class="comment">%Samples</span>
+0065     <span class="keyword">if</span> Setup.Loudspeaker_Count &gt; 1
+0066         Bright_Sample__Weight_Vs_Frequency = zeros(length(Weights), length(Frequencies));
+0067         Quiet_Sample__Weight_Vs_Frequency  = zeros(length(Weights), length(Frequencies));
+0068     <span class="keyword">elseif</span> Setup.Loudspeaker_Count == 1 &amp;&amp; single_LUT_weight
+0069         Bright_Sample__Weight_Vs_Frequency = cell(length(Weights), length(Frequencies));
+0070         Quiet_Sample__Weight_Vs_Frequency  = cell(length(Weights), length(Frequencies));
+0071     <span class="keyword">end</span>
+0072     
+0073     <span class="comment">%Contrast</span>
+0074     Acoustic_Contrast__Weight_Vs_Frequency = zeros(length(Weights), length(Frequencies));
+0075     
+0076     <span class="comment">%Loudspeaker Weights</span>
+0077     Loudspeaker_Weights__Weight_Vs_Frequency  = cell(length(Weights), length(Frequencies));
+0078     
+0079     
+0080     <span class="comment">%% Calculation of MSE for Weight Vs Angle (MSE__Weight_Vs_Angle)</span>
+0081     
+0082     fprintf(<span class="string">'\n====== Building Look-Up Table (Frequency Weights) ======\n'</span>);
+0083     fprintf(Speaker_Setup.printSetupDetails(Setup));
+0084     fprintf([<span class="string">'No. of Frequencies:\t'</span> num2str(SYS.system_info.LUT_frequencies) <span class="string">'\n'</span>]);
+0085     fprintf([<span class="string">'No. of Weights:\t\t'</span> num2str(length(Weights)) <span class="string">'\n\n'</span>]);
+0086     fprintf(<span class="string">'\t Completion: '</span>);n=0;
+0087     a=1;
+0088     <span class="keyword">for</span> w = 1:length(Weights)
+0089         currWeight = Weights( w ); <span class="comment">% Current Weight to process</span>
+0090         parfor f = 1:length(Frequencies)
+0091             
+0092             parsetup = Setup;
+0093             parsetup.Multizone_Soundfield.Quiet_Zone = <span class="keyword">...</span>
+0094                 parsetup.Multizone_Soundfield.Quiet_Zone.setDesiredSoundfield(true, Frequencies( f ), <span class="string">'suppress_output'</span>);
+0095             parsetup.Multizone_Soundfield.Bright_Zone = <span class="keyword">...</span>
+0096                 parsetup.Multizone_Soundfield.Bright_Zone.setDesiredSoundfield(true, Frequencies( f ), <span class="string">'suppress_output'</span>);
+0097             
+0098             parsetup.Multizone_Soundfield.QuietZ_Weight = currWeight;
+0099             parsetup.Multizone_Soundfield = parsetup.Multizone_Soundfield.setN( -1 ); <span class="comment">%Auto set</span>
+0100             parsetup.Multizone_Soundfield = parsetup.Multizone_Soundfield.createSoundfield(DebugMode);
+0101             
+0102             parsetup = parsetup.calc_Loudspeaker_Weights();
+0103             parsetup = parsetup.reproduceSoundfield(<span class="string">'SAMPLES_ONLY'</span>);
+0104             
+0105             <span class="keyword">if</span> parsetup.Loudspeaker_Count &gt; 1
+0106                 Bright_Sample__Weight_Vs_Frequency( w, f ) = parsetup.Bright_Sample;
+0107                 Quiet_Sample__Weight_Vs_Frequency( w, f ) = parsetup.Quiet_Sample;
+0108             <span class="keyword">elseif</span> parsetup.Loudspeaker_Count == 1 &amp;&amp; single_LUT_weight
+0109                 Bright_Sample__Weight_Vs_Frequency{ w, f } = parsetup.Bright_Samples;
+0110                 Quiet_Sample__Weight_Vs_Frequency{ w, f } = parsetup.Quiet_Samples;
+0111             <span class="keyword">end</span>
+0112             Acoustic_Contrast__Weight_Vs_Frequency( w, f ) = parsetup.Acoustic_Contrast;
+0113             Loudspeaker_Weights__Weight_Vs_Frequency{ w, f } = parsetup.Loudspeaker_Weights;
+0114             
+0115         <span class="keyword">end</span>
+0116         
+0117         n = Tools.showTimeToCompletion(w/length(Weights), n);
+0118         
+0119     <span class="keyword">end</span>
+0120     
+0121     Loudspeaker_Locations = Setup.Loudspeaker_Locations;
+0122     
+0123     
+0124     <span class="comment">%%</span>
+0125     
+0126     <span class="keyword">if</span> ~exist(DBpath,<span class="string">'dir'</span>), mkdir(DBpath);<span class="keyword">end</span>;
+0127     save(DB_fullpath, <span class="keyword">...</span>
+0128         <span class="string">'Frequencies'</span>, <span class="keyword">...</span>
+0129         <span class="string">'Weights'</span>, <span class="keyword">...</span>
+0130         <span class="string">'Bright_Sample__Weight_Vs_Frequency'</span>, <span class="keyword">...</span>
+0131         <span class="string">'Quiet_Sample__Weight_Vs_Frequency'</span>, <span class="keyword">...</span>
+0132         <span class="string">'Acoustic_Contrast__Weight_Vs_Frequency'</span>, <span class="keyword">...</span>
+0133         <span class="string">'Loudspeaker_Weights__Weight_Vs_Frequency'</span>, <span class="keyword">...</span>
+0134         <span class="string">'Loudspeaker_Locations'</span>);
+0135     
+0136     
+0137     <span class="comment">%%</span>
+0138     tEnd = toc;
+0139     fprintf(<span class="string">'\nExecution time: %dmin(s) %fsec(s)\n'</span>, floor(tEnd/60), rem(tEnd,60)); <span class="comment">%Time taken to execute this script</span>
+0140     
+0141 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Sun 09-Jul-2017 20:35:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

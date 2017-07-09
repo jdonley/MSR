@@ -1,0 +1,251 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of invFIR</title>
+  <meta name="keywords" content="invFIR">
+  <meta name="description" content="INVFIR design inverse filter (FIR) from mono or stereo impulse response">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">+Tools</a> &gt; invFIR.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for +Tools&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>invFIR
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>INVFIR design inverse filter (FIR) from mono or stereo impulse response</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [ih]=invFIR(type,h,Nfft,Noct,L,range,reg,window) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">INVFIR design inverse filter (FIR) from mono or stereo impulse response
+ ------------------------------------------------------------------------------ 
+ description: design inverse filter (FIR) from mono or stereo impulse response
+ ------------------------------------------------------------------------------
+ inputs overview
+ ---------------
+ type   - 1. 'linphase': symmetric two-sided response compensating magnitude while maintaining original phase information
+          2. 'minphase': one-sided response compensating magnitude with minimal possible group delay
+          3. 'complex': asymmetric two-sided response compensating magnitude and phase
+         
+ h      - mono or stereo impulse response (column vector)
+ 
+ Nfft   - FFT length for calculating inverse FIR
+ 
+ Noct   - optional fractional octave smoothing (e.g. Noct=3 =&gt; 1/3 octave smooth, Noct=0 =&gt; no smoothing)
+ 
+ L      - length of inverse filter (truncates Nfft-length filter to L)
+ 
+ range  - frequency range to be inverted (e.g. [32 16000] =&gt; 32 Hz to 16 kHz)
+ 
+ reg    - amount of regularization (in dB) inside (reg(1)) and outside (reg(2)) the specified range
+         (example: reg=[20 -6] =&gt; inverts frequency components within 'range' with a max. gain of 20 dB,
+                   while dampening frequencies outside 'range' by 6 dB)
+ 
+ window - window=1 applies a hanning window to the inverse filter
+ -----------------------------------------------------------------------------------------------
+ 
+ Background information: 
+ complex inversion of non-minimum phase impulse responses
+ --------------------------------------------------------
+ If an acoustical impulse response contains reflections there will be repeated similar magnitude characteristics during sound propagation.
+ This causes the impulse response to consist of a maximum-phase and a minimum phase component.
+ Expressed in trms of z-transformation the min.-phase are within the unit circle while the max.-phase component are outside.
+ Those components can be seen as numerator coefficients of an digital FIR filter.
+ Inversion turnes the numerator coefficients into denumerator coefficients and those outside the unit circle will make the resulting
+ filter (which is now an IIR filter) unstable.
+ Making use of the DFT sets |z|=1 and that means taht the region of convergence now includes the unit circle.
+ Now the inverse filter is stable but non-causal (left handed part of response towards negative times).
+ To compensate this, the resulting response is shifted in time to make the non-causal part causal.
+ But the &quot;true&quot; inverse is still an infinite one but is represented by an finite (Nfft-long) approximation.
+ Due to this fact and due to the periodic nature of the DFT, the Nfft-long &quot;snapshot&quot; of the true invese also contains 
+ overlapping components from adjacents periodic repetitions (=&gt; &quot;time aliasing&quot;).
+ Windowing the resulting response helps to suppress aliasing at the edges but does not guarantee that the complete response is aliasing-free.
+ In fact inverting non-minimum phase responses will always cause time aliasing - the question is not &quot;if at all&quot; but &quot;to which amount&quot;.
+ Time-aliasing &quot;limiters&quot;:
+     - use of short impulse responses to be inverted (=&gt; windowing prior to inverse filter design)
+     - use of longer inverse filters (=&gt; increasing FFT length)
+     - avoide inversion of high-Q (narrow-band spectral drips/peaks with high amplitde) spectral components (=&gt; regularization, smoothing)
+ In addition the parameters should be choosen to minimize the left-sided part of the filter response to minimize perceptual disturbing pre-ringing.
+ 
+ ----------------------------------------------------------------
+ References:
+ - papers of the AES (e.g. from A. Farina, P. Nelson, O. Kirkeby)
+ - Oppenheim, Schafer &quot;Discrete-Time Signal Processing&quot;
+ ----------------------------------------------------------------</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function [h_min] = minph(h)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [ih]=invFIR(type,h,Nfft,Noct,L,range,reg,window)</a>
+0002 <span class="comment">%INVFIR design inverse filter (FIR) from mono or stereo impulse response</span>
+0003 <span class="comment">% ------------------------------------------------------------------------------</span>
+0004 <span class="comment">% description: design inverse filter (FIR) from mono or stereo impulse response</span>
+0005 <span class="comment">% ------------------------------------------------------------------------------</span>
+0006 <span class="comment">% inputs overview</span>
+0007 <span class="comment">% ---------------</span>
+0008 <span class="comment">% type   - 1. 'linphase': symmetric two-sided response compensating magnitude while maintaining original phase information</span>
+0009 <span class="comment">%          2. 'minphase': one-sided response compensating magnitude with minimal possible group delay</span>
+0010 <span class="comment">%          3. 'complex': asymmetric two-sided response compensating magnitude and phase</span>
+0011 <span class="comment">%</span>
+0012 <span class="comment">% h      - mono or stereo impulse response (column vector)</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">% Nfft   - FFT length for calculating inverse FIR</span>
+0015 <span class="comment">%</span>
+0016 <span class="comment">% Noct   - optional fractional octave smoothing (e.g. Noct=3 =&gt; 1/3 octave smooth, Noct=0 =&gt; no smoothing)</span>
+0017 <span class="comment">%</span>
+0018 <span class="comment">% L      - length of inverse filter (truncates Nfft-length filter to L)</span>
+0019 <span class="comment">%</span>
+0020 <span class="comment">% range  - frequency range to be inverted (e.g. [32 16000] =&gt; 32 Hz to 16 kHz)</span>
+0021 <span class="comment">%</span>
+0022 <span class="comment">% reg    - amount of regularization (in dB) inside (reg(1)) and outside (reg(2)) the specified range</span>
+0023 <span class="comment">%         (example: reg=[20 -6] =&gt; inverts frequency components within 'range' with a max. gain of 20 dB,</span>
+0024 <span class="comment">%                   while dampening frequencies outside 'range' by 6 dB)</span>
+0025 <span class="comment">%</span>
+0026 <span class="comment">% window - window=1 applies a hanning window to the inverse filter</span>
+0027 <span class="comment">% -----------------------------------------------------------------------------------------------</span>
+0028 <span class="comment">%</span>
+0029 <span class="comment">% Background information:</span>
+0030 <span class="comment">% complex inversion of non-minimum phase impulse responses</span>
+0031 <span class="comment">% --------------------------------------------------------</span>
+0032 <span class="comment">% If an acoustical impulse response contains reflections there will be repeated similar magnitude characteristics during sound propagation.</span>
+0033 <span class="comment">% This causes the impulse response to consist of a maximum-phase and a minimum phase component.</span>
+0034 <span class="comment">% Expressed in trms of z-transformation the min.-phase are within the unit circle while the max.-phase component are outside.</span>
+0035 <span class="comment">% Those components can be seen as numerator coefficients of an digital FIR filter.</span>
+0036 <span class="comment">% Inversion turnes the numerator coefficients into denumerator coefficients and those outside the unit circle will make the resulting</span>
+0037 <span class="comment">% filter (which is now an IIR filter) unstable.</span>
+0038 <span class="comment">% Making use of the DFT sets |z|=1 and that means taht the region of convergence now includes the unit circle.</span>
+0039 <span class="comment">% Now the inverse filter is stable but non-causal (left handed part of response towards negative times).</span>
+0040 <span class="comment">% To compensate this, the resulting response is shifted in time to make the non-causal part causal.</span>
+0041 <span class="comment">% But the &quot;true&quot; inverse is still an infinite one but is represented by an finite (Nfft-long) approximation.</span>
+0042 <span class="comment">% Due to this fact and due to the periodic nature of the DFT, the Nfft-long &quot;snapshot&quot; of the true invese also contains</span>
+0043 <span class="comment">% overlapping components from adjacents periodic repetitions (=&gt; &quot;time aliasing&quot;).</span>
+0044 <span class="comment">% Windowing the resulting response helps to suppress aliasing at the edges but does not guarantee that the complete response is aliasing-free.</span>
+0045 <span class="comment">% In fact inverting non-minimum phase responses will always cause time aliasing - the question is not &quot;if at all&quot; but &quot;to which amount&quot;.</span>
+0046 <span class="comment">% Time-aliasing &quot;limiters&quot;:</span>
+0047 <span class="comment">%     - use of short impulse responses to be inverted (=&gt; windowing prior to inverse filter design)</span>
+0048 <span class="comment">%     - use of longer inverse filters (=&gt; increasing FFT length)</span>
+0049 <span class="comment">%     - avoide inversion of high-Q (narrow-band spectral drips/peaks with high amplitde) spectral components (=&gt; regularization, smoothing)</span>
+0050 <span class="comment">% In addition the parameters should be choosen to minimize the left-sided part of the filter response to minimize perceptual disturbing pre-ringing.</span>
+0051 <span class="comment">%</span>
+0052 <span class="comment">% ----------------------------------------------------------------</span>
+0053 <span class="comment">% References:</span>
+0054 <span class="comment">% - papers of the AES (e.g. from A. Farina, P. Nelson, O. Kirkeby)</span>
+0055 <span class="comment">% - Oppenheim, Schafer &quot;Discrete-Time Signal Processing&quot;</span>
+0056 <span class="comment">% ----------------------------------------------------------------</span>
+0057 
+0058 
+0059 fs=44100;
+0060 f1=range(1);
+0061 f2=range(2);
+0062 reg_in=reg(1);
+0063 reg_out=reg(2);
+0064 <span class="keyword">if</span> window==1
+0065     win=0.5*(1-cos(2*pi*(1:L)'/(L+1)));
+0066 <span class="keyword">else</span>
+0067     win=1;
+0068 <span class="keyword">end</span>
+0069 <span class="comment">% regularization</span>
+0070 <span class="comment">%---------------</span>
+0071 
+0072 <span class="comment">% calculate 1/3 octave edges of regularization</span>
+0073 <span class="keyword">if</span> f1 &gt; 0 &amp;&amp; f2 &lt; fs/2
+0074     freq=(0:fs/(Nfft-1):fs/2)'; 
+0075     f1e=f1-f1/3;
+0076     f2e=f2+f2/3;
+0077     <span class="keyword">if</span> f1e &lt; freq(1)
+0078         f1e=f1;
+0079         f1=f1+1;
+0080     <span class="keyword">end</span>
+0081     <span class="keyword">if</span> f2e &gt; freq(end)
+0082         f2e=f2+1;
+0083     <span class="keyword">end</span>
+0084     <span class="comment">% regularization B with 1/3 octave interpolated transient edges</span>
+0085     B=interp1([0 f1e f1 f2 f2e freq(end)],[reg_out reg_out reg_in reg_in reg_out reg_out],freq,<span class="string">'pchip'</span>);
+0086     B=10.^(-B./20); <span class="comment">% from dB to linear</span>
+0087     B=vertcat(B,B(end:-1:1)); 
+0088     b=ifft(B,<span class="string">'symmetric'</span>);
+0089     b=circshift(b,Nfft/2);
+0090     b=0.5*(1-cos(2*pi*(1:Nfft)'/(Nfft+1))).*b;
+0091     b=<a href="#_sub1" class="code" title="subfunction [h_min] = minph(h)">minph</a>(b); <span class="comment">% make regularization minimum phase</span>
+0092     B=fft(b,Nfft);
+0093 <span class="keyword">else</span>
+0094     B=0;
+0095 <span class="keyword">end</span>
+0096 <span class="comment">%----------------------</span>
+0097 
+0098 <span class="comment">% calculate inverse filter</span>
+0099 <span class="keyword">if</span> strcmp(type,<span class="string">'complex'</span>)==1
+0100     H=fft(h(:,1),Nfft);
+0101 <span class="keyword">elseif</span> strcmp(type,<span class="string">'linphase'</span>)==1 || strcmp(type,<span class="string">'minphase'</span>)==1
+0102     H=abs(fft(h(:,1),Nfft));
+0103 <span class="keyword">end</span>
+0104 <span class="keyword">if</span> Noct &gt; 0
+0105     [H]=cmplxsmooth(H,Noct); <span class="comment">% fractional octave smoothing</span>
+0106 <span class="keyword">end</span>
+0107 iH=conj(H)./((conj(H).*H)+(conj(B).*B)); <span class="comment">% calculating regulated spectral inverse</span>
+0108 ih=circshift(ifft(iH,<span class="string">'symmetric'</span>),Nfft/2);
+0109 ih=win.*ih(end/2-L/2+1:end/2+L/2); <span class="comment">% truncation to length L</span>
+0110 
+0111 
+0112 <span class="comment">% 2-channel case</span>
+0113 <span class="comment">%-------------------------------------------------</span>
+0114 <span class="keyword">if</span> size(h,2)==2
+0115     <span class="keyword">if</span> strcmp(type,<span class="string">'complex'</span>)==1
+0116         H=fft(h(:,2),Nfft);
+0117     <span class="keyword">elseif</span> strcmp(type,<span class="string">'linphase'</span>)==1 || strcmp(type,<span class="string">'minphase'</span>)==1
+0118         H=abs(fft(h(:,2),Nfft));
+0119     <span class="keyword">end</span>
+0120     <span class="keyword">if</span> Noct &gt; 0
+0121         [H]=cmplxsmooth(H,Noct);
+0122     <span class="keyword">end</span>
+0123     iH=conj(H)./((conj(H).*H)+(conj(B).*B));
+0124     ihr=circshift(ifft(iH,<span class="string">'symmetric'</span>),Nfft/2);
+0125     ihr=win.*ihr(end/2-L/2+1:end/2+L/2);
+0126     ih=[ih ihr];
+0127 <span class="keyword">end</span>
+0128 
+0129 <span class="keyword">if</span> strcmp(type,<span class="string">'minphase'</span>)==1
+0130     ih=<a href="#_sub1" class="code" title="subfunction [h_min] = minph(h)">minph</a>(ih);
+0131 <span class="keyword">end</span>
+0132 
+0133 <span class="comment">% calculate minimum phase component of impulse response</span>
+0134 <a name="_sub1" href="#_subfunctions" class="code">function [h_min] = minph(h)</a>
+0135 n = length(h);
+0136 h_cep = real(ifft(log(abs(fft(h(:,1))))));
+0137 odd = fix(rem(n,2));
+0138 wn = [1; 2*ones((n+odd)/2-1,1) ; ones(1-rem(n,2),1); zeros((n+odd)/2-1,1)];
+0139 h_min = zeros(size(h(:,1)));
+0140 h_min(:) = real(ifft(exp(fft(wn.*h_cep(:)))));
+0141 <span class="keyword">if</span> size(h,2)==2
+0142     h_cep = real(ifft(log(abs(fft(h(:,2))))));
+0143     odd = fix(rem(n,2));
+0144     wn = [1; 2*ones((n+odd)/2-1,1) ; ones(1-rem(n,2),1); zeros((n+odd)/2-1,1)];
+0145     h_minr = zeros(size(h(:,2)));
+0146     h_minr(:) = real(ifft(exp(fft(wn.*h_cep(:)))));
+0147     h_min=[h_min h_minr];
+0148 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Sun 09-Jul-2017 20:35:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

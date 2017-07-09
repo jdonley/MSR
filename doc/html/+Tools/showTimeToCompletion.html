@@ -1,0 +1,190 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of showTimeToCompletion</title>
+  <meta name="keywords" content="showTimeToCompletion">
+  <meta name="description" content="SHOWTIMETOCOMPLETION Prints the time to completion and expected finish of a looped simulation based on linear extrapolation.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">+Tools</a> &gt; showTimeToCompletion.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for +Tools&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>showTimeToCompletion
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>SHOWTIMETOCOMPLETION Prints the time to completion and expected finish of a looped simulation based on linear extrapolation.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [ num_curr_char, history_ ] = showTimeToCompletion( percent_complete, num_prev_char, history_ ) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">SHOWTIMETOCOMPLETION Prints the time to completion and expected finish of a looped simulation based on linear extrapolation.
+ 
+ Syntax:    [ num_curr_char ] = showTimeToCompletion( percent_complete, num_prev_char )
+   Note that before using this function in a loop the in-built MATLAB
+   function tic should be called.
+ 
+ Inputs: 
+     percent_complete - A decimal number between 0 and 1 representing the
+     percentage completion.
+     num_prev_char - Number of previous characters printed to the screen
+     (Usually ok to begin with 0 and then reuse num_curr_char)
+ 
+ Outputs: 
+     num_curr_char - Number of characters printed to the screen. Usually
+     feed this number back into this function on the next iteration or
+     increment appropriately if other characters have been printed between
+     function calls.
+
+ Example: 
+       fprintf('\t Completion: ');
+       n=0; tic;
+       len=1e2;
+       for i = 1:len
+           pause(1);
+           n = showTimeToCompletion( i/len, n);
+       end
+ 
+ See also: tic, toc</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [ num_curr_char, history_ ] = showTimeToCompletion( percent_complete, num_prev_char, history_ )</a>
+0002 <span class="comment">%SHOWTIMETOCOMPLETION Prints the time to completion and expected finish of a looped simulation based on linear extrapolation.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% Syntax:    [ num_curr_char ] = showTimeToCompletion( percent_complete, num_prev_char )</span>
+0005 <span class="comment">%   Note that before using this function in a loop the in-built MATLAB</span>
+0006 <span class="comment">%   function tic should be called.</span>
+0007 <span class="comment">%</span>
+0008 <span class="comment">% Inputs:</span>
+0009 <span class="comment">%     percent_complete - A decimal number between 0 and 1 representing the</span>
+0010 <span class="comment">%     percentage completion.</span>
+0011 <span class="comment">%     num_prev_char - Number of previous characters printed to the screen</span>
+0012 <span class="comment">%     (Usually ok to begin with 0 and then reuse num_curr_char)</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">% Outputs:</span>
+0015 <span class="comment">%     num_curr_char - Number of characters printed to the screen. Usually</span>
+0016 <span class="comment">%     feed this number back into this function on the next iteration or</span>
+0017 <span class="comment">%     increment appropriately if other characters have been printed between</span>
+0018 <span class="comment">%     function calls.</span>
+0019 <span class="comment">%</span>
+0020 <span class="comment">% Example:</span>
+0021 <span class="comment">%       fprintf('\t Completion: ');</span>
+0022 <span class="comment">%       n=0; tic;</span>
+0023 <span class="comment">%       len=1e2;</span>
+0024 <span class="comment">%       for i = 1:len</span>
+0025 <span class="comment">%           pause(1);</span>
+0026 <span class="comment">%           n = showTimeToCompletion( i/len, n);</span>
+0027 <span class="comment">%       end</span>
+0028 <span class="comment">%</span>
+0029 <span class="comment">% See also: tic, toc</span>
+0030 
+0031 <span class="comment">% Author: Jacob Donley</span>
+0032 <span class="comment">% University of Wollongong</span>
+0033 <span class="comment">% Email: jrd089@uowmail.edu.au</span>
+0034 <span class="comment">% Copyright: Jacob Donley 2017</span>
+0035 <span class="comment">% Date: 25 August 2015</span>
+0036 <span class="comment">% Revision: 0.1</span>
+0037 <span class="comment">%</span>
+0038 <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0039     
+0040 tElapsed = toc;
+0041 ratio = percent_complete;
+0042 
+0043 <span class="keyword">if</span> nargin &gt;=3
+0044     history_ = [history_; tElapsed, ratio];
+0045     <span class="keyword">if</span> size(history_,1) &gt; 10 &amp;&amp; ratio &lt; 0.5
+0046         t=0:0.001:1;
+0047         tTot__ = abs(interp1( <span class="keyword">...</span>
+0048             smooth(history_(:,2),size(history_,1),<span class="string">'rloess'</span>), <span class="keyword">...</span>
+0049             smooth(history_(:,1),size(history_,1),<span class="string">'rloess'</span>), <span class="keyword">...</span>
+0050             t, <span class="string">'pchirp'</span>, <span class="string">'extrap'</span>));
+0051         
+0052         I2 = find(t &lt; ratio*2,1,<span class="string">'last'</span>);
+0053         I1 = find(t &gt; ratio,1,<span class="string">'first'</span>);
+0054         tTot_ = abs(interp1( <span class="keyword">...</span>
+0055             t([I1,I2]), <span class="keyword">...</span>
+0056             tTot__([I1,I2]), <span class="keyword">...</span>
+0057             t, <span class="string">'linear'</span>, <span class="string">'extrap'</span>));
+0058             
+0059         tRem = tTot_(end) - tElapsed;
+0060     <span class="keyword">elseif</span> size(history_,1) &gt; 10
+0061         t=0:0.001:1;
+0062         tTot_ = abs(interp1( <span class="keyword">...</span>
+0063             smooth(history_(:,2),size(history_,1),<span class="string">'rloess'</span>), <span class="keyword">...</span>
+0064             smooth(history_(:,1),size(history_,1),<span class="string">'rloess'</span>), <span class="keyword">...</span>
+0065             t, <span class="string">'linear'</span>, <span class="string">'extrap'</span>));
+0066         
+0067         tRem = tTot_(end) - tElapsed;
+0068     <span class="keyword">else</span>
+0069         tRem = (1-ratio) / ratio * tElapsed;
+0070     <span class="keyword">end</span>
+0071 <span class="keyword">else</span>
+0072     tRem = (1-ratio) / ratio * tElapsed;
+0073 <span class="keyword">end</span>
+0074 
+0075 tTot = tElapsed + tRem;
+0076 
+0077 <span class="comment">% Begin plot prediction</span>
+0078 <span class="keyword">if</span> nargin &gt;=3
+0079     t_vec = (history_(:,1)-history_(<span class="keyword">end</span>,1))/86400 + datenum(datetime);
+0080     plot(history_(:,2), t_vec,<span class="string">'ok'</span>);hold on;
+0081     <span class="keyword">if</span> size(history_,1) &gt; 10 &amp;&amp; ratio &lt; 0.5
+0082         plot(t,(tTot__-history_(<span class="keyword">end</span>,1))/86400 + datenum(datetime) ,<span class="string">'g'</span>);
+0083     <span class="keyword">end</span>
+0084     <span class="keyword">if</span> size(history_,1) &gt; 10
+0085         tvec = (tTot_-history_(<span class="keyword">end</span>,1))/86400 + datenum(datetime);
+0086         plot(t,tvec,<span class="string">'r'</span>);
+0087         ylim([min(tvec) max(tvec)]);
+0088     <span class="keyword">end</span>
+0089     hold off;
+0090     title(<span class="string">'Progress'</span>,<span class="string">'FontSize'</span>,14);
+0091     XTick = linspace(0,1.0,11); XTickLabel = linspace(0,100,11);
+0092     set(gca, <span class="string">'XTick'</span>, XTick); set(gca, <span class="string">'XTickLabel'</span>, XTickLabel);
+0093     xlabel(<span class="string">'Completion (%)'</span>);
+0094     Y = get(gca,<span class="string">'YLim'</span>);
+0095        YTick = linspace(Y(1),Y(2),10);
+0096        set(gca, <span class="string">'YTick'</span>, YTick);
+0097     datetick(<span class="string">'y'</span>, <span class="string">'dd-mmm HH:MM:SS PM'</span>);
+0098     ylabel(<span class="string">'Date / Time'</span>);
+0099     grid on; xlim([0 1.0]); drawnow;
+0100 <span class="keyword">end</span>
+0101 <span class="comment">% End plot prediction</span>
+0102 
+0103 fprintf(repmat(<span class="string">'\b'</span>,1,num_prev_char));
+0104 num_curr_char=fprintf( <span class="keyword">...</span>
+0105     [<span class="string">'%.2f%%\n'</span> <span class="keyword">...</span>
+0106     <span class="string">'      Remaining: %s\n'</span> <span class="keyword">...</span>
+0107     <span class="string">'          Total: %s\n'</span> <span class="keyword">...</span>
+0108     <span class="string">'Expected Finish: %s\n'</span>], <span class="keyword">...</span>
+0109     ratio * 100, <span class="keyword">...</span>
+0110     datestr(seconds(tRem),<span class="string">'hh:MM:SS'</span>), <span class="keyword">...</span><span class="comment"> floor(tRem/60), ...    rem(tRem,60), ...</span>
+0111     datestr(seconds(tTot),<span class="string">'hh:MM:SS'</span>), <span class="keyword">...</span><span class="comment"> floor(tTot/60), ...    rem(tTot,60), ...</span>
+0112     [strrep(datestr(datetime + seconds(tRem),<span class="string">'hh:MM:SS AM'</span>),<span class="string">' '</span>,<span class="string">''</span>),<span class="string">'  '</span>, <span class="keyword">...</span>
+0113      datestr(datetime + seconds(tRem),<span class="string">'dd-mmm-yyyy'</span>)]);
+0114 
+0115 <span class="keyword">end</span>
+0116</pre></div>
+<hr><address>Generated on Sun 09-Jul-2017 20:35:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

@@ -1,0 +1,149 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of Save_Reverb_SPLs_Result</title>
+  <meta name="keywords" content="Save_Reverb_SPLs_Result">
+  <meta name="description" content="SAVE_REVERB_SPLS_RESULT Summary of this function goes here">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="../index.html">+Room_Acoustics</a> &gt; <a href="index.html">+Apply_RIRs</a> &gt; Save_Reverb_SPLs_Result.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for +Room_Acoustics\+Apply_RIRs&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>Save_Reverb_SPLs_Result
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>SAVE_REVERB_SPLS_RESULT Summary of this function goes here</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function Save_Reverb_SPLs_Result(Rec_Sigs_B, Rec_Sigs_Q, Fs, Nfft, f_band, ResultsPath, Output_file_path_ext, FileName, SYS) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">SAVE_REVERB_SPLS_RESULT Summary of this function goes here
+ 
+ Syntax:    SAVE_REVERB_SPLS_RESULT(Rec_Sigs_B, Rec_Sigs_Q, Fs, Nfft, ResultsPath, Output_file_path_ext, FileName, SYS)
+ 
+ Inputs: 
+     input1 - Description
+     input2 - Description
+     input3 - Description
+ 
+ 
+ 
+ See also:</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function Save_Reverb_SPLs_Result(Rec_Sigs_B, Rec_Sigs_Q, Fs, Nfft, f_band, ResultsPath, Output_file_path_ext, FileName, SYS)</a>
+0002 <span class="comment">%SAVE_REVERB_SPLS_RESULT Summary of this function goes here</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% Syntax:    SAVE_REVERB_SPLS_RESULT(Rec_Sigs_B, Rec_Sigs_Q, Fs, Nfft, ResultsPath, Output_file_path_ext, FileName, SYS)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% Inputs:</span>
+0007 <span class="comment">%     input1 - Description</span>
+0008 <span class="comment">%     input2 - Description</span>
+0009 <span class="comment">%     input3 - Description</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">%</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">% See also:</span>
+0014 
+0015 <span class="comment">% Author: Jacob Donley</span>
+0016 <span class="comment">% University of Wollongong</span>
+0017 <span class="comment">% Email: jrd089@uowmail.edu.au</span>
+0018 <span class="comment">% Copyright: Jacob Donley 2016</span>
+0019 <span class="comment">% Date: 8 August 2016</span>
+0020 <span class="comment">% Revision: 0.1</span>
+0021 <span class="comment">%</span>
+0022 <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0023 results_type = <span class="string">'SPL'</span>;
+0024 
+0025 <span class="comment">%% Deconvolve responses</span>
+0026 invFilt = load(cell2mat(Tools.getAllFiles(SYS.signal_info.InverseFilter_filepath)));invFilt=invFilt.invY;
+0027 irQ = Tools.extractIR(Rec_Sigs_Q,invFilt);
+0028 irB = Tools.extractIR(Rec_Sigs_B,invFilt);
+0029 
+0030 <span class="comment">%% Calculate Results</span>
+0031 <span class="comment">% T = fft(Talker_.',Nfft);</span>
+0032 <span class="comment">% T = abs(T(1:end/2+1));</span>
+0033 Qpow = pwelch(irQ,hamming(Nfft),Nfft/2,Nfft,Fs,<span class="string">'power'</span>);
+0034 Q = sqrt(Qpow);
+0035 <span class="comment">% C = fft(Rec_Sigs_B.',Nfft);</span>
+0036 <span class="comment">% C = abs(C(1:end/2+1));</span>
+0037 Bpow = pwelch(irB,hamming(Nfft),Nfft/2,Nfft,Fs,<span class="string">'power'</span>);
+0038 B = sqrt(Bpow);
+0039 
+0040 SPL_B = mag2db(B);
+0041 SPL_Q = mag2db(Q);
+0042 frqs = linspace(0,1,Nfft/2+1)*Fs/2;
+0043 
+0044 <span class="comment">%%</span>
+0045 SPL_B_Mean = mean(SPL_B,2);
+0046 SPL_B_Std = sqrt( var(SPL_B,0,2) );
+0047 SPL_Q_Mean = mean(SPL_Q,2);
+0048 SPL_Q_Std = sqrt( var(SPL_Q,0,2) );
+0049 
+0050 <span class="comment">%%</span>
+0051 f_band_indices = frqs&gt;=f_band(1) &amp; frqs &lt;= f_band(2);
+0052 SPLB_BandMean = mean(SPL_B_Mean(f_band_indices));
+0053 SPLB_BandStd = mean(SPL_B_Std(f_band_indices));
+0054 SPLQ_BandMean = mean(SPL_Q_Mean(f_band_indices));
+0055 SPLQ_BandStd = mean(SPL_Q_Std(f_band_indices));
+0056 
+0057 <span class="comment">%% Calculate and save Speech Intelligibility values to the results folder</span>
+0058 <span class="keyword">if</span> ~exist([ResultsPath Output_file_path_ext],<span class="string">'dir'</span>); mkdir([ResultsPath Output_file_path_ext]); <span class="keyword">end</span>
+0059 
+0060 fn = [ResultsPath Output_file_path_ext results_type <span class="string">'_Results'</span>];
+0061 <span class="keyword">if</span> ~exist([fn <span class="string">'.mat'</span>],<span class="string">'file'</span>); S={};save(fn,<span class="string">'S'</span>); <span class="keyword">end</span>
+0062 
+0063 D = load([ResultsPath Output_file_path_ext results_type <span class="string">'_Results'</span>]);S=D.S;
+0064 S{end+1} = {<span class="keyword">...</span>
+0065     SPL_B,<span class="keyword">...</span>
+0066     SPL_B_Mean,<span class="keyword">...</span>
+0067     SPL_B_Std,<span class="keyword">...</span>
+0068     SPL_Q,<span class="keyword">...</span>
+0069     SPL_Q_Mean,<span class="keyword">...</span>
+0070     SPL_Q_Std,<span class="keyword">...</span>
+0071     frqs,<span class="keyword">...</span>
+0072     FileName,<span class="keyword">...</span>
+0073     {SPLB_BandMean, SPLB_BandStd, SPLQ_BandMean, SPLQ_BandStd, f_band}   };
+0074 save([ResultsPath Output_file_path_ext results_type <span class="string">'_Results'</span>],<span class="string">'S'</span>);
+0075 
+0076 <span class="comment">% fileID = fopen([ResultsPath Output_file_path_ext results_type '_Results.csv'],'a');</span>
+0077 
+0078 <span class="comment">% fprintf(fileID, ...</span>
+0079 <span class="comment">%         ['%s,' ...</span>
+0080 <span class="comment">%         'Noise_Mask,%f,' ...</span>
+0081 <span class="comment">%         'PESQ_MOS_Bright,%f,' ...</span>
+0082 <span class="comment">%         '95_ConfInt_PESQ_MOS_Bright_L,%f,' ...</span>
+0083 <span class="comment">%         '95_ConfInt_PESQ_MOS_Bright_U,%f,' '\r\n'], ...</span>
+0084 <span class="comment">%         FileName, ...</span>
+0085 <span class="comment">%         noise_mask, ...</span>
+0086 <span class="comment">%         mean(SUPP_B), ...</span>
+0087 <span class="comment">%         ConfInt_95(1,1), ...</span>
+0088 <span class="comment">%         ConfInt_95(1,2) );</span>
+0089 <span class="comment">% fclose(fileID);</span>
+0090 
+0091 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Sun 09-Jul-2017 20:35:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

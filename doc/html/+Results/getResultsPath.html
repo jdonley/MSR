@@ -1,0 +1,145 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of getResultsPath</title>
+  <meta name="keywords" content="getResultsPath">
+  <meta name="description" content="GETDATABASEFROMSETUP Summary of this function goes here">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">+Results</a> &gt; getResultsPath.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for +Results&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>getResultsPath
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>GETDATABASEFROMSETUP Summary of this function goes here</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [Path, err] = getResultsPath( SYS_or_setup, database_res, room, signal_info, database_workingdir, method ) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">GETDATABASEFROMSETUP Summary of this function goes here</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [Path, err] = getResultsPath( SYS_or_setup, database_res, room, signal_info, database_workingdir, method )</a>
+0002 <span class="comment">%GETDATABASEFROMSETUP Summary of this function goes here</span>
+0003 
+0004 SYS_type = <span class="string">'Current_Systems.SR_System'</span>;
+0005 
+0006 <span class="comment">%%</span>
+0007 latest_method = <span class="string">'new'</span>;
+0008 <span class="keyword">if</span> nargin &lt; 6
+0009     method = latest_method;
+0010 <span class="keyword">end</span>
+0011 <span class="keyword">if</span> nargin == 1
+0012     <span class="keyword">if</span> isa(SYS_or_setup,SYS_type)
+0013         SYS = SYS_or_setup;
+0014         setup = SYS.Main_Setup;
+0015         database_res = SYS.system_info.LUT_resolution;
+0016         room = SYS.Room_Setup;
+0017         signal_info = SYS.signal_info;
+0018         database_workingdir = SYS.system_info.Drive;
+0019     <span class="keyword">else</span>
+0020         error([<span class="string">'Single input argument must be of type: '</span> SYS_type]);
+0021     <span class="keyword">end</span>
+0022 <span class="keyword">elseif</span> nargin &gt; 1
+0023     setup = SYS_or_setup;
+0024     <span class="keyword">if</span> nargin &lt; 5
+0025         database_workingdir = <span class="string">'Z:\'</span>;
+0026     <span class="keyword">end</span>
+0027     <span class="keyword">if</span> nargin &lt; 4
+0028         signal_info = [];
+0029     <span class="keyword">end</span>
+0030 <span class="keyword">end</span>
+0031 
+0032 Recordings_Path = [ <span class="keyword">...</span>
+0033     database_workingdir <span class="keyword">...</span>
+0034     <span class="string">'+Results\'</span>];
+0035 
+0036 err = false;
+0037 <span class="keyword">try</span>
+0038     
+0039     <span class="keyword">if</span> strcmpi(method, latest_method)
+0040         sc = <span class="string">'_'</span>;
+0041         
+0042         [~,~,~,~,reproduction_info_dirs] = Broadband_Tools.getLoudspeakerSignalPath( setup, signal_info, database_res );
+0043         
+0044         spkr_sig_info_dir = [ <span class="keyword">...</span>
+0045             <span class="string">'+'</span> num2str(signal_info.f_low ) <span class="string">'Hz-'</span> <span class="keyword">...</span>
+0046             num2str(signal_info.f_high) <span class="string">'Hz'</span> sc sc <span class="keyword">...</span>
+0047             <span class="string">'method'</span> sc signal_info.method filesep ];
+0048         
+0049         <span class="keyword">if</span> ~isempty(signal_info.time_delay)
+0050             t_del = signal_info.time_delay;
+0051         <span class="keyword">else</span> t_del = signal_info.Nfft/signal_info.Fs; <span class="keyword">end</span>
+0052         misc_info_dir = [<span class="string">'+'</span> num2str(t_del*1e3) <span class="string">'msDelay'</span> filesep];
+0053         
+0054         [~,~,room_info_dir1,room_info_dir2] = Room_Acoustics.getRIRDatabasePath( setup, room );
+0055         room_info_dirs = [room_info_dir1, room_info_dir2, filesep];
+0056         
+0057         <span class="keyword">if</span> isfield(signal_info, <span class="string">'recording_type'</span>) &amp;&amp; strcmpi(strrep(signal_info.recording_type,<span class="string">'-'</span>,<span class="string">''</span>), <span class="string">'realworld'</span>)
+0058             realworld_path = <span class="string">'+Physical_World\'</span>;
+0059         <span class="keyword">else</span>
+0060             realworld_path = [];
+0061         <span class="keyword">end</span>
+0062         
+0063         Path = [Recordings_Path <span class="keyword">...</span>
+0064             realworld_path, <span class="keyword">...</span>
+0065             reproduction_info_dirs, <span class="keyword">...</span>
+0066             room_info_dirs, <span class="keyword">...</span>
+0067             spkr_sig_info_dir, <span class="keyword">...</span>
+0068             misc_info_dir];
+0069         
+0070         
+0071     <span class="keyword">elseif</span> strcmpi(method, <span class="string">'old'</span>)
+0072         spkr_sig_dir = [<span class="string">'+'</span> num2str(setup.Radius*2) <span class="string">'m_SpkrDia\+'</span> num2str(setup.Loudspeaker_Count) <span class="string">'Spkrs_'</span> num2str(setup.Speaker_Arc_Angle) <span class="string">'DegArc_LUT_'</span> database_res <span class="string">'\'</span>];
+0073                 
+0074         Path = [ <span class="keyword">...</span>
+0075             Recordings_Path
+0076             <span class="string">'+Reverb__'</span> num2str(room.NoReceivers) <span class="string">'Rec_'</span> <span class="keyword">...</span>
+0077             room.Room_Size_txt <span class="string">'Dim_'</span> <span class="keyword">...</span>
+0078             room.Reproduction_Centre_txt <span class="string">'Ctr_'</span> <span class="keyword">...</span>
+0079             num2str(room.Wall_Absorb_Coeff) <span class="string">'Ab\'</span> <span class="keyword">...</span>
+0080             spkr_sig_dir];
+0081             
+0082     <span class="keyword">else</span>
+0083         error(<span class="string">'Method to load Results path from setup and room is not supported.'</span>)
+0084     <span class="keyword">end</span>
+0085     
+0086 <span class="keyword">catch</span> ex
+0087     <span class="keyword">switch</span> ex.identifier
+0088         <span class="keyword">case</span> <span class="string">'MATLAB:load:couldNotReadFile'</span>
+0089             warning([<span class="string">'Could not load Results path using the '</span> method <span class="string">' method.'</span>]);
+0090             err = true;
+0091         <span class="keyword">otherwise</span>
+0092             rethrow(ex)
+0093     <span class="keyword">end</span>
+0094 <span class="keyword">end</span>
+0095 
+0096 
+0097 <span class="keyword">end</span>
+0098</pre></div>
+<hr><address>Generated on Sun 09-Jul-2017 20:35:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

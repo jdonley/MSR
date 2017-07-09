@@ -1,0 +1,138 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of confidence_intervals</title>
+  <meta name="keywords" content="confidence_intervals">
+  <meta name="description" content="CONFIDENCE_INTERVALS Find the confidence intervals for a set of data for use with the errorbar function in MATLAB">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">+Tools</a> &gt; confidence_intervals.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for +Tools&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>confidence_intervals
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>CONFIDENCE_INTERVALS Find the confidence intervals for a set of data for use with the errorbar function in MATLAB</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [ Conf_intervals ] = confidence_intervals( samples, interval, islognorm ) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">CONFIDENCE_INTERVALS Find the confidence intervals for a set of data for use with the errorbar function in MATLAB
+ 
+ Syntax:    [Conf_intervals] = CONFIDENCE_INTERVALS( samples, interval )
+ Pass the samples to the function with the desired confidence interval (95
+ for 95%). Samples should be in each row of a column where the column is 
+ the dataset to analyse
+ 
+ Inputs: 
+     samples   - A 1D or 2D array of samples where each column is a dataset
+               for which the confidence intervals are calculated.
+     interval  - The confidence interval as a percentage (e.g. 95 for 95%
+               confidence intervals).
+   islognorm - Finds the confidence intervals using the log-normal
+               variance if set to TRUE.
+ 
+ Outputs: 
+     Conf_intervals - Confidence intervals for use with the errorbar
+                    function in MATLAB.
+
+ Example Usage:
+       load count.dat;
+       samples = count';
+       X=1:size(samples,2);
+       ConfIntervals = confidence_intervals(samples,95);
+       errorbar(X,mean(samples),ConfIntervals(:,1),ConfIntervals(:,2),'rx');
+       axis([0 25 0 250]);
+ 
+ See also: errorbar.m</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [ Conf_intervals ] = confidence_intervals( samples, interval, islognorm )</a>
+0002 <span class="comment">%CONFIDENCE_INTERVALS Find the confidence intervals for a set of data for use with the errorbar function in MATLAB</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% Syntax:    [Conf_intervals] = CONFIDENCE_INTERVALS( samples, interval )</span>
+0005 <span class="comment">% Pass the samples to the function with the desired confidence interval (95</span>
+0006 <span class="comment">% for 95%). Samples should be in each row of a column where the column is</span>
+0007 <span class="comment">% the dataset to analyse</span>
+0008 <span class="comment">%</span>
+0009 <span class="comment">% Inputs:</span>
+0010 <span class="comment">%     samples   - A 1D or 2D array of samples where each column is a dataset</span>
+0011 <span class="comment">%               for which the confidence intervals are calculated.</span>
+0012 <span class="comment">%     interval  - The confidence interval as a percentage (e.g. 95 for 95%</span>
+0013 <span class="comment">%               confidence intervals).</span>
+0014 <span class="comment">%   islognorm - Finds the confidence intervals using the log-normal</span>
+0015 <span class="comment">%               variance if set to TRUE.</span>
+0016 <span class="comment">%</span>
+0017 <span class="comment">% Outputs:</span>
+0018 <span class="comment">%     Conf_intervals - Confidence intervals for use with the errorbar</span>
+0019 <span class="comment">%                    function in MATLAB.</span>
+0020 <span class="comment">%</span>
+0021 <span class="comment">% Example Usage:</span>
+0022 <span class="comment">%       load count.dat;</span>
+0023 <span class="comment">%       samples = count';</span>
+0024 <span class="comment">%       X=1:size(samples,2);</span>
+0025 <span class="comment">%       ConfIntervals = confidence_intervals(samples,95);</span>
+0026 <span class="comment">%       errorbar(X,mean(samples),ConfIntervals(:,1),ConfIntervals(:,2),'rx');</span>
+0027 <span class="comment">%       axis([0 25 0 250]);</span>
+0028 <span class="comment">%</span>
+0029 <span class="comment">% See also: errorbar.m</span>
+0030 
+0031 <span class="comment">% Author: Jacob Donley</span>
+0032 <span class="comment">% University of Wollongong</span>
+0033 <span class="comment">% Email: jrd089@uowmail.edu.au</span>
+0034 <span class="comment">% Copyright: Jacob Donley 2017</span>
+0035 <span class="comment">% Date: 19 September 2016</span>
+0036 <span class="comment">% Revision: 0.2</span>
+0037 <span class="comment">%</span>
+0038 <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0039 
+0040 <span class="keyword">if</span> nargin &lt; 3
+0041     islognorm = false;
+0042 <span class="keyword">end</span>
+0043 <span class="keyword">if</span> nargin &lt; 2
+0044     interval = 95;    <span class="comment">%  Confidence = 95%</span>
+0045 <span class="keyword">end</span>
+0046 
+0047 L = size(samples,1);
+0048 a = 1 - interval/100;
+0049 ts = tinv([a/2,  1-a/2],L-1);    <span class="comment">% T-Score</span>
+0050 
+0051 <span class="keyword">if</span> islognorm
+0052     v = var(samples);
+0053     m = mean(samples);
+0054     sigm = sqrt( log( 1 + v./m.^2 ) );
+0055 <span class="keyword">else</span>
+0056     sigm = std(samples);
+0057 <span class="keyword">end</span>
+0058 
+0059 Conf_intervals(:,1) = ts(1)*sigm/sqrt(L);    <span class="comment">% Confidence Intervals</span>
+0060 Conf_intervals(:,2) = ts(2)*sigm/sqrt(L);    <span class="comment">% &lt;-'</span>
+0061 
+0062 
+0063 <span class="keyword">end</span>
+0064</pre></div>
+<hr><address>Generated on Sun 09-Jul-2017 20:35:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

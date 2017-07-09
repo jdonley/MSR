@@ -1,0 +1,151 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of loadCurrentSRsystem</title>
+  <meta name="keywords" content="loadCurrentSRsystem">
+  <meta name="description" content="LOADCURRENTSYSTEM Loads the current Soundfield Reproduction system">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">+Current_Systems</a> &gt; loadCurrentSRsystem.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for +Current_Systems&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>loadCurrentSRsystem
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>LOADCURRENTSYSTEM Loads the current Soundfield Reproduction system</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function SYS = loadCurrentSRsystem </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">LOADCURRENTSYSTEM Loads the current Soundfield Reproduction system</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function SYS = loadFromName( name )</a></li><li><a href="#_sub2" class="code">function classDirs = getClassDirs(FullPath)</a></li><li><a href="#_sub3" class="code">function data = replaceFuncName(data,newname)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function SYS = loadCurrentSRsystem</a>
+0002 <span class="comment">%LOADCURRENTSYSTEM Loads the current Soundfield Reproduction system</span>
+0003 <span class="keyword">global</span> Settings
+0004 All_Settings.Global_Settings;
+0005 System_Path = Settings.DefaultSystemsPath;
+0006 
+0007 <span class="comment">%% ALTERNATIVE SYSTEM PATHS</span>
+0008 <span class="comment">% System_Path = 'D:\Dropbox\Business and Work\Research Assistance\Novecom Project\MATLAB_Code';</span>
+0009 
+0010 <span class="comment">%% SYSTEM NAMES</span>
+0011 <span class="comment">% Current_System = 'IEEELetters2017_System_A';</span>
+0012 
+0013 <span class="comment">% Current_System = 'IEEETransactions_System_A'; % Differing Source Angles</span>
+0014 <span class="comment">% Current_System = 'IEEETransactions_System_B'; % Differing Loudspeaker Count</span>
+0015 <span class="comment">% Current_System = 'IEEETransactions_System_C'; % Simulated and Real-World</span>
+0016 Current_System = <span class="string">'IEEETransactions_System_D'</span>; <span class="comment">% Differing Lambda-Grave Parameter (All Angles)</span>
+0017 <span class="comment">% Current_System = 'IEEETransactions_System_E'; % Acoustic Brightness Contrast - Simulated and Real-World</span>
+0018 
+0019 <span class="comment">% Current_System = 'NOVECOM_System';</span>
+0020 <span class="comment">% Current_System = 'MediaAnimation_System_1';</span>
+0021 <span class="comment">% Current_System = 'ICASSP2017_System_A';</span>
+0022 
+0023 
+0024 
+0025 
+0026 
+0027 
+0028 
+0029 
+0030 
+0031 
+0032 
+0033 <span class="comment">%%</span>
+0034 FileExt = <span class="string">'.m'</span>;
+0035 SYS = <a href="#_sub1" class="code" title="subfunction SYS = loadFromName( name )">loadFromName</a>( [System_Path filesep Current_System FileExt] );
+0036 
+0037 <span class="keyword">end</span>
+0038 
+0039 
+0040 <a name="_sub1" href="#_subfunctions" class="code">function SYS = loadFromName( name )</a>
+0041 [p,n,e] = fileparts(name);
+0042 fnDir = <a href="#_sub2" class="code" title="subfunction classDirs = getClassDirs(FullPath)">getClassDirs</a>([p filesep]);
+0043 <span class="keyword">if</span> fnDir ~= -1
+0044     Sys = str2func([fnDir n]);
+0045     SYS = Sys();
+0046 <span class="keyword">else</span>
+0047     fin = fopen(name);
+0048     data = fread(fin); fclose(fin);
+0049     tmpnm = [tempname e];
+0050     [p_tmp,n_tmp] = fileparts(tmpnm);
+0051     data = <a href="#_sub3" class="code" title="subfunction data = replaceFuncName(data,newname)">replaceFuncName</a>(data,n_tmp);<span class="comment">% alter function line</span>
+0052     fout = fopen(tmpnm,<span class="string">'w'</span>);
+0053     fwrite(fout,data); fclose(fout);
+0054     addpath(p_tmp);
+0055     Sys = str2func(n_tmp);
+0056     SYS = Sys();
+0057     rmpath(p_tmp);
+0058     delete(tmpnm);
+0059 <span class="keyword">end</span>
+0060 <span class="keyword">end</span>
+0061 
+0062 <a name="_sub2" href="#_subfunctions" class="code">function classDirs = getClassDirs(FullPath)</a>
+0063 classDirs = <span class="string">''</span>;
+0064 classes = strfind(FullPath,<span class="string">'+'</span>);
+0065 <span class="keyword">if</span> ~isempty(classes)
+0066     <span class="keyword">for</span> c = 1:length(classes)
+0067         clas = FullPath(classes(c):end);
+0068         stp = strfind(clas,filesep);
+0069         classDirs = [classDirs  clas(2:stp(1)-1) <span class="string">'.'</span>];
+0070     <span class="keyword">end</span>
+0071 <span class="keyword">else</span>
+0072     classDirs = -1;
+0073 <span class="keyword">end</span>
+0074 <span class="keyword">end</span>
+0075 
+0076 <a name="_sub3" href="#_subfunctions" class="code">function data = replaceFuncName(data,newname)</a>
+0077 NL{1} = char([13, 10]);
+0078 NL{2} = newline;
+0079 indCRLF = strfind(data', NL{1});
+0080 <span class="keyword">if</span> isempty(indCRLF)
+0081     indCRLF = strfind(data', NL{2});
+0082 <span class="keyword">end</span>
+0083 indFunc = strfind(lower(data'),<span class="string">'function'</span>);
+0084 indFuncEnd = indCRLF(indCRLF&gt;indFunc);
+0085 funcLine = indFunc : indFuncEnd(1)-1;
+0086 firstLine = char(data(funcLine)');
+0087 
+0088 ind_eq = indFunc + strfind(firstLine,<span class="string">'='</span>);
+0089 <span class="keyword">if</span> isempty(ind_eq)
+0090     ind_eq = indFunc + length(<span class="string">'function'</span>);
+0091 <span class="keyword">end</span>
+0092 ind_br = indFunc + strfind(firstLine,<span class="string">'('</span>);
+0093 <span class="keyword">if</span> isempty(ind_br)
+0094     ind_br = indFuncEnd;
+0095 <span class="keyword">end</span>
+0096 
+0097 data = [data(indFunc:ind_eq-1)' newname data(ind_br-1:end)']';
+0098 <span class="keyword">end</span>
+0099 
+0100 
+0101 
+0102</pre></div>
+<hr><address>Generated on Sun 09-Jul-2017 20:35:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

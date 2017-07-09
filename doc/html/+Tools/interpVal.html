@@ -1,0 +1,128 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of interpVal</title>
+  <meta name="keywords" content="interpVal">
+  <meta name="description" content="INTERPVAL This function will interpolate from desired arbitrarily spaced index values">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">+Tools</a> &gt; interpVal.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for +Tools&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>interpVal
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>INTERPVAL This function will interpolate from desired arbitrarily spaced index values</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [ interpolated_values,  interpolated_indices] = interpVal( values, index_values, desired_index_values ) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">INTERPVAL This function will interpolate from desired arbitrarily spaced index values
+ 
+ Syntax:    [ interpolated_values,  interpolated_indices] = interpVal( values, index_values, desired_index_values )
+ 
+ Inputs: 
+     values - A 1D array of values to interpolate between
+     index_values - The axis values of the array
+   desired_index_values - The desired axis values to interpolate to
+   (Can be spaced abitrarily)
+ 
+ Outputs: 
+   interpolated_values - The new interpolated values
+     interpolated_indices - The new interpolated indices
+ 
+ Example: 
+ 
+ See also: List related files here</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [ interpolated_values,  interpolated_indices] = interpVal( values, index_values, desired_index_values )</a>
+0002 <span class="comment">%INTERPVAL This function will interpolate from desired arbitrarily spaced index values</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% Syntax:    [ interpolated_values,  interpolated_indices] = interpVal( values, index_values, desired_index_values )</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% Inputs:</span>
+0007 <span class="comment">%     values - A 1D array of values to interpolate between</span>
+0008 <span class="comment">%     index_values - The axis values of the array</span>
+0009 <span class="comment">%   desired_index_values - The desired axis values to interpolate to</span>
+0010 <span class="comment">%   (Can be spaced abitrarily)</span>
+0011 <span class="comment">%</span>
+0012 <span class="comment">% Outputs:</span>
+0013 <span class="comment">%   interpolated_values - The new interpolated values</span>
+0014 <span class="comment">%     interpolated_indices - The new interpolated indices</span>
+0015 <span class="comment">%</span>
+0016 <span class="comment">% Example:</span>
+0017 <span class="comment">%</span>
+0018 <span class="comment">% See also: List related files here</span>
+0019 
+0020 <span class="comment">% Author: Jacob Donley</span>
+0021 <span class="comment">% University of Wollongong</span>
+0022 <span class="comment">% Email: jrd089@uowmail.edu.au</span>
+0023 <span class="comment">% Copyright: Jacob Donley 2017</span>
+0024 <span class="comment">% Date: 03 October 2015</span>
+0025 <span class="comment">% Revision: 0.1</span>
+0026 <span class="comment">%</span>
+0027 <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0028 
+0029 interpolated_indices = zeros(length(desired_index_values),1);
+0030 
+0031 <span class="comment">% interpolated_values  = zeros(length(desired_index_values),1);</span>
+0032 <span class="comment">% for div = 1:length(desired_index_values)</span>
+0033 <span class="comment">%     temp = index_values - desired_index_values( div ); % center desireable value</span>
+0034 <span class="comment">%     temp(temp &gt;= 0) = NaN;</span>
+0035 <span class="comment">%     [~, i_low] = min(abs(temp));</span>
+0036 <span class="comment">%     if i_low ~= length(temp)</span>
+0037 <span class="comment">%         i_high = i_low+1;</span>
+0038 <span class="comment">%         interpolated_indices( div ) = (desired_index_values(1, div) - index_values(i_low)) / ...</span>
+0039 <span class="comment">%                                   (index_values(i_high) - index_values(i_low)) + i_low;</span>
+0040 <span class="comment">%     else</span>
+0041 <span class="comment">%         interpolated_indices( div ) = i_low;</span>
+0042 <span class="comment">%     end</span>
+0043 <span class="comment">%     interpolated_values( div ) = interp1(values, interpolated_indices( div ));</span>
+0044 <span class="comment">% end</span>
+0045 <span class="comment">% a = interpolated_indices;</span>
+0046 <span class="comment">% b = interpolated_values;</span>
+0047 
+0048     temp = repmat(index_values, [length(desired_index_values) 1]) - repmat(desired_index_values', [1 length(index_values)]); <span class="comment">% center desireable value</span>
+0049     temp(temp &gt;= 0) = NaN;
+0050     [~, i_low] = min(abs(temp), [], 2);
+0051     i_low = i_low';
+0052     i_high = zeros(size(i_low));
+0053     i_high(i_low ~= length(temp)) = i_low(i_low ~= length(temp)) + 1;
+0054     
+0055     interpolated_indices(i_low ~= length(temp)) = (desired_index_values - index_values(i_low(i_low ~= length(temp)))) ./ <span class="keyword">...</span>
+0056                                   (index_values(i_high(i_low ~= length(temp))) - index_values(i_low(i_low ~= length(temp)))) + i_low(i_low ~= length(temp));
+0057     
+0058     interpolated_indices(i_low == length(temp)) = i_low(i_low == length(temp));
+0059                       
+0060 
+0061     interpolated_values = interp1(values, interpolated_indices);
+0062     
+0063    
+0064 <span class="keyword">end</span>
+0065</pre></div>
+<hr><address>Generated on Sun 09-Jul-2017 20:35:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

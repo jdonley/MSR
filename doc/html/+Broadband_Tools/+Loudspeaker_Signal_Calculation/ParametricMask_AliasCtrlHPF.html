@@ -1,0 +1,178 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of ParametricMask_AliasCtrlHPF</title>
+  <meta name="keywords" content="ParametricMask_AliasCtrlHPF">
+  <meta name="description" content="Clean_from_LUT_ZoneWeightedMask Summary of this function goes here">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="../index.html">+Broadband_Tools</a> &gt; <a href="index.html">+Loudspeaker_Signal_Calculation</a> &gt; ParametricMask_AliasCtrlHPF.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for +Broadband_Tools\+Loudspeaker_Signal_Calculation&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>ParametricMask_AliasCtrlHPF
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>Clean_from_LUT_ZoneWeightedMask Summary of this function goes here</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function ParametricMask_AliasCtrlHPF( Signal_Length, LUT_resolution, Noise_Mask_dB, setup, mutlizone_setup ) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">Clean_from_LUT_ZoneWeightedMask Summary of this function goes here
+   Detailed explanation goes here</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function ParametricMask_AliasCtrlHPF( Signal_Length, LUT_resolution, Noise_Mask_dB, setup, mutlizone_setup )</a>
+0002 <span class="comment">%Clean_from_LUT_ZoneWeightedMask Summary of this function goes here</span>
+0003 <span class="comment">%   Detailed explanation goes here</span>
+0004 
+0005 <span class="comment">%% Setup Variables</span>
+0006 Drive = <span class="string">'Z:\'</span>;
+0007 
+0008 signal_info.c = 343; <span class="comment">% Speed of sound in metres/sec</span>
+0009 signal_info.Fs = 16000; <span class="comment">% Sampling frequency</span>
+0010 signal_info.Nfft = 1024;<span class="comment">% Number of fft components</span>
+0011 signal_info.overlap = 0.5;
+0012 signal_info.f_low  = 150;  <span class="comment">% Hz</span>
+0013 signal_info.f_high = 8000; <span class="comment">% Hz</span>
+0014 signal_info.L_noise_mask = Noise_Mask_dB; <span class="comment">% dB</span>
+0015 signal_info.method = <span class="string">'ParametricMaskerAliasCtrlHPF'</span>;
+0016 signal_info.weight = 1;
+0017 signal_info.input_filename = <span class="string">'Masker'</span>;
+0018 
+0019 [Output_path, Output_file_name, Output_file_ext] = <span class="keyword">...</span>
+0020     Broadband_Tools.getLoudspeakerSignalPath( setup, signal_info, LUT_resolution, Drive, <span class="string">'new'</span>);
+0021 
+0022 
+0023 <span class="comment">% Generate Input Signal</span>
+0024 level_mag = db2mag(signal_info.L_noise_mask);
+0025 Input_Signal = v_addnoise( zeros(Signal_Length,1), signal_info.Fs, -Inf); <span class="comment">% White noise</span>
+0026 <span class="comment">%Input_Signal = Perceptual_Tools.GreyNoise( Signal_Length/signal_info.Fs, signal_info.Fs, level_mag ); % Equal loudness shaped noise (ISO226)</span>
+0027 <span class="comment">%Input_Signal = v_addnoise( zeros(Signal_Length,1), signal_info.Fs, -Inf, '', 5 ); % Speech shaped noise (SSN) (ITU-T P.50 Spectrum)</span>
+0028 
+0029 <span class="comment">%% Shape the noise to the speech being used</span>
+0030 [spect_sp,frqs_sp]=Tools.LTASS(<span class="string">'+Miscellaneous\+Speech_Files\'</span>);
+0031 <span class="comment">% span=floor(length(frqs_sp(frqs_sp&gt;=125 &amp; frqs_sp&lt;=8000))/7);</span>
+0032 span = round(5/100 * length(spect_sp));
+0033 
+0034 spect_sp = smooth( spect_sp, span);
+0035 Input_Signal = Tools.shapeSpectrum( Input_Signal, spect_sp, frqs_sp, signal_info.Fs );
+0036 
+0037 
+0038 <span class="comment">%% Find aliasing frequency for use as cutoff</span>
+0039 <span class="comment">% This method formulates the cutoff frequency where aliasing begins to</span>
+0040 <span class="comment">% occur. It is based on the frequency where aliasing occurs for the</span>
+0041 <span class="comment">% reproduction region but not necessarily the individual zones.</span>
+0042 
+0043 BZ = mutlizone_setup.Multizone_Soundfield.Bright_Zone;
+0044 QZ = mutlizone_setup.Multizone_Soundfield.Quiet_Zone;
+0045 
+0046 R_ = max( [BZ.Origin_q.Distance; <span class="keyword">...</span>
+0047            QZ.Origin_q.Distance;  ]);
+0048 phiL_rad = mutlizone_setup.Speaker_Arc_Angle / 180 * pi;
+0049 
+0050 f_cutoff = signal_info.c * (mutlizone_setup.Loudspeaker_Count - 1) / (2 * R_ * phiL_rad);
+0051 
+0052 
+0053 <span class="comment">%% Shape noise spectrum to match quiet zone leakage spectrum</span>
+0054 [spect,frqs] = Soundfield_Database.getQuietZoneSpectrumFromDB( mutlizone_setup, LUT_resolution, Drive, signal_info.Fs );
+0055 <span class="comment">%spect = spect .^ 0.5; %square root to reduce emphasis of spectral adjustment</span>
+0056 spect2 = spect;
+0057 span2 = round(5/100 * length(spect));
+0058 
+0059 spect_low=spect(frqs&lt;=f_cutoff);
+0060 db_drop = 50;
+0061 spect_low_new = linspace( <span class="keyword">...</span>
+0062     db2mag(mag2db(spect_low(end))-db_drop), <span class="keyword">...</span>
+0063     spect_low(end), <span class="keyword">...</span>
+0064     length(spect_low) );
+0065 <span class="comment">% spect_low_new = logspace( ...</span>
+0066 <span class="comment">%     log10(db2mag(mag2db(spect_low(end))-db_drop)), ...</span>
+0067 <span class="comment">%     log10(spect_low(end)), ...</span>
+0068 <span class="comment">%     length(spect_low) );</span>
+0069 spect2(frqs&lt;=f_cutoff) = spect_low_new;
+0070 
+0071 spect = smooth( spect, span2); <span class="comment">%Smooth arbitrary spectral adjustment</span>
+0072 spect2 = smooth( spect2, span2); <span class="comment">%Smooth arbitrary spectral adjustment</span>
+0073 
+0074 Input_Signal_toMatch = Tools.shapeSpectrum( Input_Signal, spect, frqs, signal_info.Fs );
+0075 Input_Signal = Tools.shapeSpectrum( Input_Signal, spect2, frqs, signal_info.Fs );
+0076 
+0077 
+0078 <span class="comment">%% High-Pass Filter for speech reproduction</span>
+0079 f_cutoff_sp = signal_info.f_low;
+0080 <span class="comment">% Design HIGH pass filter</span>
+0081 [b,a] = butter(6, f_cutoff_sp./(signal_info.Fs/2), <span class="string">'high'</span>);
+0082 <span class="comment">%Apply low pass filter to noise</span>
+0083 Input_Signal_filt = filter(b,a,Input_Signal(:));
+0084 <span class="comment">%Power normalise</span>
+0085 Input_Signal = Broadband_Tools.power_norm( Input_Signal(:), Input_Signal_filt(:), signal_info.Fs, [f_cutoff_sp, signal_info.Fs/2]);
+0086 
+0087 <span class="comment">%% High-Pass Filter the noise with cutoff equivalent to multizone aliasing frequency</span>
+0088 <span class="comment">% Try a higher cutoff for the parametric (one octave higher)</span>
+0089  <span class="comment">%f_cutoff = f_cutoff * 3;</span>
+0090 
+0091 <span class="comment">% Design HIGH pass filter</span>
+0092 [b,a] = butter(6, f_cutoff./(signal_info.Fs/2), <span class="string">'high'</span>);
+0093 
+0094 <span class="comment">%Apply low pass filter to noise</span>
+0095 Input_Signal_filt = filter(b,a,Input_Signal(:));
+0096 
+0097 <span class="comment">%Adjust the power of the signal in the passband to match the non-filtered version</span>
+0098 <span class="comment">%(power normalisation (equalisation))</span>
+0099 input_norm_sig = Input_Signal_toMatch(:) ./ max(abs(Input_Signal_toMatch(:)));
+0100 Input_Signal = Broadband_Tools.power_norm( input_norm_sig, Input_Signal_filt(:), signal_info.Fs, [f_cutoff, signal_info.Fs/2]);
+0101 
+0102 <span class="comment">%% Loudspeaker Signals</span>
+0103 Loudspeaker_Signals = repmat(Input_Signal(:),[1 setup.Loudspeaker_Count]);
+0104 
+0105 <span class="comment">%% Scale signals so they don't clip upon saving</span>
+0106 <span class="keyword">if</span> signal_info.L_noise_mask &lt;= 0
+0107     scaler = 1 / (db2mag(0)+1); <span class="comment">%Plus one is for the amplitude of the clean signal</span>
+0108 <span class="keyword">elseif</span> signal_info.L_noise_mask &gt; 0 <span class="comment">% For a positive masker we scale the signals to save up to a 40db noise masker</span>
+0109     scaler = 1 / (db2mag(40)+1);<span class="comment">%Plus one is for the amplitude of the clean signal</span>
+0110 <span class="keyword">end</span>
+0111 
+0112 <span class="comment">%% Apply scaling and magnitude</span>
+0113 Loudspeaker_Signals = Loudspeaker_Signals  <span class="keyword">...</span>
+0114     *  scaler  <span class="keyword">...</span>
+0115     *  level_mag;
+0116 
+0117 
+0118 
+0119 <span class="comment">%% Once we have the speaker signals we should save them for later use as .wav files</span>
+0120 Broadband_Tools.Loudspeaker_Signal_Calculation.saveLoudspeakerSignals( <span class="keyword">...</span>
+0121     Output_path, <span class="keyword">...</span>
+0122     Output_file_name, <span class="keyword">...</span>
+0123     Output_file_ext, <span class="keyword">...</span>
+0124     Loudspeaker_Signals, <span class="keyword">...</span>
+0125     [], [], [], [], <span class="keyword">...</span>
+0126     signal_info.Fs );
+0127 
+0128 
+0129 <span class="keyword">end</span>
+0130</pre></div>
+<hr><address>Generated on Sun 09-Jul-2017 20:35:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of fconv</title>
+  <meta name="keywords" content="fconv">
+  <meta name="description" content="FCONV Fast Parallelised Convolution">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">+Tools</a> &gt; fconv.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for +Tools&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>fconv
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>FCONV Fast Parallelised Convolution</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [y]=fconv(x, h) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">FCONV Fast Parallelised Convolution
+   [y] = FCONV(x, h) convolves x and h in the frequency domain
+         to +-1.
+
+      x = input vector
+      h = input vector
+ 
+      See also CONV</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [y]=fconv(x, h)</a>
+0002 <span class="comment">%FCONV Fast Parallelised Convolution</span>
+0003 <span class="comment">%   [y] = FCONV(x, h) convolves x and h in the frequency domain</span>
+0004 <span class="comment">%         to +-1.</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">%      x = input vector</span>
+0007 <span class="comment">%      h = input vector</span>
+0008 <span class="comment">%</span>
+0009 <span class="comment">%      See also CONV</span>
+0010 <span class="comment">%</span>
+0011 
+0012 Ly=size(x,1)+size(h,1)-1;  <span class="comment">%</span>
+0013 Ly2=pow2(nextpow2(Ly));    <span class="comment">% Find smallest power of 2 that is &gt; Ly</span>
+0014 
+0015 <span class="keyword">if</span> isa(x, <span class="string">'gpuArray'</span>)
+0016 Ly  = gpuArray(Ly);
+0017 Ly2 = gpuArray(Ly2);
+0018 <span class="keyword">end</span>
+0019     
+0020 X=fft(x, Ly2);             <span class="comment">% Fast Fourier transform</span>
+0021 H=fft(h, Ly2);               <span class="comment">% Fast Fourier transform</span>
+0022 Y=X.*H;                       <span class="comment">%</span>
+0023 y=real(ifft(Y, Ly2));      <span class="comment">% Inverse fast Fourier transform</span>
+0024 y=y(1:1:Ly,:);             <span class="comment">% Take just the first N elements</span></pre></div>
+<hr><address>Generated on Sun 09-Jul-2017 20:35:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

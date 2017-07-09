@@ -1,0 +1,130 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of getRIRDatabasePath</title>
+  <meta name="keywords" content="getRIRDatabasePath">
+  <meta name="description" content="GETDATABASEFROMSETUP Summary of this function goes here">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">+Room_Acoustics</a> &gt; getRIRDatabasePath.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for +Room_Acoustics&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>getRIRDatabasePath
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>GETDATABASEFROMSETUP Summary of this function goes here</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [Path, err, room_details_path, RIR_Name__Details] = getRIRDatabasePath( setup, room, database_workingdir, method ) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">GETDATABASEFROMSETUP Summary of this function goes here
+   Detailed explanation goes here</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [Path, err, room_details_path, RIR_Name__Details] = getRIRDatabasePath( setup, room, database_workingdir, method )</a>
+0002 <span class="comment">%GETDATABASEFROMSETUP Summary of this function goes here</span>
+0003 <span class="comment">%   Detailed explanation goes here</span>
+0004 latest_method = <span class="string">'new2'</span>;
+0005 <span class="keyword">if</span> nargin &lt; 4
+0006     method = latest_method;
+0007 <span class="keyword">end</span>
+0008 <span class="keyword">if</span> nargin &lt; 3
+0009     database_workingdir = <span class="string">'Z:\'</span>;
+0010 <span class="keyword">end</span>
+0011 
+0012 
+0013 RIR_Database_Path = [database_workingdir <span class="keyword">...</span>
+0014             <span class="string">'+Room_Acoustics\'</span> <span class="keyword">...</span>
+0015             <span class="string">'+RIR_Database\'</span>];
+0016 
+0017 err = false;
+0018 <span class="keyword">try</span>
+0019     
+0020     <span class="keyword">if</span> strcmpi(method, latest_method)
+0021         
+0022         [~,~,~,array_style_dir, spkr_array_dir, zone_positions_dir] = Soundfield_Database.getDatabasePath(setup, <span class="string">''</span>, database_workingdir, <span class="string">'new4'</span>);
+0023         
+0024         room_details_path = [<span class="string">'+'</span> room.Room_Size_txt <span class="string">'Dim_'</span> <span class="keyword">...</span>
+0025                              num2str(room.Wall_Absorb_Coeff) <span class="string">'Ab\'</span>];
+0026         
+0027         RIR_Name__Details = [num2str(room.NoReceivers) <span class="string">'Rec_'</span> <span class="keyword">...</span>
+0028                              room.Reproduction_Centre_txt <span class="string">'Ctr'</span>];
+0029 
+0030         Path = [RIR_Database_Path <span class="keyword">...</span>
+0031                 array_style_dir, <span class="keyword">...</span>
+0032                 spkr_array_dir, <span class="keyword">...</span>
+0033                 zone_positions_dir, <span class="keyword">...</span>
+0034                 room_details_path, <span class="keyword">...</span>
+0035                 <span class="string">'RIRs__'</span> RIR_Name__Details <span class="string">'.mat'</span>];
+0036     
+0037     <span class="keyword">elseif</span> strcmpi(method, <span class="string">'new'</span>)
+0038         
+0039         SpeakerLayoutFolder = [<span class="string">'+'</span> num2str(setup.Radius*2) <span class="string">'m_SpkrDia_'</span> num2str(setup.Speaker_Arc_Angle) <span class="string">'DegArc\'</span>];
+0040 
+0041         RIR_Database_Path = [RIR_Database_Path <span class="keyword">...</span>
+0042             SpeakerLayoutFolder <span class="keyword">...</span>
+0043             num2str(round(setup.Multizone_Soundfield.Bright_Zone.Origin_q.X,10)) <span class="string">'Bx_'</span> <span class="keyword">...</span>
+0044             num2str(round(setup.Multizone_Soundfield.Bright_Zone.Origin_q.Y,10)) <span class="string">'By_'</span> <span class="keyword">...</span>
+0045             num2str(round(setup.Multizone_Soundfield.Quiet_Zone.Origin_q.X,10))  <span class="string">'Qx_'</span> <span class="keyword">...</span>
+0046             num2str(round(setup.Multizone_Soundfield.Quiet_Zone.Origin_q.Y,10))  <span class="string">'Qy\'</span>];
+0047         
+0048         RIR_Name__Details = [num2str(setup.Loudspeaker_Count) <span class="string">'Src_'</span> <span class="keyword">...</span>
+0049             num2str(room.NoReceivers) <span class="string">'Rec_'</span> <span class="keyword">...</span>
+0050             room.Room_Size_txt <span class="string">'Dim_'</span> <span class="keyword">...</span>
+0051             room.Reproduction_Centre_txt <span class="string">'Ctr_'</span> <span class="keyword">...</span>
+0052             num2str(room.Wall_Absorb_Coeff) <span class="string">'Ab'</span>];
+0053         
+0054         Path = [RIR_Database_Path <span class="string">'RIRs__'</span> RIR_Name__Details <span class="string">'.mat'</span>];
+0055         
+0056     <span class="keyword">elseif</span> strcmpi(method, <span class="string">'old'</span>)
+0057                 
+0058         RIR_Name__Details = [num2str(setup.Loudspeaker_Count) <span class="string">'Src_'</span> <span class="keyword">...</span>
+0059             num2str(room.NoReceivers) <span class="string">'Rec_'</span> <span class="keyword">...</span>
+0060             room.Room_Size_txt <span class="string">'Dim_'</span> <span class="keyword">...</span>
+0061             room.Reproduction_Centre_txt <span class="string">'Ctr_'</span> <span class="keyword">...</span>
+0062             num2str(room.Wall_Absorb_Coeff) <span class="string">'Ab'</span>];
+0063         
+0064         Path = [RIR_Database_Path <span class="string">'RIRs__'</span> RIR_Name__Details <span class="string">'.mat'</span>];
+0065             
+0066     <span class="keyword">else</span>
+0067         error(<span class="string">'Method to load RIR database from setup and room is not supported.'</span>)
+0068     <span class="keyword">end</span>
+0069     
+0070 <span class="keyword">catch</span> ex
+0071     <span class="keyword">switch</span> ex.identifier
+0072         <span class="keyword">case</span> <span class="string">'MATLAB:load:couldNotReadFile'</span>
+0073             warning([<span class="string">'Could not load RIR database using the '</span> method <span class="string">' method.'</span>]);
+0074             err = true;
+0075         <span class="keyword">otherwise</span>
+0076             rethrow(ex)
+0077     <span class="keyword">end</span>
+0078 <span class="keyword">end</span>
+0079 
+0080 
+0081 <span class="keyword">end</span>
+0082</pre></div>
+<hr><address>Generated on Sun 09-Jul-2017 20:35:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

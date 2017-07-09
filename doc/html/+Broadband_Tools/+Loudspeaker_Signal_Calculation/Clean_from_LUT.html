@@ -1,0 +1,139 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of Clean_from_LUT</title>
+  <meta name="keywords" content="Clean_from_LUT">
+  <meta name="description" content="CLEAN_FROM_LUT Generates spatially weighted loudspeaker signals for the">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="../index.html">+Broadband_Tools</a> &gt; <a href="index.html">+Loudspeaker_Signal_Calculation</a> &gt; Clean_from_LUT.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for +Broadband_Tools\+Loudspeaker_Signal_Calculation&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>Clean_from_LUT
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>CLEAN_FROM_LUT Generates spatially weighted loudspeaker signals for the</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function Clean_from_LUT( Input_file, SYS_or_LUT_resolution, weight, setup ) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">CLEAN_FROM_LUT Generates spatially weighted loudspeaker signals for the
+reproduction of zoned clean speech.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function Clean_from_LUT( Input_file, SYS_or_LUT_resolution, weight, setup )</a>
+0002 <span class="comment">%CLEAN_FROM_LUT Generates spatially weighted loudspeaker signals for the</span>
+0003 <span class="comment">%reproduction of zoned clean speech.</span>
+0004 
+0005 SYS_type = <span class="string">'Current_Systems.SR_System'</span>;
+0006 
+0007 <span class="comment">%% Setup Variables</span>
+0008 <span class="keyword">if</span> nargin == 2
+0009     <span class="keyword">if</span> isa(SYS_or_LUT_resolution,SYS_type)
+0010         SYS = SYS_or_LUT_resolution;        
+0011         signal_info = SYS.signal_info;
+0012         system_info = SYS.system_info;
+0013         setup = SYS.Main_Setup;
+0014     <span class="keyword">else</span>
+0015         error([<span class="string">'Second input argument must be of type: '</span> SYS_type]);
+0016     <span class="keyword">end</span>
+0017 <span class="keyword">elseif</span> nargin == 4
+0018     system_info.Drive = <span class="string">'Z:\'</span>;
+0019     system_info.LUT_resolution = SYS_or_LUT_resolution;
+0020     
+0021     signal_info.c = 343; <span class="comment">% Speed of sound in metres/sec</span>
+0022     signal_info.Fs = 16000; <span class="comment">% Sampling frequency</span>
+0023     signal_info.Nfft = 1024;<span class="comment">% Number of fft components</span>
+0024     signal_info.overlap = 0.5;
+0025     signal_info.f_low  = 150;  <span class="comment">% Hz</span>
+0026     signal_info.f_high = 8000; <span class="comment">% Hz</span>
+0027     signal_info.f_high_meas = 7000; <span class="comment">% Hz %Maximum frequency with accurate response at given sampling rate</span>
+0028     signal_info.weight = weight;
+0029     signal_info.method = <span class="string">'NoMask'</span>;
+0030 <span class="keyword">end</span>
+0031 
+0032 <span class="comment">% Clean speech means no noise levels</span>
+0033 signal_info.L_noise_mask = -Inf; <span class="comment">% dB</span>
+0034     
+0035 [~, Input_file_name, Input_file_ext] = fileparts( Input_file );
+0036 signal_info.input_filename = Input_file_name;
+0037 
+0038 
+0039 
+0040 [Output_path, Output_file_name, Output_file_ext] = <span class="keyword">...</span>
+0041     Broadband_Tools.getLoudspeakerSignalPath( setup, signal_info, system_info.LUT_resolution, system_info.Drive, <span class="string">'new'</span>);
+0042 
+0043 
+0044 
+0045 <span class="comment">%% Read input signal</span>
+0046 Input_Signal = audioread( Input_file );
+0047 
+0048 <span class="keyword">if</span> isfield(signal_info,<span class="string">'inputSignalNorm'</span>) &amp;&amp; signal_info.inputSignalNorm
+0049     <span class="comment">% Normalise input signal</span>
+0050     Input_Signal = Input_Signal ./ rms(Input_Signal);
+0051 <span class="keyword">end</span>
+0052 
+0053 <span class="keyword">if</span> ~isempty(strfind(lower(signal_info.method), <span class="string">'cancel'</span>))
+0054     <span class="comment">%%% TODO</span>
+0055     <span class="comment">% Fix this magnitude adjustment which is dependent on the transfer</span>
+0056     <span class="comment">% function for point sources. Originates somewhere in</span>
+0057     <span class="comment">% loudspeaker_setup.m or earlier.</span>
+0058     magnitudeADJ = 0.8;
+0059     Input_Signal = conv(-1,Input_Signal) * magnitudeADJ;
+0060 <span class="keyword">end</span>
+0061 
+0062 <span class="comment">%% Generate Loudspeaker Signals</span>
+0063 [Loudspeaker_Signals, Original_] = Broadband_Tools.Loudspeaker_Signal_Calculation.getMSRLoudspeakerSignals( <span class="keyword">...</span>
+0064     Input_Signal, setup, signal_info, system_info );
+0065 
+0066 <span class="comment">%% Normalise Loudspeaker Signals</span>
+0067 <span class="keyword">if</span> isfield(signal_info,<span class="string">'clipLevelAdjust'</span>) &amp;&amp; isfield(signal_info,<span class="string">'inputSignalNorm'</span>) &amp;&amp; signal_info.inputSignalNorm
+0068     <span class="comment">% Prevent clipping upon save</span>
+0069     Loudspeaker_Signals = Loudspeaker_Signals .* db2mag(signal_info.clipLevelAdjust);
+0070 <span class="keyword">end</span>
+0071 Original_ = Original_ ./ max(abs(Original_(:)));
+0072 
+0073 
+0074 
+0075 
+0076 <span class="comment">%% Once we have the speaker signals we should save them for later use as .wav files</span>
+0077 
+0078 Broadband_Tools.Loudspeaker_Signal_Calculation.saveLoudspeakerSignals( <span class="keyword">...</span>
+0079     Output_path, <span class="keyword">...</span>
+0080     Output_file_name, <span class="keyword">...</span>
+0081     Output_file_ext, <span class="keyword">...</span>
+0082     Loudspeaker_Signals, <span class="keyword">...</span>
+0083     setup.Loudspeaker_Count, <span class="keyword">...</span>
+0084     Original_, <span class="keyword">...</span>
+0085     signal_info.input_filename, <span class="keyword">...</span>
+0086     Input_file_ext, <span class="keyword">...</span>
+0087     signal_info.Fs );
+0088 
+0089 
+0090 
+0091 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Sun 09-Jul-2017 20:35:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

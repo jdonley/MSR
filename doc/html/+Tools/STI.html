@@ -1,0 +1,173 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of STI</title>
+  <meta name="keywords" content="STI">
+  <meta name="description" content="STI Calculation of the Speech Transmission Index (STI)">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">+Tools</a> &gt; STI.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for +Tools&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>STI
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>STI Calculation of the Speech Transmission Index (STI)</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [ STI_val, ALcons, STI_val_approx, ALcons_approx ] = STI( ImpulseResponse, fs, OctaveFilters ) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">STI Calculation of the Speech Transmission Index (STI)
+ 
+ Syntax:    [STI_val, ALcons, STI_val_approx, ALcons_approx] = STI(ImpulseResponse, fs, OctaveFilters)
+       This function calculates the Speech Transmission Index from a given
+       impulse response. Octave band filters (125Hz-8kHz) can be passed to
+       the function as an array for faster computation.
+ 
+ Inputs: 
+     ImpulseResponse - Impulse response of the channel to test
+     fs - Sampling frequency of the impulse response
+     OctaveFilters - Array of MATLAB octave band filters
+ 
+ Outputs: 
+     STI_val - The Speech Transmission Index result
+     ALcons - Articulation loss of consonants result
+     STI_val_approx - STI approximation from computable bands if fs too low
+     ALcons_approx - ALcons approximation from computable bands if fs too low
+ 
+ Example: 
+   y=sinc(-7999:8000);
+     fs=44100;
+     [STIval,ALcons,STIval_,ALcons_]=STI(y,fs)
+     fs=16000;
+     [STIval,ALcons,STIval_,ALcons_]=STI(y,fs)
+     fs=8000;
+     [STIval,ALcons,STIval_,ALcons_]=STI(y,fs)
+ 
+ See also: <a href="STI_BandFilters.html" class="code" title="function OctaveFilters = STI_BandFilters( N, fs )">STI_BandFilters</a>.m, <a href="extractIR.html" class="code" title="function [irLin, irNonLin] = extractIR(sweep_response, invsweepfft)">extractIR</a>.m, <a href="synthSweep.html" class="code" title="function [sweep, invsweepfft, sweepRate] = synthSweep(T,FS,f1,f2,tail,AsdB)">synthSweep</a>.m</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [ STI_val, ALcons, STI_val_approx, ALcons_approx ] = STI( ImpulseResponse, fs, OctaveFilters )</a>
+0002 <span class="comment">%STI Calculation of the Speech Transmission Index (STI)</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% Syntax:    [STI_val, ALcons, STI_val_approx, ALcons_approx] = STI(ImpulseResponse, fs, OctaveFilters)</span>
+0005 <span class="comment">%       This function calculates the Speech Transmission Index from a given</span>
+0006 <span class="comment">%       impulse response. Octave band filters (125Hz-8kHz) can be passed to</span>
+0007 <span class="comment">%       the function as an array for faster computation.</span>
+0008 <span class="comment">%</span>
+0009 <span class="comment">% Inputs:</span>
+0010 <span class="comment">%     ImpulseResponse - Impulse response of the channel to test</span>
+0011 <span class="comment">%     fs - Sampling frequency of the impulse response</span>
+0012 <span class="comment">%     OctaveFilters - Array of MATLAB octave band filters</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">% Outputs:</span>
+0015 <span class="comment">%     STI_val - The Speech Transmission Index result</span>
+0016 <span class="comment">%     ALcons - Articulation loss of consonants result</span>
+0017 <span class="comment">%     STI_val_approx - STI approximation from computable bands if fs too low</span>
+0018 <span class="comment">%     ALcons_approx - ALcons approximation from computable bands if fs too low</span>
+0019 <span class="comment">%</span>
+0020 <span class="comment">% Example:</span>
+0021 <span class="comment">%   y=sinc(-7999:8000);</span>
+0022 <span class="comment">%     fs=44100;</span>
+0023 <span class="comment">%     [STIval,ALcons,STIval_,ALcons_]=STI(y,fs)</span>
+0024 <span class="comment">%     fs=16000;</span>
+0025 <span class="comment">%     [STIval,ALcons,STIval_,ALcons_]=STI(y,fs)</span>
+0026 <span class="comment">%     fs=8000;</span>
+0027 <span class="comment">%     [STIval,ALcons,STIval_,ALcons_]=STI(y,fs)</span>
+0028 <span class="comment">%</span>
+0029 <span class="comment">% See also: STI_BandFilters.m, extractIR.m, synthSweep.m</span>
+0030 
+0031 <span class="comment">% Author: Jacob Donley</span>
+0032 <span class="comment">% University of Wollongong</span>
+0033 <span class="comment">% Email: jrd089@uowmail.edu.au</span>
+0034 <span class="comment">% Version: 1.0 (12 April 2017)</span>
+0035 <span class="comment">% Version: 0.1 (30 September 2015)</span>
+0036 <span class="comment">%</span>
+0037 <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0038 
+0039 <span class="comment">% 1. Take the full bandwidth impulse response, run it through octave band filters</span>
+0040 BandsPerOctave = 1;
+0041 N = 6;           <span class="comment">% Filter Order</span>
+0042 F0 = 1000;       <span class="comment">% Center Frequency (Hz)</span>
+0043 f = fdesign.octave(BandsPerOctave,<span class="string">'Class 1'</span>,<span class="string">'N,F0'</span>,N,F0,fs);
+0044 F0 = validfrequencies(f);
+0045 F0(F0&lt;125 | F0&gt;min([8000,fs/2]))=[]; <span class="comment">% Only keep bands in the range required for the STI calculation</span>
+0046 Nfc = length(F0);
+0047 
+0048 <span class="comment">% Create MTF function handle</span>
+0049 getMTF = @(ir)      <span class="keyword">...</span>
+0050     abs(            <span class="keyword">...</span><span class="comment"> Take the square root of the sum of the real part squared and the imaginary part squared</span>
+0051     fft(ir .^ 2)    <span class="keyword">...</span><span class="comment"> Compute the Fourier transform of the squared impulse response</span>
+0052     / sum(ir .^ 2) );<span class="comment">%  Integrate the squared impulse response to get the total energy and normalize the envelope spectrum</span>
+0053 
+0054 <span class="keyword">for</span> i=1:Nfc
+0055     <span class="keyword">if</span> nargin &lt; 3
+0056         f.F0 = F0(i);
+0057         H = design(f,<span class="string">'butter'</span>);
+0058         ir_filtered = filter(H, ImpulseResponse);
+0059     <span class="keyword">else</span>
+0060         ir_filtered = filter(OctaveFilters(i), ImpulseResponse);
+0061     <span class="keyword">end</span>
+0062     MTF_octband(:,i) = getMTF(ir_filtered);
+0063 <span class="keyword">end</span>
+0064 
+0065 <span class="comment">% 2. Take the amplitude at 14 modulation frequencies</span>
+0066 <span class="comment">%modulation_freqs = [ 0.63, 0.80, 1.00, 1.25, 1.60, 2.00, 2.50, 3.15, 4.00, 5.00, 6.30, 8.00, 10.00, 12.50];</span>
+0067 modulation_freqs = 2 .^ ([-2:11]./3);
+0068 freqs = linspace(0, fs/2, size(MTF_octband,1)/2+1); freqs(end)=[];<span class="comment">%No nyquist frequency</span>
+0069 <span class="keyword">for</span> i=1:Nfc
+0070         m(i,:) = interp1(freqs,MTF_octband(1:end/2,i),modulation_freqs);
+0071 <span class="keyword">end</span>
+0072 good_freqs = ~any(isnan(m),2);
+0073 m(~good_freqs,:)=[];
+0074 
+0075 <span class="comment">% 3. Convert each of the 98 m values into an “apparent signal-to-noise ratio” (S/N) in dB</span>
+0076 SNR_apparent = pow2db( m ./ (1-m) );
+0077 
+0078 <span class="comment">% 4. Limit the Range</span>
+0079 SNR_apparent( SNR_apparent &gt; 15 ) = 15;
+0080 SNR_apparent( SNR_apparent &lt; -15 ) = -15;
+0081 
+0082 <span class="comment">% 5. Compute the mean (S/N) for each octave band</span>
+0083 SNR_avg = mean(SNR_apparent,2);
+0084 
+0085 <span class="comment">% 6. Weight the octave mean (S/N) values</span>
+0086 W = [0.13, 0.14, 0.11, 0.12, 0.19, 0.17, 0.14]; <span class="comment">% Values from the STI standard</span>
+0087 SNR_Wavg = sum(SNR_avg' .* W(good_freqs));
+0088 SNR_Wavg_approx = sum(SNR_avg' .* W(good_freqs)/sum(W(good_freqs)));
+0089 
+0090 <span class="comment">% 7. Convert the overall mean (S/N) to an STI value</span>
+0091 STI_val = (SNR_Wavg + 15) / 30;
+0092 STI_val_approx = (SNR_Wavg_approx + 15) / 30;
+0093 
+0094 <span class="comment">% (Optional) Convert STI to ALcons</span>
+0095 sti2alcons = @(x) 170.5405*exp(-5.419*x);
+0096 ALcons = sti2alcons(STI_val);
+0097 ALcons_approx = sti2alcons(STI_val_approx);
+0098 
+0099 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Sun 09-Jul-2017 20:35:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

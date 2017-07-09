@@ -1,0 +1,141 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of LTASS</title>
+  <meta name="keywords" content="LTASS">
+  <meta name="description" content="LTASS Computes the Long-Term Average Speech Spectrum from a folder of speech files or vector of speech samples">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">+Tools</a> &gt; LTASS.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for +Tools&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>LTASS
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>LTASS Computes the Long-Term Average Speech Spectrum from a folder of speech files or vector of speech samples</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [ spect, frqs ] = LTASS( speech_folder_OR_vec, nfft, fs ) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">LTASS Computes the Long-Term Average Speech Spectrum from a folder of speech files or vector of speech samples
+
+ Syntax:    [ spect, frqs ] = LTASS( speech_folder_OR_vec, nfft )
+
+ Inputs:
+     speech_folder_OR_vec - The path to the folder containing the speech
+                          files OR a vector of concatenated speech signals
+     nfft - The number of FFT points used to compute the LTASS
+     fs - The sampling frequency to use (if not provided then the sampling
+        frequency of the file is used)
+
+ Outputs:
+     spect - The LTASS spectrum
+     frqs - The frequency vector for the spectrum</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function classDirs = getClassDirs(FullPath)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [ spect, frqs ] = LTASS( speech_folder_OR_vec, nfft, fs )</a>
+0002 <span class="comment">%LTASS Computes the Long-Term Average Speech Spectrum from a folder of speech files or vector of speech samples</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% Syntax:    [ spect, frqs ] = LTASS( speech_folder_OR_vec, nfft )</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% Inputs:</span>
+0007 <span class="comment">%     speech_folder_OR_vec - The path to the folder containing the speech</span>
+0008 <span class="comment">%                          files OR a vector of concatenated speech signals</span>
+0009 <span class="comment">%     nfft - The number of FFT points used to compute the LTASS</span>
+0010 <span class="comment">%     fs - The sampling frequency to use (if not provided then the sampling</span>
+0011 <span class="comment">%        frequency of the file is used)</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">% Outputs:</span>
+0014 <span class="comment">%     spect - The LTASS spectrum</span>
+0015 <span class="comment">%     frqs - The frequency vector for the spectrum</span>
+0016 
+0017 <span class="comment">% Author: Jacob Donley</span>
+0018 <span class="comment">% University of Wollongong</span>
+0019 <span class="comment">% Email: jrd089@uowmail.edu.au</span>
+0020 <span class="comment">% Copyright: Jacob Donley 2017</span>
+0021 <span class="comment">% Date: 17 June 2016</span>
+0022 <span class="comment">% Revision: 0.4 (30 March 2017)</span>
+0023 <span class="comment">%</span>
+0024 <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0025 
+0026 <span class="keyword">if</span> isa(speech_folder_OR_vec,<span class="string">'char'</span>) <span class="comment">% if a character array (string)</span>
+0027     <span class="comment">% Just incase this function tries to call getAllFiles within a class folder we</span>
+0028     <span class="comment">% should create a function handle for getAllFiles regardless</span>
+0029     inf = dbstack(<span class="string">'-completenames'</span>);
+0030     funcName = <span class="string">'getAllFiles'</span>;
+0031     funcPath = inf.file;
+0032     classDirs = <a href="#_sub1" class="code" title="subfunction classDirs = getClassDirs(FullPath)">getClassDirs</a>(funcPath);
+0033     getAllFiles_ = str2func([classDirs funcName]);
+0034     
+0035     <span class="comment">%% Start LTASS</span>
+0036     files = getAllFiles_(speech_folder_OR_vec);
+0037     speech=[];
+0038     F = length(files);
+0039     <span class="keyword">for</span> file = 1:F
+0040         <span class="keyword">try</span>
+0041             [audioSig,fs_] = audioread(files{file});
+0042             <span class="keyword">if</span> nargin &lt; 3, fs = fs_; <span class="keyword">end</span>
+0043             audioSig = audioSig ./ rms(audioSig(:));
+0044         <span class="keyword">catch</span> err
+0045             <span class="keyword">if</span> strcmp(err.identifier, <span class="string">'MATLAB:audiovideo:audioread:FileTypeNotSupported'</span>)
+0046                 <span class="keyword">continue</span>; <span class="comment">% Skip unsupported files</span>
+0047             <span class="keyword">end</span>
+0048         <span class="keyword">end</span>
+0049         speech = [speech; audioSig];
+0050     <span class="keyword">end</span>
+0051     <span class="keyword">if</span> nargin &lt; 2
+0052         nfft = numel(speech);
+0053     <span class="keyword">end</span>
+0054     <span class="keyword">if</span> logical(mod(nfft,2)) <span class="comment">% if isodd( nfft )</span>
+0055         nfft = nfft-1; <span class="comment">% Force nfft to be even so that pwelch returns normalised frequencies [0,...,1]</span>
+0056     <span class="keyword">end</span>
+0057 
+0058 <span class="keyword">else</span>
+0059     speech = speech_folder_OR_vec;
+0060 <span class="keyword">end</span>
+0061 
+0062 <span class="comment">%%</span>
+0063 win_=rectwin(nfft);
+0064 ovlap = 0;
+0065 
+0066 [spect,frqs]=pwelch(speech,win_,nfft*ovlap,nfft,fs,<span class="string">'power'</span>); <span class="comment">% Power spectrum</span>
+0067 spect = sqrt(spect); <span class="comment">% Magnitude spectrum</span>
+0068 
+0069 <span class="keyword">end</span>
+0070 
+0071 <a name="_sub1" href="#_subfunctions" class="code">function classDirs = getClassDirs(FullPath)</a>
+0072 classDirs = <span class="string">''</span>;
+0073 classes = strfind(FullPath,<span class="string">'+'</span>);
+0074 <span class="keyword">for</span> c = 1:length(classes)
+0075     clas = FullPath(classes(c):end);
+0076     stp = strfind(clas,filesep);
+0077     classDirs = [classDirs  clas(2:stp(1)-1) <span class="string">'.'</span>];
+0078 <span class="keyword">end</span>
+0079 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Sun 09-Jul-2017 20:35:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

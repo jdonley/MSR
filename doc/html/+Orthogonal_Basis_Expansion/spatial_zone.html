@@ -1,0 +1,322 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of spatial_zone</title>
+  <meta name="keywords" content="spatial_zone">
+  <meta name="description" content="">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">+Orthogonal_Basis_Expansion</a> &gt; spatial_zone.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for +Orthogonal_Basis_Expansion&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>spatial_zone
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong></strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>This is a script file. </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"></pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="spatial_zone.html" class="code" title="">spatial_zone</a>	</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="spatial_zone.html" class="code" title="">spatial_zone</a>	</li></ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function obj = createEmptySoundfield_d(obj)</a></li><li><a href="#_sub2" class="code">function obj = spatial_zone(frequency, phase, radius, type, weight, angle_, distance)</a></li><li><a href="#_sub3" class="code">function obj = setOrigin(obj, X_Coord, Y_Coord)</a></li><li><a href="#_sub4" class="code">function obj = setOriginPolar(obj, Angle, Distance)</a></li><li><a href="#_sub5" class="code">function [r_0q, theta_0q] = getOriginInPolarCoords(obj)</a></li><li><a href="#_sub6" class="code">function k = getWavenumber(obj)</a></li><li><a href="#_sub7" class="code">function obj = createEmptySoundfield(obj)</a></li><li><a href="#_sub8" class="code">function obj = setZoneSize(obj, ZoneSize)</a></li><li><a href="#_sub9" class="code">function obj = setDesiredSoundfield(obj, ideal, frequency, phase, radius, type, weight, angle_, distance)</a></li><li><a href="#_sub10" class="code">function plotSoundfield(obj)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 classdef <a href="spatial_zone.html" class="code" title="">spatial_zone</a>
+0002     <span class="comment">% SPATIAL_ZONE - This class represents a spatial audio zone for</span>
+0003     <span class="comment">%                multizone soundfield reproduction.</span>
+0004     <span class="comment">%</span>
+0005     <span class="comment">%    This class was implemented based on the publications:</span>
+0006     <span class="comment">%[1] Y. J. Wu and T. D. Abhayapala, &quot;Spatial multizone soundfield</span>
+0007     <span class="comment">%    reproduction: Theory and design,&quot; Audio, Speech, and Language</span>
+0008     <span class="comment">%    Processing, IEEE Transactions on, vol. 19, pp. 1711-1720, 2011.</span>
+0009     <span class="comment">%[2] Y. J. Wu and T. D. Abhayapala, &quot;Theory and design of soundfield</span>
+0010     <span class="comment">%    reproduction using continuous loudspeaker concept,&quot; IEEE</span>
+0011     <span class="comment">%    Transactions on Audio, Speech, and Language Processing, vol. 17,</span>
+0012     <span class="comment">%    pp. 107-116, 2009.</span>
+0013     <span class="comment">%</span>
+0014     <span class="comment">%   Author: Jacob Donley, University of Wollongong, Australia</span>
+0015     <span class="comment">%   Email: Jacob.Donley089@uowmail.edu.au</span>
+0016     <span class="comment">%</span>
+0017     
+0018     properties
+0019         res = 50;                                           <span class="comment">% Samples per metre %Resolution of soundfield should be inherited</span>
+0020         Dimensionality = 2;                                 <span class="comment">% 2D or 3D</span>
+0021         Radius_q = 0.5;                                     <span class="comment">% Radius of the zone in metres</span>
+0022         Origin_q = struct(<span class="string">'X'</span>, 0, <span class="keyword">...</span><span class="comment">                       % Coordinates from the global origin</span>
+0023                           <span class="string">'Y'</span>, 0, <span class="keyword">...</span>
+0024                           <span class="string">'Z'</span>, 0, <span class="keyword">...</span>
+0025                           <span class="string">'Angle'</span>,     0, <span class="keyword">...</span>
+0026                           <span class="string">'Elevation'</span>, 0, <span class="keyword">...</span>
+0027                           <span class="string">'Distance'</span>,  0);
+0028         Weight = 1.0;                                       <span class="comment">% Output amplitude from 0.0 (no output) to 1.0 (max output)</span>
+0029         Frequency = 1000;                                   <span class="comment">% Frequency of source</span>
+0030         Phase = 0*pi;                                       <span class="comment">% Phase of source</span>
+0031         c = 343;                                            <span class="comment">% Speed of sound in m/s</span>
+0032         SourceType = <span class="string">'pw'</span>;                                  <span class="comment">% 'pw' = Plane Wave, 'ps' = Point Source, 'quiet' = Quiet Zone</span>
+0033         SourceOrigin = struct(<span class="string">'X'</span>, 0, <span class="keyword">...</span><span class="comment">                   % This location is relative to the origin of this particular zone</span>
+0034                               <span class="string">'Y'</span>, 0, <span class="keyword">...</span>
+0035                               <span class="string">'Z'</span>, 0, <span class="keyword">...</span>
+0036                               <span class="string">'Angle'</span>,     0, <span class="keyword">...</span>
+0037                               <span class="string">'Elevation'</span>, 0, <span class="keyword">...</span>
+0038                               <span class="string">'Distance'</span>,  0);
+0039         Soundfield_d_mask;                                  <span class="comment">% Arbitrarily shaped soundfield mask</span>
+0040         Soundfield_d = [];                                  <span class="comment">% The complex values of the desired sound field made from spherical harmonics.</span>
+0041         Soundfield_d_mean_mask;                             <span class="comment">% Circular soundfield mask for calculating the mean</span>
+0042 
+0043         Sd = [];                                            <span class="comment">% Ideal desired soundfield</span>
+0044         Alpha_Coeffs = [];                                  <span class="comment">% Alpha_Coeffs is a set of coefficients uniquely representing the qth desired soundfield</span>
+0045         
+0046         ZoneGeometry = <span class="string">'circle'</span>;                            <span class="comment">% The shape of the zone. This could be 'rect' (rectangular) or 'circle' (circular)</span>
+0047         ZoneSize     = [];                                  <span class="comment">% Size of the zone. [1 1] = 1m x 1m (width x height in metres)</span>
+0048         
+0049     <span class="keyword">end</span>
+0050     
+0051     
+0052         
+0053     methods (Access = private)
+0054         
+0055         <a name="_sub0" href="#_subfunctions" class="code">function obj = createEmptySoundfield_d(obj)</a>
+0056             
+0057             <span class="keyword">if</span> isempty(obj.ZoneSize)
+0058                 obj = obj.setZoneSize([1 1] * obj.Radius_q);
+0059             <span class="keyword">end</span>
+0060             
+0061             <span class="comment">% if strcmpi( obj.ZoneGeometry, 'circle' )</span>
+0062             znSz = ( obj.ZoneSize * obj.res );
+0063             width  = znSz(2);
+0064             height = znSz(1);
+0065             y = ((-znSz(1)/2+1):(znSz(1)/2));
+0066             x = ((-znSz(2)/2+1):(znSz(2)/2));
+0067             [xx,yy] = meshgrid( x/obj.res, y/obj.res );
+0068             
+0069             mask = (xx.^2 + yy.^2) &lt;= (min(znSz))^2 * ones(height, width);
+0070             obj.Soundfield_d_mean_mask = mask;
+0071                         
+0072             <span class="keyword">if</span> contains( lower(obj.ZoneGeometry), <span class="string">'rect'</span> )
+0073                 width  = int16( obj.ZoneSize(2)*obj.res );
+0074                 height = int16( obj.ZoneSize(1)*obj.res );
+0075                 mask = ones(height, width);                
+0076             <span class="keyword">end</span>
+0077             
+0078             obj.Soundfield_d = zeros(height,width);
+0079             obj.Soundfield_d_mask = mask;
+0080         <span class="keyword">end</span>
+0081         
+0082     <span class="keyword">end</span>
+0083     
+0084     
+0085     
+0086     methods
+0087         <a name="_sub1" href="#_subfunctions" class="code">function obj = spatial_zone(frequency, phase, radius, type, weight, angle_, distance)</a>
+0088             <span class="keyword">if</span> nargin &lt; 7;    distance = obj.SourceOrigin.Distance;
+0089             <span class="keyword">if</span> nargin &lt; 6;    angle_ = obj.SourceOrigin.Angle;
+0090             <span class="keyword">if</span> nargin &lt; 5;    weight = obj.Weight;
+0091             <span class="keyword">if</span> nargin &lt; 4;    type = obj.SourceType;
+0092             <span class="keyword">if</span> nargin &lt; 3;    radius = obj.Radius_q; 
+0093             <span class="keyword">if</span> nargin &lt; 2;    phase = obj.Phase; <span class="keyword">end</span>; <span class="keyword">end</span>; <span class="keyword">end</span>; <span class="keyword">end</span>; <span class="keyword">end</span>; <span class="keyword">end</span>
+0094            <span class="comment">% Save values to the object</span>
+0095            obj.Frequency = frequency;
+0096            obj.Phase = phase;
+0097            obj.Radius_q = radius;
+0098            obj.SourceType = type;
+0099            obj.Weight = weight;
+0100            obj.SourceOrigin.Angle = angle_;
+0101            obj.SourceOrigin.Distance = distance;
+0102            <span class="comment">%obj = obj.setDesiredSoundfield(frequency, radius, type, weight, angle_, distance);</span>
+0103         <span class="keyword">end</span>
+0104         
+0105         <a name="_sub2" href="#_subfunctions" class="code">function obj = setOrigin(obj, X_Coord, Y_Coord)</a>
+0106             obj.Origin_q.X = X_Coord;
+0107             obj.Origin_q.Y = Y_Coord;
+0108             [obj.Origin_q.Angle, obj.Origin_q.Distance] = cart2pol(X_Coord, Y_Coord);
+0109         <span class="keyword">end</span>
+0110         
+0111         <a name="_sub3" href="#_subfunctions" class="code">function obj = setOriginPolar(obj, Angle, Distance)</a>
+0112             obj.Origin_q.Angle = Angle;
+0113             obj.Origin_q.Distance = Distance;
+0114             [obj.Origin_q.X, obj.Origin_q.Y] = pol2cart(Angle, Distance);
+0115         <span class="keyword">end</span>
+0116         
+0117         <a name="_sub4" href="#_subfunctions" class="code">function [r_0q, theta_0q] = getOriginInPolarCoords(obj)</a>
+0118             [theta_0q, r_0q] = cart2pol(obj.Origin_q.X,obj.Origin_q.Y);
+0119         <span class="keyword">end</span>
+0120         
+0121         <a name="_sub5" href="#_subfunctions" class="code">function k = getWavenumber(obj)</a>
+0122             k = obj.Frequency / obj.c * (2 * pi);
+0123         <span class="keyword">end</span>
+0124         
+0125         <a name="_sub6" href="#_subfunctions" class="code">function obj = createEmptySoundfield(obj)</a>
+0126            obj = obj.createEmptySoundfield_d;
+0127         <span class="keyword">end</span>        
+0128         
+0129         <a name="_sub7" href="#_subfunctions" class="code">function obj = setZoneSize(obj, ZoneSize)</a>
+0130             obj.ZoneSize = ZoneSize;
+0131         <span class="keyword">end</span>
+0132         
+0133         <a name="_sub8" href="#_subfunctions" class="code">function obj = setDesiredSoundfield(obj, ideal, frequency, phase, radius, type, weight, angle_, distance)</a>
+0134             <span class="keyword">if</span> nargin &lt; 9;  distance = obj.SourceOrigin.Distance;
+0135             <span class="keyword">if</span> nargin &lt; 8;    angle_ = obj.SourceOrigin.Angle;
+0136             <span class="keyword">if</span> nargin &lt; 7;    weight = obj.Weight;
+0137             <span class="keyword">if</span> nargin &lt; 6;      type = obj.SourceType;
+0138             <span class="keyword">if</span> nargin &lt; 5;    radius = obj.Radius_q;
+0139             <span class="keyword">if</span> nargin &lt; 4;     phase = obj.Phase;
+0140             <span class="keyword">if</span> nargin &lt; 3; frequency = obj.Frequency;                 
+0141             <span class="keyword">if</span> nargin &lt; 2;     ideal = false; 
+0142             <span class="keyword">end</span>;<span class="keyword">end</span>;<span class="keyword">end</span>;<span class="keyword">end</span>;<span class="keyword">end</span>;<span class="keyword">end</span>;<span class="keyword">end</span>;<span class="keyword">end</span>
+0143       
+0144            suppress_output = false;
+0145            <span class="keyword">if</span> strcmp(frequency, <span class="string">'suppress_output'</span>) 
+0146                 frequency = obj.Frequency;
+0147                 suppress_output = true;
+0148            <span class="keyword">end</span>
+0149            <span class="keyword">if</span> strcmp(phase, <span class="string">'suppress_output'</span>)
+0150                phase = obj.Phase;
+0151                suppress_output = true;
+0152            <span class="keyword">end</span>
+0153            <span class="comment">% Save values to the object</span>
+0154            obj.Frequency = frequency;
+0155            obj.Phase = phase;
+0156            obj.Radius_q = radius;
+0157            obj.SourceType = type;
+0158            obj.Weight = weight;
+0159            obj.SourceOrigin.Angle = angle_;
+0160            obj.SourceOrigin.Distance = distance;
+0161            
+0162            k = frequency / obj.c * (2 * pi);
+0163            <span class="keyword">if</span> ~suppress_output
+0164             fprintf(<span class="string">'Monofrequent Spatial Zone:\n'</span>);
+0165             fprintf(<span class="string">'\tFrequency: %0.0f Hz\n'</span>, frequency );
+0166             fprintf(<span class="string">'\tWavenumber: %0.2f m­¹\n'</span>, k);
+0167             fprintf(<span class="string">'\tPhase: %0.1f °\n'</span>, phase/pi*180);
+0168             fprintf(<span class="string">'\tAngle: %0.1f °\n\n'</span>, angle_);
+0169            <span class="keyword">end</span>
+0170            R_src = distance;
+0171            Phi_src = angle_ / 180 * pi; <span class="comment">%convert to radians</span>
+0172            obj = obj.createEmptySoundfield_d;
+0173            O_q_z = length(obj.Soundfield_d) / 2; <span class="comment">%Set the centre of the zone for indexing</span>
+0174            
+0175             
+0176             <span class="keyword">if</span> ~ideal 
+0177 <span class="comment">% START %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0178            <span class="comment">% Cylindrical Harmonic Expansion</span>
+0179            
+0180            Mq = ceil( k * exp(1) * obj.Radius_q / 2); <span class="comment">% Set the maximum mode</span>
+0181            <span class="comment">% Find Alpha coefficients for the desired soundfield in the zone</span>
+0182             m = -Mq:Mq;
+0183             <span class="keyword">if</span> (strcmp(type, <span class="string">'pw'</span>))
+0184                 obj.Alpha_Coeffs = 1j.^m .* exp( -1j * m * Phi_src);                 <span class="comment">% From reference [2], equation (8)</span>
+0185                 obj.SourceOrigin.Distance = 0;
+0186             <span class="keyword">elseif</span> (strcmp(type, <span class="string">'ps'</span>))
+0187                 obj.Alpha_Coeffs = besselh(m, k * R_src) .* exp(-1j * m * Phi_src); <span class="comment">% From reference [2], equation (11)</span>
+0188             <span class="keyword">elseif</span> (strcmp(type, <span class="string">'noise'</span>))
+0189                 obj.Alpha_Coeffs = 1.0;
+0190             <span class="keyword">elseif</span> (strcmp(type, <span class="string">'quiet'</span>))
+0191                 obj.Alpha_Coeffs = 0;
+0192             <span class="keyword">end</span>
+0193            
+0194            mm = permute(m,[1 3 2]);
+0195            aa = permute(obj.Alpha_Coeffs,[1 3 2]);
+0196            wid = length(obj.Soundfield_d);
+0197            x = 1:wid;
+0198            y = 1:wid;
+0199            [xx,yy] = meshgrid(x,y);
+0200            xx_   = repmat( xx, 1,   1,   length(m));
+0201            yy_   = repmat( yy, 1,   1,   length(m));
+0202            m_    = repmat( mm, wid, wid, 1        );
+0203            Alpha = repmat( aa, wid, wid, 1        );
+0204            
+0205            [OMEGA_q, R_q] = cart2pol((xx_ - O_q_z) / obj.res, (yy_ - O_q_z) / obj.res); <span class="comment">%Convert to polar coords from centre of the zone</span>
+0206            
+0207            J = besselj(m_, k * R_q );
+0208            e = exp(1j * m_ .* OMEGA_q);
+0209            obj.Soundfield_d = sum(Alpha .* J .* e, 3);
+0210            
+0211 <span class="comment">% END %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0212             <span class="keyword">elseif</span> ideal
+0213                     <span class="comment">% Using Planewave formula</span>
+0214                   [height,width] = size(obj.Soundfield_d);
+0215                   x = ((1:width ) - width/2 ) / obj.res;
+0216                   y = ((1:height) - height/2) / obj.res;
+0217                   [xx,yy] = meshgrid(x,y);
+0218                   X = complex(xx,yy);
+0219                   <span class="keyword">if</span> strcmp(type,<span class="string">'pw'</span>)
+0220                       obj.Soundfield_d = weight .* exp( 1i * (k * (cos(Phi_src)*real(X) + sin(Phi_src)*imag(X)) + phase) ); <span class="comment">%Planewave formula ( e^(i*(kx+ky+kz)) )</span>
+0221                       obj.SourceOrigin.Distance = 0;
+0222                   <span class="keyword">elseif</span> (strcmp(type, <span class="string">'ps'</span>))
+0223                       <span class="keyword">if</span> obj.Dimensionality == 2
+0224                           obj.Soundfield_d = weight .* 1i .* besselh(0, k * abs(X .* exp(1i.*(pi-Phi_src)) + R_src)); <span class="comment">% From reference [2], equation (9)</span>
+0225                       <span class="keyword">elseif</span> obj.Dimensionality == 3
+0226                           <span class="comment">% This is for 3D</span>
+0227                           r = abs(X .* exp(1i.*(pi-Phi_src)) + R_src);
+0228                           obj.Soundfield_d = weight * exp(1i*k*r) ./ (4*pi*r); <span class="comment">% From eq10 in rir_generator manual (Emanuel Habets)</span>
+0229                       <span class="keyword">end</span>
+0230                   <span class="keyword">elseif</span> (strcmp(type, <span class="string">'quiet'</span>))
+0231                       obj.Soundfield_d = zeros(size(X));
+0232                   <span class="keyword">end</span>
+0233             <span class="keyword">else</span>
+0234                 <span class="keyword">return</span>;
+0235             <span class="keyword">end</span>
+0236         <span class="keyword">end</span>       
+0237         
+0238         <a name="_sub9" href="#_subfunctions" class="code">function plotSoundfield(obj)</a>
+0239             ZaxisSize = max(abs(real(obj.Soundfield_d(:))));
+0240             figure;
+0241             
+0242             subplot(1,2,1);
+0243             surf(real(obj.Soundfield_d) .* obj.Soundfield_d_mask,<span class="string">'EdgeColor'</span>,<span class="string">'None'</span>);
+0244             view(2);
+0245             title(<span class="string">'Real'</span>);
+0246             axis(<span class="string">'square'</span>);
+0247             axis([1 length(obj.Soundfield_d) 1 length(obj.Soundfield_d)]);
+0248             caxis([-ZaxisSize ZaxisSize]);
+0249             colormap gray; 
+0250             
+0251             subplot(1,2,2);
+0252             surf(imag(obj.Soundfield_d) .* obj.Soundfield_d_mask,<span class="string">'EdgeColor'</span>,<span class="string">'None'</span>);
+0253             view(2);
+0254             title(<span class="string">'Imag'</span>);
+0255             axis(<span class="string">'square'</span>);
+0256             axis([1 length(obj.Soundfield_d) 1 length(obj.Soundfield_d)]);
+0257             caxis([-ZaxisSize ZaxisSize]);
+0258             colormap gray; 
+0259             
+0260 <span class="comment">%             subplot(2,2,3);</span>
+0261 <span class="comment">%             surf(real(obj.Soundfield_d) .* obj.Soundfield_d_mask);</span>
+0262 <span class="comment">%             title('Real');</span>
+0263 <span class="comment">%             axis('square');</span>
+0264 <span class="comment">%             subplot(2,2,4);</span>
+0265 <span class="comment">%             surf(imag(obj.Soundfield_d) .* obj.Soundfield_d_mask);</span>
+0266 <span class="comment">%             title('Imag');</span>
+0267 <span class="comment">%             axis('square');</span>
+0268         <span class="keyword">end</span>
+0269     <span class="keyword">end</span>
+0270 
+0271     
+0272 <span class="keyword">end</span>
+0273</pre></div>
+<hr><address>Generated on Sun 09-Jul-2017 20:35:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

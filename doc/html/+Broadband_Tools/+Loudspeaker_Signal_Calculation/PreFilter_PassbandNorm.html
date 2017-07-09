@@ -1,0 +1,111 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of PreFilter_PassbandNorm</title>
+  <meta name="keywords" content="PreFilter_PassbandNorm">
+  <meta name="description" content="PREFILTER_PASSBANDNORM Adjust the signal to account for the aliasing caused by a limited number of loudspeakers">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="../index.html">+Broadband_Tools</a> &gt; <a href="index.html">+Loudspeaker_Signal_Calculation</a> &gt; PreFilter_PassbandNorm.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for +Broadband_Tools\+Loudspeaker_Signal_Calculation&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>PreFilter_PassbandNorm
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>PREFILTER_PASSBANDNORM Adjust the signal to account for the aliasing caused by a limited number of loudspeakers</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function [ y_Leveled ] = PreFilter_PassbandNorm( y_orig, y_diff, setup, signal_info ) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">PREFILTER_PASSBANDNORM Adjust the signal to account for the aliasing caused by a limited number of loudspeakers
+ 
+ Syntax:    [OUTPUTARGS] = ARBITRARYOCTAVEFILT(INPUTARGS) Explain usage here
+ 
+ Inputs: 
+     input1 - Description
+     input2 - Description
+     input3 - Description
+ 
+ Outputs: 
+     output1 - Description
+     output2 - Description
+ 
+ Example: 
+     Line 1 of example
+     Line 2 of example
+     Line 3 of example
+ 
+ See also: List related files here</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [ y_Leveled ] = PreFilter_PassbandNorm( y_orig, y_diff, setup, signal_info )</a>
+0002 <span class="comment">%PREFILTER_PASSBANDNORM Adjust the signal to account for the aliasing caused by a limited number of loudspeakers</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% Syntax:    [OUTPUTARGS] = ARBITRARYOCTAVEFILT(INPUTARGS) Explain usage here</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% Inputs:</span>
+0007 <span class="comment">%     input1 - Description</span>
+0008 <span class="comment">%     input2 - Description</span>
+0009 <span class="comment">%     input3 - Description</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">% Outputs:</span>
+0012 <span class="comment">%     output1 - Description</span>
+0013 <span class="comment">%     output2 - Description</span>
+0014 <span class="comment">%</span>
+0015 <span class="comment">% Example:</span>
+0016 <span class="comment">%     Line 1 of example</span>
+0017 <span class="comment">%     Line 2 of example</span>
+0018 <span class="comment">%     Line 3 of example</span>
+0019 <span class="comment">%</span>
+0020 <span class="comment">% See also: List related files here</span>
+0021 
+0022 <span class="comment">% Author: Jacob Donley</span>
+0023 <span class="comment">% University of Wollongong</span>
+0024 <span class="comment">% Email: jrd089@uowmail.edu.au</span>
+0025 <span class="comment">% Copyright: Jacob Donley 2016</span>
+0026 <span class="comment">% Date: 7 December 2016</span>
+0027 <span class="comment">% Revision: 0.3</span>
+0028 <span class="comment">%</span>
+0029 <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0030 
+0031 N = numel(y_orig(:));
+0032 <span class="keyword">if</span> ~mod(N,2) <span class="comment">% If N is even</span>
+0033     n = 0.5;
+0034 <span class="keyword">else</span> <span class="comment">% If N is odd</span>
+0035     n = (N-1)/(2*N);
+0036 <span class="keyword">end</span>
+0037 
+0038 f_cutoff = min( [<span class="keyword">...</span>
+0039     Broadband_Tools.getAliasingFrequency(setup) * signal_info.c / (2*pi), <span class="keyword">...</span>
+0040     n * signal_info.Fs ] );
+0041 
+0042 y_normed = y_orig(:) ./ rms(y_orig(:)) * db2mag( signal_info.clipLevelAdjust ); 
+0043 y_Leveled = Broadband_Tools.power_norm( y_normed, y_diff(:), signal_info.Fs, [signal_info.f_low, f_cutoff]);
+0044 
+0045 <span class="keyword">end</span>
+0046</pre></div>
+<hr><address>Generated on Sun 09-Jul-2017 20:35:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

@@ -1,0 +1,738 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of multizone_soundfield_OBE</title>
+  <meta name="keywords" content="multizone_soundfield_OBE">
+  <meta name="description" content="">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">+Orthogonal_Basis_Expansion</a> &gt; multizone_soundfield_OBE.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for +Orthogonal_Basis_Expansion&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>multizone_soundfield_OBE
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong></strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>This is a script file. </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"></pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="multizone_soundfield_OBE.html" class="code" title="">multizone_soundfield_OBE</a>	</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="multizone_soundfield_OBE.html" class="code" title="">multizone_soundfield_OBE</a>	</li></ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function obj = multizone_soundfield_OBE(~)</a></li><li><a href="#_sub2" class="code">function obj = createEmptySoundfield(obj, Debug)</a></li><li><a href="#_sub3" class="code">function obj = createSoundfield(obj, Debug, Radius)</a></li><li><a href="#_sub4" class="code">function obj = calc_Alpha_Coeffs(obj, Debug)</a></li><li><a href="#_sub5" class="code">function M0 = getGlobalModeLimit(obj)</a></li><li><a href="#_sub6" class="code">function radius_p = getRadius_FromZones(obj)</a></li><li><a href="#_sub7" class="code">function obj = w_build(obj, Debug)</a></li><li><a href="#_sub8" class="code">function obj = P_build(obj, Debug)</a></li><li><a href="#_sub9" class="code">function obj = C_build(obj)</a></li><li><a href="#_sub10" class="code">function obj = F_build(obj, Debug)</a></li><li><a href="#_sub11" class="code">function obj = RG_build(obj)</a></li><li><a href="#_sub12" class="code">function obj = saveBrightZoneSample(obj)</a></li><li><a href="#_sub13" class="code">function obj = addSpatialZone(obj, spatialZone, Distance, Angle_degrees)</a></li><li><a href="#_sub14" class="code">function f = getFrequency(obj)</a></li><li><a href="#_sub15" class="code">function obj = setReproRegionSize(obj, ReproRegionSize)</a></li><li><a href="#_sub16" class="code">function obj = setWavenumberFromChildZone(obj)</a></li><li><a href="#_sub17" class="code">function obj = setN(obj, N)</a></li><li><a href="#_sub18" class="code">function [x,y] = getZoneIndices( obj, Zone )</a></li><li><a href="#_sub19" class="code">function obj = calcDesiredMask(obj)</a></li><li><a href="#_sub20" class="code">function obj = norm_soundfield(obj)</a></li><li><a href="#_sub21" class="code">function obj = extractSave_Zone(obj, zone)</a></li><li><a href="#_sub22" class="code">function direction = Angle_Calc(obj, field)</a></li><li><a href="#_sub23" class="code">function obj = ErrorInBright_Calc(obj)</a></li><li><a href="#_sub24" class="code">function obj = ErrorInQuiet_Calc(obj)</a></li><li><a href="#_sub25" class="code">function obj = Contrast_Calc(obj)</a></li><li><a href="#_sub26" class="code">function h = plotSoundfield(obj, field, colour, plotZones)</a></li><li><a href="#_sub27" class="code">function zonePlots(obj, field)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 classdef <a href="multizone_soundfield_OBE.html" class="code" title="">multizone_soundfield_OBE</a>
+0002     <span class="comment">% MULTIZONE_SOUNDFIELD_OBE - This class represents a multi-zone soundfield</span>
+0003     <span class="comment">%                     using orthogonal basis expansion for reproduction</span>
+0004     <span class="comment">%                     by any single zone reproduction technique.</span>
+0005     <span class="comment">%</span>
+0006     <span class="comment">%   This class was implemented based on the publication:</span>
+0007     <span class="comment">%   JIN, W., KLEIJN, W. B. &amp; VIRETTE, D. Multizone soundfield reproduction</span>
+0008     <span class="comment">%   using orthogonal basis expansion.  Acoustics, Speech and Signal Processing</span>
+0009     <span class="comment">%   (ICASSP), 2013 IEEE International Conference on, 2013. IEEE, 311-315.</span>
+0010     <span class="comment">%</span>
+0011     <span class="comment">%</span>
+0012     <span class="comment">%   Author: Jacob Donley, University of Wollongong, Australia</span>
+0013     <span class="comment">%   Email: Jacob.Donley089@uowmail.edu.au</span>
+0014     <span class="comment">%</span>
+0015     
+0016     properties        
+0017         <span class="comment">% Settings</span>
+0018         res = 50;  <span class="comment">% samples per metre %Resolution of soundfield</span>
+0019         Dimensionality = 2;          <span class="comment">% 2D or 3D</span>
+0020         BrightZ_Weight      = 1.0;   <span class="comment">% Bright Zone relative importance weight</span>
+0021         QuietZ_Weight       = 2.5;   <span class="comment">% Quiet Zone relative importance weight</span>
+0022         UnattendedZ_Weight  = 0.05;  <span class="comment">% Unattended Zone relative importance weight</span>
+0023         Radius = 1.0;
+0024         k_global = 2000 /343*2*pi;  <span class="comment">% Frequency in wavenumber</span>
+0025         ModeLimitFactor = 1.0;      <span class="comment">% Increase/Decrease the Mode Limit by a certain factor (default results in 16% error)</span>
+0026         Quiet_Zone;                 <span class="comment">% spatial_zone object for the quiet zone</span>
+0027         Bright_Zone;                <span class="comment">% spatial_zone object for the bright zone</span>
+0028         Geometry = <span class="string">'circle'</span>;        <span class="comment">% Geometry of the reproduction region</span>
+0029         ReproRegionSize = [];
+0030         
+0031         <span class="comment">% Results</span>
+0032             <span class="comment">% 3D</span>
+0033         Soundfield_desired = [];    <span class="comment">% The complex values of the global desired sound field that is produced from this class.</span>
+0034         Soundfield_desired_mask = [];
+0035         Quiet_Field = [];           <span class="comment">% The complex values of the resultant quiet field only (normalised to the bright field)</span>
+0036         Bright_Field = [];          <span class="comment">% The complex values of the resultant bright field only (normalised)</span>
+0037         Bright_Error_Field = [];    <span class="comment">% The error in the bright field</span>
+0038         Quiet_Error_Field = [];
+0039             <span class="comment">% 2D</span>
+0040         Alpha_Coeffs = [];           <span class="comment">% Alpha_Coeffs are the global soundfield coefficients</span>
+0041         Sound_sample_Avg = [];  <span class="comment">%The average sound wave across the bright field in the direction of the desired planewave propagation</span>
+0042         Binaural_sample = [];   <span class="comment">%TODO: Create binaural sample</span>
+0043             <span class="comment">% 1D</span>
+0044         Angle_Bright_Field = 0;
+0045         Angle_Quiet_Field = 0;
+0046         MSE_Bright_Field = 0;
+0047         Err_dB_Bright_Field = 0;
+0048         MSE_Quiet_Field = 0;
+0049         Err_dB_Quiet_Field = 0;
+0050         Acoustic_Brightness_Contrast = 0;
+0051         Acoustic_Brightness_Contrast_dB = 0;
+0052         R = [];
+0053     <span class="keyword">end</span>
+0054     
+0055     properties (Access = public)        
+0056         N = 80;
+0057         Delta_phi;
+0058         F_angles = [];
+0059         F = [];
+0060         G = [];
+0061         C = [];
+0062         P = []; 
+0063         w = [];
+0064         Sd= [];
+0065     <span class="keyword">end</span>
+0066     
+0067 <span class="comment">%% Contructor</span>
+0068     methods 
+0069         <a name="_sub0" href="#_subfunctions" class="code">function obj = multizone_soundfield_OBE(~)</a>
+0070             obj.Delta_phi = 2 * pi / obj.N;
+0071         <span class="keyword">end</span>
+0072     <span class="keyword">end</span>
+0073 
+0074 <span class="comment">%% Private Methods</span>
+0075     methods (Access = public) <span class="comment">%(Access = private) % usually private</span>
+0076             
+0077         <a name="_sub1" href="#_subfunctions" class="code">function obj = createEmptySoundfield(obj, Debug)</a>
+0078             <span class="keyword">if</span> nargin &lt; 2
+0079                 Debug = <span class="string">''</span>;
+0080             <span class="keyword">end</span>
+0081             <span class="comment">%             if strcmp(Debug, 'Bright')</span>
+0082             <span class="comment">%                 width = int16( ceil(obj.N^(1/2)) + ~mod(ceil(obj.N^(1/2)),2) );</span>
+0083             <span class="comment">%                 obj.Soundfield_desired = zeros(width,width);</span>
+0084             <span class="comment">%             else</span>
+0085             <span class="keyword">if</span> strcmpi( obj.Geometry, <span class="string">'circle'</span> )
+0086                 width = int16(obj.res * obj.Radius * 2);
+0087                 height = width;
+0088             <span class="keyword">elseif</span> contains( lower(obj.Geometry), <span class="string">'rect'</span> )
+0089                 width  = obj.ReproRegionSize(1) * obj.res;
+0090                 height = obj.ReproRegionSize(2) * obj.res;
+0091             <span class="keyword">end</span>
+0092             obj.Soundfield_desired = zeros(width,height);
+0093             obj = obj.calcDesiredMask();
+0094             <span class="comment">%             end</span>
+0095         <span class="keyword">end</span>
+0096         
+0097     <span class="keyword">end</span>
+0098     
+0099 <span class="comment">%% Public Methods</span>
+0100     methods
+0101         
+0102 <span class="comment">%%%%%%%%%%%%%%%%%%  Main Soundfield Creation Function  %%%%%%%%%%%%%%%%%%%%</span>
+0103 
+0104         <a name="_sub2" href="#_subfunctions" class="code">function obj = createSoundfield(obj, Debug, Radius)</a>
+0105             <span class="keyword">if</span> nargin &lt; 2
+0106                 Debug = <span class="string">''</span>;
+0107             <span class="keyword">elseif</span> nargin &gt;= 3
+0108                obj.Radius = Radius; 
+0109             <span class="keyword">end</span>            
+0110             obj = obj.setWavenumberFromChildZone(); <span class="comment">%Incase the child spatial zones have been changed</span>
+0111             
+0112             M0 = obj.getGlobalModeLimit; 
+0113             
+0114             obj = obj.createEmptySoundfield(Debug);
+0115             
+0116             obj = obj.calc_Alpha_Coeffs(Debug);
+0117                         
+0118             <span class="keyword">if</span> ~contains(Debug,<span class="string">'DEBUG'</span>) <span class="comment">%% &amp;&amp; ~strcmp(Debug, 'Bright') &amp;&amp; ~strcmp(Debug, 'Quiet')</span>
+0119                 obj = obj.createEmptySoundfield;
+0120                 O = length(obj.Soundfield_desired) / 2; <span class="comment">%Set the centre of the zone for indexing</span>
+0121                 theta = 0;
+0122                 r = 0;
+0123                 J = 0;
+0124                 e = 0;        
+0125                 M = -M0:M0;
+0126                 
+0127                 n=0;
+0128                 <span class="keyword">if</span> ~contains(Debug,<span class="string">'suppress_output'</span>)
+0129                     fprintf(<span class="string">'--- Creating Global Soundfield ---\n'</span>);
+0130                     fprintf(<span class="string">'\tQuiet and Bright zones at %.0fHz.\n\tCompletion: '</span>, obj.getFrequency);
+0131                 <span class="keyword">end</span>
+0132                 
+0133                 <span class="keyword">for</span> x = 1:O*2
+0134                     <span class="keyword">for</span> y = 1:O*2
+0135                         theta = atan2(O - y, O - x);
+0136                         r = ((O - x)^2 + (O - y)^2)^(1/2);
+0137                         
+0138                         r = r / obj.res;  <span class="comment">%Change to spatial radius (/metre)</span>
+0139                         J = besselj(M, obj.k_global * r );
+0140                         e = exp(1i * M * (-theta+pi/2));
+0141                         obj.Soundfield_desired(x, y) = obj.Soundfield_desired(x, y) + sum(obj.Alpha_Coeffs .* J .* e); <span class="comment">% Sum pressures</span>
+0142                         
+0143                         
+0144                     <span class="keyword">end</span>
+0145                     <span class="keyword">if</span> ~contains(Debug,<span class="string">'suppress_output'</span>)
+0146                         fprintf(repmat(<span class="string">'\b'</span>,1,n));
+0147                         n=fprintf(<span class="string">'%.2f%%'</span>, x / (O*2) * 100);
+0148                     <span class="keyword">end</span>
+0149                 <span class="keyword">end</span>
+0150                 
+0151                 <span class="keyword">if</span> ~contains(Debug,<span class="string">'suppress_output'</span>); fprintf(<span class="string">'\n\n'</span>); <span class="keyword">end</span>;
+0152             <span class="keyword">end</span>
+0153             
+0154 <span class="comment">%             if ~strcmp(Debug, 'Bright') &amp;&amp; ~strcmp(Debug, 'Quiet')</span>
+0155                 obj = obj.norm_soundfield();
+0156                 obj = obj.extractSave_Zone(<span class="string">'Bright'</span>);
+0157                 obj = obj.extractSave_Zone(<span class="string">'Quiet'</span>);
+0158                 obj = obj.ErrorInBright_Calc();
+0159                 obj = obj.ErrorInQuiet_Calc();
+0160                 obj = obj.Contrast_Calc();
+0161                 obj.Angle_Bright_Field = <a href="#_sub22" class="code" title="subfunction direction = Angle_Calc(obj, field)">Angle_Calc</a>(obj, obj.Bright_Field);
+0162                 obj.Angle_Quiet_Field = <a href="#_sub22" class="code" title="subfunction direction = Angle_Calc(obj, field)">Angle_Calc</a>(obj, obj.Quiet_Field);
+0163 <span class="comment">%             end</span>
+0164         <span class="keyword">end</span>        
+0165         
+0166 <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0167 
+0168 <span class="comment">%% Soundfield Functions</span>
+0169         <a name="_sub3" href="#_subfunctions" class="code">function obj = calc_Alpha_Coeffs(obj, Debug)</a>
+0170              <span class="keyword">if</span> nargin &lt; 2
+0171                  Debug = <span class="string">''</span>;
+0172              <span class="keyword">end</span>
+0173              
+0174             <span class="comment">% Set up Orthogonal Basis Expansion for the Zones Here</span>
+0175             <span class="comment">% Our goal is to find P so that we can apply it to the alpha coeffs</span>
+0176             obj = obj.w_build(Debug);  <span class="comment">% Secondly we will set our weight function</span>
+0177             
+0178             obj = obj.F_build(Debug);  <span class="comment">% As a good starting point we then build our set of planewaves</span>
+0179             
+0180             obj = obj.RG_build; <span class="comment">% After which we perform orthonormalization with a weighted Gram-Schmidt process on the set of planewaves</span>
+0181                                 <span class="comment">% This gives us our upper triangular matrix and our orthonormal basis functions</span>
+0182                         
+0183             obj = obj.C_build;  <span class="comment">% Just before we find P we need C which is integral(Soundfield_Desired * Conjugate(G) * w)</span>
+0184                                 
+0185             obj = obj.P_build(Debug);  <span class="comment">% Finally we build our coefficient set P for the jth planewave function</span>
+0186             
+0187             <span class="keyword">if</span> contains(Debug,<span class="string">'DEBUG'</span>)
+0188                 [h,w] = size(obj.Soundfield_desired);
+0189                 F_r = reshape(obj.F, [h*w obj.N]);
+0190                 S_r = (F_r * obj.P');
+0191                 S = reshape( S_r, [h w 1]);
+0192                 obj = obj.createEmptySoundfield;
+0193                 obj.Soundfield_desired = S;
+0194             <span class="keyword">end</span>
+0195             
+0196             M = obj.getGlobalModeLimit();
+0197             Alpha = zeros(1,2*M+1);
+0198             
+0199             <span class="keyword">for</span> m = (-M:M)
+0200                 alpha = 1i^m * exp( -1i * m * obj.F_angles);
+0201 
+0202                 Alpha(m+M+1) = sum( obj.P .* alpha );
+0203             <span class="keyword">end</span>
+0204             obj.Alpha_Coeffs = Alpha;
+0205 
+0206         <span class="keyword">end</span>
+0207 
+0208         <a name="_sub4" href="#_subfunctions" class="code">function M0 = getGlobalModeLimit(obj)</a>
+0209             M0 = ceil(obj.k_global * obj.Radius * obj.ModeLimitFactor); 
+0210         <span class="keyword">end</span>
+0211         
+0212         <a name="_sub5" href="#_subfunctions" class="code">function radius_p = getRadius_FromZones(obj)</a>
+0213            SpatialZones = [obj.Quiet_Zone obj.Bright_Zone];
+0214            Q = length(SpatialZones); <span class="comment">% Total number of zones</span>
+0215            
+0216            <span class="comment">% Find the radius of the smallest circle that encloses all spatial zones of interest.</span>
+0217            radius_p = SpatialZones(1).Radius_q + SpatialZones(1).getOriginInPolarCoords();
+0218             <span class="keyword">for</span> q = 2:Q 
+0219                 <span class="keyword">if</span> (SpatialZones(q).Radius_q + SpatialZones(q).getOriginInPolarCoords()) &gt; radius_p
+0220                    radius_p = SpatialZones(q).Radius_q + SpatialZones(q).getOriginInPolarCoords();
+0221                 <span class="keyword">end</span>
+0222             <span class="keyword">end</span>
+0223         <span class="keyword">end</span>                
+0224      
+0225 <span class="comment">%% Orthogonal Basis Expansion method functions</span>
+0226 <span class="comment">% Weighting function</span>
+0227         <a name="_sub6" href="#_subfunctions" class="code">function obj = w_build(obj, Debug)</a>
+0228             <span class="keyword">if</span> nargin &lt; 2
+0229                 Debug = <span class="string">''</span>;
+0230             <span class="keyword">end</span>
+0231             [height, width] = size(obj.Soundfield_desired);
+0232             obj.w  = zeros(height,width);
+0233             obj.Sd = zeros(height,width);
+0234             
+0235 <span class="comment">%             if strcmp(Debug, 'Bright')</span>
+0236 <span class="comment">%                 obj.w = obj.w + obj.BrightZ_Weight;</span>
+0237 <span class="comment">%                 xx = (length(obj.Bright_Zone.Soundfield_d)/2-(width-1)/2):(length(obj.Bright_Zone.Soundfield_d)/2+(width-1)/2);</span>
+0238 <span class="comment">%                 yy = xx;</span>
+0239 <span class="comment">%                 obj.Sd = obj.Bright_Zone.Soundfield_d(yy,xx);</span>
+0240 <span class="comment">%             else</span>
+0241                 obj.w = obj.w + obj.UnattendedZ_Weight; <span class="comment">% Apply unattended zone weighting</span>
+0242                 
+0243                 SpatialZones = [obj.Quiet_Zone obj.Bright_Zone];
+0244                 <span class="keyword">for</span> q = 1:length(SpatialZones) <span class="comment">% For each spatial zone</span>
+0245                     
+0246                     <span class="comment">%                     znSz = int16( SpatialZones(q).ZoneSize * obj.res );</span>
+0247                     <span class="comment">%                     rpSz = int16( obj.ReproRegionSize * obj.res );</span>
+0248                     <span class="comment">%                     x = ceil(SpatialZones(q).Origin_q.X * obj.res);</span>
+0249                     <span class="comment">%                     y = ceil(SpatialZones(q).Origin_q.Y * obj.res);</span>
+0250                     <span class="comment">%                     yy = ((-znSz(1)/2+1):(znSz(1)/2)) + y + rpSz(1)/2;</span>
+0251                     <span class="comment">%                     xx = ((-znSz(2)/2+1):(znSz(2)/2)) + x + rpSz(2)/2;</span>
+0252                     
+0253                     [xx,yy] = obj.getZoneIndices( SpatialZones(q) );
+0254                     
+0255                     <span class="keyword">if</span> strcmp(SpatialZones(q).SourceType, <span class="string">'quiet'</span>)
+0256                         obj.w(yy,xx) =  SpatialZones(q).Soundfield_d_mask * (obj.QuietZ_Weight - obj.UnattendedZ_Weight);  <span class="comment">% Apply quiet zone weighting</span>
+0257                     <span class="keyword">else</span>
+0258                         obj.w(yy,xx) = SpatialZones(q).Soundfield_d_mask * (obj.BrightZ_Weight - obj.UnattendedZ_Weight);   <span class="comment">% Apply bright zone weighting</span>
+0259                     <span class="keyword">end</span>
+0260                     obj.w(yy,xx) = obj.w(yy,xx) + obj.UnattendedZ_Weight;
+0261                     
+0262                     
+0263 <span class="comment">%                     znSz = ( SpatialZones(q).ZoneSize * obj.res );</span>
+0264 <span class="comment">%                     y = ((-znSz(1)/2+1):(znSz(1)/2));</span>
+0265 <span class="comment">%                     x = ((-znSz(2)/2+1):(znSz(2)/2));</span>
+0266 <span class="comment">%                     [X,Y] = meshgrid(x/obj.res,y/obj.res);</span>
+0267 <span class="comment">%                     W = abs( complex(X,Y) );</span>
+0268 <span class="comment">%                     W(W&lt;min(SpatialZones(q).ZoneSize/2)) = min(SpatialZones(q).ZoneSize/2);</span>
+0269 <span class="comment">%                     W = W - min(W(:));</span>
+0270 <span class="comment">%                     W = W / max(W(:));</span>
+0271 <span class="comment">%                     obj.w = W.*50 + 1;</span>
+0272                     
+0273                     obj.Sd(yy,xx) = SpatialZones(q).Soundfield_d .* SpatialZones(q).Soundfield_d_mask;
+0274 
+0275                 <span class="keyword">end</span>
+0276 <span class="comment">%             end</span>
+0277         <span class="keyword">end</span>
+0278         
+0279 <span class="comment">% Planewave Coefficient set</span>
+0280         <a name="_sub7" href="#_subfunctions" class="code">function obj = P_build(obj, Debug)</a>
+0281             <span class="keyword">if</span> nargin &lt; 2
+0282                 Debug = <span class="string">''</span>;
+0283             <span class="keyword">end</span>
+0284             obj.P = zeros(1,obj.N);
+0285             <span class="keyword">if</span>( rcond(obj.R) &gt;= 1e-12 )
+0286                 obj.P = obj.C / obj.R';
+0287             <span class="keyword">elseif</span> contains(Debug,<span class="string">'IllCond'</span>)
+0288                 obj.P = obj.C / obj.R';
+0289             <span class="keyword">end</span>
+0290         <span class="keyword">end</span>
+0291         
+0292 <span class="comment">% Expansion Coefficient set</span>
+0293         <a name="_sub8" href="#_subfunctions" class="code">function obj = C_build(obj)                  </a>
+0294             [height, width] = size(obj.Soundfield_desired);
+0295             obj.C = zeros(1, obj.N);
+0296                         
+0297             <span class="keyword">for</span> n = 1:obj.N
+0298                 G_field = reshape(obj.G(:,n), [height width]);
+0299                 field = obj.Sd .* G_field .* obj.w;
+0300                 obj.C(n) = sum(field(:));
+0301             <span class="keyword">end</span>
+0302         <span class="keyword">end</span>        
+0303 
+0304 <span class="comment">% Planewave set</span>
+0305         <a name="_sub9" href="#_subfunctions" class="code">function obj = F_build(obj, Debug)</a>
+0306 <span class="comment">%             if strcmp(Debug, 'Bright')</span>
+0307 <span class="comment">%                 width=length(obj.Soundfield_desired);</span>
+0308 <span class="comment">%                 x = ((1:width) - width/2) / obj.res + obj.Bright_Zone.Origin_q.X;</span>
+0309 <span class="comment">%                 y = ((1:width) - width/2) / obj.res + obj.Bright_Zone.Origin_q.Y;</span>
+0310 <span class="comment">%                 [xx,yy] = meshgrid(x,y);</span>
+0311 <span class="comment">%                 X = complex(xx,yy);</span>
+0312 <span class="comment">%             else</span>
+0313                 [height, width] = size(obj.Soundfield_desired);
+0314 
+0315 <span class="comment">%             end</span>
+0316             
+0317             obj.F = zeros(height, width, obj.N);
+0318             k = obj.k_global;
+0319             
+0320             <span class="comment">%Create alternating basis planewaves centred around desired direction</span>
+0321             <span class="comment">%             pos = 1:((obj.N - 1) / 2);</span>
+0322             <span class="comment">%             neg = -1:-1:-((obj.N - 1) / 2);</span>
+0323             <span class="comment">%             ind = [pos; neg];</span>
+0324             <span class="comment">%             ind = [0 ind(:)' obj.N/2];</span>
+0325             <span class="comment">%             obj.F_angles = ind * obj.Delta_phi + obj.Bright_Zone.SourceOrigin.Angle/180*pi;</span>
+0326             
+0327             obj.F_angles = ((1:obj.N)-1) * obj.Delta_phi;
+0328             
+0329             x = ((1:width) - width/2 - 1) / obj.res;
+0330             y = ((1:height) - height/2 - 1) / obj.res;
+0331             [xx,yy] = meshgrid(x,y);
+0332             X = complex(xx,yy);
+0333             
+0334             <span class="keyword">for</span> n = 1:obj.N <span class="comment">% For each planewave</span>
+0335                 phi = obj.F_angles(n);
+0336                 
+0337                 Fn = exp( 1i * k * (cos(phi)*real(X) + sin(phi)*imag(X))) .* obj.Soundfield_desired_mask; <span class="comment">%Planewave formula ( e^(i*(kx+ky+kz)) )</span>
+0338                 
+0339                 Fn=Fn.*exp(-1i*angle(Fn(floor(end/2),floor(end/2)))); <span class="comment">%norm to centre</span>
+0340                 
+0341                 obj.F(:,:,n) = repmat(Fn, [1 1 1]);
+0342             <span class="keyword">end</span>
+0343                 
+0344         <span class="keyword">end</span>        
+0345 
+0346 <span class="comment">% Basis Functions with QR Factorisation &amp; Orthogonalisation using Weighted Gram-Schmidt method</span>
+0347         <a name="_sub10" href="#_subfunctions" class="code">function obj = RG_build(obj)</a>
+0348             [height, width] = size(obj.Soundfield_desired);
+0349             obj.G = zeros(width * width, obj.N); 
+0350             obj.R = zeros(obj.N, obj.N); 
+0351                    
+0352             F_all = reshape(obj.F, [width*height obj.N]);
+0353             [obj.G, obj.R] = Orthogonal_Basis_Expansion.Gram_Schmidt(F_all, obj.w(:));            
+0354            <span class="comment">%[obj.G, obj.R] = Orthogonal_Basis_Expansion.Gram_Schmidt_mex(F_all, obj.w(:));</span>
+0355         <span class="keyword">end</span>        
+0356         
+0357 <span class="comment">%% One-Dimensional sampling methods</span>
+0358         <a name="_sub11" href="#_subfunctions" class="code">function obj = saveBrightZoneSample(obj)</a>
+0359             <span class="comment">% First we want to extract the bright zone as a separate matrix</span>
+0360             
+0361             
+0362             <span class="comment">% Second we want to rotate the matrix by the angle of the planewave</span>
+0363             
+0364             
+0365             <span class="comment">% Thirdly we want to find the average planewave across the matrix</span>
+0366 
+0367 
+0368         <span class="keyword">end</span>
+0369         
+0370         
+0371 <span class="comment">%% Auxilary Methods</span>
+0372         <a name="_sub12" href="#_subfunctions" class="code">function obj = addSpatialZone(obj, spatialZone, Distance, Angle_degrees)</a>
+0373 <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0374 <span class="comment">% TODO: Check for overlapping soundfields here before adding it %</span>
+0375 <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0376 
+0377             SpatialZones = [obj.Quiet_Zone obj.Bright_Zone];
+0378             
+0379             <span class="keyword">if</span> length(SpatialZones) &lt; 1
+0380                 obj.k_global = spatialZone.getWavenumber();
+0381                 obj.res      = spatialZone.res;
+0382             <span class="keyword">elseif</span> obj.k_global ~= spatialZone.getWavenumber()
+0383                 error([<span class="string">'A spatial zone does not match the frequency/wavenumber of the global soundfield it is being added to.'</span> <span class="keyword">...</span>
+0384                       <span class="string">'\n Global Soundfield Frequency = %0.2fHz\tGlobal Soundfield Wavenumber = %0.2f'</span> <span class="keyword">...</span>
+0385                       <span class="string">'\n Spatial Zone Frequency = %0.2fHz\t\tSpatial Zone Wavenumber = %0.2f'</span>], <span class="keyword">...</span>
+0386                       obj.getFrequency(), obj.k_global, spatialZone.Frequency, spatialZone.getWavenumber());
+0387                 <span class="keyword">return</span>;
+0388             <span class="keyword">elseif</span> obj.res ~= spatialZone.res
+0389                 error([<span class="string">'A spatial zone does not match the sampling resolution of the global soundfield it is being added to.'</span> <span class="keyword">...</span>
+0390                       <span class="string">'\n Global Soundfield Resolution = %0.2d samples/m'</span> <span class="keyword">...</span>
+0391                       <span class="string">'\n Spatial Zone Resolution = %0.2d samples/m'</span>], <span class="keyword">...</span>
+0392                       obj.res, spatialZone.res);
+0393                 <span class="keyword">return</span>;
+0394             <span class="keyword">end</span>
+0395             
+0396             Angle_rads = Angle_degrees * pi / 180 ;
+0397             [X, Y] = pol2cart(Angle_rads, Distance);
+0398             spatialZone = spatialZone.setOrigin(X, Y);
+0399             
+0400             <span class="keyword">if</span> strcmp(spatialZone.SourceType, <span class="string">'quiet'</span>)
+0401                 obj.Quiet_Zone = spatialZone;
+0402             <span class="keyword">elseif</span> strcmp(spatialZone.SourceType, <span class="string">'pw'</span>)
+0403                 obj.Bright_Zone = spatialZone;
+0404             <span class="keyword">elseif</span> strcmp(spatialZone.SourceType, <span class="string">'ps'</span>)
+0405                 obj.Bright_Zone = spatialZone;
+0406             <span class="keyword">elseif</span> strcmp(spatialZone.SourceType, <span class="string">'noise'</span>)
+0407                 obj.Bright_Zone = spatialZone;
+0408             <span class="keyword">else</span>
+0409                 error(<span class="string">'Incorrect zone type'</span>);
+0410             <span class="keyword">end</span>
+0411             
+0412         <span class="keyword">end</span>     
+0413         
+0414         <a name="_sub13" href="#_subfunctions" class="code">function f = getFrequency(obj)</a>
+0415             f = obj.k_global * 343 / (2 * pi);
+0416         <span class="keyword">end</span>
+0417         
+0418         <a name="_sub14" href="#_subfunctions" class="code">function obj = setReproRegionSize(obj, ReproRegionSize)</a>
+0419            obj.ReproRegionSize = ReproRegionSize;
+0420         <span class="keyword">end</span>
+0421         
+0422         <a name="_sub15" href="#_subfunctions" class="code">function obj = setWavenumberFromChildZone(obj)</a>
+0423            obj.k_global = obj.Bright_Zone.getWavenumber();
+0424         <span class="keyword">end</span>
+0425         
+0426         <a name="_sub16" href="#_subfunctions" class="code">function obj = setN(obj, N)</a>
+0427             <span class="keyword">if</span> N&gt;=1
+0428                 obj.N = N;
+0429             <span class="keyword">else</span>                
+0430                 obj = obj.setWavenumberFromChildZone(); <span class="comment">%Incase the child spatial zones have been changed</span>
+0431                 obj.N = 2 * obj.getGlobalModeLimit() + 1;
+0432             <span class="keyword">end</span>                
+0433             obj.Delta_phi = 2 * pi / obj.N;
+0434         <span class="keyword">end</span>
+0435         
+0436         <a name="_sub17" href="#_subfunctions" class="code">function [x,y] = getZoneIndices( obj, Zone )</a>
+0437             
+0438             znSz = int16( Zone.ZoneSize * obj.res );
+0439             rpSz = int16( size(obj.Soundfield_desired) );
+0440             x_ = ceil( Zone.Origin_q.X * obj.res );
+0441             y_ = ceil( Zone.Origin_q.Y * obj.res );
+0442             y = ((-znSz(1)/2+1):(znSz(1)/2)) + y_ + rpSz(1)/2;
+0443             x = ((-znSz(2)/2+1):(znSz(2)/2)) + x_ + rpSz(2)/2;
+0444         
+0445         <span class="keyword">end</span>
+0446         
+0447         <a name="_sub18" href="#_subfunctions" class="code">function obj = calcDesiredMask(obj)</a>
+0448             <span class="keyword">if</span> strcmpi( obj.Geometry, <span class="string">'circle'</span> )
+0449                 width = int16(obj.res * obj.Radius * 2);
+0450                 xyvec = linspace(-obj.Radius, obj.Radius , width);
+0451                 [xx,yy] = meshgrid(xyvec,xyvec);
+0452                 obj.Soundfield_desired_mask = xx.^2 + yy.^2 &lt;= (obj.Radius)^2 * ones(width, width);
+0453             <span class="keyword">elseif</span> contains( lower(obj.Geometry), <span class="string">'rect'</span> )
+0454                 width  = obj.ReproRegionSize(1) * obj.res;
+0455                 height = obj.ReproRegionSize(2) * obj.res;
+0456                 obj.Soundfield_desired_mask = ones(width, height);
+0457             <span class="keyword">end</span>
+0458         <span class="keyword">end</span>
+0459         
+0460         <a name="_sub19" href="#_subfunctions" class="code">function obj = norm_soundfield(obj)</a>
+0461             zone_ = obj.Bright_Zone;
+0462 <span class="comment">%             r = int16( zone_.Radius_q * obj.res );</span>
+0463 <span class="comment">%             r0= obj.Radius * obj.res;</span>
+0464 <span class="comment">%             x = ceil(zone_.Origin_q.X * obj.res);</span>
+0465 <span class="comment">%             y = ceil(zone_.Origin_q.Y * obj.res);</span>
+0466 <span class="comment">%             % xx = (-r:r-1) + x + r0;</span>
+0467 <span class="comment">%             % yy = (-r:r-1) + y + r0;</span>
+0468 <span class="comment">%             xx = (-r+1:r) + x + r0;</span>
+0469 <span class="comment">%             yy = (-r+1:r) + y + r0;</span>
+0470             [xx,yy] = obj.getZoneIndices( zone_ );
+0471             f_ = obj.Soundfield_desired( yy, xx ) .* zone_.Soundfield_d_mask;
+0472             
+0473             obj.Soundfield_desired = obj.Soundfield_desired ./ max(abs(real(f_(:))));
+0474         <span class="keyword">end</span>
+0475         
+0476         <a name="_sub20" href="#_subfunctions" class="code">function obj = extractSave_Zone(obj, zone)</a>
+0477             <span class="keyword">if</span> strcmp(zone, <span class="string">'Bright'</span>)
+0478                 zone_ = obj.Bright_Zone;
+0479             <span class="keyword">elseif</span> strcmp(zone, <span class="string">'Quiet'</span>)
+0480                 zone_ = obj.Quiet_Zone;
+0481             <span class="keyword">else</span>
+0482                 <span class="keyword">return</span>
+0483             <span class="keyword">end</span>
+0484             
+0485 <span class="comment">%             r = int16( zone_.Radius_q * obj.res );</span>
+0486 <span class="comment">%             r0= obj.Radius * obj.res;</span>
+0487 <span class="comment">%             x = ceil(zone_.Origin_q.X * obj.res);</span>
+0488 <span class="comment">%             y = ceil(zone_.Origin_q.Y * obj.res);</span>
+0489 <span class="comment">%             % xx = (-r:r-1) + x + r0;</span>
+0490 <span class="comment">%             % yy = (-r:r-1) + y + r0;</span>
+0491 <span class="comment">%             xx = (-r+1:r) + x + r0;</span>
+0492 <span class="comment">%             yy = (-r+1:r) + y + r0;</span>
+0493             
+0494             [xx,yy] = obj.getZoneIndices( zone_ );
+0495             
+0496             result = obj.Soundfield_desired( yy, xx ) .* zone_.Soundfield_d_mask;
+0497 
+0498             <span class="keyword">if</span> strcmp(zone, <span class="string">'Bright'</span>)
+0499                 obj.Bright_Field = result;
+0500             <span class="keyword">elseif</span> strcmp(zone, <span class="string">'Quiet'</span>)
+0501                 obj.Quiet_Field = result;
+0502             <span class="keyword">end</span>            
+0503         <span class="keyword">end</span>       
+0504         
+0505         <a name="_sub21" href="#_subfunctions" class="code">function direction = Angle_Calc(obj, field)</a>
+0506             angles = angle( field );
+0507             [U,V,W] = surfnorm( angles );
+0508             W(W~=0) = 1;
+0509             U = U .* W;
+0510             V = V .* W;
+0511             angles = complex( U, V );
+0512             angles( abs(angles) &gt; max( abs( angles(:) )/2 ) ) = 0;
+0513             direction = angle( mean2( angles(angles~=0) ) ) / pi * 180;
+0514         <span class="keyword">end</span>        
+0515         
+0516         <a name="_sub22" href="#_subfunctions" class="code">function obj = ErrorInBright_Calc(obj)</a>
+0517 
+0518             desired = obj.Bright_Zone.Soundfield_d .* obj.Bright_Zone.Soundfield_d_mask;
+0519             actual  = obj.Bright_Field;
+0520             obj.MSE_Bright_Field = mean( abs(desired(:) - actual(:)) .^ 2 ) / mean( abs(desired(:)) .^ 2 );
+0521             <span class="comment">% We calculate the error for every degree of phase and average</span>
+0522             <span class="comment">% the result</span>
+0523             <span class="comment">%obj.MSE_Bright_Field = 0;</span>
+0524 <span class="comment">%             for p = 1:360</span>
+0525 <span class="comment">%                 desired = real((obj.Bright_Zone.Soundfield_d * exp(-1i*p/180*pi)) .* obj.Bright_Zone.Soundfield_d_mask);</span>
+0526 <span class="comment">%                 actual  = real(obj.Bright_Field * exp(1i*p/180*pi));</span>
+0527 <span class="comment">%</span>
+0528 <span class="comment">%                 % MSE Value</span>
+0529 <span class="comment">%                 obj.MSE_Bright_Field = obj.MSE_Bright_Field + ...</span>
+0530 <span class="comment">%                                        sum(sum( abs(desired - actual) .^ 2 )) / ...</span>
+0531 <span class="comment">%                                        sum(sum( abs(   desired      ) .^ 2 )) / 360;</span>
+0532 <span class="comment">%             end</span>
+0533 
+0534             <span class="comment">% Error in Decibels</span>
+0535             obj.Err_dB_Bright_Field = mag2db( obj.MSE_Bright_Field );
+0536             
+0537             <span class="comment">% MSE Field</span>
+0538             obj.Bright_Error_Field =  (abs(desired - actual).^2) .* obj.Bright_Zone.Soundfield_d_mask./ <span class="keyword">...</span>
+0539                                             abs(desired).^2 ;
+0540         <span class="keyword">end</span>
+0541         
+0542         <a name="_sub23" href="#_subfunctions" class="code">function obj = ErrorInQuiet_Calc(obj)</a>
+0543             <span class="comment">% We calculate the error for every degree of phase and average</span>
+0544             <span class="comment">% the result</span>
+0545             quiet = zeros(size(obj.Quiet_Field));
+0546             obj.Quiet_Error_Field = zeros(size(obj.Quiet_Field));
+0547             obj.MSE_Quiet_Field = 0;
+0548             
+0549             <span class="keyword">for</span> p = 1:360
+0550                 quiet = obj.Quiet_Field * exp(1i*p/180*pi);
+0551                 <span class="comment">% MSE Field</span>
+0552                 obj.Quiet_Error_Field = abs(real(quiet )).^2 + 1i * abs(imag(quiet )).^2;
+0553                 obj.Quiet_Error_Field = obj.Quiet_Error_Field ./ nnz(obj.Quiet_Zone.Soundfield_d_mask);
+0554                 
+0555                 <span class="comment">% MSE Value</span>
+0556                 obj.MSE_Quiet_Field = obj.MSE_Quiet_Field + <span class="keyword">...</span>
+0557                                      (sum( real(obj.Quiet_Error_Field(:)) ) / 360 + <span class="keyword">...</span>
+0558                                       sum( imag(obj.Quiet_Error_Field(:)) ) / 360) / 2;
+0559                 
+0560             <span class="keyword">end</span>
+0561             
+0562             <span class="comment">% Error in Decibels</span>
+0563             obj.Err_dB_Quiet_Field = mag2db( obj.MSE_Quiet_Field );
+0564             
+0565             <span class="comment">% MSE Field (remove outside information)</span>
+0566             obj.Quiet_Error_Field = obj.Quiet_Error_Field ./ obj.Quiet_Zone.Soundfield_d_mask;
+0567         <span class="keyword">end</span>
+0568         
+0569         <a name="_sub24" href="#_subfunctions" class="code">function obj = Contrast_Calc(obj)</a>
+0570             <span class="comment">% We calculate the contrast for every degree of phase and average</span>
+0571             <span class="comment">% the result</span>
+0572             bright = zeros(size(obj.Bright_Field));
+0573             quiet  = zeros(size(obj.Quiet_Field));
+0574             numer  = zeros(size(obj.Bright_Field));
+0575             denom  = zeros(size(obj.Quiet_Field));
+0576             obj.Acoustic_Brightness_Contrast = 0;
+0577             
+0578             <span class="keyword">for</span> p = 1:360
+0579                 bright = obj.Bright_Field * exp(1i*p/180*pi);
+0580                 quiet  = obj.Quiet_Field  * exp(1i*p/180*pi);
+0581                 
+0582                 <span class="comment">% MSE difference</span>
+0583                 numer = abs(real(bright)).^2 + 1i * abs(imag(bright)).^2;
+0584                 denom = abs(real(quiet )).^2 + 1i * abs(imag(quiet )).^2;
+0585                 numer = (sum( real(numer(:)) ) + sum( imag(numer(:)) ))/2 / nnz(obj.Bright_Zone.Soundfield_d_mask);
+0586                 denom = (sum( real(denom(:)) ) + sum( imag(denom(:)) ))/2 / nnz(obj.Quiet_Zone.Soundfield_d_mask );
+0587                 
+0588                 <span class="comment">% Acoustic Brightness Contrast Value</span>
+0589                 obj.Acoustic_Brightness_Contrast = obj.Acoustic_Brightness_Contrast + numer / denom / 360;
+0590             <span class="keyword">end</span>
+0591             
+0592             <span class="comment">% Acoustic Brightness Contrast in Decibels</span>
+0593             obj.Acoustic_Brightness_Contrast_dB = mag2db( obj.Acoustic_Brightness_Contrast );
+0594                                     
+0595         <span class="keyword">end</span>
+0596                 
+0597 <span class="comment">%% Plotting Functions</span>
+0598         <a name="_sub25" href="#_subfunctions" class="code">function h = plotSoundfield(obj, field, colour, plotZones)</a>
+0599             <span class="keyword">if</span> nargin &lt; 4; plotZones = true; <span class="keyword">end</span>;
+0600             <span class="keyword">if</span> nargin &lt; 3; colour = parula; <span class="keyword">end</span>;
+0601             <span class="keyword">if</span> nargin &lt; 2; field = obj.Soundfield_desired; <span class="keyword">end</span>;
+0602             
+0603             ZaxisSize = max(abs(real(field(:))));
+0604             
+0605             CaxisSize = ZaxisSize;
+0606             <span class="keyword">if</span> ~isempty(obj.Bright_Field(:))
+0607                 CaxisSize = max(abs(real(obj.Bright_Field(:))))*4/3;
+0608             <span class="keyword">end</span>
+0609             
+0610             <span class="comment">%XYTick = [1 length(field)/4 length(field)/2 length(field)*3/4 length(field)];</span>
+0611             <span class="comment">%XYTickLabel = { -length(field)/2/obj.res, -length(field)/4/obj.res, 0, length(field)/4/obj.res, length(field)/2/obj.res};</span>
+0612             XYTick = [1  length(field)/2  length(field)];
+0613             XYTickLabel = { -length(field)/2/obj.res,  0,  length(field)/2/obj.res};
+0614             
+0615             <span class="comment">%             subplot(1,2,1);</span>
+0616             h = surf(real(field),<span class="string">'EdgeColor'</span>,<span class="string">'None'</span>);
+0617             colormap(colour);
+0618             view(2);
+0619             title(<span class="string">'Real'</span>,<span class="keyword">...</span>
+0620                 <span class="string">'FontWeight'</span>,<span class="string">'bold'</span>,<span class="keyword">...</span>
+0621                 <span class="string">'FontSize'</span>,24,<span class="keyword">...</span>
+0622                 <span class="string">'FontName'</span>,<span class="string">'Arial'</span>);
+0623             axis(<span class="string">'square'</span>);
+0624             box on;
+0625             axis([1 length(field) 1 length(field)]);
+0626             set(gca, <span class="string">'XTick'</span>, XYTick); set(gca, <span class="string">'XTickLabel'</span>, XYTickLabel);
+0627             set(gca, <span class="string">'YTick'</span>, XYTick); set(gca, <span class="string">'YTickLabel'</span>, XYTickLabel);
+0628             set(gca, <span class="string">'FontSize'</span>, 16);
+0629             set(gca, <span class="string">'FontName'</span>, <span class="string">'Arial'</span>);
+0630             <span class="comment">% Create xlabel</span>
+0631             xlabel(<span class="string">'Width (metres)'</span>,<span class="string">'FontSize'</span>,20,<span class="string">'FontName'</span>,<span class="string">'Arial'</span>);
+0632             <span class="comment">% Create ylabel</span>
+0633             ylabel(<span class="string">'Length (metres)'</span>,<span class="string">'FontSize'</span>,20,<span class="string">'FontName'</span>,<span class="string">'Arial'</span>);
+0634             <span class="comment">% Create zlabel</span>
+0635             zlabel(<span class="string">'Amplitude'</span>,<span class="string">'Visible'</span>,<span class="string">'off'</span>);
+0636             caxis([-CaxisSize CaxisSize]);
+0637             <span class="keyword">if</span> (strcmp(version(<span class="string">'-release'</span>), <span class="string">'2012b'</span>))
+0638                 tick_str = <span class="string">'Ztick'</span>;
+0639             <span class="keyword">else</span>                
+0640                 tick_str = <span class="string">'Ticks'</span>;
+0641             <span class="keyword">end</span>
+0642             colorbar(tick_str,[-1 -0.5 0 0.5 1],<span class="string">'FontSize'</span>,16, <span class="string">'FontName'</span>,<span class="string">'Arial'</span>);
+0643            
+0644             <span class="keyword">if</span> plotZones
+0645                 obj.zonePlots(real(field));
+0646             <span class="keyword">end</span>
+0647             <span class="comment">%             subplot(1,2,2);</span>
+0648             <span class="comment">%             surf(imag(field),'EdgeColor','None');</span>
+0649             <span class="comment">%             view(2);</span>
+0650             <span class="comment">%             title('Imag');</span>
+0651             <span class="comment">%             axis('square');</span>
+0652             <span class="comment">%             axis([1 length(field) 1 length(field)]);</span>
+0653             <span class="comment">%             set(gca, 'XTick', XYTick); set(gca, 'XTickLabel', XYTickLabel);</span>
+0654             <span class="comment">%             set(gca, 'YTick', XYTick); set(gca, 'YTickLabel', XYTickLabel);</span>
+0655             <span class="comment">%             caxis([-CaxisSize CaxisSize]);</span>
+0656             <span class="comment">%             colorbar;</span>
+0657             <span class="comment">%             colormap(colour);</span>
+0658             <span class="comment">%             obj.zonePlots();</span>
+0659             
+0660         <span class="keyword">end</span>
+0661         
+0662         <a name="_sub26" href="#_subfunctions" class="code">function zonePlots(obj, field)</a>
+0663             <span class="keyword">if</span> nargin &lt; 2; field = obj.Soundfield_desired; <span class="keyword">end</span>;
+0664                 
+0665             <span class="comment">% For a Global Zone outline plot</span>
+0666             GlobalZone_temp = obj.Bright_Zone;
+0667             GlobalZone_temp.Origin_q = struct(<span class="string">'X'</span>,0,<span class="string">'Y'</span>,0);
+0668             GlobalZone_temp.Radius_q = obj.Radius;
+0669 
+0670             maxZ = max(real(field(:)));
+0671             hold on
+0672             th = 0:pi/obj.res:2*pi;
+0673             SpatialZones = [obj.Quiet_Zone obj.Bright_Zone GlobalZone_temp];
+0674             
+0675             <span class="keyword">for</span> q = 1:length(SpatialZones)
+0676                 Ox = SpatialZones(q).Origin_q.X * obj.res + length(field) / 2 + 1;
+0677                 Oy = SpatialZones(q).Origin_q.Y * obj.res + length(field) / 2 + 1;
+0678                 xunit = SpatialZones(q).Radius_q * obj.res * cos(th) + Ox;
+0679                 yunit = SpatialZones(q).Radius_q * obj.res * sin(th) + Oy;
+0680                 plot3(xunit, yunit, ones(length(xunit),1)*maxZ, <span class="string">'Color'</span>, [0 0 1], <span class="string">'LineWidth'</span>, 3);
+0681             <span class="keyword">end</span>            
+0682             
+0683             hold off
+0684         <span class="keyword">end</span>
+0685         
+0686     <span class="keyword">end</span>
+0687     
+0688 <span class="keyword">end</span>
+0689</pre></div>
+<hr><address>Generated on Sun 09-Jul-2017 20:35:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

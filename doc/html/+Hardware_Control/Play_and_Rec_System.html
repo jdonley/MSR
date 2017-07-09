@@ -1,0 +1,131 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of Play_and_Rec_System</title>
+  <meta name="keywords" content="Play_and_Rec_System">
+  <meta name="description" content="">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">+Hardware_Control</a> &gt; Play_and_Rec_System.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for +Hardware_Control&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>Play_and_Rec_System
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong></strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function Play_and_Rec_System(SYS) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"></pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function Play_and_Rec_System(SYS)</a>
+0002 clear;
+0003 
+0004 <span class="comment">%%</span>
+0005 <span class="keyword">if</span> nargin &lt; 1, SYS = Current_Systems.loadCurrentSRsystem; <span class="keyword">end</span>
+0006 
+0007 <span class="comment">% If a realworld recording is not specified in the system then abort</span>
+0008 <span class="keyword">if</span> ~any(strcmpi(strrep(SYS.signal_info.recording_type,<span class="string">'-'</span>,<span class="string">''</span>),<span class="string">'realworld'</span>)), delete(gcp(<span class="string">'nocreate'</span>)); <span class="keyword">return</span>; <span class="keyword">end</span>
+0009 
+0010 <span class="comment">%%</span>
+0011 <span class="comment">%Flip loudspeaker order (effectively flips entire setup) (false if not needed)</span>
+0012 <span class="comment">% (Only do this if loudspeakers have been calibrated in reverse order too)</span>
+0013 MirrorSetup = SYS.system_info.MirrorSetup;
+0014 
+0015 <span class="comment">% Flip loudspeaker and mic order (effectively flips entire setup)</span>
+0016 <span class="keyword">if</span> MirrorSetup
+0017     SYS.system_info.playbackChannels = flip(SYS.system_info.playbackChannels);
+0018     SYS.system_info.recordChannels = flip(SYS.system_info.recordChannels);
+0019 <span class="keyword">end</span>
+0020 
+0021 <span class="comment">% False or True to record reference signal</span>
+0022 <span class="keyword">if</span> SYS.signal_info.reference
+0023     SYS.system_info.playbackChannels = SYS.signal_info.reference_channel;
+0024 <span class="keyword">end</span>
+0025 
+0026 
+0027 <span class="comment">%%</span>
+0028 <span class="comment">% Playback master gain</span>
+0029 master_gain = -50; <span class="comment">%dB (usually -50dB for recordings)</span>
+0030 
+0031 noise_levels_vec = SYS.signal_info.L_noise_mask;
+0032 <span class="comment">% noise_levels_vec(noise_levels_vec&gt;0)=[]; % Not needed if loudspeaker</span>
+0033 <span class="comment">% power is normalised in Hardware_Control.playMSR_andRec() function.</span>
+0034 
+0035 SYS.signal_info.L_noise_mask = -inf;
+0036 masker_signal_info = SYS.signal_info;
+0037 
+0038 <span class="comment">%%</span>
+0039 paired = isfield(SYS.signal_info,<span class="string">'methods_list_paired'</span>) &amp;&amp; SYS.signal_info.methods_list_paired;
+0040 
+0041 ml_tmp = SYS.signal_info.methods_list;
+0042 <span class="keyword">for</span> c = SYS.signal_info.methods_list_clean
+0043     masker_list = SYS.signal_info.methods_list_masker;
+0044     <span class="keyword">if</span> paired
+0045         masker_list = masker_list(c);
+0046     <span class="keyword">end</span>
+0047     <span class="keyword">for</span> m = masker_list
+0048         m(m&lt;1)=[];
+0049         
+0050         SYS.signal_info.method = [ml_tmp{c}];
+0051         masker_signal_info.method = [ml_tmp{m}];
+0052         
+0053         <span class="comment">% If we are performing an SPL analysis then there is no masker and</span>
+0054         <span class="comment">% the masker method is used for the recording path as NoMask</span>
+0055         <span class="keyword">if</span> isempty(masker_signal_info.method) &amp;&amp; any(strcmp(SYS.analysis_info.Measures,<span class="string">'SPL'</span>))
+0056             masker_signal_info.method = SYS.signal_info.method;
+0057         <span class="keyword">end</span>
+0058         
+0059         subSYS = SYS;
+0060         subSYS.Main_Setup(~(c==SYS.signal_info.methods_list_clean))=[];
+0061         subSYS.Masker_Setup(~(m==SYS.signal_info.methods_list_masker))=[];
+0062         
+0063         <span class="keyword">if</span> strcmpi( <span class="keyword">...</span>
+0064                 SYS.system_info.CurrentSpeakerArrayType, <span class="keyword">...</span>
+0065                 subSYS.Main_Setup.Speaker_Array_Type)
+0066             <span class="keyword">for</span> noise_mask = noise_levels_vec
+0067                 
+0068                 <span class="comment">% masker_signal_info = [];</span>
+0069                 <span class="comment">% SYS.Masker_Setup = [];</span>
+0070                 
+0071                 <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0072                 masker_signal_info.L_noise_mask = noise_mask; <span class="comment">% dB</span>
+0073                 <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0074                 
+0075                 <span class="comment">%% Playback from setup, setup_info and system_info and record the result</span>
+0076                 Hardware_Control.playMSR_andRec( subSYS.Main_Setup, SYS.Room_Setup, SYS.signal_info, SYS.system_info, subSYS.Masker_Setup, masker_signal_info, master_gain );
+0077                 
+0078                 fprintf(<span class="string">'\nFinished noise mask level %d \n\n'</span>,noise_mask);
+0079                 
+0080             <span class="keyword">end</span>
+0081         <span class="keyword">end</span>
+0082     <span class="keyword">end</span>
+0083 <span class="keyword">end</span>
+0084 SYS.signal_info.methods_list = ml_tmp;</pre></div>
+<hr><address>Generated on Sun 09-Jul-2017 20:35:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

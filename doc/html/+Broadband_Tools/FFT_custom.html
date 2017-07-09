@@ -1,0 +1,190 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of FFT_custom</title>
+  <meta name="keywords" content="FFT_custom">
+  <meta name="description" content="FFT_CUSTOM Summary of this function goes here">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">+Broadband_Tools</a> &gt; FFT_custom.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for +Broadband_Tools&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>FFT_custom
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>FFT_CUSTOM Summary of this function goes here</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [ Y, frequencies, Frames, Windows, Yo, Frames_orig] = FFT_custom( audio_pathORdata, signal_info ) %Nfft, Fs, Overlap, pad, delay, BuffLen ) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">FFT_CUSTOM Summary of this function goes here
+   Detailed explanation goes here</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [ Y, frequencies, Frames, Windows, Yo, Frames_orig] = FFT_custom( audio_pathORdata, signal_info ) </a><span class="comment">%Nfft, Fs, Overlap, pad, delay, BuffLen )</span>
+0002 <span class="comment">%FFT_CUSTOM Summary of this function goes here</span>
+0003 <span class="comment">%   Detailed explanation goes here</span>
+0004 Nfft = signal_info.Nfft;
+0005 Fs = signal_info.Fs;
+0006 Overlap = signal_info.overlap;
+0007 pad = signal_info.zeropadtime;
+0008 delay = signal_info.time_delay;
+0009 BuffLen = signal_info.predict_buff;
+0010 
+0011 <span class="comment">%% Read audio file</span>
+0012 in_type=whos(<span class="string">'audio_pathORdata'</span>);in_type=in_type.class;
+0013 <span class="keyword">if</span> strcmp( in_type, <span class="string">'char'</span> )
+0014     
+0015     [x, Fs_file] = audioread( audio_pathORdata );
+0016     
+0017     <span class="keyword">if</span> ~isempty(Fs) &amp;&amp; Fs ~= Fs_file
+0018         error([<span class="string">'Sampling frequency of the file ('</span> <span class="keyword">...</span>
+0019             num2str(Fs_file) <span class="keyword">...</span>
+0020             <span class="string">'Hz) does not match the given sampling frequency ('</span> <span class="keyword">...</span>
+0021             num2str(Fs_file) <span class="string">'Hz) .'</span>]);
+0022     <span class="keyword">end</span>
+0023     Fs = Fs_file;
+0024 <span class="keyword">else</span>
+0025     
+0026     x = audio_pathORdata;
+0027     
+0028     <span class="keyword">if</span> isempty(Fs)
+0029         Fs = 16000; <span class="comment">% 16kHz sampling frequency</span>
+0030     <span class="keyword">end</span>
+0031 <span class="keyword">end</span>
+0032 
+0033 <span class="comment">% if nargin &lt; 2</span>
+0034 <span class="comment">%     Nfft = 1024; % 1024 samples per frame</span>
+0035 <span class="comment">% end</span>
+0036 <span class="comment">% if nargin &lt; 4</span>
+0037 <span class="comment">%     Overlap = 0.5;</span>
+0038 <span class="comment">% end</span>
+0039 <span class="comment">% if nargin &lt; 5</span>
+0040 <span class="comment">%     pad = [];</span>
+0041 <span class="comment">% end</span>
+0042 <span class="comment">% if nargin &lt; 6</span>
+0043 <span class="comment">%     delay = 0;</span>
+0044 <span class="comment">% end</span>
+0045 <span class="comment">% if nargin &lt; 7</span>
+0046 <span class="comment">%     BuffLen = 1;</span>
+0047 <span class="comment">% end</span>
+0048 <span class="keyword">if</span> isempty(delay)
+0049     delay = Nfft / Fs; <span class="comment">% Assume delay is equivalent to frame length</span>
+0050     <span class="comment">%(i.e. how long it takes to get the frame is the number of samples in that frame)</span>
+0051 <span class="keyword">end</span>
+0052 
+0053 <span class="keyword">if</span> ~isempty(pad)
+0054     Npad = pad * Fs;
+0055 <span class="comment">%     Nframe = Nfft + Npad;</span>
+0056     <span class="comment">%    Nfft = Nfft / 2;</span>
+0057 <span class="keyword">end</span>
+0058 
+0059 
+0060 <span class="keyword">if</span> size(x,2) &gt; 1 <span class="comment">% If audio is not mono then sum audio from all channels together</span>
+0061     <span class="comment">%x = sum(x,2);</span>
+0062 <span class="keyword">end</span>
+0063 x = x(:,1);
+0064 
+0065 <span class="comment">%% Split audio file into frames with overlap</span>
+0066 Frames = enframe( x, Nfft, (1-Overlap)*Nfft );
+0067 N_of_frames = size(Frames,1);
+0068 
+0069 <span class="comment">%% Predict ahead and frame</span>
+0070 Frames_orig = Frames;
+0071  <span class="keyword">if</span> signal_info.predict_buff ~= 0
+0072     Inc = (1-Overlap)*Nfft;
+0073     
+0074     Predict_Buffer = [zeros( Nfft/Inc * (signal_info.predict_buff-1), Nfft*BuffLen); <span class="keyword">...</span>
+0075         enframe( [x((Nfft-delay*Fs+1):end); zeros(Nfft-delay*Fs,1)], <span class="keyword">...</span>
+0076         Nfft*BuffLen, Inc )];
+0077 
+0078     <span class="keyword">if</span> isfield(signal_info,<span class="string">'AR_method'</span>)
+0079         Frames = Broadband_Tools.PredictiveFraming( <span class="keyword">...</span>
+0080             Frames, Predict_Buffer, delay*Fs , signal_info.AR_method );
+0081     <span class="keyword">else</span>
+0082         Frames = Broadband_Tools.PredictiveFraming( Frames, Predict_Buffer, delay*Fs , <span class="string">'burg'</span> );
+0083     <span class="keyword">end</span>
+0084  <span class="keyword">end</span>
+0085 
+0086 <span class="comment">%% Zero pad</span>
+0087 <span class="keyword">if</span> ~isempty(pad)
+0088     
+0089     Frames_orig = [zeros(N_of_frames,Npad/2), <span class="keyword">...</span>
+0090         Frames_orig, <span class="keyword">...</span>
+0091         zeros(N_of_frames,Npad/2)];
+0092     
+0093     N_of_frames = size(Frames,1);
+0094     Frames = [zeros(N_of_frames,Npad/2), <span class="keyword">...</span>
+0095         Frames, <span class="keyword">...</span>
+0096         zeros(N_of_frames,Npad/2)];
+0097 <span class="keyword">end</span>
+0098 
+0099 
+0100 <span class="comment">%% Apply windowing to each frame</span>
+0101 <span class="keyword">if</span> mod(Nfft,2) <span class="comment">% If odd set to periodic hanning window</span>
+0102     window_ = hanning(Nfft);
+0103 <span class="keyword">else</span>
+0104     window_ = [hanning(Nfft-1);0];
+0105 <span class="keyword">end</span>
+0106 
+0107 <span class="comment">%Square root window</span>
+0108 window_ = sqrt(window_);
+0109 
+0110 <span class="comment">% Hanning window sums to unity on overlap add for 50% overlap</span>
+0111 <span class="comment">% So adjust for more overlaps</span>
+0112 IncF = 1/(1-Overlap); <span class="comment">% 1 / Increment</span>
+0113 <span class="keyword">if</span> floor(log2(IncF))==log2(IncF) <span class="comment">%if increment is pow of 2 less than 50% overlap</span>
+0114     window_ = window_ / (IncF/2);
+0115 <span class="keyword">end</span>
+0116 
+0117 Windows = repmat( window_.', [N_of_frames 1]);
+0118 
+0119 <span class="keyword">if</span> ~isempty(pad)
+0120     Windows = [zeros(N_of_frames,Npad/2), <span class="keyword">...</span>
+0121         Windows, <span class="keyword">...</span>
+0122         zeros(N_of_frames,Npad/2)];
+0123 <span class="keyword">end</span>
+0124 
+0125 <span class="keyword">if</span> ~isfield(signal_info,<span class="string">'window'</span>) || (isfield(signal_info,<span class="string">'window'</span>) &amp;&amp; signal_info.window)
+0126     Frames = Frames .* Windows;
+0127     Frames_orig = Frames_orig .* Windows(1:size(Frames_orig,1),:);
+0128 <span class="keyword">end</span>
+0129 
+0130 <span class="comment">%% Compute FFT of each frame</span>
+0131 Y  = fft(Frames, [], 2) / size(Frames,2);
+0132 Yo = fft(Frames_orig, [], 2) / size(Frames_orig,2);
+0133 frequencies = linspace(0, Fs/2, size(Frames,2)/2+1);
+0134 frequencies = frequencies(1:end-1); <span class="comment">% We do not return the Nyquist Frequency because it folds to the equivalent of the negative DC frequency</span>
+0135 
+0136 <span class="comment">%% Return Amplitude and Phase for every frequency for each frame.</span>
+0137 Y = Y(:,1:size(Frames,2)/2); <span class="comment">% One-sided spectrum from (assumed) real signal input</span>
+0138 Yo = Yo(:,1:size(Frames_orig,2)/2); <span class="comment">% One-sided spectrum from (assumed) real signal input</span>
+0139 
+0140 
+0141 <span class="keyword">end</span>
+0142</pre></div>
+<hr><address>Generated on Sun 09-Jul-2017 20:35:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

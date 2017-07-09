@@ -1,0 +1,107 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of stoi_d2percCorr</title>
+  <meta name="keywords" content="stoi_d2percCorr">
+  <meta name="description" content="STOI_D2PERCCORR Converts the stoi measure, d, to percent words correct unit">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">+Tools</a> &gt; stoi_d2percCorr.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for +Tools&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>stoi_d2percCorr
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>STOI_D2PERCCORR Converts the stoi measure, d, to percent words correct unit</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [stoi_PercCorr] = stoi_d2percCorr(stoi_d) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">STOI_D2PERCCORR Converts the stoi measure, d, to percent words correct unit
+ 
+ Syntax:    [stoi_PercCorr] = stoi_d2percCorr(stoi_d) 
+ 
+ Inputs: 
+     stoi_d - The STOI measure in the raw units
+ 
+ Outputs: 
+     stoi_PercCorr - The corressponding STOI value in Percent of Words
+     Correct as defined for the IEEE English Library
+
+ 
+    References:
+      C. H. Taal, R. C. Hendriks, R. Heusdens, and J. Jensen. A Short-Time
+      Objective Intelligibility Measure for Time-Frequency Weighted Noisy
+      Speech. In Acoustics Speech and Signal Processing (ICASSP), pages
+      4214-4217. IEEE, 2010.
+      
+      C. H. Taal, R. C. Hendriks, R. Heusdens, and J. Jensen. An Algorithm
+      for Intelligibility Prediction of Time-Frequency Weighted Noisy Speech.
+      IEEE Transactions on Audio, Speech and Language Processing,
+      19(7):2125-2136, 2011.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [stoi_PercCorr] = stoi_d2percCorr(stoi_d)</a>
+0002 <span class="comment">%STOI_D2PERCCORR Converts the stoi measure, d, to percent words correct unit</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% Syntax:    [stoi_PercCorr] = stoi_d2percCorr(stoi_d)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% Inputs:</span>
+0007 <span class="comment">%     stoi_d - The STOI measure in the raw units</span>
+0008 <span class="comment">%</span>
+0009 <span class="comment">% Outputs:</span>
+0010 <span class="comment">%     stoi_PercCorr - The corressponding STOI value in Percent of Words</span>
+0011 <span class="comment">%     Correct as defined for the IEEE English Library</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">%    References:</span>
+0015 <span class="comment">%      C. H. Taal, R. C. Hendriks, R. Heusdens, and J. Jensen. A Short-Time</span>
+0016 <span class="comment">%      Objective Intelligibility Measure for Time-Frequency Weighted Noisy</span>
+0017 <span class="comment">%      Speech. In Acoustics Speech and Signal Processing (ICASSP), pages</span>
+0018 <span class="comment">%      4214-4217. IEEE, 2010.</span>
+0019 <span class="comment">%</span>
+0020 <span class="comment">%      C. H. Taal, R. C. Hendriks, R. Heusdens, and J. Jensen. An Algorithm</span>
+0021 <span class="comment">%      for Intelligibility Prediction of Time-Frequency Weighted Noisy Speech.</span>
+0022 <span class="comment">%      IEEE Transactions on Audio, Speech and Language Processing,</span>
+0023 <span class="comment">%      19(7):2125-2136, 2011.</span>
+0024 
+0025 <span class="comment">% Author: Jacob Donley</span>
+0026 <span class="comment">% University of Wollongong</span>
+0027 <span class="comment">% Email: jrd089@uowmail.edu.au</span>
+0028 <span class="comment">% Date: 05 August 2015</span>
+0029 <span class="comment">% Revision: 0.1</span>
+0030 <span class="comment">%</span>
+0031 <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0032 
+0033 f_IEEE_a = -17.4906;
+0034 f_IEEE_b = 9.6921;
+0035 
+0036 stoi_PercCorr = 100 / (1 + exp(f_IEEE_a * stoi_d + f_IEEE_b ) );
+0037 
+0038 
+0039 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Sun 09-Jul-2017 20:35:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

@@ -1,0 +1,181 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of getAliasingFrequency</title>
+  <meta name="keywords" content="getAliasingFrequency">
+  <meta name="description" content="GETALIASINGFREQUENCY Summary of this function goes here">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">+Broadband_Tools</a> &gt; getAliasingFrequency.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for +Broadband_Tools&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>getAliasingFrequency
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>GETALIASINGFREQUENCY Summary of this function goes here</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [ k ] = getAliasingFrequency( setup, method ) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">GETALIASINGFREQUENCY Summary of this function goes here
+   Detailed explanation goes here</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [ k ] = getAliasingFrequency( setup, method )</a>
+0002 <span class="comment">%GETALIASINGFREQUENCY Summary of this function goes here</span>
+0003 <span class="comment">%   Detailed explanation goes here</span>
+0004 <span class="keyword">if</span> nargin &lt; 2
+0005     method = <span class="string">'new'</span>;
+0006 <span class="keyword">end</span>
+0007 
+0008 <span class="comment">%% Known Constants</span>
+0009 width = double(int16(setup.res * setup.Radius * 2));
+0010 O = [width / 2; <span class="keyword">...</span><span class="comment">                                             %Origin</span>
+0011     width / 2; <span class="keyword">...</span>
+0012     0 * setup.res];
+0013 B =[setup.Multizone_Soundfield.Bright_Zone.Origin_q.X;<span class="keyword">...</span><span class="comment">       % Bright zone center point</span>
+0014     setup.Multizone_Soundfield.Bright_Zone.Origin_q.Y; <span class="keyword">...</span>
+0015     0] * setup.res + O;
+0016 [Bth,Br]=cart2pol(B(1)/setup.res, B(2)/setup.res);              <span class="comment">% Bright zone angle and distance</span>
+0017 [Bth_,Br_]=cart2pol((B(1)-O(1))/setup.res, (B(2)-O(2))/setup.res);    <span class="comment">% Bright zone angle and distance from origin</span>
+0018 Q =[setup.Multizone_Soundfield.Quiet_Zone.Origin_q.X;<span class="keyword">...</span><span class="comment">        % Quiet zone center point</span>
+0019     setup.Multizone_Soundfield.Quiet_Zone.Origin_q.Y; <span class="keyword">...</span>
+0020     0] * setup.res + O;
+0021 [Qth,Qr]=cart2pol(Q(1)/setup.res, Q(2)/setup.res);              <span class="comment">% Quiet zone angle and distance</span>
+0022 [Qth_,Qr_]=cart2pol((Q(1)-O(1))/setup.res, (Q(2)-O(2))/setup.res);    <span class="comment">% Quiet zone angle and distance from origin</span>
+0023 r1 = setup.Multizone_Soundfield.Bright_Zone.Radius_q;           <span class="comment">% Bright zone radius</span>
+0024 r2 = setup.Multizone_Soundfield.Quiet_Zone.Radius_q;            <span class="comment">% Quiet zone radius</span>
+0025 theta = setup.Multizone_Soundfield.Bright_Zone.SourceOrigin.Angle/180*pi;   <span class="comment">% Angle of bright zone desired wave</span>
+0026 L = setup.Loudspeaker_Count;                                    <span class="comment">% Number of loudspeakers</span>
+0027 D_l = setup.Speaker_Array_Length;                                 <span class="comment">% Length of loudspeaker array (for linear array)</span>
+0028 phi_c = setup.Speaker_Array_Centre/180*pi;                        <span class="comment">% Angle to center of array</span>
+0029 Rl = (setup.Radius);                                            <span class="comment">% Loudspeaker radius (for circular array) OR Perpendicular distance to center of linear array</span>
+0030 phi_L=setup.Speaker_Arc_Angle/180*pi;                           <span class="comment">% Angle of loudspeaker array (angle from begining to end)</span>
+0031 R = setup.Multizone_Soundfield.Radius;
+0032 Rprime = max([r1+Br_,r2+Qr_]);                                    <span class="comment">% Smallest circular radius encompassing all zones</span>
+0033 
+0034 <span class="comment">% Some common vectors</span>
+0035 Bv = B-O; <span class="comment">% Vector for point B</span>
+0036 Qv = Q-O; <span class="comment">% Vector for point Q</span>
+0037 
+0038 <span class="comment">%% Compute Unknown Values</span>
+0039 <span class="keyword">if</span> strcmpi(<span class="string">'2line'</span>,setup.Speaker_Array_Type)
+0040     setup.Speaker_Array_Type = <span class="string">'line'</span>;
+0041     L=L/2;
+0042 <span class="keyword">end</span>
+0043 <span class="keyword">if</span> strcmpi(<span class="string">'line'</span>,setup.Speaker_Array_Type)
+0044     <span class="comment">%% Linear Array %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0045     C = O + setup.res*Rl*[cos(phi_c) -sin(phi_c) 0;<span class="keyword">...</span><span class="comment">      % Center point of loudspeaker array</span>
+0046         sin(phi_c)  cos(phi_c) 0;<span class="keyword">...</span>
+0047         0           0      1]*[1;0;0];
+0048     m1 = [cos(theta);sin(theta);0];                         <span class="comment">% Planewave unit vector</span>
+0049     m2 = [cos(phi_c-pi/2);sin(phi_c-pi/2);0];               <span class="comment">% Loudspeaker array unit vector</span>
+0050     A_=[m1 -m2];    b_ = [C-B]; w = pinv(A_)*b_;            <span class="comment">% Solve intersection of planewave and loudspeaker array</span>
+0051     P = B+w(1)*m1; P_ = C+w(2)*m2;                          <span class="comment">% Find point of intersection</span>
+0052     <span class="keyword">if</span> ~all(round(P,10)==round(P_,10))                      <span class="comment">% Check if intersection occurred</span>
+0053         error(<span class="string">'Planewave does not intersect loudspeaker array.'</span>);
+0054     <span class="keyword">end</span>
+0055     
+0056     Pv = P-O;                                               <span class="comment">% Intersection point vector</span>
+0057     PQv = Qv-Pv;                                            <span class="comment">% Intersection to Quiet zone vector</span>
+0058     d = sqrt(sum((Q-P).^2))/setup.res;                      <span class="comment">% Length of PQ vector</span>
+0059     gam_found=[];
+0060     <span class="keyword">for</span> pm = [-1 1]                                         <span class="comment">% Find tangent either side of the zone</span>
+0061         <span class="keyword">if</span> abs(r1+r2) &lt;= d
+0062         alph_=pm*asin((r1+r2)/d);                           <span class="comment">% Maximum allowable angle of grating lobe</span>
+0063                                                             <span class="comment">% Numerator in arcsin gives distance from quiet zone center to consider aliasing frequency</span>
+0064         <span class="keyword">else</span> alph_=pm*pi/2;
+0065         <span class="keyword">end</span>
+0066         PAv=[cos(alph_) -sin(alph_) 0;<span class="keyword">...</span><span class="comment">                   % Tangent</span>
+0067             sin(alph_)  cos(alph_) 0;<span class="keyword">...</span>
+0068             0           0      1] * PQv;                        
+0069         PBv = Bv-Pv;                                        <span class="comment">% Intersection to Bright zone vector</span>
+0070         gam_found(end+1) = atan2(norm(cross(PAv,PBv)), dot(PAv,PBv));   <span class="comment">% One of two maximum allowable angles for the grating lobe</span>
+0071         <span class="comment">% MATHEMATICALLY EQUIVALENT --&gt; acos(dot(v1, v2) / (norm(v1) * norm(v2)))</span>
+0072     <span class="keyword">end</span>
+0073     
+0074     gam_found = max(gam_found);                             <span class="comment">% Choose the angle farthest from the planewave vector</span>
+0075     Theta = abs(pi - abs(theta) - abs(phi_c) );             <span class="comment">% Find adjusted angle from centre of array</span>
+0076     k =   2*pi*(L-1) / (abs(sin(gam_found - Theta) + sin(Theta))*D_l) ;    <span class="comment">% Equivalent grating lobe frequency</span>
+0077     <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0078     
+0079 <span class="keyword">elseif</span> strcmpi(<span class="string">'circle'</span>,setup.Speaker_Array_Type)
+0080     <span class="comment">%% Circular Array %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0081     <span class="comment">% Perpendicular distance from planewave vector to center</span>
+0082     d_pb = abs( Br_*sin(-theta + Bth_) );
+0083     
+0084     <span class="comment">% Angle to point of intersection of planewave vector and loudspeaker</span>
+0085     <span class="comment">% array</span>
+0086     alpha_ = pi +theta - asin(d_pb/Rl);
+0087     
+0088     <span class="comment">% Find tangent</span>
+0089     P = O + Rl*setup.res * <span class="keyword">...</span>
+0090         [cos(alpha_) -sin(alpha_) 0;<span class="keyword">...</span>
+0091         sin(alpha_)  cos(alpha_) 0;<span class="keyword">...</span>
+0092         0           0       1]*[1;0;0];    
+0093     Pv = P-O;
+0094     PQv = Qv-Pv;
+0095     d = sqrt(sum((Q-P).^2))/setup.res;
+0096     
+0097     d_u=[];
+0098     <span class="keyword">for</span> pm = [-1 1]
+0099         <span class="comment">%alph_ is angle of one of two tangents</span>
+0100         alph_ = pm * asin((r1+r2)/d);
+0101         
+0102         <span class="comment">%PAv is one of two tangents</span>
+0103         PAv=[cos(alph_) -sin(alph_) 0;<span class="keyword">...</span>
+0104             sin(alph_)  cos(alph_) 0;<span class="keyword">...</span>
+0105             0           0      1] * PQv;
+0106         
+0107         rotMat_90 = [cos(pi/2) -sin(pi/2) 0;<span class="keyword">...</span>
+0108             sin(pi/2)  cos(pi/2) 0;<span class="keyword">...</span>
+0109             0           0      1];
+0110         <span class="comment">% d_u is perpendicular distance of one tangent to the center</span>
+0111         d_u(end+1) = abs(  Pv.'   * (rotMat_90*PAv  )) <span class="keyword">...</span>
+0112             / sqrt(sum((PAv  ).^2)) / setup.res;
+0113     <span class="keyword">end</span>
+0114     d_u = max(d_u); <span class="comment">%Choose the farthest from the center (outermost tangent)</span>
+0115     
+0116     
+0117     <span class="comment">% Maximum allowable aliasing frequency</span>
+0118     <span class="keyword">if</span> strcmpi(<span class="string">'pw'</span>,setup.Multizone_Soundfield.Bright_Zone.SourceType) &amp;&amp; strcmpi(method,<span class="string">'new'</span>)
+0119         k = max( <span class="keyword">...</span>
+0120             [(2*pi*L - phi_L) / ((d_u + d_pb)*phi_L), <span class="keyword">...</span>
+0121             (2*pi*L - phi_L) / (2*Rprime*phi_L)]);
+0122     <span class="keyword">elseif</span> strcmpi(method,<span class="string">'old'</span>)
+0123         k = (2*pi*L - phi_L) / (2*Rprime*phi_L);
+0124     <span class="keyword">elseif</span> strcmpi(method,<span class="string">'old2'</span>)
+0125         k = (2*pi*L - phi_L) / (2*R*phi_L);
+0126     
+0127     <span class="keyword">end</span>
+0128     <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0129     
+0130 <span class="keyword">end</span>
+0131 
+0132 <span class="keyword">end</span>
+0133</pre></div>
+<hr><address>Generated on Sun 09-Jul-2017 20:35:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

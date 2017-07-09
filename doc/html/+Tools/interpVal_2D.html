@@ -1,0 +1,134 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of interpVal_2D</title>
+  <meta name="keywords" content="interpVal_2D">
+  <meta name="description" content="INTERPVAL_2D This function will interpolate from desired abitrarily spaced index values in a 2D array">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">+Tools</a> &gt; interpVal_2D.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for +Tools&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>interpVal_2D
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>INTERPVAL_2D This function will interpolate from desired abitrarily spaced index values in a 2D array</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [ interpolated_values ] = interpVal_2D( values, index_values1, index_values2, desired_index_values1, desired_index_values2, interpolation_type ) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">INTERPVAL_2D This function will interpolate from desired abitrarily spaced index values in a 2D array
+ 
+ Syntax:    [ interpolated_values ] = interpVal_2D( values, index_values1, index_values2, desired_index_values1, desired_index_values2, interpolation_type )
+ 
+ Inputs: 
+     values - A 2D matrix of Z-axis values to interpolate between
+     index_values1 - The x-axis values of the matrix
+     index_values2 - The y-axis values of the matrix
+   desired_index_values1 - The desired x-axis values to interpolate to
+   (Can be spaced abitrarily)
+   desired_index_values2 - The desired y-axis values to interpolate to
+   (Can be spaced abitrarily)
+   interpolation_type - An interpolation type supported by interp2 (e.g.
+   'linear', 'nearest', 'cubic' or 'spline')
+ 
+ Outputs: 
+   interpolated_values - The new interpolated values
+ 
+ Example: 
+ 
+ See also: List related files here</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function classDirs = getClassDirs(FullPath)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [ interpolated_values ] = interpVal_2D( values, index_values1, index_values2, desired_index_values1, desired_index_values2, interpolation_type )</a>
+0002 <span class="comment">%INTERPVAL_2D This function will interpolate from desired abitrarily spaced index values in a 2D array</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% Syntax:    [ interpolated_values ] = interpVal_2D( values, index_values1, index_values2, desired_index_values1, desired_index_values2, interpolation_type )</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% Inputs:</span>
+0007 <span class="comment">%     values - A 2D matrix of Z-axis values to interpolate between</span>
+0008 <span class="comment">%     index_values1 - The x-axis values of the matrix</span>
+0009 <span class="comment">%     index_values2 - The y-axis values of the matrix</span>
+0010 <span class="comment">%   desired_index_values1 - The desired x-axis values to interpolate to</span>
+0011 <span class="comment">%   (Can be spaced abitrarily)</span>
+0012 <span class="comment">%   desired_index_values2 - The desired y-axis values to interpolate to</span>
+0013 <span class="comment">%   (Can be spaced abitrarily)</span>
+0014 <span class="comment">%   interpolation_type - An interpolation type supported by interp2 (e.g.</span>
+0015 <span class="comment">%   'linear', 'nearest', 'cubic' or 'spline')</span>
+0016 <span class="comment">%</span>
+0017 <span class="comment">% Outputs:</span>
+0018 <span class="comment">%   interpolated_values - The new interpolated values</span>
+0019 <span class="comment">%</span>
+0020 <span class="comment">% Example:</span>
+0021 <span class="comment">%</span>
+0022 <span class="comment">% See also: List related files here</span>
+0023 
+0024 <span class="comment">% Author: Jacob Donley</span>
+0025 <span class="comment">% University of Wollongong</span>
+0026 <span class="comment">% Email: jrd089@uowmail.edu.au</span>
+0027 <span class="comment">% Copyright: Jacob Donley 2017</span>
+0028 <span class="comment">% Date: 03 October 2015</span>
+0029 <span class="comment">% Revision: 0.1</span>
+0030 <span class="comment">%</span>
+0031 <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0032 <span class="keyword">if</span> nargin &lt; 6
+0033     interpolation_type = <span class="string">'linear'</span>;
+0034 <span class="keyword">end</span>
+0035 
+0036 <span class="comment">% Just incase this function tries to call interVal within a class folder we</span>
+0037 <span class="comment">% should create a function handle for interpVal regardless</span>
+0038 inf = dbstack(<span class="string">'-completenames'</span>);
+0039 funcName = <span class="string">'interpVal'</span>;
+0040 funcPath = inf.file;
+0041 classDirs = <a href="#_sub1" class="code" title="subfunction classDirs = getClassDirs(FullPath)">getClassDirs</a>(funcPath);
+0042 interpVal_ = str2func([classDirs funcName]);
+0043 
+0044 
+0045 <span class="comment">% Start interpolation procedure</span>
+0046 interpolated_indices1 = zeros(length(desired_index_values1) + 1,1);
+0047 interpolated_indices2 = zeros(length(desired_index_values2) + 1,1);
+0048 
+0049 [~, interpolated_indices1] = interpVal_(interpolated_indices1, index_values1, desired_index_values1);
+0050 [~, interpolated_indices2] = interpVal_(interpolated_indices2, index_values2, desired_index_values2);
+0051 
+0052 <span class="comment">%interpolated_values = interp2(values, interpolated_indices1, interpolated_indices2);</span>
+0053 interpolated_values = interp2(values, interpolated_indices1, interpolated_indices2, interpolation_type);
+0054 
+0055 <span class="keyword">end</span>
+0056 
+0057 <a name="_sub1" href="#_subfunctions" class="code">function classDirs = getClassDirs(FullPath)</a>
+0058     classDirs = <span class="string">''</span>;
+0059     classes = strfind(FullPath,<span class="string">'+'</span>);
+0060     <span class="keyword">for</span> c = 1:length(classes)
+0061         clas = FullPath(classes(c):end);
+0062         stp = strfind(clas,filesep);
+0063        classDirs = [classDirs  clas(2:stp(1)-1) <span class="string">'.'</span>];
+0064     <span class="keyword">end</span>
+0065 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Sun 09-Jul-2017 20:35:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

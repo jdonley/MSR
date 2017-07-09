@@ -1,0 +1,124 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of playMSR_andRec</title>
+  <meta name="keywords" content="playMSR_andRec">
+  <meta name="description" content="PLAYMSR_ANDREC Summary of this function goes here">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">+Hardware_Control</a> &gt; playMSR_andRec.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for +Hardware_Control&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>playMSR_andRec
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>PLAYMSR_ANDREC Summary of this function goes here</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function Recordings = playMSR_andRec( Main_Setup, Room_Setup, signal_info, system_info, Masker_Setup, masker_signal_info, gain_dB ) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">PLAYMSR_ANDREC Summary of this function goes here</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function Recordings = playMSR_andRec( Main_Setup, Room_Setup, signal_info, system_info, Masker_Setup, masker_signal_info, gain_dB )</a>
+0002 <span class="comment">%PLAYMSR_ANDREC Summary of this function goes here</span>
+0003 
+0004 <span class="keyword">if</span> nargin &lt; 5
+0005     Masker_Setup = [];
+0006     masker_signal_info=[];
+0007 <span class="keyword">end</span>
+0008 
+0009 <span class="keyword">if</span> nargin &lt; 7
+0010     gain_dB = 0;
+0011 <span class="keyword">end</span>
+0012 
+0013 
+0014 <span class="comment">%% Find and initialise hardware</span>
+0015 <span class="keyword">if</span> playrec(<span class="string">'isInitialised'</span>)
+0016     playrec(<span class="string">'reset'</span>);
+0017 <span class="keyword">end</span>
+0018 
+0019 devs = playrec(<span class="string">'getDevices'</span>);
+0020 dev = devs(strcmpi({devs.name}, system_info.dev_model));
+0021 <span class="keyword">if</span> isempty(dev)
+0022     wrnCol = [255,100,0]/255;
+0023     cprintf(wrnCol, <span class="string">'The hardware device model '''</span>);
+0024     cprintf(-wrnCol, [system_info.dev_model <span class="string">' '</span>]);fprintf(<span class="string">'\b'</span>);
+0025     cprintf(wrnCol, <span class="string">''' was not found.\n'</span>);
+0026     cprintf(wrnCol, <span class="string">'Skipping play and record procedure.\n'</span>);
+0027     <span class="keyword">return</span>;
+0028 <span class="keyword">end</span>
+0029 
+0030 playrec( <span class="string">'init'</span>, system_info.fs, dev.deviceID, dev.deviceID );
+0031 
+0032 
+0033 <span class="comment">%% Get signals</span>
+0034 [SpkrSignals, seg_details] = Hardware_Control.getMSR_Audio( Main_Setup, signal_info, system_info, Masker_Setup, masker_signal_info );
+0035 
+0036 <span class="comment">%% Normalise loudspeaker power</span>
+0037 SpkrSignals = SpkrSignals ./ db2mag(mean(mag2db(rms(SpkrSignals))));
+0038 
+0039 <span class="comment">%% Playback and Record</span>
+0040 recID = playrec(<span class="string">'playrec'</span>, <span class="keyword">...</span>
+0041     SpkrSignals .* db2mag(gain_dB), <span class="keyword">...</span>
+0042     system_info.playbackChannels, <span class="keyword">...</span>
+0043     -1, <span class="keyword">...</span><span class="comment"> % Record the same number of samples as the playback</span>
+0044     system_info.recordChannels);
+0045 
+0046 <span class="comment">%% Wait for recording</span>
+0047 fprintf(<span class="string">'\n====== Playing and Recording Multizone Soundfield Reproduction ======\n'</span>);
+0048 fprintf(<span class="string">'\tCompletion: '</span>);n=0;tic;
+0049 
+0050 <span class="keyword">while</span> ~playrec(<span class="string">'isFinished'</span>,recID)
+0051     pause(1);
+0052     n = Tools.showTimeToCompletion(toc/(size(SpkrSignals,1)/system_info.fs), n );
+0053 <span class="keyword">end</span>
+0054 fprintf(<span class="string">'\n'</span>);
+0055 
+0056 <span class="comment">%% Retrieve recording</span>
+0057 [Recordings, recChanList] = playrec(<span class="string">'getRec'</span>, recID );
+0058 
+0059 <span class="keyword">if</span> recChanList ~= system_info.recordChannels
+0060     error(<span class="string">'Recording completed with incorrect channel numbers'</span>);
+0061 <span class="keyword">end</span>
+0062 
+0063 
+0064 <span class="comment">%% Split and Save recordings if not asked for as output argument</span>
+0065 <span class="keyword">if</span> nargout == 0
+0066    Hardware_Control.splitSaveRecording( <span class="keyword">...</span>
+0067        Recordings, <span class="keyword">...</span>
+0068        seg_details, <span class="keyword">...</span>
+0069        Main_Setup, <span class="keyword">...</span>
+0070        Room_Setup, <span class="keyword">...</span>
+0071        signal_info, <span class="keyword">...</span>
+0072        masker_signal_info, <span class="keyword">...</span>
+0073        system_info); 
+0074 <span class="keyword">end</span>
+0075 
+0076 <span class="keyword">end</span>
+0077</pre></div>
+<hr><address>Generated on Sun 09-Jul-2017 20:35:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of ArbitraryOctaveFilt</title>
+  <meta name="keywords" content="ArbitraryOctaveFilt">
+  <meta name="description" content="ARBITRARYOCTAVEFILT Filters a signal with any arbitrary spectrum smoothed with any fractional octave band average">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">+Tools</a> &gt; ArbitraryOctaveFilt.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for +Tools&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>ArbitraryOctaveFilt
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>ARBITRARYOCTAVEFILT Filters a signal with any arbitrary spectrum smoothed with any fractional octave band average</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function y = ArbitraryOctaveFilt(x, SPECT, FREQS, N, fs, octBandwidth) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">ARBITRARYOCTAVEFILT Filters a signal with any arbitrary spectrum smoothed with any fractional octave band average
+ 
+ Syntax:    Y = ARBITRARYOCTAVEFILT(X, SPECT, FREQS, N, FS, OCTBANDWIDTH)
+ 
+ Inputs: 
+     x - Input signal to filter as a vector
+     SPECT - The spectrum to shape the input signal to
+     FREQS - The frequencies of each SPECT element
+     N - The length of the filter to usee
+     fs - Description
+     octBandwidth - Description
+ 
+ Outputs: 
+     y - Description
+ 
+ See also: fir2, filter</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function y = ArbitraryOctaveFilt(x, SPECT, FREQS, N, fs, octBandwidth)</a>
+0002 <span class="comment">%ARBITRARYOCTAVEFILT Filters a signal with any arbitrary spectrum smoothed with any fractional octave band average</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% Syntax:    Y = ARBITRARYOCTAVEFILT(X, SPECT, FREQS, N, FS, OCTBANDWIDTH)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% Inputs:</span>
+0007 <span class="comment">%     x - Input signal to filter as a vector</span>
+0008 <span class="comment">%     SPECT - The spectrum to shape the input signal to</span>
+0009 <span class="comment">%     FREQS - The frequencies of each SPECT element</span>
+0010 <span class="comment">%     N - The length of the filter to usee</span>
+0011 <span class="comment">%     fs - Description</span>
+0012 <span class="comment">%     octBandwidth - Description</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">% Outputs:</span>
+0015 <span class="comment">%     y - Description</span>
+0016 <span class="comment">%</span>
+0017 <span class="comment">% See also: fir2, filter</span>
+0018 
+0019 <span class="comment">% Author: Jacob Donley</span>
+0020 <span class="comment">% University of Wollongong</span>
+0021 <span class="comment">% Email: jrd089@uowmail.edu.au</span>
+0022 <span class="comment">% Copyright: Jacob Donley 2017</span>
+0023 <span class="comment">% Date: 06 June 2016</span>
+0024 <span class="comment">% Revision: 0.1</span>
+0025 <span class="comment">%</span>
+0026 <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0027 <span class="keyword">if</span> nargin &lt; 6
+0028     octBandwidth = 1/6;    
+0029 <span class="keyword">end</span>
+0030 
+0031 <span class="comment">% Find nth-octave averages</span>
+0032 [MAG,f]=Tools.octaveBandMean(SPECT,FREQS,octBandwidth);
+0033 
+0034 <span class="comment">% Force even length filter</span>
+0035 <span class="keyword">if</span> isempty(N), <span class="keyword">if</span> mod(length(SPECT),2), N=length(SPECT)-1; <span class="keyword">else</span> N=length(SPECT); <span class="keyword">end</span>; <span class="keyword">end</span>
+0036 <span class="comment">% Design arbitrary magnitude (linear-phase) filter</span>
+0037 b = fir2(N,f/(fs/2),MAG);
+0038 <span class="comment">% Apply filter</span>
+0039 y = filter(b,1,x);
+0040 
+0041 
+0042 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Sun 09-Jul-2017 20:35:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of splitSaveRecording</title>
+  <meta name="keywords" content="splitSaveRecording">
+  <meta name="description" content="SPLITSAVERECORDING Summary of this function goes here">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">+Hardware_Control</a> &gt; splitSaveRecording.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for +Hardware_Control&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>splitSaveRecording
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>SPLITSAVERECORDING Summary of this function goes here</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function splitSaveRecording( Recordings, Segment_details, Main_Setup, Room_Setup, signal_info, masker_signal_info, system_info ) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">SPLITSAVERECORDING Summary of this function goes here
+   Detailed explanation goes here</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function splitSaveRecording( Recordings, Segment_details, Main_Setup, Room_Setup, signal_info, masker_signal_info, system_info )</a>
+0002 <span class="comment">%SPLITSAVERECORDING Summary of this function goes here</span>
+0003 <span class="comment">%   Detailed explanation goes here</span>
+0004 
+0005 
+0006 <span class="comment">%% Get save path</span>
+0007 RecPath = Hardware_Control.getRealRecordingsPath( <span class="keyword">...</span>
+0008     Main_Setup, <span class="keyword">...</span>
+0009     system_info.LUT_resolution, <span class="keyword">...</span>
+0010     Room_Setup, <span class="keyword">...</span>
+0011     masker_signal_info, <span class="keyword">...</span>
+0012     system_info.Drive);
+0013 
+0014 <span class="comment">%% Get original audio's file path</span>
+0015 [~,~,~,~,~,~,path_ext] = <span class="keyword">...</span>
+0016     Broadband_Tools.getLoudspeakerSignalPath( Main_Setup, signal_info, system_info.LUT_resolution, system_info.Drive);
+0017 spkr_calib_dir = [system_info.Drive system_info.Calibrated_Signals_dir path_ext];
+0018 
+0019 <span class="comment">%% Split and save recordings</span>
+0020 seg_lengths = [0, Segment_details.length];
+0021 F = length(Segment_details);
+0022 <span class="keyword">for</span> f = 1:F
+0023     
+0024     seg_start = sum(seg_lengths(1:f))+1;
+0025     seg = seg_start : (seg_start-1 + seg_lengths(f+1));
+0026     
+0027 <span class="comment">%     Rec_Sigs_B = Recordings( seg, 1:ceil(end/2) ); %Assumes odd number of recordings has one more recording in bright zone</span>
+0028 <span class="comment">%     Rec_Sigs_Q = Recordings( seg, ceil(end/2)+1:end );  %#ok&lt;NASGU&gt;</span>
+0029     Rec_Sigs_B = Recordings( seg, system_info.recordChZoneAlloc==1 ); <span class="comment">%Assumes odd number of recordings has one more recording in bright zone</span>
+0030     Rec_Sigs_Q = Recordings( seg, system_info.recordChZoneAlloc==2 ); 
+0031     
+0032     fs = system_info.fs;
+0033     
+0034     <span class="keyword">if</span> ~exist( RecPath, <span class="string">'dir'</span>); mkdir(RecPath); <span class="keyword">end</span>
+0035     
+0036     <span class="keyword">if</span> ~signal_info.reference
+0037         <span class="keyword">if</span> ~isempty(Rec_Sigs_B)
+0038             save( <span class="keyword">...</span>
+0039                 [RecPath, Segment_details(f).filename, system_info.sc, <span class="string">'Bright.mat'</span>], <span class="keyword">...</span>
+0040                 <span class="string">'Rec_Sigs_B'</span>, <span class="keyword">...</span>
+0041                 <span class="string">'fs'</span> );
+0042         <span class="keyword">end</span>
+0043         <span class="keyword">if</span> ~isempty(Rec_Sigs_Q)
+0044             save( <span class="keyword">...</span>
+0045                 [RecPath, Segment_details(f).filename, system_info.sc, <span class="string">'Quiet.mat'</span>], <span class="keyword">...</span>
+0046                 <span class="string">'Rec_Sigs_Q'</span>, <span class="keyword">...</span>
+0047                 <span class="string">'fs'</span> );
+0048         <span class="keyword">end</span>
+0049     
+0050     <span class="keyword">elseif</span> signal_info.reference
+0051         ref_sig = Rec_Sigs_B(:,1);
+0052         audiowrite( <span class="keyword">...</span>
+0053             [RecPath, <span class="keyword">...</span>
+0054             Segment_details(f).filename, system_info.sc, <span class="keyword">...</span>
+0055             <span class="string">'Reference'</span>, Segment_details(f).fileext] , <span class="keyword">...</span>
+0056             ref_sig, fs);
+0057     <span class="keyword">end</span>
+0058     
+0059     [orig,fs]=audioread( <span class="keyword">...</span>
+0060         [spkr_calib_dir, <span class="keyword">...</span>
+0061         Segment_details(f).filename, system_info.sc, <span class="keyword">...</span>
+0062         <span class="string">'Original'</span>, Segment_details(f).fileext]);
+0063     
+0064     audiowrite( <span class="keyword">...</span>
+0065         [RecPath, <span class="keyword">...</span>
+0066         Segment_details(f).filename, system_info.sc, <span class="keyword">...</span>
+0067         <span class="string">'Original'</span>, Segment_details(f).fileext] , <span class="keyword">...</span>
+0068         orig, fs);
+0069     
+0070 <span class="keyword">end</span>
+0071 
+0072 <span class="keyword">end</span>
+0073</pre></div>
+<hr><address>Generated on Sun 09-Jul-2017 20:35:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

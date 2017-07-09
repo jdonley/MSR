@@ -1,0 +1,78 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of Orthogonal_Planewave_Selection</title>
+  <meta name="keywords" content="Orthogonal_Planewave_Selection">
+  <meta name="description" content="">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="../index.html">+Soundfield_Database</a> &gt; <a href="index.html">+LUT_Builders</a> &gt; Orthogonal_Planewave_Selection.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for +Soundfield_Database\+LUT_Builders&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>Orthogonal_Planewave_Selection
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong></strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function [N, Frequencies] = Orthogonal_Planewave_Selection( Num_Freqs, N_min, N_max, f_min, f_max, spacing ) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"></pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [N, Frequencies] = Orthogonal_Planewave_Selection( Num_Freqs, N_min, N_max, f_min, f_max, spacing )</a>
+0002 
+0003 <span class="keyword">if</span> nargin &lt; 6
+0004    spacing = <span class="string">'log'</span>; 
+0005 <span class="keyword">end</span>
+0006 
+0007 <span class="keyword">if</span> strcmp(spacing,<span class="string">'log'</span>)
+0008     Frequencies = logspace( log10(f_min), <span class="keyword">...</span>
+0009                             log10(f_max), <span class="keyword">...</span>
+0010                             Num_Freqs) ;
+0011 <span class="keyword">elseif</span> strcmp(spacing,<span class="string">'lin'</span>)
+0012     Frequencies = linspace( 0, <span class="keyword">...</span>
+0013                             f_max, <span class="keyword">...</span>
+0014                             Num_Freqs+1) ;
+0015                         <span class="comment">% Truncate to frequencies in the range f_low &lt;-&gt; f_high</span>
+0016                         trunc_index_low  = find(Frequencies &lt; f_min , 1, <span class="string">'last'</span> ) + 1;
+0017                         trunc_index_high = find(Frequencies &gt;= f_max, 1 ) - 1;
+0018                         <span class="keyword">if</span> isempty(trunc_index_low)
+0019                             trunc_index_low = 1;
+0020                         <span class="keyword">end</span>
+0021                         <span class="keyword">if</span> isempty(trunc_index_high)
+0022                             trunc_index_high = length(Frequencies);
+0023                         <span class="keyword">end</span>
+0024                         
+0025                         Frequencies = Frequencies( trunc_index_low:trunc_index_high );
+0026 <span class="keyword">end</span>
+0027 
+0028 N = ceil((N_max - N_min)*(f_max - f_min)^(-1.2)*(Frequencies - f_min).^1.2 + N_min);
+0029 
+0030 <span class="keyword">end</span>
+0031</pre></div>
+<hr><address>Generated on Sun 09-Jul-2017 20:35:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

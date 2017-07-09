@@ -1,0 +1,158 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of Save_Reverb_STI_Result</title>
+  <meta name="keywords" content="Save_Reverb_STI_Result">
+  <meta name="description" content="SAVE_REVERB_STI_RESULT Summary of this function goes here">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="../index.html">+Room_Acoustics</a> &gt; <a href="index.html">+Apply_RIRs</a> &gt; Save_Reverb_STI_Result.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for +Room_Acoustics\+Apply_RIRs&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>Save_Reverb_STI_Result
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>SAVE_REVERB_STI_RESULT Summary of this function goes here</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function Save_Reverb_STI_Result(Original_, Rec_Sigs_B, Rec_Sigs_Q, Fs, ResultsPath, Output_file_path_ext, FileName) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">SAVE_REVERB_STI_RESULT Summary of this function goes here
+ 
+ Syntax:    SAVE_REVERB_STI_RESULT(Original_, Rec_Sigs_B, Rec_Sigs_Q, Fs, ResultsPath, Output_file_path_ext, FileName)
+ 
+ Inputs: 
+     input1 - Description
+     input2 - Description
+     input3 - Description
+ 
+ 
+ 
+ See also: List related files here</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function Save_Reverb_STI_Result(Original_, Rec_Sigs_B, Rec_Sigs_Q, Fs, ResultsPath, Output_file_path_ext, FileName)</a>
+0002 <span class="comment">%SAVE_REVERB_STI_RESULT Summary of this function goes here</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% Syntax:    SAVE_REVERB_STI_RESULT(Original_, Rec_Sigs_B, Rec_Sigs_Q, Fs, ResultsPath, Output_file_path_ext, FileName)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% Inputs:</span>
+0007 <span class="comment">%     input1 - Description</span>
+0008 <span class="comment">%     input2 - Description</span>
+0009 <span class="comment">%     input3 - Description</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">%</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">% See also: List related files here</span>
+0014 
+0015 <span class="comment">% Author: Jacob Donley</span>
+0016 <span class="comment">% University of Wollongong</span>
+0017 <span class="comment">% Email: jrd089@uowmail.edu.au</span>
+0018 <span class="comment">% Copyright: Jacob Donley 2015</span>
+0019 <span class="comment">% Date: 30 September 2015</span>
+0020 <span class="comment">% Revision: 0.1</span>
+0021 <span class="comment">%</span>
+0022 <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0023 results_type = <span class="string">'STI_MATLAB'</span>;
+0024 
+0025 <span class="comment">%% Calculate Results</span>
+0026 invsweepfft = load(<span class="string">'+Tools\invsweepfft.mat'</span>, <span class="string">'invsweepfft'</span>); invsweepfft = invsweepfft.invsweepfft;
+0027 parfor r = 1:size(Rec_Sigs_Q,1)
+0028     [IR, IRinv] = Tools.extractIR(Rec_Sigs_B(r,:), invsweepfft);
+0029     ImpResp_Bright(r,:) = [IRinv; IR];
+0030     [IR, IRinv] = Tools.extractIR(Rec_Sigs_Q(r,:), invsweepfft);
+0031     ImpResp_Quiet(r,:) = [IRinv; IR];
+0032 <span class="keyword">end</span>
+0033 
+0034 maxVal = max(abs( [ImpResp_Bright(:); ImpResp_Quiet(:)] ));
+0035 ImpResp_Bright = ImpResp_Bright / maxVal;
+0036 ImpResp_Quiet = ImpResp_Quiet / maxVal;
+0037 
+0038 H = Tools.STI_BandFilters( 6, Fs );
+0039 <span class="keyword">for</span> r = 1:size(Rec_Sigs_Q,1)
+0040     [~,~,STI_B(r),~]=Tools.STI(ImpResp_Bright(r,:),Fs,H);
+0041     [~,~,STI_Q(r),~]=Tools.STI(ImpResp_Quiet(r,:),Fs,H);
+0042 <span class="keyword">end</span>
+0043 ConfInt_95 = Tools.confidence_intervals( [STI_B' STI_Q'] );
+0044 
+0045 <span class="comment">%% Determine where to save results</span>
+0046 <span class="comment">% Work out Planewave Angle</span>
+0047 pos = strfind(FileName,<span class="string">'Hz_'</span>);
+0048 PW_angle = sscanf(FileName(pos:end),<span class="string">'%*[^0-9^-]%d%*s'</span>);
+0049 
+0050 <span class="keyword">if</span> ~isempty(strfind(FileName,<span class="string">'with'</span>))
+0051     <span class="comment">% Work out noise mask</span>
+0052     pos = strfind(FileName,<span class="string">'Angle'</span>);
+0053     noise_mask = sscanf(FileName(pos:end),<span class="string">'%*[^0-9^-]%d%*s'</span>);
+0054     
+0055     <span class="comment">% Work out weight</span>
+0056     pos = strfind(FileName,<span class="string">'dB'</span>);
+0057     weight = sscanf(FileName(pos:end),<span class="string">'%*[^0-9]%d%*s'</span>);
+0058     
+0059     <span class="comment">% Work out mask type</span>
+0060     pos = strfind(FileName,<span class="string">'weight'</span>);
+0061     mask_type = sscanf(FileName(pos:end),<span class="string">'weight%[^0-9]'</span>);
+0062     mask_type = [<span class="string">'__'</span> strrep(mask_type,<span class="string">'_'</span>,<span class="string">''</span>)];
+0063 <span class="keyword">else</span>
+0064     <span class="comment">% Work out weight</span>
+0065     pos = strfind(FileName,<span class="string">'Angle'</span>);
+0066     weight = sscanf(FileName(pos:end),<span class="string">'%*[^0-9]%d%*s'</span>);
+0067     
+0068     <span class="comment">% Assign mask type and noise mask</span>
+0069     mask_type = <span class="string">'NoMask'</span>;
+0070     noise_mask = -Inf;
+0071 <span class="keyword">end</span>
+0072 
+0073 pos = strfind(FileName,<span class="string">'weight'</span>);
+0074 FileName = [FileName(1:pos+5) mask_type];
+0075 
+0076 <span class="comment">%% Calculate and save Speech Intelligibility values to the results folder</span>
+0077 <span class="keyword">if</span> ~exist([ResultsPath Output_file_path_ext],<span class="string">'dir'</span>); mkdir([ResultsPath Output_file_path_ext]); <span class="keyword">end</span>
+0078 
+0079 fileID = fopen([ResultsPath Output_file_path_ext results_type <span class="string">'_Results_'</span> num2str(PW_angle) <span class="string">'pwAngle_'</span> num2str(weight) <span class="string">'weight'</span> mask_type <span class="string">'.csv'</span>],<span class="string">'a'</span>);
+0080 
+0081 fprintf(fileID, <span class="keyword">...</span>
+0082         [<span class="string">'%s,'</span> <span class="keyword">...</span>
+0083         <span class="string">'Noise_Mask,%f,'</span><span class="keyword">...</span>
+0084         <span class="string">'STI_Bright,%f,'</span><span class="keyword">...</span>
+0085         <span class="string">'STI_Quiet,%f,'</span><span class="keyword">...</span>
+0086         <span class="string">'95_ConfInt_Bright_L,%f,'</span><span class="keyword">...</span>
+0087         <span class="string">'95_ConfInt_Bright_U,%f,'</span><span class="keyword">...</span>
+0088         <span class="string">'95_ConfInt_Quiet_L,%f,'</span><span class="keyword">...</span>
+0089         <span class="string">'95_ConfInt_Quiet_U,%f,\r\n'</span>], <span class="keyword">...</span>
+0090         FileName, <span class="keyword">...</span>
+0091         noise_mask, <span class="keyword">...</span>
+0092         mean(STI_B), <span class="keyword">...</span>
+0093         mean(STI_Q), <span class="keyword">...</span>
+0094         ConfInt_95(1,1), <span class="keyword">...</span>
+0095         ConfInt_95(1,2), <span class="keyword">...</span>
+0096         ConfInt_95(2,1), <span class="keyword">...</span>
+0097         ConfInt_95(2,2) );
+0098 fclose(fileID);
+0099 
+0100 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Sun 09-Jul-2017 20:35:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

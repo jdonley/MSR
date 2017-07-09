@@ -1,0 +1,239 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of synthSweep</title>
+  <meta name="keywords" content="synthSweep">
+  <meta name="description" content="SYNTHSWEEP Synthesize a logarithmic sine sweep">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">+Tools</a> &gt; synthSweep.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for +Tools&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>synthSweep
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>SYNTHSWEEP Synthesize a logarithmic sine sweep</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [sweep, invsweepfft, sweepRate] = synthSweep(T,FS,f1,f2,tail,AsdB) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> SYNTHSWEEP Synthesize a logarithmic sine sweep
+   [sweep invsweepfft sweepRate] = SYNTHSWEEP(T,FS,f1,f2,tail,AsdB) 
+   generates a logarithmic sine sweep that starts at frequency f1 (Hz),
+   stops at frequency f2 (Hz) and duration T (sec) at sample rate FS (Hz).
+    
+   usePlots indicates whether to show frequency characteristics of the
+   sweep, and the optional AsdB is an amplitude suppression value in
+   decibels to avoid clipping
+   
+   Developed at Oygo Sound LLC
+
+   Equations from Muller and Massarani, &quot;Transfer Function Measurement
+   with Sweeps.&quot;
+
+   Modified by Jacob Donley (jrd089@uowmail.edu.au) Nov 2016</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [sweep, invsweepfft, sweepRate] = synthSweep(T,FS,f1,f2,tail,AsdB)</a>
+0002 <span class="comment">% SYNTHSWEEP Synthesize a logarithmic sine sweep</span>
+0003 <span class="comment">%   [sweep invsweepfft sweepRate] = SYNTHSWEEP(T,FS,f1,f2,tail,AsdB)</span>
+0004 <span class="comment">%   generates a logarithmic sine sweep that starts at frequency f1 (Hz),</span>
+0005 <span class="comment">%   stops at frequency f2 (Hz) and duration T (sec) at sample rate FS (Hz).</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">%   usePlots indicates whether to show frequency characteristics of the</span>
+0008 <span class="comment">%   sweep, and the optional AsdB is an amplitude suppression value in</span>
+0009 <span class="comment">%   decibels to avoid clipping</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">%   Developed at Oygo Sound LLC</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">%   Equations from Muller and Massarani, &quot;Transfer Function Measurement</span>
+0014 <span class="comment">%   with Sweeps.&quot;</span>
+0015 <span class="comment">%</span>
+0016 <span class="comment">%   Modified by Jacob Donley (jrd089@uowmail.edu.au) Nov 2016</span>
+0017 
+0018 
+0019 <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0020 <span class="comment">%%%             DO SOME PREPARATORY STUFF</span>
+0021 <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0022 
+0023 
+0024 <span class="comment">%%% number of samples / frequency bins</span>
+0025 N = real(round(T*FS));
+0026 
+0027 <span class="keyword">if</span> nargin &lt; 5
+0028     tail = 0;
+0029 <span class="keyword">end</span>
+0030 <span class="keyword">if</span> nargin &lt; 6
+0031    AsdB = 0; 
+0032 <span class="keyword">end</span>
+0033 
+0034 
+0035 <span class="comment">%%% make sure start frequency fits in the first fft bin</span>
+0036 f1 = ceil( max(f1, FS/(2*N)) );
+0037 
+0038 <span class="comment">%%% set group delay of sweep's starting freq to one full period length of</span>
+0039 <span class="comment">%%% the starting frequency, or N/200 if thats too small, or N/10 if its too</span>
+0040 <span class="comment">%%% big</span>
+0041 Gd_start = ceil(min(N/10,max(FS/f1, N/200)));
+0042 
+0043 <span class="comment">%%% set fadeout length</span>
+0044 postfade = ceil(min(N/10,max(FS/f2,N/200)));
+0045 
+0046 <span class="comment">%%% find the length of the actual sweep when its between f1 and f2</span>
+0047 Nsweep = N - tail - Gd_start - postfade;
+0048 
+0049 <span class="comment">%%% length in seconds of the actual sweep</span>
+0050 tsweep = Nsweep/FS;
+0051 
+0052 sweepRate = log2(f2/f1)/tsweep;
+0053 
+0054 <span class="comment">%%% make a frequency vector for calcs (This  has length N+1) )</span>
+0055 f = ([0:N]*FS)/(2*N);
+0056 
+0057 
+0058 <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0059 <span class="comment">%%%             CALCULATE DESIRED MAGNITUDE</span>
+0060 <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0061 
+0062 <span class="comment">%%% create pink (-10dB per decade, or 1/(sqrt(f)) spectrum</span>
+0063 mag = [sqrt(f1./f(1:end))];
+0064 mag(1) = mag(2);
+0065 
+0066 <span class="comment">%%% Create band pass magnitude to start and stop at desired frequencies</span>
+0067 [B1, A1] = butter(2,f1/(FS/2),<span class="string">'high'</span> );  <span class="comment">%%% HP at f1</span>
+0068 [B2, A2] = butter(2,f2/(FS/2));          <span class="comment">%%% LP at f2</span>
+0069 
+0070 <span class="comment">%%% convert filters to freq domain</span>
+0071 H1 = freqz(B1,A1,N+1,FS);          
+0072 H2 = freqz(B2,A2,N+1,FS);
+0073 
+0074 <span class="comment">%%% multiply mags to get final desired mag spectrum</span>
+0075 mag = mag .* abs(H1)' .* abs(H2)';
+0076 
+0077 
+0078 <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0079 <span class="comment">%%%            CALCULATE DESIRED GROUP DELAY</span>
+0080 <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0081 
+0082 <span class="comment">%%% calc group delay for arbitrary mag spectrum with constant time envelope</span>
+0083 <span class="comment">%%% from Muller eq's 11 and 12</span>
+0084 C = tsweep ./ sum(mag.^2);
+0085 Gd = C * cumsum(mag.^2);
+0086 Gd = Gd + Gd_start/FS; <span class="comment">% add predelay</span>
+0087 Gd = Gd*FS/2;   <span class="comment">% convert from secs to samps</span>
+0088 
+0089 <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0090 <span class="comment">%%%            CALCULATE DESIRED PHASE</span>
+0091 <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0092 
+0093 <span class="comment">% if (nargin &gt; 6)</span>
+0094 <span class="comment">%     mag = linspace(0.1, 1, length(mag));</span>
+0095 <span class="comment">% end</span>
+0096 
+0097 
+0098 <span class="comment">%%% integrate group delay to get phase</span>
+0099 ph = grpdelay2phase(Gd);
+0100 
+0101 <span class="comment">%%% force the phase at FS/2 to be a multiple of 2pi using Muller eq 10</span>
+0102 <span class="comment">%%% (but ending with mod 2pi instead of zero ...)</span>
+0103 ph = ph - (f/(FS/2))*mod(ph(end),2*pi);
+0104 
+0105 
+0106 <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0107 <span class="comment">%%%             SYNTHESIZE COMPLEX FREQUENCY RESPONSE</span>
+0108 <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0109 
+0110 cplx = mag.*exp(sqrt(-1)*ph); <span class="comment">%%% put mag and phase together in polar form</span>
+0111 cplx = [cplx conj(fliplr(cplx(2:end-1)))]; <span class="comment">%%% conjugate, flip, append for whole spectrum</span>
+0112 
+0113 <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0114 <span class="comment">%%%             EXTRACT IMPULSE RESPONSE WITH IFFT AND WINDOW</span>
+0115 <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0116 
+0117 ir = real(ifft(cplx));
+0118 err = max(abs(imag(ifft(cplx))));  <span class="comment">%%% if this is not really tiny then something is wrong</span>
+0119 
+0120 <span class="comment">%%% create window for fade-in and apply</span>
+0121 w = hann(2*Gd_start)';
+0122 I = 1:Gd_start;
+0123 ir(I) = ir(I).*w(I);
+0124 
+0125 <span class="comment">%%% create window for fade-out and apply</span>
+0126 w = hann(2*postfade)';
+0127 I = Gd_start+Nsweep+1:Gd_start+Nsweep+postfade;
+0128 ir(I) = ir(I).*w(postfade+1:end);
+0129 
+0130 <span class="comment">%%% force the tail beyond the fadeout to zeros</span>
+0131 I = Gd_start+Nsweep+postfade+1:length(ir);
+0132 ir(I) = zeros(1,length(I));
+0133 
+0134 <span class="comment">%%% cut the sweep down to its correct size</span>
+0135 ir = ir(1:end/2);
+0136 
+0137 <span class="comment">%%% normalize</span>
+0138 ir = ir / (max(abs(ir(:))));
+0139 
+0140 <span class="comment">%%% suppress output</span>
+0141 ir = ir * db2mag( AsdB );
+0142 
+0143 <span class="comment">%%% get fft of sweep to verify that its okay and to use for inverse</span>
+0144 irfft = fft(ir);
+0145 
+0146 
+0147 <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0148 <span class="comment">%%%             CREATE INVERSE SPECTRUM</span>
+0149 <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0150 
+0151 <span class="comment">%%% start with the true inverse of the sweep fft</span>
+0152 <span class="comment">%%% this includes the band-pass filtering, whos inverse could go to</span>
+0153 <span class="comment">%%% infinity!!!</span>
+0154 invirfft = 1./irfft;
+0155 
+0156 <span class="comment">%%% so we need to re-apply the band pass here to get rid of that</span>
+0157 H1 = freqz(B1,A1,length(irfft),FS,<span class="string">'whole'</span>);
+0158 H2 = freqz(B2,A2,length(irfft),FS,<span class="string">'whole'</span>);
+0159 
+0160 <span class="comment">%%% apply band pass filter to inverse magnitude</span>
+0161 <span class="comment">% invirfftmag  = abs(invirfft).*abs(H1)'.*abs(H2)';</span>
+0162 <span class="comment">%</span>
+0163 <span class="comment">% %%% get inverse phase</span>
+0164 <span class="comment">% invirfftphase = angle(invirfft);</span>
+0165 <span class="comment">%</span>
+0166 <span class="comment">% %%% re-synthesis inverse fft in polar form</span>
+0167 <span class="comment">% invirfft = invirfftmag.*exp(sqrt(-1)*invirf</span>
+0168 invirfft = invirfft .* abs(H1)' .* abs(H2)';
+0169 
+0170 <span class="comment">%%% assign outputs</span>
+0171 invsweepfft = invirfft;
+0172 sweep = ir;
+0173 
+0174 
+0175 
+0176 
+0177 
+0178</pre></div>
+<hr><address>Generated on Sun 09-Jul-2017 20:35:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

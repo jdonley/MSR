@@ -1,0 +1,113 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of getLoudspeakerSignalPath</title>
+  <meta name="keywords" content="getLoudspeakerSignalPath">
+  <meta name="description" content="GETLOUDSPEAKERSIGNALPATH Summary of this function goes here">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">+Broadband_Tools</a> &gt; getLoudspeakerSignalPath.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for +Broadband_Tools&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>getLoudspeakerSignalPath
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>GETLOUDSPEAKERSIGNALPATH Summary of this function goes here</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [ Path, Name, Ext, err, SubPath, spkr_sig_info_dir, Output_file_path_ext ] = getLoudspeakerSignalPath( setup, signal_info, database_res, database_workingdir, method ) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">GETLOUDSPEAKERSIGNALPATH Summary of this function goes here
+   Detailed explanation goes here</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [ Path, Name, Ext, err, SubPath, spkr_sig_info_dir, Output_file_path_ext ] = getLoudspeakerSignalPath( setup, signal_info, database_res, database_workingdir, method )</a>
+0002 <span class="comment">%GETLOUDSPEAKERSIGNALPATH Summary of this function goes here</span>
+0003 <span class="comment">%   Detailed explanation goes here</span>
+0004 <span class="keyword">if</span> nargin &lt; 5
+0005     method = <span class="string">'new'</span>;
+0006 <span class="keyword">end</span>
+0007 
+0008 <span class="keyword">if</span> nargin &lt; 4
+0009     database_workingdir = <span class="string">'Z:\'</span>;
+0010 <span class="keyword">end</span>
+0011 
+0012 err = false;
+0013 <span class="keyword">try</span>
+0014     <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%% NEW METHOD %%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0015     <span class="comment">% Supports database path similarity and better structured path for</span>
+0016     <span class="comment">% loudspeaker signal files</span>
+0017     <span class="keyword">if</span> strcmpi(method, <span class="string">'new'</span>)
+0018         sc = <span class="string">'_'</span>; <span class="comment">%Separation Character</span>
+0019         
+0020         Output_file_path     = [database_workingdir <span class="string">'+'</span> <span class="string">'Speaker_Signals'</span> filesep]; <span class="comment">% Can be relative or exact</span>
+0021         
+0022         [~,~,dbsubpath,~,~,~,~,dbfname] = Soundfield_Database.getDatabasePath( setup, database_res );
+0023         [pathstr,fname]=fileparts([dbsubpath,dbfname]);
+0024         SubPath = [pathstr filesep <span class="string">'+'</span> fname filesep];
+0025         spkr_sig_info_dir = [ <span class="keyword">...</span>
+0026             <span class="string">'+'</span> num2str(signal_info.f_low ) <span class="string">'Hz-'</span> <span class="keyword">...</span>
+0027             num2str(signal_info.f_high) <span class="string">'Hz'</span> sc <span class="keyword">...</span>
+0028             num2str(signal_info.L_noise_mask) <span class="string">'dB'</span> sc <span class="keyword">...</span>
+0029             num2str(signal_info.weight) <span class="string">'weight'</span> sc sc <span class="keyword">...</span>
+0030             <span class="string">'method'</span> sc signal_info.method filesep ];
+0031         Output_file_path_ext = [SubPath, <span class="keyword">...</span>
+0032             spkr_sig_info_dir ];
+0033         Path = [Output_file_path Output_file_path_ext];
+0034         Name     = [signal_info.input_filename sc ];
+0035         Ext      = <span class="string">'.WAV'</span>;        
+0036     
+0037     <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%% OLD METHOD %%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0038     <span class="keyword">elseif</span> strcmpi(method, <span class="string">'old'</span>)
+0039         
+0040         Output_file_path     = [database_workingdir <span class="string">'+'</span> <span class="string">'Speaker_Signals'</span> filesep]; <span class="comment">% Can be relative or exact</span>
+0041         Output_file_path_ext = [<span class="string">'+'</span> num2str(setup.Radius*2) <span class="string">'m_SpkrDia\+'</span> num2str(setup.Loudspeaker_Count) <span class="string">'Spkrs_'</span> num2str(setup.Speaker_Arc_Angle) <span class="string">'DegArc_LUT_'</span> database_res <span class="string">'\'</span>];        
+0042         Path = [Output_file_path Output_file_path_ext];
+0043         SetupInfo            = [<span class="string">'_'</span> num2str(signal_info.f_low ) <span class="string">'Hz-'</span> <span class="keyword">...</span>
+0044             num2str(signal_info.f_high) <span class="string">'Hz_'</span> <span class="keyword">...</span>
+0045             num2str(setup.Multizone_Soundfield.Bright_Zone.SourceOrigin.Angle) <span class="string">'pwAngle_'</span> <span class="keyword">...</span>
+0046             num2str(signal_info.L_noise_mask) <span class="string">'dB_'</span> <span class="keyword">...</span>
+0047             num2str(signal_info.weight) <span class="string">'weight__with'</span> signal_info.method];
+0048         Name     = [Input_file_name <span class="string">'__'</span> <span class="keyword">...</span>
+0049             num2str(setup.Loudspeaker_Count) <span class="string">'spkrs_'</span> <span class="keyword">...</span>
+0050             SetupInfo];
+0051         Ext      = <span class="string">'.WAV'</span>;
+0052         
+0053     <span class="keyword">end</span>
+0054     
+0055 <span class="keyword">catch</span> ex
+0056     <span class="keyword">switch</span> ex.identifier
+0057         <span class="keyword">case</span> <span class="string">'MATLAB:load:couldNotReadFile'</span>
+0058             warning([<span class="string">'Could not get loudspeaker signal path using the '''</span> method <span class="string">''' method.'</span>]);
+0059             err = true;
+0060         <span class="keyword">otherwise</span>
+0061             rethrow(ex)
+0062     <span class="keyword">end</span>
+0063 <span class="keyword">end</span>
+0064 <span class="keyword">end</span>
+0065</pre></div>
+<hr><address>Generated on Sun 09-Jul-2017 20:35:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>
