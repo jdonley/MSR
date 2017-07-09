@@ -1,13 +1,18 @@
-function buildDocumentation( WorkingDir, DocDir, MainFile, RuntimeDependencies )
+function buildDocumentation( WorkingDir, DocDir, MainFile, RuntimeDependencies, ThirdPartyHTML )
 %BUILDDOCUMENTATION Generates documentation HTML and builds MATLAB search database for dependencies of a main file
 % 
 % Syntax:	BUILDDOCUMENTATION( WORKINGDIR, DOCDIR, MAINFILE )
 % 
 % Inputs: 
-% 	WorkingDir  - The working directory of the project to document
-% 	zipFileName - The directory for the documentation
-% 	MainFile    - The path to the file for which to determine the dependencies
-%                 and consequently build the documentation
+% 	WorkingDir          - The working directory of the project to document.
+% 	zipFileName         - The directory for the documentation.
+% 	MainFile            - The path to the file for which to determine the
+%                         dependencies and consequently build the
+%                         documentation.
+% 	RuntimeDependencies - If true, dependencies are found during a profiled
+%                         runtime.
+%   ThirdPartyHTML      - Use third party HTML documentation generator
+%                         called 'm2html'.
 % 
 % Example: 
 %     wrkdir = 'C:\myProject\';
@@ -40,7 +45,26 @@ PubOpts ={...
     'catchError',           true,               ...
     ...'codeToEvaluate',       [],                 ...
     'maxOutputLines',       Inf,                ...
-    'showCode',             false,              ...
+    'showCode',             true,              ...
+    };
+
+m2htmlOpts ={...
+    'recursive',               'html',             ...
+    'source',           '',                 ...
+    'download',      true,               ...
+    'syntaxHighlighting',     'entireGUIWindow',  ...
+    'tabs',          'png',              ...
+    'globalHypertextLinks',            [],                 ...
+    'todo',             [],                 ...
+    'graph',         true,               ...
+    'indexFile',             false,              ...
+    'extension',           true,               ...
+    'template',       [],                 ...
+    'search',       Inf,                ...
+    'ignoredDir',             true,              ...
+    'save',             true,              ...
+    'ignoredDir',             true,              ...
+    'ignoredDir',             true,              ...
     };
 
 %% Get all dependencies of the main file
@@ -50,17 +74,9 @@ flist = matlab.codetools.requiredFilesAndProducts( MainFile );                  
 % The MATLAB profiler is used here and can take quite some time if the main file is slow to run
 if RuntimeDependencies
     profile on;                                                                        % Turn the profiler on
-    try
-        run([WorkingDir MainFile])                                                     % Run the main file
-    catch ex
-        profile off;                                                                   % Stop the profiler to avoid profiling unnecessary error handling
-        if strcmp(ex.identifier, 'MATLAB:run:CannotExecute')
-            [p,f]=fileparts(MainFile);
-            funcH = str2func( strrep(strrep([p filesep f],filesep,'.'),'+','') );      % Deal with class folders and create function handle
-            profile on;                                                                % Turn the profiler on            
-            funcH;                                                                     % Assuming function runs without arguments
-        end
-    end
+    [p,f]=fileparts(MainFile);
+    func = strrep(strrep([p filesep f],filesep,'.'),'+','');                           % Deal with class folders and create function handle
+    evalin('caller',[func ';']);                                                       % Assume file runs without arguments and run
     p = profile('info');                                                               % Stop the profiler after execution and get the profiler information
     flist = [flist {p.FunctionTable.FileName}];                                        % Append the runtime functions to the list
 end
@@ -81,6 +97,10 @@ warning(w.state,'MATLAB:MKDIR:DirectoryExists');                                
 Icode = cellfun(@(x) (strcmp(x,'.m') || strcmp(x,'.mlx')),e);                          % Determine if file is only code (determine if compatible for documentation)
 
 %% Generate documentation
-cellfun(@(f,d) publish(f,PubOpts{:},'outputDir',[htmldir d]),docFiles(Icode),docdirs(Icode),'un',0);
-
+if ~ThirdPartyHTML
+    cellfun(@(f,d) publish(f,PubOpts{:},'outputDir',[htmldir d]),docFiles(Icode),docdirs(Icode),'un',0);
+else
+   m2html('mfiles',strrep(docFiles(Icode),WorkingDir,''),'htmldir',htmldir);
+end
+    
 end
