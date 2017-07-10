@@ -8,7 +8,7 @@ addOptional(p,'resolution',                     100,               @isnumeric); 
 addOptional(p,'frequency',                      2000,              @isnumeric); % 2
 addOptional(p,'reproduction_radius',            1.0,               @isnumeric); % 3
 addOptional(p,'reproduction_geometry',          'circle',          @ischar);    % 4
-addOptional(p,'reproduction_size',              [1 1],             @isnumeric); % 5
+addOptional(p,'reproduction_size',              [],                @isnumeric); % 5
 addOptional(p,'numberof_basisplanewaves',       -1,                @isnumeric); % 6
 addOptional(p,'bright_weight',                  1.0,               @isnumeric); % 7
 addOptional(p,'quiet_weight',                   2.5,               @isnumeric); % 8
@@ -17,7 +17,7 @@ addOptional(p,'brightzone_radius',              0.3,               @isnumeric); 
 addOptional(p,'brightzone_pos_angle',           180,               @isnumeric); % 11
 addOptional(p,'brightzone_pos_distance',        0.6,               @isnumeric); % 12
 addOptional(p,'brightzone_geometry',            'circle',          @ischar);    % 13
-addOptional(p,'brightzone_size',                [1 1],             @isnumeric); % 14
+addOptional(p,'brightzone_size',                [],                @isnumeric); % 14
 addOptional(p,'brightzone_source_angle',        15,                @isnumeric); % 15
 addOptional(p,'brightzone_source_dist',         1.0,               @isnumeric); % 16
 addOptional(p,'brightzone_source_type',         'pw',              @ischar);    % 17
@@ -25,7 +25,7 @@ addOptional(p,'quietzone_radius',               0.3,               @isnumeric); 
 addOptional(p,'quietzone_pos_angle',            0,                 @isnumeric); % 19
 addOptional(p,'quietzone_pos_distance',         0.6,               @isnumeric); % 20
 addOptional(p,'quietzone_geometry',             'circle',          @ischar);    % 21
-addOptional(p,'quietzone_size',                 [1 1],             @isnumeric); % 22
+addOptional(p,'quietzone_size',                 [],                @isnumeric); % 22
 addOptional(p,'numberof_loudspeakers',          -1,                @isnumeric); % 23
 addOptional(p,'loudspeaker_radius',             1.5,               @isnumeric); % 24
 addOptional(p,'maximum_frequency',              8000,              @isnumeric); % 25
@@ -37,6 +37,7 @@ addOptional(p,'angleof_loudspeakerarrcentre',   180,               @isnumeric); 
 addOptional(p,'loudspeaker_spacing',            0.01,              @isnumeric); % 31
 addOptional(p,'speaker_array_type',             'circle',          @ischar);    % 32
 addOptional(p,'room_size',                      [],                @isnumeric); % 33
+addOptional(p,'dimensionality',                 2,                 @isnumeric); % 34
 parse(p, settings{:});
 
 setup = MultizoneSoundfieldSetup( ...       
@@ -72,7 +73,8 @@ setup = MultizoneSoundfieldSetup( ...
     p.Results.angleof_loudspeakerarrcentre, ... 30
     p.Results.loudspeaker_spacing, ...          31
     p.Results.speaker_array_type, ...           32
-    p.Results.room_size);%                      33
+    p.Results.room_size, ...                    33
+    p.Results.dimensionality);%                 34
 
 end
 
@@ -109,7 +111,8 @@ function setup = MultizoneSoundfieldSetup( ...
     phiLcent,... 30
     spkrspace,...31
     arr_type,... 32
-    roomSz)%     33
+    roomSz,...   33
+    dims)%       34
 %%
 c = 343;
 k = (f/c)*2*pi;
@@ -122,6 +125,8 @@ quiet  = Orthogonal_Basis_Expansion.spatial_zone(f, 0, rq, 'quiet');
 bright = Orthogonal_Basis_Expansion.spatial_zone(f, 0, rb, srctypeb, 1.0, srcangb, srcdistb);
 quiet.res  = res;
 bright.res = quiet.res;
+quiet.Dimensionality  = dims;
+bright.Dimensionality = dims;
 quiet.ZoneGeometry  = zoGeomq;
 bright.ZoneGeometry = zoGeomb;
 quiet  =  quiet.setZoneSize( zoSizeq );
@@ -133,6 +138,7 @@ bright = bright.setDesiredSoundfield(true, 'suppress_output');
 soundfield = Orthogonal_Basis_Expansion.multizone_soundfield_OBE;
 soundfield = soundfield.addSpatialZone(quiet,  disq, angq);
 soundfield = soundfield.addSpatialZone(bright, disb, angb);
+soundfield.Dimensionality = dims;
 soundfield.Geometry  = reprGeom;
 soundfield = soundfield.setReproRegionSize( reprSize );
 soundfield.Radius = R;
@@ -148,6 +154,7 @@ soundfield = soundfield.setN( floor(N) );
 
 %%
 setup = Speaker_Setup.loudspeaker_setup;
+setup.Dimensionality = dims;
 setup = setup.setRoomSize(roomSz);
 setup = setup.addMultizone_Soundfield(soundfield);
 setup = setup.setRadius( Rl );

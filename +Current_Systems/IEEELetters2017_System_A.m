@@ -6,15 +6,17 @@ spkr_type  = 'Dynamic';
 spkr_radius = 3.0;
 N_spkrs = 24 * 2; % Times 2 for dipole
 
- geometry = 'rectangular';
+geometry = 'rectangular';
 % geometry = 'circle';
+
+dimensions = 3;
 
 %% Room Geometry
 Room_Setup = Room_Acoustics.Room;
 Room_Setup.NoReceivers = 32;
 % % ROOM 1
 % % Anechoic
-% Room_Setup = Room_Setup.setRoomSize( [10 10 10] ); %Anechoic
+% Room_Setup = Room_Setup.setRoomSize( [*1.110 10 10] ); %Anechoic
 % Room_Setup = Room_Setup.setRoomSize( [4 9 3] ); % 35.G46e
 %Room_Setup = Room_Setup.setRoomSize( [8 10 3] ); % 6.107
 %Room_Setup = Room_Setup.setRoomSize( [9 14 3] ); % Out to lunch (Cafe)
@@ -38,12 +40,12 @@ reproRegionAspect = [1.0 1.0]; % [Width, Height]
 BZr = spkr_radius;
 QZr = spkr_radius;
 
-srcX = -spkr_radius + 1.0;
-srcY = -1.0;
+srcX = -spkr_radius + 2.0;
+srcY = -0.0;
 [srcA,srcD] = cart2pol(srcX,srcY);
 
 imgsrcX = -2*spkr_radius - srcX;
-imgsrcY = -1.0;
+imgsrcY = srcY;
 [imgsrcA,imgsrcD] = cart2pol(imgsrcX,imgsrcY);
 
 
@@ -57,6 +59,7 @@ field_layout = { ...
     'brightzone_source_dist',      imgsrcD, ...
     'brightzone_source_type',      'ps', ...
     'brightzone_geometry',         geometry, ...
+    'dimensionality',              dimensions, ...
     'brightzone_size',             reproRegionAspect.*[BZr BZr]*2, ...
     'quietzone_geometry',          geometry, ...
     'quietzone_size',              reproRegionAspect.*[QZr QZr]*2, ...

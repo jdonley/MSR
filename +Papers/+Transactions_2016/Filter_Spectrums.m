@@ -383,7 +383,7 @@ tightfig(h);
 
 if ~exist(DocumentPath,'dir'); mkdir(DocumentPath); end
 % print(['-d' print_fmt], [DocumentPath '\MSR_PL_HYB_AcousticContrast_matlab.pdf']);
-%  export_fig([DocumentPath '\Masker_Filters.pdf']);
+  export_fig([DocumentPath '\Masker_Filters_' num2str(SYS.Main_Setup.Dimensionality) 'D.pdf']);
 
 %
 Tools.MiKTeX_FNDB_Refresh;

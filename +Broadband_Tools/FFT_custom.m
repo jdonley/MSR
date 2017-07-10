@@ -1,4 +1,4 @@
-function [ Y, frequencies, Frames, Windows, Yo] = FFT_custom( audio_pathORdata, signal_info ) %Nfft, Fs, Overlap, pad, delay, BuffLen )
+function [ Y, frequencies, Frames, Windows, Yo, Frames_orig] = FFT_custom( audio_pathORdata, signal_info ) %Nfft, Fs, Overlap, pad, delay, BuffLen )
 %FFT_CUSTOM Summary of this function goes here
 %   Detailed explanation goes here
 Nfft = signal_info.Nfft;
@@ -14,7 +14,7 @@ if strcmp( in_type, 'char' )
     
     [x, Fs_file] = audioread( audio_pathORdata );
     
-    if Fs ~= Fs_file && ~isempty(Fs)
+    if ~isempty(Fs) && Fs ~= Fs_file
         error(['Sampling frequency of the file (' ...
             num2str(Fs_file) ...
             'Hz) does not match the given sampling frequency (' ...
@@ -98,7 +98,7 @@ end
 
 
 %% Apply windowing to each frame
-if mod(Nfft,2) % If odd correct matlabs silly bugger default hamming window
+if mod(Nfft,2) % If odd set to periodic hanning window
     window_ = hanning(Nfft);
 else
     window_ = [hanning(Nfft-1);0];
@@ -122,8 +122,11 @@ if ~isempty(pad)
         zeros(N_of_frames,Npad/2)];
 end
 
-Frames = Frames .* Windows;
-Frames_orig = Frames_orig .* Windows(1:size(Frames_orig,1),:);
+if ~isfield(signal_info,'window') || (isfield(signal_info,'window') && signal_info.window)
+    Frames = Frames .* Windows;
+    Frames_orig = Frames_orig .* Windows(1:size(Frames_orig,1),:);
+end
+
 %% Compute FFT of each frame
 Y  = fft(Frames, [], 2) / size(Frames,2);
 Yo = fft(Frames_orig, [], 2) / size(Frames_orig,2);

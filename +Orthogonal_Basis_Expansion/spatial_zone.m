@@ -17,16 +17,25 @@ classdef spatial_zone
     
     properties
         res = 50;                                           % Samples per metre %Resolution of soundfield should be inherited
+        Dimensionality = 2;                                 % 2D or 3D
         Radius_q = 0.5;                                     % Radius of the zone in metres
-        Origin_q = struct('X',0, ...                        % Coordinates from the global origin
-                          'Y',0, ...
-                          'Angle',0,...
-                          'Distance',0);
+        Origin_q = struct('X', 0, ...                       % Coordinates from the global origin
+                          'Y', 0, ...
+                          'Z', 0, ...
+                          'Angle',     0, ...
+                          'Elevation', 0, ...
+                          'Distance',  0);
         Weight = 1.0;                                       % Output amplitude from 0.0 (no output) to 1.0 (max output)
         Frequency = 1000;                                   % Frequency of source
         Phase = 0*pi;                                       % Phase of source
+        c = 343;                                            % Speed of sound in m/s
         SourceType = 'pw';                                  % 'pw' = Plane Wave, 'ps' = Point Source, 'quiet' = Quiet Zone
-        SourceOrigin = struct('Distance', 1.0, 'Angle', 0); % This location is relative to the origin of this particular zone
+        SourceOrigin = struct('X', 0, ...                   % This location is relative to the origin of this particular zone
+                              'Y', 0, ...
+                              'Z', 0, ...
+                              'Angle',     0, ...
+                              'Elevation', 0, ...
+                              'Distance',  0);
         Soundfield_d_mask;                                  % Arbitrarily shaped soundfield mask
         Soundfield_d = [];                                  % The complex values of the desired sound field made from spherical harmonics.
         Soundfield_d_mean_mask;                             % Circular soundfield mask for calculating the mean
@@ -35,7 +44,7 @@ classdef spatial_zone
         Alpha_Coeffs = [];                                  % Alpha_Coeffs is a set of coefficients uniquely representing the qth desired soundfield
         
         ZoneGeometry = 'circle';                            % The shape of the zone. This could be 'rect' (rectangular) or 'circle' (circular)
-        ZoneSize     = [1 1];                               % Size of the zone. [1 1] = 1m x 1m (width x height in metres)
+        ZoneSize     = [];                                  % Size of the zone. [1 1] = 1m x 1m (width x height in metres)
         
     end
     
@@ -44,6 +53,10 @@ classdef spatial_zone
     methods (Access = private)
         
         function obj = createEmptySoundfield_d(obj)
+            
+            if isempty(obj.ZoneSize)
+                obj = obj.setZoneSize([1 1] * obj.Radius_q);
+            end
             
             % if strcmpi( obj.ZoneGeometry, 'circle' )
             znSz = ( obj.ZoneSize * obj.res );
@@ -77,7 +90,7 @@ classdef spatial_zone
             if nargin < 5;	weight = obj.Weight;
             if nargin < 4;	type = obj.SourceType;
             if nargin < 3;	radius = obj.Radius_q; 
-            if nargin < 2;	phase = obj.Phase; end; end; end; end; end; end;
+            if nargin < 2;	phase = obj.Phase; end; end; end; end; end; end
            % Save values to the object
            obj.Frequency = frequency;
            obj.Phase = phase;
@@ -106,7 +119,7 @@ classdef spatial_zone
         end
         
         function k = getWavenumber(obj)
-            k = obj.Frequency / 343 * (2 * pi);
+            k = obj.Frequency / obj.c * (2 * pi);
         end
         
         function obj = createEmptySoundfield(obj)
@@ -126,7 +139,7 @@ classdef spatial_zone
             if nargin < 4;     phase = obj.Phase;
             if nargin < 3; frequency = obj.Frequency;                 
             if nargin < 2;     ideal = false; 
-            end;end;end;end;end;end;end;end;
+            end;end;end;end;end;end;end;end
       
            suppress_output = false;
            if strcmp(frequency, 'suppress_output') 
@@ -146,7 +159,7 @@ classdef spatial_zone
            obj.SourceOrigin.Angle = angle_;
            obj.SourceOrigin.Distance = distance;
            
-           k = frequency / 343 * (2 * pi);
+           k = frequency / obj.c * (2 * pi);
            if ~suppress_output
             fprintf('Monofrequent Spatial Zone:\n');
             fprintf('\tFrequency: %0.0f Hz\n', frequency );
@@ -207,10 +220,13 @@ classdef spatial_zone
                       obj.Soundfield_d = weight .* exp( 1i * (k * (cos(Phi_src)*real(X) + sin(Phi_src)*imag(X)) + phase) ); %Planewave formula ( e^(i*(kx+ky+kz)) )
                       obj.SourceOrigin.Distance = 0;
                   elseif (strcmp(type, 'ps'))
-                      obj.Soundfield_d = weight .* 1i .* besselh(0, k * abs(X .* exp(1i.*(pi-Phi_src)) + R_src)); % From reference [2], equation (9)
-                      % This is for 3D
-                      % r = abs(X .* exp(1i.*(pi-Phi_src)) + R_src);
-                      % obj.Soundfield_d = weight * exp(1i*pi/4) * exp(1i*k*r) ./ (4*pi*r); % From eq10 in rir_generator manual (Emanuel Habets)
+                      if obj.Dimensionality == 2
+                          obj.Soundfield_d = weight .* 1i .* besselh(0, k * abs(X .* exp(1i.*(pi-Phi_src)) + R_src)); % From reference [2], equation (9)
+                      elseif obj.Dimensionality == 3
+                          % This is for 3D
+                          r = abs(X .* exp(1i.*(pi-Phi_src)) + R_src);
+                          obj.Soundfield_d = weight * exp(1i*k*r) ./ (4*pi*r); % From eq10 in rir_generator manual (Emanuel Habets)
+                      end
                   elseif (strcmp(type, 'quiet'))
                       obj.Soundfield_d = zeros(size(X));
                   end

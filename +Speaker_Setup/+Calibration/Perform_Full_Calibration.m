@@ -7,7 +7,7 @@ if nargin < 1, SYS = Current_Systems.loadCurrentSRsystem; end
 if nargin < 2, RecordTF = false; end
 
 % If using measured ATFs then record the transfer functions
-if SYS.signal_info.UseMeasuredATFs, RecordTF = true; end
+if isfield(SYS.signal_info,'UseMeasuredATFs') && SYS.signal_info.UseMeasuredATFs, RecordTF = true; end
 
 % If a realworld recording is not specified in the system then abort
 if ~any(strcmpi(strrep(SYS.signal_info.recording_type,'-',''),'realworld')), delete(gcp('nocreate')); return; end

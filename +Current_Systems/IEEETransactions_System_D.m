@@ -20,6 +20,7 @@ end
 spkr_type  = 'Dynamic';
 spkr_radius = 1.3;
 
+dimensions = 3;
 
 %% Room Geometry
 Room_Setup = Room_Acoustics.Room;
@@ -54,6 +55,8 @@ for ang = 1:numel(SourceAngleSetIndices)
                 l, ...
                 arr, ...
                 ang);
+            
+            UniqueDBinds(I) = l==1; %different lambda_g don't require different databases
             
             if strcmpi(array_type_,'circle')
                 switch SourceAngleSetIndice
@@ -134,6 +137,7 @@ for ang = 1:numel(SourceAngleSetIndices)
                 'quietzone_radius',             0.3, ...
                 'quietzone_pos_distance',       0.6, ...
                 'maximum_frequency',            8000, ...
+                'dimensionality',               dimensions, ...
                 'loudspeaker_object',           Para_Spkr });
             Masker_Setup(I) = Speaker_Setup.createSetup({...
                 'frequency',                    1000, ...
@@ -148,6 +152,7 @@ for ang = 1:numel(SourceAngleSetIndices)
                 'quietzone_radius',             0.3, ...
                 'quietzone_pos_distance',       0.6, ...
                 'maximum_frequency',            8000, ...
+                'dimensionality',               dimensions, ...
                 'loudspeaker_object',           Para_Spkr });
             spkrWid = Main_Setup(I).Loudspeaker_Dimensions(1);
             
@@ -243,6 +248,7 @@ system_info.FilterData_dir = ['+Calibration' system_info.sc 'Data' filesep '+Fil
 system_info.CalibrationRec_dir = ['+Calibration' system_info.sc 'Data' filesep '+Recordings' filesep];
 system_info.Calibrated_Signals_dir = ['+Calibrated' system_info.sc 'Speaker_Signals' filesep];
 
+system_info.DB_indices = [UniqueDBinds UniqueDBinds]; %For Main_Setups and Masker_Setups (paired)
 system_info.LUT_frequencies = 512;
 % system_info.LUT_weights = 32;
 system_info.LUT_weights = 2; % First weight is always zero

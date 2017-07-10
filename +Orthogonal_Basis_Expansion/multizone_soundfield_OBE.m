@@ -15,7 +15,8 @@ classdef multizone_soundfield_OBE
     
     properties        
         % Settings
-        res = 50;  % samples per metre %Resolution of soundfield        
+        res = 50;  % samples per metre %Resolution of soundfield
+        Dimensionality = 2;          % 2D or 3D
         BrightZ_Weight      = 1.0;   % Bright Zone relative importance weight
         QuietZ_Weight       = 2.5;   % Quiet Zone relative importance weight
         UnattendedZ_Weight  = 0.05;  % Unattended Zone relative importance weight        
@@ -71,7 +72,7 @@ classdef multizone_soundfield_OBE
     end
 
 %% Private Methods
-    methods (Access = private)
+    methods (Access = public) %(Access = private) % usually private
             
         function obj = createEmptySoundfield(obj, Debug)
             if nargin < 2
@@ -435,7 +436,7 @@ classdef multizone_soundfield_OBE
         function [x,y] = getZoneIndices( obj, Zone )
             
             znSz = int16( Zone.ZoneSize * obj.res );
-            rpSz = int16( obj.ReproRegionSize * obj.res );
+            rpSz = int16( size(obj.Soundfield_desired) );
             x_ = ceil( Zone.Origin_q.X * obj.res );
             y_ = ceil( Zone.Origin_q.Y * obj.res );
             y = ((-znSz(1)/2+1):(znSz(1)/2)) + y_ + rpSz(1)/2;
