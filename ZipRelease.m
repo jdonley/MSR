@@ -1,4 +1,5 @@
 %% Create release ZIP with Documentation
+tic;
 
 wrkdir = 'M:\MSR\';
 docdir = 'doc';
@@ -15,3 +16,6 @@ AllDocFiles = Tools.getAllFiles([wrkdir docdir]);
 
 relFiles = Tools.buildReleaseZIP( wrkdir, zipFname, mainFile, AllDocFiles, false );
 Tools.buildReleaseZIP( wrkdir, zipFname, mainRunFile, relFiles, true );
+
+
+toc;
