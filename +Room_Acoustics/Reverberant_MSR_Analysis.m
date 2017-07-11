@@ -17,10 +17,11 @@ Nrt = numel(SYS.signal_info.recording_type);
 for rt = 1:Nrt
     SYS.signal_info.recording_type = rt_tmp{rt};
 
-    for c = SYS.signal_info.methods_list_clean
+    for c_ = 9:numel(SYS.signal_info.methods_list_clean) % TODO: change index back to starting at 1 (this was just a one off for continuing a simulation)
+        c = SYS.signal_info.methods_list_clean(c_);
         masker_list = SYS.signal_info.methods_list_masker;
         if paired
-            masker_list = masker_list(c);
+            masker_list = masker_list(c_);
         end
         for m = masker_list
             m(m<1)=[];
