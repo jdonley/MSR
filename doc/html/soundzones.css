@@ -39,9 +39,19 @@ div.box {
 }
 
 div.divtable {
-  -webkit-column-count: 250px;
-  -moz-column-count: 250px;
+  -webkit-column-width: 250px;
+  -moz-column-width: 250px;
   column-width: 250px;
+}
+div.divtableonecol {
+  -webkit-column-count: 1;
+  -moz-column-count: 1;
+  column-count: 1;
+}
+div.divtabletwocol {
+  -webkit-column-count: 2;
+  -moz-column-count: 2;
+  column-count: 2;
 }
 p {
   margin-bottom: 0.5em;
