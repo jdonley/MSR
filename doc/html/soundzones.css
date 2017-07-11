@@ -13,7 +13,12 @@ body {
 @media only screen and (max-width: 500px) {
     body { 
         margin: 2ex 0px;
-    }
+    }    
+div.divtabletwocol {
+  -webkit-column-count: 1 !important;
+  -moz-column-count: 1 !important;
+  column-count: 1 !important;
+}
 }
 
 @media only screen and (max-width: 1050px) and (min-width: 500px) {
