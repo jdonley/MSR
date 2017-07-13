@@ -43,6 +43,7 @@ div.fragment {
 	background-color: #f5f5f5;
 	padding-left: 4px;
 	margin: 4px;
+    word-break: break-word;
 }
 
 div.box { 
@@ -51,6 +52,7 @@ div.box {
 	border: 1px solid #CCCCCC;
 	color: black;
 	padding: 4px;
+    word-break: break-word;
 }
 
 div.divtable {
