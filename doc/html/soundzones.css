@@ -19,6 +19,16 @@ div.divtabletwocol {
   -moz-column-count: 1 !important;
   column-count: 1 !important;
 }
+div.right {
+    width: 100% !important;
+    float: none !important;
+    overflow: hidden !important;
+}
+div.left {
+    width: 100% !important;
+    float: none !important;
+    overflow: hidden !important;
+}
 }
 
 @media only screen and (max-width: 1050px) and (min-width: 500px) {
@@ -54,10 +64,23 @@ div.divtableonecol {
   column-count: 1;
 }
 div.divtabletwocol {
-  -webkit-column-count: 2;
+/*  -webkit-column-count: 2;
   -moz-column-count: 2;
-  column-count: 2;
+  column-count: 2; */
+   height: auto;
+   overflow: hidden;
 }
+    
+div.right {
+    width: auto;
+    float: none;
+    overflow: hidden;
+}
+div.left {
+    float: left;
+    width: 250px;
+}
+
 p {
   margin-bottom: 0.5em;
   -webkit-margin-before: 0.5em;
