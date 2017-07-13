@@ -69,6 +69,7 @@ div.divtabletwocol {
   column-count: 2; */
    height: auto;
    overflow: hidden;
+   margin-bottom: 0.5em;
 }
     
 div.right {
@@ -79,6 +80,11 @@ div.right {
 div.left {
     float: left;
     width: 250px;
+    word-break: break-all;
+}
+
+.navheader {
+    word-break: break-word;    
 }
 
 p {
@@ -132,6 +138,7 @@ h1 {
 	color: #050530;
 	font-size: x-large;
 	text-align: center;
+    word-break: break-word;
 }
 
 h2 {
