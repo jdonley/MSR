@@ -53,7 +53,7 @@ for typ = 1:N
     filter_location = Tools.getAllFiles([SYS_.system_info.Drive SYS_.system_info.FilterData_dir]);
     filter_location(~contains( filter_location, 'EQ'))=[];
     filter_location = sort(filter_location);
-    if isempty(filter_location{1})
+    if isempty(filter_location)
        Tools.simpleWarning('No calibration filters were found. Skipping calibration.');
        return;
     end
