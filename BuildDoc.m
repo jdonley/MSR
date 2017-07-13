@@ -1,10 +1,16 @@
 %% Build documentation
+tic;
 
 wrkdir = 'M:\MSR\';
 docdir = 'doc';
 
 mainFile = '+Current_Systems\Evaluate_Current_System.m';
-docFiles = Tools.buildDocumentation( wrkdir, docdir, mainFile, {}, false, true );
+mainRunFile = '+Current_Systems\loadCurrentSRsystem.m';
 
-mainFile = '+Current_Systems\loadCurrentSRsystem.m';
-Tools.buildDocumentation( wrkdir, docdir, mainFile, docFiles, true, true );
+
+docFiles = Tools.buildDocumentation( wrkdir, docdir, mainFile, {}, false, true );
+Tools.buildDocumentation( wrkdir, docdir, mainRunFile, docFiles, true, true );
+
+
+system('commit_doc.sh');
+toc;

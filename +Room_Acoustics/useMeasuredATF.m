@@ -75,6 +75,10 @@ RIRs = DB.RIRs;
 filter_location = Tools.getAllFiles([SYS.system_info.Drive SYS.system_info.FilterData_dir]);
 filter_location(~contains( filter_location, 'Transfer_Functions'))=[];
 filter_location = sort(filter_location);
+if isempty(filter_location)
+    Tools.simpleWarning('No measured acoustic transfer functions were found, using simulations instead.');
+    return;
+end
 filts = load( filter_location{end} ); % 1st element should be the newest (most recent) set of filters
 TF = filts.TF;
 fs = filts.fs;

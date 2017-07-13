@@ -23,11 +23,10 @@ end
 devs = playrec('getDevices');
 dev = devs(strcmpi({devs.name},SYS.system_info.dev_model));
 if isempty(dev)
-    wrnCol = [255,100,0]/255;
-    cprintf(wrnCol, 'The hardware device model ''');
-    cprintf(-wrnCol, [SYS.system_info.dev_model ' ']);fprintf('\b');
-    cprintf(wrnCol, ''' was not found.\n');
-    cprintf(wrnCol, 'Skipping calibration procedure.\n');
+    Tools.simpleWarning( {['The hardware device model ''' ...
+                          ['some_model' ' '] ...
+                          ''' was not found.'] ...
+                          'Skipping calibration procedure.' ''})
     delete(gcp('nocreate')); return;
 end
 
