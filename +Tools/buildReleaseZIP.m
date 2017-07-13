@@ -1,5 +1,5 @@
 function RelFiles = buildReleaseZIP( WorkingDir, zipFileName, MainFile, RelFiles, RuntimeDependencies )
-%BUILDRELEASEZIP Creates a ZIP file of all release dependencies for a main file
+% Creates a ZIP file of all release dependencies for a main file
 % 
 % Syntax:	BUILDRELEASEZIP( WORKINGDIR, ZIPFILENAME, MAINFILE, RUNTIMEDEPENDENCIES )
 % 

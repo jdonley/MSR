@@ -1,5 +1,5 @@
 function simpleWarning( warning_text, text_colour )
-%SIMPLEWARNING Prints a coloured warning without the location information
+% Prints a coloured warning without the location information
 %
 % Syntax:	SIMPLEWARNING(warning_text, text_colour)
 %

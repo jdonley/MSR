@@ -1,5 +1,5 @@
 function docFiles = buildDocumentation( WorkingDir, DocDir, MainFile, DocFiles, RuntimeDependencies, ThirdPartyHTML )
-%BUILDDOCUMENTATION Generates documentation HTML and builds MATLAB search database for dependencies of a main file
+% Generates documentation HTML and builds MATLAB search database for dependencies of a main file
 % 
 % Syntax:	DOCFILES = BUILDDOCUMENTATION( WORKINGDIR, DOCDIR, MAINFILE, DOCFILES, RUNTIMEDEPENDENCIES, THIRDPARTYHTML )
 % 
@@ -108,7 +108,7 @@ Icode = cellfun(@(x) (strcmp(x,'.m') || strcmp(x,'.mlx')),e);                   
 if ~ThirdPartyHTML
     cellfun(@(f,d) publish(f,PubOpts{:},'outputDir',[htmldir d]),DocFiles(Icode),docdirs(Icode),'un',0);
 else
-   m2html('mfiles',strrep(DocFiles(Icode),WorkingDir,''),'htmldir',htmldir,m2htmlOpts{:});
+    m2html('mfiles',strrep(DocFiles(Icode),WorkingDir,''),'htmldir',htmldir,m2htmlOpts{:});
 end
     
 docFiles = DocFiles(Icode);

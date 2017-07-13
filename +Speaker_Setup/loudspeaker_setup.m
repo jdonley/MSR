@@ -151,9 +151,11 @@ classdef loudspeaker_setup
                 
             end
             
-            % Equalise frequency dependent decay
-            T = abs(besselh(0, obj.k_global)); % Magnitude compensation
-            obj.Loudspeaker_Weights = obj.Loudspeaker_Weights .* T; %Remove effect of frequency dependent decay (2D ATF compensation?)
+            if obj.Dimensionality == 2
+                % Equalise frequency dependent decay
+                T = abs(besselh(0, obj.k_global)); % Magnitude compensation
+                obj.Loudspeaker_Weights = obj.Loudspeaker_Weights .* T; %Remove effect of frequency dependent decay (2D ATF compensation)
+            end
             
             % Normalise to the maximum of the absolute bright zone values
             bMask = obj.Multizone_Soundfield.Bright_Zone.Soundfield_d_mean_mask;
