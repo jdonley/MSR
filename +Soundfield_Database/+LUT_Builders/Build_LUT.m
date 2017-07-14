@@ -31,7 +31,7 @@ end
 
 DBsetups = 1:length(Setups);
 if isfield(SYS.system_info,'DB_indices')
-    DBsetups(~SYS.system_info.DB_indices)=[];
+    DBsetups(~reshape([SYS.system_info.DB_indices{:}],1,[]))=[];
 end
 for s = DBsetups
     Setup = Setups(s);
