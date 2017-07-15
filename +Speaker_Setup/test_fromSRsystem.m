@@ -9,8 +9,8 @@ tic;
 SYS = Current_Systems.IEEETransactions_System_F;
 SYS = Current_Systems.IEEETransactions_System_E;
 
-f = 1000;
-% f = Broadband_Tools.getAliasingFrequency(SYS.Main_Setup(1))*343/2/pi;
+f = 1500;
+ f = Broadband_Tools.getAliasingFrequency(SYS.Main_Setup(1))*343/2/pi;
 c = 343;
 
 C=[];E=[];
@@ -92,14 +92,14 @@ FontSize = 16;
 FontName = 'Times';
 axes(ha(1));
 ax=gca;
-setup(1).plotSoundfield( abs(Z1), 'scientific_D1', realistic, details);
+setup(1).plotSoundfield( (Z1), 'scientific_D1', realistic, details);
 text(10,size(Z1,1)-FontSize-10,1e3,'(A)',...
     'BackgroundColor',[1 1 1 0.7],'FontName',FontName,'FontSize',FontSize)
 ax.Title.String = '';%'Pressure Soundfield of Talker';
 ax.XLabel = [];
 ax.XTickLabel = [];
-% clim_=[-1 1].*pk(1);
-% ax.CLim = clim_;
+clim_=[-1 1].*pk(1);
+ax.CLim = clim_;
 colorbar off
 
 % axes(ha(2))
