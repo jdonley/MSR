@@ -13,7 +13,7 @@ if isfield(SYS.signal_info,'UseMeasuredATFs') && SYS.signal_info.UseMeasuredATFs
 if ~any(strcmpi(strrep(SYS.signal_info.recording_type,'-',''),'realworld')), delete(gcp('nocreate')); return; end
 
 % Playback master gain
-master_gain = -20; %dB (usually -20dB for recordings)
+master_gain = -20; %dB (usually -20dB for recordings) (This value depends on the hardware setup and should be changed accordingly)
 
 %% Find and initialise hardware
 if playrec('isInitialised')
