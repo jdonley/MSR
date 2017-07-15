@@ -9,8 +9,8 @@ tic;
 SYS = Current_Systems.IEEETransactions_System_F;
 SYS = Current_Systems.IEEETransactions_System_E;
 
-f = 1500;
- f = Broadband_Tools.getAliasingFrequency(SYS.Main_Setup(1))*343/2/pi;
+f = 1000;
+%  f = Broadband_Tools.getAliasingFrequency(SYS.Main_Setup(2))*343/2/pi;
 c = 343;
 
 C=[];E=[];
@@ -18,7 +18,7 @@ C=[];E=[];
 
 %%
 setup = [SYS.Main_Setup(:);SYS.Masker_Setup(:)];
-setup=setup(1); %temporary, can remove this line after 14/07/2017
+setup=setup(2); %temporary, can remove this line after 14/07/2017
 for s = 1:1
     
 %         setup(s).Multizone_Soundfield.Radius = 0.91;
