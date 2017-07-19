@@ -181,7 +181,7 @@ li:before{
 }
 div.left img {
 	vertical-align: middle;
-	height: 1.5em;
+	height: auto;
 	width: 1.5em;
 	margin-right:0.5em;	
 }
