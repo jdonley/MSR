@@ -1,5 +1,4 @@
 function Calibrate_MSR_Loudspeaker_Signals(SYS)
-clear;
 
 %% Setup Information
 if nargin < 1, SYS = Current_Systems.loadCurrentSRsystem; end

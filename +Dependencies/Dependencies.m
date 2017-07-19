@@ -38,6 +38,10 @@ d(end+1).Name           = 'gridLegend';
 d(end+1).Name           = 'ISO226';
   d(end).URL            = 'http://au.mathworks.com/matlabcentral/fileexchange/7028-iso-226-equal-loudness-level-contour-signal';
               
+d(end+1).Name           = 'm2html';
+  d(end).URL            = 'https://www.artefact.tk/software/matlab/m2html/';
+  d(end).Required       = true;
+              
 d(end+1).Name           = 'MCRoomSim';
   d(end).URL            = 'http://www.ee.usyd.edu.au/carlab/mcroomsim.htm';
               

@@ -23,7 +23,7 @@ spkr_radius = 1.3;
 % spkr_radius = 1.34;
 % spkr_radius = 1.36;
 
-dimensions = 3;
+dimensions = 2;
 
 %% Room Geometry
 Room_Setup = Room_Acoustics.Room;
