@@ -65,7 +65,7 @@ div.divtableonecol {
   -moz-column-count: 1;
   column-count: 1;
 }
-div.divtableonecol left {
+div.divtableonecol div.left {
 	width: 100%;
 }
 
