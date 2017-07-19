@@ -65,6 +65,10 @@ div.divtableonecol {
   -moz-column-count: 1;
   column-count: 1;
 }
+div.divtableonecol left {
+	width: 100%;
+}
+
 div.divtabletwocol {
 /*  -webkit-column-count: 2;
   -moz-column-count: 2;
