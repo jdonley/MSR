@@ -85,6 +85,10 @@ div.left {
     word-break: break-all;
 }
 
+div.left table {
+	border-spacing: 0px;
+}
+
 .navheader {
     word-break: break-word;    
 }
