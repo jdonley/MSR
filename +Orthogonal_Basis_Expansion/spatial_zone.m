@@ -55,7 +55,7 @@ classdef spatial_zone
         function obj = createEmptySoundfield_d(obj)
             
             if isempty(obj.ZoneSize)
-                obj = obj.setZoneSize([1 1] * obj.Radius_q);
+                obj = obj.setZoneSize([1 1] * obj.Radius_q * 2);
             end
             
             % if strcmpi( obj.ZoneGeometry, 'circle' )
@@ -66,7 +66,7 @@ classdef spatial_zone
             x = ((-znSz(2)/2+1):(znSz(2)/2));
             [xx,yy] = meshgrid( x/obj.res, y/obj.res );
             
-            mask = (xx.^2 + yy.^2) <= (min(znSz))^2 * ones(height, width);
+            mask = (xx.^2 + yy.^2) <= (min(znSz/2/obj.res))^2 * ones(height, width);
             obj.Soundfield_d_mean_mask = mask;
                         
             if contains( lower(obj.ZoneGeometry), 'rect' )

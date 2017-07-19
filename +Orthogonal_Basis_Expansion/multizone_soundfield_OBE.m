@@ -72,7 +72,7 @@ classdef multizone_soundfield_OBE
     end
 
 %% Private Methods
-    methods (Access = public) %(Access = private) % usually private
+    methods (Access = public) %TODO: %(Access = private) % usually private
             
         function obj = createEmptySoundfield(obj, Debug)
             if nargin < 2
@@ -340,6 +340,7 @@ classdef multizone_soundfield_OBE
                 
                 obj.F(:,:,n) = repmat(Fn, [1 1 1]);
             end
+            
                 
         end        
 
