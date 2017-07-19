@@ -1,21 +1,10 @@
 function useMeasuredATF(SYS)
-%USEMEASUREDATF Swaps the simulated RIRs (Room ATFs) with the measured ATFs
+% Swaps the simulated RIRs (Room ATFs) with the measured ATFs
 % 
-% Syntax:	[OUTPUTARGS] = USEMEASUREDATF(INPUTARGS) Explain usage here
+% Syntax:	useMeasuredATF( SYS ) Explain usage here
 % 
 % Inputs: 
-% 	input1 - Description
-% 	input2 - Description
-% 	input3 - Description
-% 
-% Outputs: 
-% 	output1 - Description
-% 	output2 - Description
-% 
-% Example: 
-% 	Line 1 of example
-% 	Line 2 of example
-% 	Line 3 of example
+% 	SYS - Soundfield reproduction system object
 % 
 % See also: List related files here
 

@@ -12,5 +12,5 @@ docFiles = Tools.buildDocumentation( wrkdir, docdir, mainFile, {}, false, true )
 Tools.buildDocumentation( wrkdir, docdir, mainRunFile, docFiles, true, true );
 
 
-system('commit_doc.sh');
+system('commit_doc.bat');
 toc;
