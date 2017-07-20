@@ -214,6 +214,10 @@ h2 {
     font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
 }
 
+#todo li:before{
+	background-image: url(mfile.png);
+}
+
 address {
 	font-size:small;
 }
