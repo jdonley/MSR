@@ -157,6 +157,33 @@ h2 {
 	font-size: large;
 }
 
+#mfile h1 {
+	background: transparent;
+    color: #c45400;
+    text-align: left;
+    word-break: break-word;
+    font: normal normal 22px/1.136 Arial,Helvetica,sans-serif;
+    border-bottom: 1px solid #cbcbcb;
+    margin-bottom: 16px;
+    padding: 0 61px 2px 0;
+}
+#mfile h2 {
+    background: transparent;
+    color: #404040;
+    font-size: large;
+    font: normal bold 17px/1.35 Arial, Helvetica, sans-serif;
+    border-bottom: 1px solid #ccc;
+}
+div.purpose {
+	margin-top: -15px;
+	color: #6a6a6a;
+    font-size: 13px;
+    font-weight: normal;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.3;
+}
+
+
 address {
 	font-size:small;
 }
