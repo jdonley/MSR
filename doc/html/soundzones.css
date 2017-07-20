@@ -174,13 +174,30 @@ h2 {
     font: normal bold 17px/1.35 Arial, Helvetica, sans-serif;
     border-bottom: 1px solid #ccc;
 }
-div.purpose {
+#mfile h2 > a {
+    float: right;
+	margin-right: 4px;
+}
+#mfile div.purpose {
 	margin-top: -15px;
 	color: #6a6a6a;
     font-size: 13px;
     font-weight: normal;
     -webkit-font-smoothing: antialiased;
     line-height: 1.3;
+}
+#mfile div.box {
+width: 98%;
+    background-color: #fcfcfc;
+    color: #404040;
+    padding: 7px 15px;
+    font-family: monospace;
+    font-weight: normal;
+    font-size: 13px;
+    word-break: break-word;
+    margin-bottom: 5px;
+    box-sizing: border-box;
+	border: none;
 }
 
 
