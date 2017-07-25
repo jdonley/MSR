@@ -1,11 +1,12 @@
 classdef loudspeaker_setup
-    % LOUDSPEAKER_SETUP - This class provides practical setup information
-    %                     from a compatible desired multizone soundfield.
-    %
-    %
-    %   Author: Jacob Donley, University of Wollongong, Australia
-    %   Email: Jacob.Donley089@uowmail.edu.au
-    %
+% This class provides practical setup information from a compatible desired multizone soundfield.
+%
+% Author: Jacob Donley
+% University of Wollongong
+% Email: jrd089@uowmail.edu.au
+% Date: 20 July 2017
+% Revision: 0.1
+%
     
     properties
         % Settings

@@ -1,13 +1,14 @@
 classdef SR_System
-    % SR_SYSTEM - This class provides complete soundfield reproduction
-    %             system information from compatible loudspeaker setup,
-    %             signal information, hardware system information and room
-    %             information.
-    %
-    %
-    %   Author: Jacob Donley, University of Wollongong, Australia
-    %   Email: Jacob.Donley089@uowmail.edu.au
-    %
+% This class provides complete soundfield reproduction system information
+% from compatible loudspeaker setup, signal information, hardware system
+% information and room information.
+%
+% Author: Jacob Donley
+% University of Wollongong
+% Email: jrd089@uowmail.edu.au
+% Date: 20 July 2017
+% Revision: 0.1
+%
     
     properties
         % Objects
