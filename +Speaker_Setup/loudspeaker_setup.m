@@ -4,9 +4,10 @@ classdef loudspeaker_setup
 % Author: Jacob Donley
 % University of Wollongong
 % Email: jrd089@uowmail.edu.au
+% Copyright: Jacob Donley 2017
 % Date: 20 July 2017
 % Revision: 0.1
-%
+% 
     
     properties
         % Settings

@@ -31,7 +31,6 @@ Room_Acoustics.Reverberant_MSR
 
 %% Measure Recorded Signal Characteristics
 Room_Acoustics.Reverberant_MSR_Analysis
-% TEST_SCRIPT
 
 %% Plot Results
 Results.Plot_Results
