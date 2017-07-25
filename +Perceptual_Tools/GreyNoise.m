@@ -1,23 +1,20 @@
 function [ y ] = GreyNoise( T, Fs, level)
-%GREYNOISE This function returns an equal loudness noise
+%This function returns an equal loudness noise
 % 
-% Syntax:	[ output_args ] = GreyNoise( input_args )
+% Syntax:	Y = GREYNOISE( T, FS, LEVEL)
 % 
 % Inputs: 
-% 	input1 - Description
-% 	input2 - Description
-% 	input3 - Description
+% 	T - Length of the grey noise in seconds
+% 	Fs - Sampling frequency of the grey noise output
+% 	level - Magnitude gain/level adjustment as a multiplier
 % 
 % Outputs: 
-% 	output1 - Description
-% 	output2 - Description
+% 	y - Grey noise output signal vector
 % 
 % Example: 
-% 	Line 1 of example
-% 	Line 2 of example
-% 	Line 3 of example
+% 	[ y ] = GreyNoise( 10, 16000, 0.8); % 10 seconds of grey noise at 16kHz sampling frequency and 0.8 gain.
 % 
-% See also: List related files here
+% See also: awgn, randn, wgn
 
 % Author: Jacob Donley
 % University of Wollongong
