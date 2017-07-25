@@ -8,6 +8,7 @@ tic;
 % SYS = Current_Systems.ICASSP2017_System_A;
 SYS = Current_Systems.IEEETransactions_System_F;
 SYS = Current_Systems.IEEETransactions_System_E;
+SYS = Current_Systems.IEEETransactions_System_D;
 
 f = 1000;
 %  f = Broadband_Tools.getAliasingFrequency(SYS.Main_Setup(2))*343/2/pi;
@@ -18,7 +19,7 @@ C=[];E=[];
 fprintf('%.0f\n',f);
 %%
 setup = [SYS.Main_Setup(:);SYS.Masker_Setup(:)];
-setup=setup(2); %temporary, can remove this line after 14/07/2017
+setup=setup( (((2))) *8+1); %temporary, can remove this line after 14/07/2017
 for s = 1:1
     
 %         setup(s).Multizone_Soundfield.Radius = 0.91;
@@ -198,7 +199,7 @@ end
 %%
 figure(1010)
 hold on;
-plot(Freqs,C); hold off
+plot(Freqs,-C/2); hold off; ylim([-60 0]); set(gca,'XScale','log'); grid on; grid minor;
 figure(1011)
 hold on;
 plot(Freqs,E); hold off
