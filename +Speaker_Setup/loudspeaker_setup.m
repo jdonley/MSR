@@ -270,16 +270,16 @@ classdef loudspeaker_setup
                 
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                 if obj.Dimensionality == 2                    
-                    % 2D
-                    ATF = besselh(m, k * R_q ); % 2D
+                    % Cylindrical Harmonics
+                    Harmonics = besselh(m, k * R_q ); % 2D
                 elseif obj.Dimensionality == 3
-                    % 3D
-                    ATF = sqrt(pi./(2*k*R_q)) .* besselh(m + 0.5, k * R_q ); % 3D
+                    % Spherical Harmonics
+                    Harmonics = sqrt(pi./(2*k*R_q)) .* besselh(m + 0.5, k * R_q ); % 3D
                 end
                 
                 % Expansion
                 obj.Loudspeaker_Weights = sum(2 * exp(1i*m.*phi_q) * delta_phi_s .*   sum( P_j .* 1i.^m_ .* exp( -1i * m_ .* phi_p ),3) ...
-                    ./ (1i*pi* ATF )  ,2).';
+                    ./ (1i*pi* Harmonics )  ,2).';
                 
                 %                 A=sum( P_j .* 1i.^m_ .* exp( -1i * m_ .* phi_p ),3);A=A(1,:);
                 %                 m=(-M:M);

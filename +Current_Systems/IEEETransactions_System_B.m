@@ -7,6 +7,8 @@ SourceAngleSetIndice = 2; % 1, 2 or 3
 
 N_spkrs = [16, 24, 32, 114]; % 16, 24, 32 or 114
 
+lambda_g = [     0.5     ]; % between 0 and 1
+    
 spkr_type  = 'Dynamic';
 spkr_radius = 1.3;
 
@@ -169,11 +171,12 @@ signal_info.recording_type = {'simulated'}; % The type of recordings to be analy
 signal_info.weight = 100; % This can be auto-calculated for maximum contrast by setting to 'Auto'
 signal_info.method = ''; % Default empty (temporary variable)
 
+lambda_gTxt = num2str(lambda_g(~isnan(lambda_g)).','%0.2f');
 NM = 'NoMask';
 ZWMAC = 'ZoneWeightMaskerAliasCtrl';
 signal_info.methods_list ... % List of methods to synthesize
     = [mat2cell(repmat(NM,1,N_sets),1,numel(NM)*ones(N_sets,1)), ...
-    mat2cell(repmat(ZWMAC,1,N_sets),1,numel(ZWMAC)*ones(N_sets,1))];
+    mat2cell(repmat([ZWMAC lambda_gTxt],1,N_sets),1,(numel(ZWMAC)+numel(lambda_gTxt))*ones(N_sets,1))];
 N=numel(signal_info.methods_list);
 signal_info.methods_list_clean = 1:N/2; %Indices of the clean signals
 signal_info.methods_list_masker = (N/2+1):N; %Indices of the maskers, different hybrids are separated by columns
