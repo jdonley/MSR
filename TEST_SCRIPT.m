@@ -1,6 +1,18 @@
 beta_0 = beta*0 + beta(1,M+1);
-e_m = exp(1i*m)
-
+E=zeros(N);
+Qnot = (2*pi-phi) / delta_phi_s;
+phis = linspace(phi_q(end)-2*pi,phi_q(1),Qnot);
+for p = phis
+e_m = exp(1i*m(1,:)*p);
+E = E + (e_m'*e_m);
+end
+% E=E/Qnot;
+beta2 = (eye(N) - E)^-1*(beta(1,:).');
+hold off
+% plot(abs(beta(1,:)))
+% hold on
+plot(abs(beta2));
+0;
 %% clc;clear;
 % 
 % % RIR_FilePath = 'Z:\+Room_Acoustics\+RIR_Database\+CIRCLEarray_1.3mPerpDist_180degCentre\+24Genelec8010ASpkrs_4.2616mLen\+0Bx_0.6By_0Qx_-0.6Qy\+10x10x10Dim_1Ab\Simulated_RIRs__32Rec_5x5x5Ctr.mat';
