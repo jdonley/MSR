@@ -8,18 +8,18 @@ tic;
 % SYS = Current_Systems.ICASSP2017_System_A;
 SYS = Current_Systems.IEEETransactions_System_F;
 SYS = Current_Systems.IEEETransactions_System_E;
-SYS = Current_Systems.IEEETransactions_System_D;
+% SYS = Current_Systems.IEEETransactions_System_D;
 
 f = 1000;
 %  f = Broadband_Tools.getAliasingFrequency(SYS.Main_Setup(2))*343/2/pi;
 c = 343;
-Freqs = 200:100:3000;
+Freqs = 1000:100:1000;
 C=[];E=[];
  for f = Freqs
 fprintf('%.0f\n',f);
 %%
 setup = [SYS.Main_Setup(:);SYS.Masker_Setup(:)];
-setup=setup( (((2))) *8+1); %temporary, can remove this line after 14/07/2017
+setup=setup( 1 ); %temporary, can remove this line after 14/07/2017
 for s = 1:1
     
 %         setup(s).Multizone_Soundfield.Radius = 0.91;
@@ -80,28 +80,28 @@ Z1(abs(Z1)>clipFact*pk(1))=nan;
 % Z_ = mag2db((Z)./pk);
 
 % close all;
-% fH = figure(111);
-% ha = tightPlots( 1, 1, ...
-% SYS.publication_info.figure_width*2, ...
-% [1 1], ...
-% SYS.publication_info.axes_gap, ...
-% SYS.publication_info.axes_margins_height, ...
-% SYS.publication_info.axes_margins_width, ...
-% 'centimeters');
-% 
-% FontSize = 16;
-% FontName = 'Times';
-% axes(ha(1));
-% ax=gca;
-% setup(1).plotSoundfield( (Z1), 'scientific_D1', realistic, details);
-% text(10,size(Z1,1)-FontSize-10,1e3,'(A)',...
-%     'BackgroundColor',[1 1 1 0.7],'FontName',FontName,'FontSize',FontSize)
-% ax.Title.String = '';%'Pressure Soundfield of Talker';
-% ax.XLabel = [];
-% ax.XTickLabel = [];
-% clim_=[-1 1].*pk(1);
-% ax.CLim = clim_;
-% colorbar off
+fH = figure(111);
+ha = tightPlots( 1, 1, ...
+SYS.publication_info.figure_width*2, ...
+[1 1], ...
+SYS.publication_info.axes_gap, ...
+SYS.publication_info.axes_margins_height, ...
+SYS.publication_info.axes_margins_width, ...
+'centimeters');
+
+FontSize = 16;
+FontName = 'Times';
+axes(ha(1));
+ax=gca;
+setup(1).plotSoundfield( (Z1), 'scientific_D1', realistic, details);
+text(10,size(Z1,1)-FontSize-10,1e3,'(A)',...
+    'BackgroundColor',[1 1 1 0.7],'FontName',FontName,'FontSize',FontSize)
+ax.Title.String = '';%'Pressure Soundfield of Talker';
+ax.XLabel = [];
+ax.XTickLabel = [];
+clim_=[-1 1].*pk(1);
+ax.CLim = clim_;
+colorbar off
 
 % axes(ha(2))
 % ax=gca;
