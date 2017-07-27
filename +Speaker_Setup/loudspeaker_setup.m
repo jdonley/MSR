@@ -278,12 +278,6 @@ classdef loudspeaker_setup
                 end
                 
                 % Expansion
-                beta = 2 *   sum( P_j .* 1i.^m_ .* exp( -1i * m_ .* phi_p ),3) ...
-                    ./ (1i*pi* ATF );
-                
-                
-                
-                obj.Loudspeaker_Weights = sum( beta .* exp(1i*m.*phi_q) * delta_phi_s ,2).';
                 obj.Loudspeaker_Weights = sum(2 * exp(1i*m.*phi_q) * delta_phi_s .*   sum( P_j .* 1i.^m_ .* exp( -1i * m_ .* phi_p ),3) ...
                     ./ (1i*pi* ATF )  ,2).';
                 

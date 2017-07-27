@@ -1,4 +1,3 @@
-beta_0 = beta*0 + beta(1,M+1);
 E=zeros(N);
 Qnot = (2*pi-phi) / delta_phi_s;
 phis = linspace(phi_q(end)-2*pi,phi_q(1),Qnot);
@@ -9,9 +8,10 @@ end
 % E=E/Qnot;
 beta2 = (eye(N) - E)^-1*(beta(1,:).');
 hold off
-% plot(abs(beta(1,:)))
-% hold on
 plot(abs(beta2));
+hold on
+plot(abs(beta(1,:)))
+
 0;
 %% clc;clear;
 % 
