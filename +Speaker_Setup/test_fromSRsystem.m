@@ -13,7 +13,7 @@ SYS = Current_Systems.IEEETransactions_System_E;
 f = 1000;
 %  f = Broadband_Tools.getAliasingFrequency(SYS.Main_Setup(2))*343/2/pi;
 c = 343;
-Freqs = 1000:100:1000;
+Freqs = 200:100:3000;
 C=[];E=[];
  for f = Freqs
 fprintf('%.0f\n',f);
@@ -44,6 +44,7 @@ for s = 1:1
     setup(s) = setup(s).reproduceSoundfield('DEBUG');
     
 end
+
 
 %%
 try close('111'); catch; end
@@ -80,28 +81,28 @@ Z1(abs(Z1)>clipFact*pk(1))=nan;
 % Z_ = mag2db((Z)./pk);
 
 % close all;
-fH = figure(111);
-ha = tightPlots( 1, 1, ...
-SYS.publication_info.figure_width*2, ...
-[1 1], ...
-SYS.publication_info.axes_gap, ...
-SYS.publication_info.axes_margins_height, ...
-SYS.publication_info.axes_margins_width, ...
-'centimeters');
-
-FontSize = 16;
-FontName = 'Times';
-axes(ha(1));
-ax=gca;
-setup(1).plotSoundfield( (Z1), 'scientific_D1', realistic, details);
-text(10,size(Z1,1)-FontSize-10,1e3,'(A)',...
-    'BackgroundColor',[1 1 1 0.7],'FontName',FontName,'FontSize',FontSize)
-ax.Title.String = '';%'Pressure Soundfield of Talker';
-ax.XLabel = [];
-ax.XTickLabel = [];
-clim_=[-1 1].*pk(1);
-ax.CLim = clim_;
-colorbar off
+% fH = figure(111);
+% ha = tightPlots( 1, 1, ...
+% SYS.publication_info.figure_width*2, ...
+% [1 1], ...
+% SYS.publication_info.axes_gap, ...
+% SYS.publication_info.axes_margins_height, ...
+% SYS.publication_info.axes_margins_width, ...
+% 'centimeters');
+% 
+% FontSize = 16;
+% FontName = 'Times';
+% axes(ha(1));
+% ax=gca;
+% setup(1).plotSoundfield( (Z1), 'scientific_D1', realistic, details);
+% text(10,size(Z1,1)-FontSize-10,1e3,'(A)',...
+%     'BackgroundColor',[1 1 1 0.7],'FontName',FontName,'FontSize',FontSize)
+% ax.Title.String = '';%'Pressure Soundfield of Talker';
+% ax.XLabel = [];
+% ax.XTickLabel = [];
+% clim_=[-1 1].*pk(1);
+% ax.CLim = clim_;
+% colorbar off
 
 % axes(ha(2))
 % ax=gca;

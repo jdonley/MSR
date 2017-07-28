@@ -269,29 +269,33 @@ classdef loudspeaker_setup
                 R_q = repmat(obj.Loudspeaker_Locations(:,2),1,2*M+1);
                 
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                
+                alpha = sum( P_j .* 1i.^m_ .* exp( -1i * m_ .* phi_p ),3);
+                
                 if obj.Dimensionality == 2                    
                     % Cylindrical Bessel Function
                     BesselFns = besselh(m, k * R_q ); % 2D
+                    
+                    beta = 2 ./ (1i*pi* BesselFns ) .* alpha; % Global Coefficients
+                    
                 elseif obj.Dimensionality == 3
                     % Spherical Bessel Function
                     BesselFns = sqrt(pi./(2*k*R_q)) .* besselh(m + 0.5, k * R_q ); % 3D
+                    
+%                     beta = 2 ./ (1i*pi* BesselFns ) .* alpha; % Global Coefficients
+                    beta = 1 ./ (2*1i*pi*k* BesselFns ) .* alpha;
+                    
+                    %nn = 0:M;
+                    %mm = -M:M;
+                    %Harmonics = SphericalHarmonics(nn,mm,phi_p,0);
                 end
                 
-                alpha = sum( P_j .* 1i.^m_ .* exp( -1i * m_ .* phi_p ),3);
-                                              
-                beta = 2 ./ (1i*pi* BesselFns ) .* alpha;
-                
-                nn = 0:M;
-                mm = -M:M;
-                Harmonics = SphericalHarmonics(nn,mm,phi_p,0);
-                
-                LW = 1 / 1i*k*BesselFns*Harmonics * alpha;
-                
-                obj.Loudspeaker_Weights = sum(  beta .* exp(1i*m.*phi_q) * delta_phi_s ,2).';
                 
                 % Expansion
-                obj.Loudspeaker_Weights = sum(2 * exp(1i*m.*phi_q) * delta_phi_s .*   sum( P_j .* 1i.^m_ .* exp( -1i * m_ .* phi_p ),3) ...
-                    ./ (1i*pi* BesselFns )  ,2).';
+                obj.Loudspeaker_Weights = sum(  beta .* exp(1i*m.*phi_q) * delta_phi_s ,2).';
+
+                %obj.Loudspeaker_Weights = sum(2 * exp(1i*m.*phi_q) * delta_phi_s .*   sum( P_j .* 1i.^m_ .* exp( -1i * m_ .* phi_p ),3) ...
+                %    ./ (1i*pi* BesselFns )  ,2).';
                 
                 %                 A=sum( P_j .* 1i.^m_ .* exp( -1i * m_ .* phi_p ),3);A=A(1,:);
                 %                 m=(-M:M);
