@@ -270,22 +270,28 @@ classdef loudspeaker_setup
                 
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                 if obj.Dimensionality == 2                    
-                    % Cylindrical Harmonics
-                    Harmonics = besselh(m, k * R_q ); % 2D
+                    % Cylindrical Bessel Function
+                    BesselFns = besselh(m, k * R_q ); % 2D
                 elseif obj.Dimensionality == 3
-                    % Spherical Harmonics
-                    Harmonics = sqrt(pi./(2*k*R_q)) .* besselh(m + 0.5, k * R_q ); % 3D
+                    % Spherical Bessel Function
+                    BesselFns = sqrt(pi./(2*k*R_q)) .* besselh(m + 0.5, k * R_q ); % 3D
                 end
                 
                 alpha = sum( P_j .* 1i.^m_ .* exp( -1i * m_ .* phi_p ),3);
+                                              
+                beta = 2 ./ (1i*pi* BesselFns ) .* alpha;
                 
-                beta = 2 ./ (1i*pi* Harmonics ) .* alpha;
+                nn = 0:M;
+                mm = -M:M;
+                Harmonics = SphericalHarmonics(nn,mm,0,phi_p);
+                
+                LW = 1 / 1i*k*BesselFns*Harmonics * alpha;
                 
                 obj.Loudspeaker_Weights = sum(  beta .* exp(1i*m.*phi_q) * delta_phi_s ,2).';
                 
                 % Expansion
                 obj.Loudspeaker_Weights = sum(2 * exp(1i*m.*phi_q) * delta_phi_s .*   sum( P_j .* 1i.^m_ .* exp( -1i * m_ .* phi_p ),3) ...
-                    ./ (1i*pi* Harmonics )  ,2).';
+                    ./ (1i*pi* BesselFns )  ,2).';
                 
                 %                 A=sum( P_j .* 1i.^m_ .* exp( -1i * m_ .* phi_p ),3);A=A(1,:);
                 %                 m=(-M:M);
@@ -325,6 +331,12 @@ classdef loudspeaker_setup
             
         end
         
+        function Y = SphericalHarmonics(n,m,theta,phi)
+            P = legendre( n, cos(theta) );
+            Y = sqrt(( 2*n + 1 ) * factorial( n - abs(m) )   ...
+                   / (   4*pi    * factorial( n + abs(m) )) )...
+                   * P(abs(m)) * exp( 1i*m*phi );
+        end
         
         function obj = calc_Loudspeaker_Locations(obj)
             Q0 = obj.Loudspeaker_Count;
