@@ -283,7 +283,7 @@ classdef loudspeaker_setup
                 
                 nn = 0:M;
                 mm = -M:M;
-                Harmonics = SphericalHarmonics(nn,mm,0,phi_p);
+                Harmonics = SphericalHarmonics(nn,mm,phi_p,0);
                 
                 LW = 1 / 1i*k*BesselFns*Harmonics * alpha;
                 
@@ -335,7 +335,7 @@ classdef loudspeaker_setup
             P = legendre( n, cos(theta) );
             Y = sqrt(( 2*n + 1 ) * factorial( n - abs(m) )   ...
                    / (   4*pi    * factorial( n + abs(m) )) )...
-                   * P(abs(m)) * exp( 1i*m*phi );
+                   * squeeze(P(abs(m+1),:,:)) .* exp( 1i*m*phi );
         end
         
         function obj = calc_Loudspeaker_Locations(obj)
