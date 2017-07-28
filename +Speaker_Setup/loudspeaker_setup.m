@@ -222,7 +222,6 @@ classdef loudspeaker_setup
                     H = 1i/4 * besselh(0, obj.k_global * r ); % 2D
                 elseif obj.Dimensionality == 3
                     % H = 1i/4 * sqrt(pi./(2*obj.k_global * r)) .* besselh(0 + 0.5, obj.k_global * r ); % 3D
-                    % H = exp( -1i*obj.k_global*r ) ./ (4*pi*r); % 3D
                     H = exp( 1i*obj.k_global*r ) ./ (4*pi*r); % 3D
                 end
             end
@@ -282,8 +281,7 @@ classdef loudspeaker_setup
                     % Spherical Bessel Function
                     BesselFns = sqrt(pi./(2*k*R_q)) .* besselh(m + 0.5, k * R_q ); % 3D
                     
-%                     beta = 2 ./ (1i*pi* BesselFns ) .* alpha; % Global Coefficients
-                    beta = 1 ./ (2*1i*pi*k* BesselFns ) .* alpha;
+                    beta = 1 ./ (2*1i*pi*k* BesselFns ) .* alpha; % Global Coefficients
                     
                     %nn = 0:M;
                     %mm = -M:M;
