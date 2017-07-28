@@ -277,6 +277,12 @@ classdef loudspeaker_setup
                     Harmonics = sqrt(pi./(2*k*R_q)) .* besselh(m + 0.5, k * R_q ); % 3D
                 end
                 
+                alpha = sum( P_j .* 1i.^m_ .* exp( -1i * m_ .* phi_p ),3);
+                
+                beta = 2 ./ (1i*pi* Harmonics ) .* alpha;
+                
+                obj.Loudspeaker_Weights = sum(  beta .* exp(1i*m.*phi_q) * delta_phi_s ,2).';
+                
                 % Expansion
                 obj.Loudspeaker_Weights = sum(2 * exp(1i*m.*phi_q) * delta_phi_s .*   sum( P_j .* 1i.^m_ .* exp( -1i * m_ .* phi_p ),3) ...
                     ./ (1i*pi* Harmonics )  ,2).';
