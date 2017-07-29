@@ -23,7 +23,7 @@ spkr_radius = 1.3;
 % spkr_radius = 1.34;
 % spkr_radius = 1.36;
 
-dimensions = 2;
+dimensions = 3;
 
 %% Room Geometry
 Room_Setup = Room_Acoustics.Room;
@@ -209,8 +209,8 @@ system_info.playbackChannels = ...
 % system_info.recordChZoneAlloc = ... % Allocation of the recorded channels to their respective zones (1 is for Bright Zone, 2 is for Quiet Zone)
 %     [ 1 2 ];
 
-zone = 'bright';
-% zone = 'quiet';
+% zone = 'bright';
+zone = 'quiet';
 
 system_info.recordChannels = ...
     [ 1 2 3 4];

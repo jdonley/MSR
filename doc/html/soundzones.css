@@ -5,9 +5,10 @@ html {
 body {
   background-color: white;
   color: black;
-  font-family: arial,sans-serif;
+  font: 15px/1.46 Arial, Helvetica, sans-serif;
   margin: 2ex 8%;
   padding: 1ex;
+  -webkit-font-smoothing: antialiased;
 }
 
 @media only screen and (max-width: 500px) {
@@ -65,6 +66,10 @@ div.divtableonecol {
   -moz-column-count: 1;
   column-count: 1;
 }
+div.divtableonecol > div.left {
+	width: 100%;
+}
+
 div.divtabletwocol {
 /*  -webkit-column-count: 2;
   -moz-column-count: 2;
@@ -83,6 +88,10 @@ div.left {
     float: left;
     width: 250px;
     word-break: break-all;
+}
+
+div.left table {
+	border-spacing: 0px;
 }
 
 .navheader {
@@ -149,6 +158,66 @@ h2 {
 	font-size: large;
 }
 
+h1 {
+	background-image: url(https://au.mathworks.com/images/responsive/global/r2017a.svg);
+	background-position: right -2px;
+    background-repeat: no-repeat;
+    background-size: 57px 32px;
+    color: #c45400;
+    text-align: left;
+    word-break: break-word;
+    font: normal normal 22px/1.136 Arial,Helvetica,sans-serif;
+    border-bottom: 1px solid #cbcbcb;
+    margin-bottom: 16px;
+    padding: 0 61px 2px 0;
+}
+h2 {
+    background: transparent;
+    color: #404040;
+    font-size: large;
+    font: normal bold 17px/1.35 Arial, Helvetica, sans-serif;
+    border-bottom: 1px solid #ccc;
+}
+#mfile h2 > a {
+    float: right;
+	margin-right: 4px;
+}
+#mfile div.purpose {
+	padding: 3px 125px 0 0;
+	margin-top: -15px;
+	color: #6a6a6a;
+    font-size: 13px;
+    line-height: 1.3;
+}
+#mfile div.box {
+    font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+	width: 98%;
+    background-color: #fcfcfc;
+    color: #404040;
+    padding: 7px 15px;
+    font-size: 13px;
+    word-break: break-word;
+    margin-bottom: 5px;
+    box-sizing: border-box;
+	border: none;
+}
+#mfile div.fragment {
+	font-size: 13px;
+	width: 98%;
+    border: 1px solid #ccc;
+    background-color: #f6f6f6;
+    padding-left: 4px;
+    margin: 4px;
+    word-break: break-word;
+}
+#mfile pre {
+    font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+}
+
+#todo li:before{
+	background-image: url(mfile.png);
+}
+
 address {
 	font-size:small;
 }
@@ -166,4 +235,22 @@ input.search {
 
 li {
     padding-left:5px;
+	list-style: none;
+}
+li:before{
+	content: '';
+	display: inline-block;
+	height: 1.5em;
+	width: 1.5em;
+	background-image: url(matlabicon.png);
+	background-size:contain;
+	background-repeat:no-repeat;
+	vertical-align: middle;
+    margin-right:0.5em;
+}
+div.left img {
+	vertical-align: middle;
+	height: auto;
+	width: 1.5em;
+	margin-right:0.5em;	
 }

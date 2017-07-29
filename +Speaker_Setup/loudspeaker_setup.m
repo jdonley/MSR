@@ -1,11 +1,13 @@
 classdef loudspeaker_setup
-    % LOUDSPEAKER_SETUP - This class provides practical setup information
-    %                     from a compatible desired multizone soundfield.
-    %
-    %
-    %   Author: Jacob Donley, University of Wollongong, Australia
-    %   Email: Jacob.Donley089@uowmail.edu.au
-    %
+% This class provides practical setup information from a compatible desired multizone soundfield.
+%
+% Author: Jacob Donley
+% University of Wollongong
+% Email: jrd089@uowmail.edu.au
+% Copyright: Jacob Donley 2017
+% Date: 20 July 2017
+% Revision: 0.1
+% 
     
     properties
         % Settings
@@ -220,7 +222,6 @@ classdef loudspeaker_setup
                     H = 1i/4 * besselh(0, obj.k_global * r ); % 2D
                 elseif obj.Dimensionality == 3
                     % H = 1i/4 * sqrt(pi./(2*obj.k_global * r)) .* besselh(0 + 0.5, obj.k_global * r ); % 3D
-                    % H = exp( -1i*obj.k_global*r ) ./ (4*pi*r); % 3D
                     H = exp( 1i*obj.k_global*r ) ./ (4*pi*r); % 3D
                 end
             end
@@ -267,17 +268,32 @@ classdef loudspeaker_setup
                 R_q = repmat(obj.Loudspeaker_Locations(:,2),1,2*M+1);
                 
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                
+                alpha = sum( P_j .* 1i.^m_ .* exp( -1i * m_ .* phi_p ),3);
+                
                 if obj.Dimensionality == 2                    
-                    % 2D
-                    ATF = besselh(m, k * R_q ); % 2D
+                    % Cylindrical Bessel Function
+                    BesselFns = besselh(m, k * R_q ); % 2D
+                    
+                    beta = 2 ./ (1i*pi* BesselFns ) .* alpha; % Global Coefficients
+                    
                 elseif obj.Dimensionality == 3
-                    % 3D
-                    ATF = sqrt(pi./(2*k*R_q)) .* besselh(m + 0.5, k * R_q ); % 3D
+                    % Spherical Bessel Function
+                    BesselFns = sqrt(pi./(2*k*R_q)) .* besselh(m + 0.5, k * R_q ); % 3D
+                    
+                    beta = 1 ./ (2*1i*pi*k* BesselFns ) .* alpha; % Global Coefficients
+                    
+                    %nn = 0:M;
+                    %mm = -M:M;
+                    %Harmonics = SphericalHarmonics(nn,mm,phi_p,0);
                 end
                 
+                
                 % Expansion
-                obj.Loudspeaker_Weights = sum(2 * exp(1i*m.*phi_q) * delta_phi_s .*   sum( P_j .* 1i.^m_ .* exp( -1i * m_ .* phi_p ),3) ...
-                    ./ (1i*pi* ATF )  ,2).';
+                obj.Loudspeaker_Weights = sum(  beta .* exp(1i*m.*phi_q) * delta_phi_s ,2).';
+
+                %obj.Loudspeaker_Weights = sum(2 * exp(1i*m.*phi_q) * delta_phi_s .*   sum( P_j .* 1i.^m_ .* exp( -1i * m_ .* phi_p ),3) ...
+                %    ./ (1i*pi* BesselFns )  ,2).';
                 
                 %                 A=sum( P_j .* 1i.^m_ .* exp( -1i * m_ .* phi_p ),3);A=A(1,:);
                 %                 m=(-M:M);
@@ -317,6 +333,12 @@ classdef loudspeaker_setup
             
         end
         
+        function Y = SphericalHarmonics(n,m,theta,phi)
+            P = legendre( n, cos(theta) );
+            Y = sqrt(( 2*n + 1 ) * factorial( n - abs(m) )   ...
+                   / (   4*pi    * factorial( n + abs(m) )) )...
+                   * squeeze(P(abs(m+1),:,:)) .* exp( 1i*m*phi );
+        end
         
         function obj = calc_Loudspeaker_Locations(obj)
             Q0 = obj.Loudspeaker_Count;

@@ -1,5 +1,4 @@
 function Play_and_Rec_System(SYS)
-clear;
 
 %%
 if nargin < 1, SYS = Current_Systems.loadCurrentSRsystem; end

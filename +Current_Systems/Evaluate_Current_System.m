@@ -1,9 +1,9 @@
+
+%                       COMPLETE EVALUATION SCRIPT
+%--------------------------------------------------------------------------
+% Make sure the current system can be loaded correctly prior to simulation 
+%==========================================================================
 clc;clear;clear classes;close all;fclose all;delete(gcp('nocreate'));
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                       COMPLETE EVALUATION SCRIPT                        %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Make sure the current system can be loaded correctly prior to simulation%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Build Look-Up Tables
 Soundfield_Database.LUT_Builders.Build_LUT
@@ -31,7 +31,6 @@ Room_Acoustics.Reverberant_MSR
 
 %% Measure Recorded Signal Characteristics
 Room_Acoustics.Reverberant_MSR_Analysis
-% TEST_SCRIPT
 
 %% Plot Results
 Results.Plot_Results

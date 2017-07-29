@@ -4,14 +4,14 @@
 <head>
   <title>Description of GreyNoise</title>
   <meta name="keywords" content="GreyNoise">
-  <meta name="description" content="GREYNOISE This function returns an equal loudness noise">
+  <meta name="description" content="This function returns an equal loudness noise">
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
   <meta name="generator" content="">
   <meta name="robots" content="index, follow">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link type="text/css" rel="stylesheet" href="../soundzones.css">
 </head>
-<body>
+<body id="mfile">
 <a name="_top"></a>
 <div class="navheader"><a href="../index.html">Home</a> &gt;  <a href="index.html">+Perceptual_Tools</a> &gt; GreyNoise.m</div>
 
@@ -21,35 +21,32 @@
 <h1>GreyNoise
 </h1>
 
-<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
-<div class="box"><strong>GREYNOISE This function returns an equal loudness noise</strong></div>
+<!-- <h2><a name="_name"></a>Summary <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2> -->
+<div class="purpose">This function returns an equal loudness noise</div>
 
-<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
-<div class="box"><strong>function [ y ] = GreyNoise( T, Fs, level) </strong></div>
+<h2><a name="_synopsis"></a>Syntax <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box">function [ y ] = GreyNoise( T, Fs, level) </div>
 
-<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
-<div class="fragment"><pre class="comment">GREYNOISE This function returns an equal loudness noise
+<h2><a name="_description"></a>Description <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">This function returns an equal loudness noise
  
- Syntax:    [ output_args ] = GreyNoise( input_args )
+ Syntax:    Y = GREYNOISE( T, FS, LEVEL)
  
  Inputs: 
-     input1 - Description
-     input2 - Description
-     input3 - Description
+     T - Length of the grey noise in seconds
+     Fs - Sampling frequency of the grey noise output
+     level - Magnitude gain/level adjustment as a multiplier
  
  Outputs: 
-     output1 - Description
-     output2 - Description
+     y - Grey noise output signal vector
  
  Example: 
-     Line 1 of example
-     Line 2 of example
-     Line 3 of example
+     [ y ] = GreyNoise( 10, 16000, 0.8); % 10 seconds of grey noise at 16kHz sampling frequency and 0.8 gain.
  
- See also: List related files here</pre></div>
+ See also: awgn, randn, wgn</pre></div>
 
 <!-- crossreference -->
-<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<h2><a name="_cross"></a>Cross-Reference Information <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../matlabicon.gif)">
 </ul>
@@ -61,6 +58,6 @@ This function is called by:
 
 
 
-<hr><address>Generated on Tue 18-Jul-2017 15:49:39 for <strong><a href="https://www.soundzones.com" title="Sound Zones - code | research | blog">Sound Zones</a></strong></address>
+<hr><address>Generated on Tue 25-Jul-2017 14:22:46 for <strong><a href="https://www.soundzones.com" title="Sound Zones - code | research | blog">Sound Zones</a></strong></address>
 </body>
 </html>

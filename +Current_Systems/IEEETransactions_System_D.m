@@ -260,7 +260,7 @@ system_info.LUT_resolution = [num2str(system_info.LUT_frequencies) 'f' ...
     num2str(system_info.LUT_weights) 'w'];
 
 %% Analysis Information
-analysis_info.Measures = {'PESQ';'STOI';'SNR'};
+analysis_info.Measures = {'PESQ';'STOI'};%;'SNR'};
 analysis_info.Nfft = 64 *1e-3*signal_info.Fs;%1024;% Number of fft components
 analysis_info.f_low = 150; % Hz
 analysis_info.f_high = 7500; % Hz

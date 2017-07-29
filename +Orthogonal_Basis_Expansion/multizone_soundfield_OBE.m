@@ -1,16 +1,17 @@
 classdef multizone_soundfield_OBE
-    % MULTIZONE_SOUNDFIELD_OBE - This class represents a multi-zone soundfield
-    %                     using orthogonal basis expansion for reproduction 
-    %                     by any single zone reproduction technique.
+    % This class represents a multi-zone soundfield using orthogonal basis expansion 
+    % for reproduction by any single zone reproduction technique.
     %
-    %   This class was implemented based on the publication:
-    %   JIN, W., KLEIJN, W. B. & VIRETTE, D. Multizone soundfield reproduction 
-    %   using orthogonal basis expansion.  Acoustics, Speech and Signal Processing 
-    %   (ICASSP), 2013 IEEE International Conference on, 2013. IEEE, 311-315.
+    % This class was implemented based on the publication:
+    % JIN, W., KLEIJN, W. B. & VIRETTE, D. Multizone soundfield reproduction 
+    % using orthogonal basis expansion.  Acoustics, Speech and Signal Processing 
+    % (ICASSP), 2013 IEEE International Conference on, 2013. IEEE, 311-315.
     %
+    % A Patent exists that closely resembles this classes methods, please read carefully:
+    % W. Jin, W. B. Kleijn, and D. Virette, “Audio rendering system,” WO2014082683 A1, 05-Jun-2014.
     %
-    %   Author: Jacob Donley, University of Wollongong, Australia
-    %   Email: Jacob.Donley089@uowmail.edu.au
+    % Author: Jacob Donley, University of Wollongong, Australia
+    % Email: Jacob.Donley089@uowmail.edu.au
     %
     
     properties        
@@ -72,7 +73,7 @@ classdef multizone_soundfield_OBE
     end
 
 %% Private Methods
-    methods (Access = public) %(Access = private) % usually private
+    methods (Access = public) %TODO: %(Access = private) % usually private
             
         function obj = createEmptySoundfield(obj, Debug)
             if nargin < 2
@@ -340,6 +341,7 @@ classdef multizone_soundfield_OBE
                 
                 obj.F(:,:,n) = repmat(Fn, [1 1 1]);
             end
+            
                 
         end        
 

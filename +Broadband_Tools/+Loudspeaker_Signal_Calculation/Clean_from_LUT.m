@@ -54,7 +54,7 @@ if ~isempty(strfind(lower(signal_info.method), 'cancel'))
     %%% TODO
     % Fix this magnitude adjustment which is dependent on the transfer
     % function for point sources. Originates somewhere in
-    % loudspeaker_setup.m or earlier.
+    % loudspeaker_setup.m or earlier. (Could be due to 2D ATFs and 3D RIRs)
     magnitudeADJ = 0.8;
     Input_Signal = conv(-1,Input_Signal) * magnitudeADJ;
 end
