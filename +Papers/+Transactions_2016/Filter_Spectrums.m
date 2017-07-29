@@ -144,16 +144,28 @@ Font = 'Times';
 lineWid = 0.5;
 LegendHeightScaleFactor = 1.1;
 
+% Latex Fonts
+FF = SYS.publication_info.LaTeX_FontFamily; % Set fonts for latex interpreter
+FFnums = SYS.publication_info.LaTeX_NumbersFontFamily; % Set number fonts for latex interpreter
+FS = SYS.publication_info.FontSize;
+latexFontSettings = ['{\fontfamily{' FF '}' ...
+    '\fontsize{' num2str(FS) 'pt}{' num2str(FS) 'pt}' ...
+    '\selectfont '];
+latexNumFontSettings = ['{\fontfamily{' FFnums '}' ...
+    '\fontsize{' num2str(FS) 'pt}{' num2str(FS) 'pt}' ...
+    '\selectfont '];
 
 % Start Plotting
 ha = tightPlots(3,1,plot_width,[2.0 0.9], [0.1 0.1], 1, 1,'centimeters');
 
+axLblXpos = 150;
 xlims = [0.1 8];
 ylims = [-50 0];
 numXTicks = 3;
 xticks = [xlims(1) 1.0 xlims(end)];
 XTlbls = mat2cell(num2str(xticks'),ones(size(num2str(xticks'),1),1),size(num2str(xticks'),2));
-XTlbls = cellfun(@(y) strrep(y,' ',''), XTlbls, 'UniformOutput', false);
+XTlbls = cellfun(@(x) strrep(x,' ',''), XTlbls, 'un', 0);
+XTlbls = cellfun(@(x) [latexNumFontSettings x],XTlbls,'un',0);
 figParams = {'XScale','log', ...
     'TickLabelInterpreter', 'latex', ...
     'XLim', xlims, ...
@@ -183,11 +195,14 @@ pl_S4 = plot(f2/1e3,mag2db(S4),'-.', 'Color',[0.5 0.5 0.8],'LineWidth',lineWid,'
 pl_S5 = plot(f2/1e3,mag2db(S5),'-.', 'Color',[0 0 1],      'LineWidth',lineWid,'markersize',ms); hold on;
 pl_S6 = plot(f1/1e3,mag2db(S6),':',  'Color',[0 0 0],        'LineWidth',lineWid,'markersize',ms); hold off;
 
-text(300/1e3,ylims(end)-7,'(A)','interpreter','latex','horizontalalignment','center');
+text(axLblXpos/1e3,ylims(end)-7,'(A)','interpreter','latex','horizontalalignment','center');
 set(gca,figParams{:},'YLim',ylims);% axis square
 set(gca,'XTickLabel',{});
 yticks = [ylims(1):10:ylims(end)].';
-Tlbls=num2str(yticks);[m,n]=size(Tlbls);
+Tlbls= [repmat(latexNumFontSettings,size(yticks,1),1) ...
+    num2str(yticks) ...
+    repmat('}',size(yticks,1),1)];
+[m,n]=size(Tlbls);
 YTickLbls=mat2cell(Tlbls,ones(m,1),n);
 set(gca,'YTick',yticks);
 set(gca,'YTickLabel',YTickLbls);
@@ -248,11 +263,14 @@ pl_4 = plot(f1/1e3, mag2db(SBrightMask / mean(SBrightMask(f1band)) ),'-.','color
 
 hold off
 ylims = ylims+20;
-text(300/1e3,ylims(end)-7,'(B)','interpreter','latex','horizontalalignment','center');
+text(axLblXpos/1e3,ylims(end)-7,'(B)','interpreter','latex','horizontalalignment','center');
 set(gca,figParams{:},'YLim',ylims);% axis square
 set(gca,'XTickLabel',{' '});
 yticks = [ylims(1):10:ylims(end)].';
-Tlbls=num2str(yticks);[m,n]=size(Tlbls);
+Tlbls= [repmat(latexNumFontSettings,size(yticks,1),1) ...
+    num2str(yticks) ...
+    repmat('}',size(yticks,1),1)];
+[m,n]=size(Tlbls);
 YTickLbls=mat2cell(Tlbls,ones(m,1),n);
 set(gca,'YTick',yticks);
 set(gca,'YTickLabel',YTickLbls);
@@ -299,10 +317,13 @@ pl_7 = plot(f1/1e3, mag2db(SBrightMaskB / mean(SBrightMaskB(f1band)) ),'-.','col
 
 hold off
 ylims = ylims;
-text(300/1e3,ylims(end)-7,'(C)','interpreter','latex','horizontalalignment','center');
+text(axLblXpos/1e3,ylims(end)-7,'(C)','interpreter','latex','horizontalalignment','center');
 set(gca,figParams{:},'YLim',ylims);% axis square
 yticks = [ylims(1):10:ylims(end)].';
-Tlbls=num2str(yticks);[m,n]=size(Tlbls);
+Tlbls= [repmat(latexNumFontSettings,size(yticks,1),1) ...
+    num2str(yticks) ...
+    repmat('}',size(yticks,1),1)];
+[m,n]=size(Tlbls);
 YTickLbls=mat2cell(Tlbls,ones(m,1),n);
 set(gca,'YTick',yticks);
 set(gca,'YTickLabel',YTickLbls);
