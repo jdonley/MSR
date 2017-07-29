@@ -82,6 +82,7 @@ ovlap = 0;
 
 res_path = Results.getRecordingsPath(SYS);
 files = Tools.getAllFiles( res_path );
+files = Tools.keepFilesFromFolder(files,SYS.signal_info.speech_filepath);
 filesQ = files(find(~cellfun(@isempty,strfind( files, 'Quiet'))));
 filesB = files(find(~cellfun(@isempty,strfind( files, 'Bright'))));
 speech = [];speechB = [];
@@ -147,17 +148,19 @@ LegendHeightScaleFactor = 1.1;
 % Start Plotting
 ha = tightPlots(3,1,plot_width,[2.0 0.9], [0.1 0.1], 1, 1,'centimeters');
 
-xlims = [0.05 8];
+xlims = [0.1 8];
 ylims = [-50 0];
 numXTicks = 3;
 xticks = [xlims(1) 1.0 xlims(end)];
 XTlbls = mat2cell(num2str(xticks'),ones(size(num2str(xticks'),1),1),size(num2str(xticks'),2));
 XTlbls = cellfun(@(y) strrep(y,' ',''), XTlbls, 'UniformOutput', false);
 figParams = {'XScale','log', ...
+    'TickLabelInterpreter', 'latex', ...
     'XLim', xlims, ...
     'XTick', xticks, ...
     'XTickLabelMode', 'manual', ...
     'XTickLabel', XTlbls, ...
+    'YTickMode', 'manual', ...
     'TickDir', 'both', ...
     'XGrid','off', ...
     'YGrid','off', ...
@@ -183,8 +186,10 @@ pl_S6 = plot(f1/1e3,mag2db(S6),':',  'Color',[0 0 0],        'LineWidth',lineWid
 text(300/1e3,ylims(end)-7,'(A)','interpreter','latex','horizontalalignment','center');
 set(gca,figParams{:},'YLim',ylims);% axis square
 set(gca,'XTickLabel',{});
-Tlbls=num2str([ylims(1):10:ylims(end)].');[m,n]=size(Tlbls);
+yticks = [ylims(1):10:ylims(end)].';
+Tlbls=num2str(yticks);[m,n]=size(Tlbls);
 YTickLbls=mat2cell(Tlbls,ones(m,1),n);
+set(gca,'YTick',yticks);
 set(gca,'YTickLabel',YTickLbls);
 set(gca,'fontname','fixedwidth');
 title('Filter Spectra','fontweight','normal','fontname','times', 'FontSize',FontSize);
@@ -246,8 +251,10 @@ ylims = ylims+20;
 text(300/1e3,ylims(end)-7,'(B)','interpreter','latex','horizontalalignment','center');
 set(gca,figParams{:},'YLim',ylims);% axis square
 set(gca,'XTickLabel',{' '});
-Tlbls=num2str([ylims(1):10:ylims(end)].');[m,n]=size(Tlbls);
+yticks = [ylims(1):10:ylims(end)].';
+Tlbls=num2str(yticks);[m,n]=size(Tlbls);
 YTickLbls=mat2cell(Tlbls,ones(m,1),n);
+set(gca,'YTick',yticks);
 set(gca,'YTickLabel',YTickLbls);
 set(gca,'fontname','fixedwidth');
 % title('Filtered Masker','fontweight','normal','fontname','times', 'FontSize',FontSize);
@@ -294,8 +301,10 @@ hold off
 ylims = ylims;
 text(300/1e3,ylims(end)-7,'(C)','interpreter','latex','horizontalalignment','center');
 set(gca,figParams{:},'YLim',ylims);% axis square
-Tlbls=num2str([ylims(1):10:ylims(end)].');[m,n]=size(Tlbls);
+yticks = [ylims(1):10:ylims(end)].';
+Tlbls=num2str(yticks);[m,n]=size(Tlbls);
 YTickLbls=mat2cell(Tlbls,ones(m,1),n);
+set(gca,'YTick',yticks);
 set(gca,'YTickLabel',YTickLbls);
 set(gca,'fontname','fixedwidth');
 % title('Filtered Masker','fontweight','normal','fontname','times', 'FontSize',FontSize);
