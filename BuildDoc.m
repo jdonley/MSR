@@ -10,7 +10,7 @@ mainRunFile = {'+Current_Systems\loadCurrentSRsystem.m' ...
 
 
 docFiles = Tools.buildDocumentation( wrkdir, docdir, mainFile, {}, false, true );
-docFiles{end+1} = Tools.buildDocumentation( wrkdir, docdir, mainRunFile{1}, docFiles, true, true );
+docFiles = Tools.buildDocumentation( wrkdir, docdir, mainRunFile{1}, docFiles, true, true );
 Tools.buildDocumentation( wrkdir, docdir, mainRunFile{2}, docFiles, true, true );
 
 
