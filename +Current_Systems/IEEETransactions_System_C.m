@@ -218,7 +218,6 @@ signal_info.speech_filepath = '+Miscellaneous\+Speech_Files\';
 %signal_info.speech_filepath = '+Miscellaneous\+Sine_Sweep\';
 
 %% System Setup
-system_info.CurrentSpeakerArrayType = 'line';
 system_info.dev_model = 'ASIO Hammerfall DSP';
 system_info.fs = 48000;
 system_info.f_low = 100; % Hz %Minimum calibration frequency
@@ -234,8 +233,9 @@ system_info.playbackChannels = ...
 % system_info.recordChZoneAlloc = ... % Allocation of the recorded channels to their respective zones (1 is for Bright Zone, 2 is for Quiet Zone)
 %     [ 1 2 ];
 
-zone = 'bright';
-% zone = 'quiet';
+system_info.CurrentSpeakerArrayType = 'line';
+% zone = 'bright';
+zone = 'quiet';
 
 system_info.recordChannels = ...
     [ 1 2 3 4];
