@@ -120,16 +120,16 @@ for m = 1:M
             try
                 y = audioread(files{f});
                 % for debugging
-                spkr_calib_dir = [system_info.Drive system_info.Calibrated_Signals_dir path_ext];
-                sigType = 'Upsampled';
-                y = audioread([spkr_calib_dir fileName_curr system_info.sc sigType fileExt]);
-                down_rate = 3 ;
-                y_down = zeros(ceil(size(y).*[1/down_rate 1]));
-                for  l = 1:size(y,2)
-                    y_down(:,l) = ...
-                        decimate( y(:,l), down_rate );
-                end
-                y = y_down;
+%                 spkr_calib_dir = [system_info.Drive system_info.Calibrated_Signals_dir path_ext];
+%                 sigType = 'Upsampled';
+%                 y = audioread([spkr_calib_dir fileName_curr system_info.sc sigType fileExt]);
+%                 down_rate = 3 ;
+%                 y_down = zeros(ceil(size(y).*[1/down_rate 1]));
+%                 for  l = 1:size(y,2)
+%                     y_down(:,l) = ...
+%                         decimate( y(:,l), down_rate );
+%                 end
+%                 y = flip(y_down,2);
                 % end for debugging
             catch err
                 if strcmp(err.identifier, 'MATLAB:audiovideo:audioread:FileTypeNotSupported')

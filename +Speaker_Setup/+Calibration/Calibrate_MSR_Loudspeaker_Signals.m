@@ -5,7 +5,7 @@ if nargin < 1, SYS = Current_Systems.loadCurrentSRsystem; end
 
 %Flip loudspeaker order (effectively flips entire setup) (false if not needed)
 if isfield(SYS.system_info,'MirrorSetup'), MirrorSetup = SYS.system_info.MirrorSetup;
-else MirrorSetup = false; end
+else, MirrorSetup = false; end
 
 % If a realworld recording is not specified in the system then abort
 if ~any(strcmpi(strrep(SYS.signal_info.recording_type,'-',''),'realworld')), delete(gcp('nocreate')); return; end
