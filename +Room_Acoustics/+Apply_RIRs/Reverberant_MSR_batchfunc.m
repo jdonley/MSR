@@ -61,8 +61,9 @@ LoudspeakerSignals_Path = cell(length(levels),1);
 Recordings_Path = cell(length(levels),1);
 
 for m = 1:length(levels)
-    signal_info.L_noise_mask = levels(m);
-    LoudspeakerSignals_Path{m} = Broadband_Tools.getLoudspeakerSignalPath( setup, signal_info, system_info.LUT_resolution, system_info.Drive );
+    signal_info.L_noise_mask = levels(m);    
+    [LoudspeakerSignals_Path{m} ,~,~,~,~,~,path_ext] = ...
+        Broadband_Tools.getLoudspeakerSignalPath( setup, signal_info, system_info.LUT_resolution, system_info.Drive );
     Recordings_Path{m} = Results.getRecordingsPath( setup, system_info.LUT_resolution, room_setup, signal_info, system_info.Drive );
 end
 
@@ -110,18 +111,31 @@ for m = 1:M
         
         [~, fileName, fileExt] = fileparts(files{f});
         if isempty( strfind( fileName, 'Original' ) ) % If not an Original audio file
-            try
-                y = audioread(files{f});
-            catch err
-                if strcmp(err.identifier, 'MATLAB:audiovideo:audioread:FileTypeNotSupported')
-                    continue; % Skip unsupported files
-                end
-            end
             
             % Get the file number and file name
             [fnumflip,fnameflip] = strtok( flip(fileName), SYS.system_info.sc );
             Current_Spkr_Num = str2double( flip( fnumflip ) );
             fileName_curr = flip(sscanf(fnameflip,['%*[' SYS.system_info.sc ']%s']));
+            
+            try
+                y = audioread(files{f});
+                % for debugging
+                spkr_calib_dir = [system_info.Drive system_info.Calibrated_Signals_dir path_ext];
+                sigType = 'Upsampled';
+                y = audioread([spkr_calib_dir fileName_curr system_info.sc sigType fileExt]);
+                down_rate = 3 ;
+                y_down = zeros(ceil(size(y).*[1/down_rate 1]));
+                for  l = 1:size(y,2)
+                    y_down(:,l) = ...
+                        decimate( y(:,l), down_rate );
+                end
+                y = y_down;
+                % end for debugging
+            catch err
+                if strcmp(err.identifier, 'MATLAB:audiovideo:audioread:FileTypeNotSupported')
+                    continue; % Skip unsupported files
+                end
+            end
             
             if sum(size(y)>1) == 1 && setup.Loudspeaker_Count ~= 1 % If not a multichannel audio file                
                 if ~(isempty(fileName_prev) || strcmp( fileName_curr, fileName_prev))

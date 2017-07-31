@@ -134,7 +134,7 @@ fprintf(['            Room Size: ' [strrep(sprintf(strrep(repmat('%g',1,length(r
 fprintf(['Wall Absorption Coeff: ' num2str(room_setup.Wall_Absorb_Coeff) '\n']);
 fprintf([' Virtual Source Angle: ' num2str(setups{1}.Multizone_Soundfield.Bright_Zone.SourceOrigin.Angle) '\n']);
 fprintf(['    Privacy Weighting: ' signal_info.method '\n\n']);n=0;
-fprintf('\tCompletion: ');
+fprintf('\t Completion: ');
 
 
 %% Find Speaker Signals and read to Workspace
