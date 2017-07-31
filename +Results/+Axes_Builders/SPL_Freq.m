@@ -109,6 +109,9 @@ domain_lbl = 'Frequency ($\mathrm{kHz}$)';
 
 axCurr = ax(1);
 range = [-40 0];
+if isfield(SYS.publication_info,'YLim_override')
+    range = SYS.publication_info.YLim_override;
+end
 range_lbl = 'Magnitude ($\mathrm{dB}$)';
 
 

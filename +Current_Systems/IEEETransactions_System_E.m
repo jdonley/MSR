@@ -270,9 +270,10 @@ publication_info.print_res = 600; %rastered graphic DPI
 publication_info.LatexMacrosFile = 'IEEE_Trans2016_LaTeX_Macros.tex';
 
 publication_info.axes_NumTicks = [8 5]; % Number of ticks [NumXticks NumYticks];
-publication_info.axes_limitBufs = [0.00 0.125]; % axis limits buffer in percentage [width, height]
+publication_info.axes_limitBufs = [0.00 0.150]; % axis limits buffer in percentage [width, height]
 publication_info.axes_Scales = {'log'; 'lin'}; % Axis scales
 publication_info.XTicks_override = [0.10, 1, 8];
+publication_info.YLim_override = [-40 0]; % Sets the Y limits (range) of the axes
 publication_info.leg_MarkerSize = 8;
 
 publication_info.figure_width = 88.9/10;% + 6.35/10 + 88.9/10; %Figure width in centimeters %IEEE full text width
