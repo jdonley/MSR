@@ -253,7 +253,7 @@ if rt==2
     G = trend_vec;
     STOIB=(Res_trend_{1}{1})/100;
     STOIQ=(Res_trend_{1}{2})/100;
-    PESQB=(Res_trend_{2}{1})/4.56;
+    PESQB=(Res_trend_{2}{1}-1)/3.56;
     %                 sum(PESQB)-sum(STOIQ);
     SIC = STOIB-STOIQ;
     figure(12321);
@@ -267,9 +267,10 @@ if rt==2
         Gopt = G(Iopt);
         plot(Gopt,max(optCurve),'or');
         text(Gopt,max(optCurve)+txtOffs(l),...
-            {['G = ' num2str(Gopt,3)]; ...
+            {['\lambda = ' num2str(lambdas(l),3)]; ...
+             ['G = ' num2str(Gopt,3)]; ...
              ['SIC_{STOI} = ' num2str(SIC(Iopt)*100,3) '%']; ...
-             ['B_{PESQ} = ' num2str(PESQB(Iopt)*4.56,3) 'MOS']},'ho','c');
+             ['B_{PESQ} = ' num2str(PESQB(Iopt)*3.56+1,3) 'MOS']},'ho','c');
     end
     hold off;
 end
