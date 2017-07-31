@@ -234,8 +234,8 @@ system_info.playbackChannels = ...
 %     [ 1 2 ];
 
 system_info.CurrentSpeakerArrayType = 'line';
-% zone = 'bright';
-zone = 'quiet';
+zone = 'bright';
+% zone = 'quiet';
 
 system_info.recordChannels = ...
     [ 1 2 3 4];

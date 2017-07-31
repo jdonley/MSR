@@ -55,7 +55,7 @@ y_multi = repmat( y , 1, Nspkrs);
 %%
 for EQorTFloop = 1:(RecordTF+1)
     if EQorTFloop == 2
-        y_multi = Speaker_Setup.Calibration.applyInverseFilters( ...
+        y_multi = Tools.fconv( ...
             y_multi, EQ ./ max(sqrt(sum(EQ.^2))) );
     end
     
