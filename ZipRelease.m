@@ -15,12 +15,12 @@ docFiles = Tools.buildDocumentation( wrkdir, docdir, mainRunFile{1}, docFiles, t
 docFiles = Tools.buildDocumentation( wrkdir, docdir, mainRunFile{2}, docFiles, true, true );
 
 AllDocFiles = Tools.getAllFiles([wrkdir docdir]);
+AuxFiles = {'LICENSE'; 'README.md'};
 
-relFiles = Tools.buildReleaseZIP( wrkdir, zipFname, mainFile, AllDocFiles, false );
+relFiles = Tools.buildReleaseZIP( wrkdir, zipFname, mainFile, [AllDocFiles; AuxFiles], false );
 relFiles = Tools.buildReleaseZIP( wrkdir, zipFname, mainRunFile{1}, relFiles, true );
 relFiles = Tools.buildReleaseZIP( wrkdir, zipFname, mainRunFile{2}, relFiles, true );
 
-mkdir
-cellfun(@(f) copyfile( f, 'release\mfiles'), docFiles);
+% cellfun(@(f) copyfile( f, 'release\mfiles'), docFiles);
 
 toc;
