@@ -192,7 +192,6 @@ signal_info.speech_filepath = '+Miscellaneous\+TestAudio_Files\';
 signal_info.InverseFilter_filepath = '+Miscellaneous\+TestAudio_Files_InvFilts\';
 
 %% System Setup
-system_info.CurrentSpeakerArrayType = 'line';
 system_info.dev_model = 'ASIO Hammerfall DSP';
 system_info.fs = 48000;
 system_info.f_low = 100; % Hz %Minimum calibration frequency
@@ -209,8 +208,9 @@ system_info.playbackChannels = ...
 % system_info.recordChZoneAlloc = ... % Allocation of the recorded channels to their respective zones (1 is for Bright Zone, 2 is for Quiet Zone)
 %     [ 1 2 ];
 
-zone = 'bright';
-% zone = 'quiet';
+system_info.CurrentSpeakerArrayType = 'line';
+% zone = 'bright';
+zone = 'quiet';
 
 system_info.recordChannels = ...
     [ 1 2 3 4];
@@ -270,7 +270,7 @@ publication_info.print_res = 600; %rastered graphic DPI
 publication_info.LatexMacrosFile = 'IEEE_Trans2016_LaTeX_Macros.tex';
 
 publication_info.axes_NumTicks = [8 5]; % Number of ticks [NumXticks NumYticks];
-publication_info.axes_limitBufs = [0.00 0.150]; % axis limits buffer in percentage [width, height]
+publication_info.axes_limitBufs = [0.00 0.100]; % axis limits buffer in percentage [width, height]
 publication_info.axes_Scales = {'log'; 'lin'}; % Axis scales
 publication_info.XTicks_override = [0.10, 1, 8];
 publication_info.YLim_override = [-40 0]; % Sets the Y limits (range) of the axes

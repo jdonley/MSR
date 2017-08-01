@@ -56,7 +56,7 @@ for typ = 1:N
        Tools.simpleWarning('No calibration filters were found. Skipping calibration.');
        return;
     end
-    filts = load( filter_location{1} ); % 1st element should be the newest (most recent) set of filters
+    filts = load( filter_location{end} ); % Last element should be the newest (most recent) set of filters % TODO: Program this so it doesn't depend on the sort function (i.e. use the file name or file attributes directly themselves)
     if MirrorSetup
         filts.EQ = flip(filts.EQ,2);
     end

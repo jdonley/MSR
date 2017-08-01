@@ -38,6 +38,7 @@ addOptional(p,'loudspeaker_spacing',            0.01,              @isnumeric); 
 addOptional(p,'speaker_array_type',             'circle',          @ischar);    % 32
 addOptional(p,'room_size',                      [],                @isnumeric); % 33
 addOptional(p,'dimensionality',                 2,                 @isnumeric); % 34
+addOptional(p,'recordingtype',                  'simulated',                 @isnumeric); % 35
 parse(p, settings{:});
 
 setup = MultizoneSoundfieldSetup( ...       

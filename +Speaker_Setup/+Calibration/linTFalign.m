@@ -47,6 +47,7 @@ if isLineArray
     
     TFalign( sub2ind(size(TFalign),1:numel(impi),(impi-min(impi)+1).') ) ...
         = abs(exp(1i.*r)./r) ./ abs(exp(1i*rAlign)/rAlign); % Uses 3D acoustic transfer function to adjust power levels
+
 end
 
 end
