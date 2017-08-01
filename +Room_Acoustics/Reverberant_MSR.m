@@ -14,7 +14,7 @@ N = length(SYS.signal_info.methods_list_clean(SYS.signal_info.methods_list_clean
     + length(SYS.signal_info.methods_list_masker(SYS.signal_info.methods_list_masker>=1));
 paired = isfield(SYS.signal_info,'methods_list_paired') && SYS.signal_info.methods_list_paired;
 
-for typ = 1:N
+for typ = [2 6]%1:N
     
     SYS.signal_info.method = SYS.signal_info.methods_list{typ};
     

@@ -17,8 +17,14 @@ Nrt = numel(SYS.signal_info.recording_type);
 for rt = 1:Nrt
     SYS.signal_info.recording_type = rt_tmp{rt};
 
-    for c_ = 1:numel(SYS.signal_info.methods_list_clean) % TODO: change index back to starting at 1 (this was just a one off for continuing a simulation)
+    for c_ = 1:numel(SYS.signal_info.methods_list_clean)
         c = SYS.signal_info.methods_list_clean(c_);
+        if isfield(SYS.signal_info,'recording_type_list') ... <- This retains backwards compatibility
+                && strcmpi(...
+                    SYS.signal_info.recording_type_list(c), ...
+                    SYS.signal_info.recording_type)
+                
+        end
         masker_list = SYS.signal_info.methods_list_masker;
         if paired
             masker_list = masker_list(c_);
