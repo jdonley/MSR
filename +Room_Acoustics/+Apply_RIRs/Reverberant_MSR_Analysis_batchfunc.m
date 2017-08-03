@@ -157,6 +157,12 @@ for m = 1:M
             cprintf(wrnCol, ['Skipping ''' signal_info.recording_type ''' analysis procedure.\n']);
             delete(gcp('nocreate')); return;
         end
+        if ~any(contains(lower(files_),'bright'))
+            Tools.simpleWarning({'No ''Bright'' zone recordings were found!'});
+        end
+        if ~any(contains(lower(files_),'quiet'))
+            Tools.simpleWarning({'No ''Quiet'' zone recordings were found!'});
+        end
         files{:,s} = sort(files_);
     end
     
