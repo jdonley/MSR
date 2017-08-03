@@ -88,7 +88,12 @@ for s = DBsetups
         DB = load( DBPath );
         DB.RIRs.Matched_Receivers = RIR_DB_fullpath;
         RIRs = DB.RIRs;
-        save( DBPath, 'RIRs');
+        if isfield(DB, 'isRecordedRIR')
+            isRecordedRIR = DB.isRecordedRIR;
+        end
+        save( DBPath, ...
+            'RIRs', ...
+            'isRecordedRIR');
     end
     
     %%
