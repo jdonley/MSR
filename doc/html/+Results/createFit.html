@@ -2,9 +2,9 @@
                 "http://www.w3.org/TR/REC-html40/loose.dtd">
 <html>
 <head>
-  <title>Description of synthSweep</title>
-  <meta name="keywords" content="synthSweep">
-  <meta name="description" content="Synthesize a logarithmic sine sweep">
+  <title>Description of createFit</title>
+  <meta name="keywords" content="createFit">
+  <meta name="description" content="CREATEFIT(NOISELEVEL,SI_WC_BRIGHT)">
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
   <meta name="generator" content="">
   <meta name="robots" content="index, follow">
@@ -13,36 +13,32 @@
 </head>
 <body id="mfile">
 <a name="_top"></a>
-<div class="navheader"><a href="../index.html">Home</a> &gt;  <a href="index.html">+Tools</a> &gt; synthSweep.m</div>
+<div class="navheader"><a href="../index.html">Home</a> &gt;  <a href="index.html">+Results</a> &gt; createFit.m</div>
 
 <!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
-<td align="right"><a href="index.html">Index for +Tools&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+<td align="right"><a href="index.html">Index for +Results&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
 
-<h1>synthSweep
+<h1>createFit
 </h1>
 
 <!-- <h2><a name="_name"></a>Summary <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2> -->
-<div class="purpose">Synthesize a logarithmic sine sweep</div>
+<div class="purpose">CREATEFIT(NOISELEVEL,SI_WC_BRIGHT)</div>
 
 <h2><a name="_synopsis"></a>Syntax <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
-<div class="box">function [sweep, invsweepfft, sweepRate] = synthSweep(T,FS,f1,f2,tail,AsdB) </div>
+<div class="box">function [fitresult, gof] = createFit(NoiseLevel, Speech_Intelligibility, Type_of_Fit, Fit_Options) </div>
 
 <h2><a name="_description"></a>Description <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
-<div class="fragment"><pre class="comment"> Synthesize a logarithmic sine sweep
-   [sweep invsweepfft sweepRate] = SYNTHSWEEP(T,FS,f1,f2,tail,AsdB) 
-   generates a logarithmic sine sweep that starts at frequency f1 (Hz),
-   stops at frequency f2 (Hz) and duration T (sec) at sample rate FS (Hz).
-    
-   usePlots indicates whether to show frequency characteristics of the
-   sweep, and the optional AsdB is an amplitude suppression value in
-   decibels to avoid clipping
-   
-   Developed at Oygo Sound LLC
+<div class="fragment"><pre class="comment">CREATEFIT(NOISELEVEL,SI_WC_BRIGHT)
+  Create a fit.
 
-   Equations from Muller and Massarani, &quot;Transfer Function Measurement
-   with Sweeps.&quot;
+  Data for 'untitled fit 1' fit:
+      X Input : NoiseLevel
+      Y Output: SI_WC_Bright
+  Output:
+      fitresult : a fit object representing the fit.
+      gof : structure with goodness-of fit info.
 
-   Modified by Jacob Donley (jrd089@uowmail.edu.au) Nov 2016</pre></div>
+  See also FIT, CFIT, SFIT.</pre></div>
 
 <!-- crossreference -->
 <h2><a name="_cross"></a>Cross-Reference Information <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>

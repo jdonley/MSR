@@ -2,9 +2,9 @@
                 "http://www.w3.org/TR/REC-html40/loose.dtd">
 <html>
 <head>
-  <title>Description of setLabels</title>
-  <meta name="keywords" content="setLabels">
-  <meta name="description" content="SETLABELS Sets up the axes labels in the current figure">
+  <title>Description of setAxisParameters</title>
+  <meta name="keywords" content="setAxisParameters">
+  <meta name="description" content="SETAXISPARAMETERS Sets parameters of an axis from a SR_System object and other inputs">
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
   <meta name="generator" content="">
   <meta name="robots" content="index, follow">
@@ -13,33 +13,35 @@
 </head>
 <body id="mfile">
 <a name="_top"></a>
-<div class="navheader"><a href="../../../index.html">Home</a> &gt;  <a href="../../index.html">+Results</a> &gt; <a href="../index.html">+Figure_Builders</a> &gt; <a href="index.html">+Helpers</a> &gt; setLabels.m</div>
+<div class="navheader"><a href="../../../index.html">Home</a> &gt;  <a href="../../index.html">+Results</a> &gt; <a href="../index.html">+Axes_Builders</a> &gt; <a href="index.html">+Helpers</a> &gt; setAxisParameters.m</div>
 
 <!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
-<td align="right"><a href="index.html">Index for +Results\+Figure_Builders\+Helpers&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+<td align="right"><a href="index.html">Index for +Results\+Axes_Builders\+Helpers&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
 
-<h1>setLabels
+<h1>setAxisParameters
 </h1>
 
 <!-- <h2><a name="_name"></a>Summary <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2> -->
-<div class="purpose">SETLABELS Sets up the axes labels in the current figure</div>
+<div class="purpose">SETAXISPARAMETERS Sets parameters of an axis from a SR_System object and other inputs</div>
 
 <h2><a name="_synopsis"></a>Syntax <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
-<div class="box">function setLabels( SYS, axs, nY, nX ) </div>
+<div class="box">function setAxisParameters( SYS, ax, range, domain, range_lbl, domain_lbl) </div>
 
 <h2><a name="_description"></a>Description <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
-<div class="fragment"><pre class="comment">SETLABELS Sets up the axes labels in the current figure
+<div class="fragment"><pre class="comment">SETAXISPARAMETERS Sets parameters of an axis from a SR_System object and other inputs
 
- Syntax:    SETLABELS( SYS, axs, nY, nX )
+ Syntax:    SETAXISPARAMETERS( SYS, ax, range, domain, range_lbl, domain_lbl )
 
  Inputs:
      SYS - Soundfield reproduction system specification object
-     axs - Axis handles to obtain legend information from
-     nY - Number of axes in Y direction
-     nX - Number of axes in X direction
+   ax - Axis handle to reuse
+   range - Axis range (two element vector)
+   domain - Axis domain (two element vector)
+   range_lbl - Axis y-label
+   domain_lbl - Axis x-label
 
 
- See also: List related files here</pre></div>
+ See also:</pre></div>
 
 <!-- crossreference -->
 <h2><a name="_cross"></a>Cross-Reference Information <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
