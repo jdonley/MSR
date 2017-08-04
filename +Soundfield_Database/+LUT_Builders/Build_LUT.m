@@ -1,7 +1,25 @@
 function Build_LUT( SYS )
+% Builds a soundfield coefficient Look-Up Table (LUT) for a given system object
+% 
+% Syntax:	BUILD_LUT( SYS )
+% 
+% Inputs: 
+% 	SYS - Description
+% 
+% Example: 
+% 	Build_LUT( Current_Systems.loadCurrentSRsystem )
+% 
+% See also: loadCurrentSRsystem
 
-%clear;
-close all;
+% Author: Jacob Donley
+% University of Wollongong
+% Email: jrd089@uowmail.edu.au
+% Copyright: Jacob Donley 2017
+% Date: 03 October 2015 
+% Revision: 0.1
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 tic; %Start timing this script
 delete(gcp('nocreate'));
 current_pool = parpool; %Start new pool
