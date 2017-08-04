@@ -258,7 +258,7 @@ if rt==2
     SIC = STOIB-STOIQ;
     figure(12321);
     txtOffs = [-0.5 +0.5 -0.5];
-    lambdas = [0.25 1 4];
+    lambdas = [0.33 1 3];
     for l = 1:numel(lambdas)
         lambda = lambdas(l);
         optCurve = SIC + lambda*PESQB;

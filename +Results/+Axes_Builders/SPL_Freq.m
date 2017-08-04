@@ -198,13 +198,17 @@ hold off;
 
 %% Some helpful summary values for publication
 % disp('Simulated')
-% disp(mean(Res_Matrix{2}(Hrz_Vec>=SYS.signal_info.f_low/1e3 & Hrz_Vec<=1.601359980101278)))
-% disp(mean(Res_Matrix{1}(Hrz_Vec>=SYS.signal_info.f_low/1e3 & Hrz_Vec<=1.601359980101278)-Res_Matrix{2}(Hrz_Vec>=SYS.signal_info.f_low/1e3 & Hrz_Vec<=1.601359980101278))*2)
+% disp(['Avg Quiet SPL: ' ...
+%     num2str(mean(Res_Matrix{2}(Hrz_Vec>=SYS.signal_info.f_low/1e3 & Hrz_Vec<=1.601359980101278)))])
+% disp(['Avg AC: ' ...
+%     num2str(mean(Res_Matrix{1}(Hrz_Vec>=SYS.signal_info.f_low/1e3 & Hrz_Vec<=1.601359980101278)-Res_Matrix{2}(Hrz_Vec>=SYS.signal_info.f_low/1e3 & Hrz_Vec<=1.601359980101278))*2)])
 % disp('Real-world')
-% disp(mean(Res_Matrix{4}(Hrz_Vec>=SYS.signal_info.f_low/1e3 & Hrz_Vec<=1.601359980101278)))
-% disp(mean(Res_Matrix{3}(Hrz_Vec>=SYS.signal_info.f_low/1e3 & Hrz_Vec<=1.601359980101278)-Res_Matrix{4}(Hrz_Vec>=SYS.signal_info.f_low/1e3 & Hrz_Vec<=1.601359980101278))*2)
-% 
-% 0; %breakpoint location
+% disp(['Avg Quiet SPL: ' ...
+%     num2str(mean(Res_Matrix{4}(Hrz_Vec>=SYS.signal_info.f_low/1e3 & Hrz_Vec<=1.601359980101278)))])
+% disp(['Avg AC: ' ...
+%     num2str(mean(Res_Matrix{3}(Hrz_Vec>=SYS.signal_info.f_low/1e3 & Hrz_Vec<=1.601359980101278)-Res_Matrix{4}(Hrz_Vec>=SYS.signal_info.f_low/1e3 & Hrz_Vec<=1.601359980101278))*2)])
+
+0; %breakpoint location
 
 end
 
