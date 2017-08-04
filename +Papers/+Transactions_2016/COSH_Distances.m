@@ -6,6 +6,7 @@ SYS.Masker_Setup = SYS.Masker_Setup(2);
 res_path = Results.getRecordingsPath(SYS);
 
 files = Tools.getAllFiles( res_path );
+files = Tools.keepFilesFromFolder(files,SYS.signal_info.speech_filepath);
 filesQ = files(find(~cellfun(@isempty,strfind( files, 'Quiet'))));
 filesB = files(find(~cellfun(@isempty,strfind( files, 'Bright'))));
 speech = [];speechB = [];
@@ -91,7 +92,7 @@ PB = PB./mean(PB(:));
  r31     = Tools.octaveBandMean(ZS_rat3(f_band2),f_QZS(f_band2),octSpace);
  r32     = Tools.octaveBandMean(ZS_rat_low3(f_band2),f_QZS(f_band2),octSpace);
  lp     = 1 ./ sqrt( 1 + (10^(Rp/10)-1)*chebyshevT(cheby_order,(f1/f_c)).^2);
-if any(f1 - f2), error('Frequency vectors don''t match.');end
+if any(f1(1:end-1) - f2(1:end-1)), error('Frequency vectors don''t match.');end
 f1([1 ])=[];
 sp([1 ])=[];
 q1([1 ])=[];
