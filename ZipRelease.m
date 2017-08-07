@@ -21,6 +21,6 @@ relFiles = Tools.buildReleaseZIP( wrkdir, zipFname, mainFile, [AllDocFiles; AuxF
 relFiles = Tools.buildReleaseZIP( wrkdir, zipFname, mainRunFile{1}, relFiles, true );
 relFiles = Tools.buildReleaseZIP( wrkdir, zipFname, mainRunFile{2}, relFiles, true );
 
-% cellfun(@(f) copyfile( f, 'release\mfiles'), docFiles);
+cellfun(@(f) copyfile( f, 'release\mfiles\'), docFiles);
 
 toc;

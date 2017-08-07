@@ -1,6 +1,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<!-- saved from url=(0088)file:///C:/Users/jrd08/AppData/Roaming/MathWorks/MATLAB/R2017a/HtmlPanel/mwblank7.html?1 -->
-<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><link rel="stylesheet" href="./MATLAB_Help_Report_files/matlab-report-styles.css" type="text/css"><script type="text/javascript" language="JavaScript" src="./MATLAB_Help_Report_files/matlabreports.js"></script><title>Help Report</title></head><body><div class="report-head">Help Report</div><p></p><div class="report-desc">The Help Report presents a summary view of the help component of your MATLAB files  (<a href="matlab:helpview([docroot '/matlab/helptargets.map'], 'matlab_env_help_rpt')">Learn More</a>).</div><table border="0"><tbody><tr><td><input type="button" value="Rerun This Report" id="rerunThisReport" onclick="runreport(&#39;helprpt(\&#39;M:\\MSR\\release\\mfiles\&#39;,\&#39;dir\&#39;)&#39;);"></td><td><input type="button" value="Run Report on Current Folder" id="runReportOnCurrent" onclick="runreport(&#39;helprpt&#39;);"></td></tr></tbody></table><form method="GET" action="file:///C:/Users/jrd08/AppData/Roaming/MathWorks/MATLAB/R2017a/HtmlPanel/mwcustomprotocol#0"><input type="hidden" name="reporttype" value="helprpt"><table cellspacing="8"><tbody><tr><td><input type="checkbox" name="helpSubfunsDisplayMode" checked="" onchange="this.form.submit()">Show class methods</td><td><input type="checkbox" name="h1DisplayMode" checked="" onchange="this.form.submit()">Description</td><td><input type="checkbox" name="exampleDisplayMode" checked="" onchange="this.form.submit()">Examples</td></tr><tr><td><input type="checkbox" name="helpDisplayMode" checked="" onchange="this.form.submit()">Show all help</td><td><input type="checkbox" name="seeAlsoDisplayMode" checked="" onchange="this.form.submit()">See also</td><td><input type="checkbox" name="copyrightDisplayMode" checked="" onchange="this.form.submit()">Copyright</td></tr></tbody></table></form>Report for folder M:\MSR\release\mfiles<p><strong>MATLAB File List</strong><br></p><table cellspacing="0" cellpadding="2" border="0"><tbody><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\ArbitraryOctaveFilt.m')"> <span class="mono">ArbitraryOctaveFilt</span></a></td><td class="td-linetopleft"><pre>  Filters a signal with any arbitrary spectrum smoothed with any fractional octave band average</pre><pre>  Filters a signal with any arbitrary spectrum smoothed with any fractional octave band average
+<!-- saved from url=(0088)file:///C:/Users/jrd08/AppData/Roaming/MathWorks/MATLAB/R2017a/HtmlPanel/mwblank1.html?1 -->
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><link rel="stylesheet" href="./MATLAB_Help_Report_files/matlab-report-styles.css" type="text/css"><script type="text/javascript" language="JavaScript" src="./MATLAB_Help_Report_files/matlabreports.js"></script><title>Help Report</title></head><body><div class="report-head">Help Report</div><p></p><div class="report-desc">The Help Report presents a summary view of the help component of your MATLAB files  (<a href="matlab:helpview([docroot '/matlab/helptargets.map'], 'matlab_env_help_rpt')">Learn More</a>).</div><table border="0"><tbody><tr><td><input type="button" value="Rerun This Report" id="rerunThisReport" onclick="runreport(&#39;helprpt(\&#39;M:\\MSR\\release\\mfiles\&#39;,\&#39;dir\&#39;)&#39;);"></td><td><input type="button" value="Run Report on Current Folder" id="runReportOnCurrent" onclick="runreport(&#39;helprpt&#39;);"></td></tr></tbody></table><form method="GET" action="matlab:internal.matlab.reports.handleForm"><input type="hidden" name="reporttype" value="helprpt"><table cellspacing="8"><tbody><tr><td><input type="checkbox" name="helpSubfunsDisplayMode" checked="" onchange="this.form.submit()">Show class methods</td><td><input type="checkbox" name="h1DisplayMode" checked="" onchange="this.form.submit()">Description</td><td><input type="checkbox" name="exampleDisplayMode" checked="" onchange="this.form.submit()">Examples</td></tr><tr><td><input type="checkbox" name="helpDisplayMode" checked="" onchange="this.form.submit()">Show all help</td><td><input type="checkbox" name="seeAlsoDisplayMode" checked="" onchange="this.form.submit()">See also</td><td><input type="checkbox" name="copyrightDisplayMode" checked="" onchange="this.form.submit()">Copyright</td></tr></tbody></table></form>Report for folder M:\MSR\release\mfiles<p><strong>MATLAB File List</strong><br></p><table cellspacing="0" cellpadding="2" border="0"><tbody><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\ArbitraryOctaveFilt.m')"> <span class="mono">ArbitraryOctaveFilt</span></a></td><td class="td-linetopleft"><pre>  Filters a signal with any arbitrary spectrum smoothed with any fractional octave band average</pre><pre>  Filters a signal with any arbitrary spectrum smoothed with any fractional octave band average
   
   Syntax:	Y = ARBITRARYOCTAVEFILT(X, SPECT, FREQS, N, FS, OCTBANDWIDTH)
   
@@ -14,14 +14,84 @@
   
   Outputs: 
   	y - Description
+ 
+  Example: 
+    fs = 16000;
+    T = 10;
+    N = 1000;
+    f = linspace(0,fs/2,N);
+    s = 1./f;
+    x = wgn(T*fs,1,0);
+    y = ArbitraryOctaveFilt(x,s,f,N,fs,1/3);
+    pwelch([x y]);
   
   See also: fir2, filter
-<br></pre><span style="background: #FFC0C0">No examples</span><br><pre><a href="matlab:opentoline('M:\MSR\release\mfiles\ArbitraryOctaveFilt.m',17)">17:</a>See also: fir2, filter</pre><pre><span style="font-size: 11">% Copyright: Jacob Donley 2017
-</span></pre></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\Build_LUT.m')"> <span class="mono">Build_LUT</span></a></td><td class="td-linetopleft"><pre> clear;</pre><pre> clear;
-<br></pre><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br><span style="background: #FFC0C0">No copyright line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\Calibrate_MSR_Loudspeaker_Signals.m')"> <span class="mono">Calibrate_MSR_Loudspeaker_Signals</span></a></td><td class="td-linetopleft"><pre>  Setup Information</pre><pre>  Setup Information
-<br></pre><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br><span style="background: #FFC0C0">No copyright line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\Clean_from_LUT.m')"> <span class="mono">Clean_from_LUT</span></a></td><td class="td-linetopleft"><pre> CLEAN_FROM_LUT Generates spatially weighted loudspeaker signals for the</pre><pre> CLEAN_FROM_LUT Generates spatially weighted loudspeaker signals for the
- reproduction of zoned clean speech.
-<br></pre><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br><span style="background: #FFC0C0">No copyright line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\Clean_from_LUT_FlatMask.m')"> <span class="mono">Clean_from_LUT_FlatMask</span></a></td><td class="td-linetopleft"><pre> Analyse_Broadband_Signals_from_LUT Summary of this function goes here</pre><pre> Analyse_Broadband_Signals_from_LUT Summary of this function goes here
+<br></pre><pre><a href="matlab:opentoline('M:\MSR\release\mfiles\ArbitraryOctaveFilt.m',17)">17:</a> 
+Example: 
+fs = 16000;
+T = 10;
+N = 1000;
+f = linspace(0,fs/2,N);
+s = 1./f;
+x = wgn(T*fs,1,0);
+y = ArbitraryOctaveFilt(x,s,f,N,fs,1/3);
+pwelch([x y]);
+</pre><pre><a href="matlab:opentoline('M:\MSR\release\mfiles\ArbitraryOctaveFilt.m',27)">27:</a>See also: fir2, filter</pre><pre><span style="font-size: 11">% Copyright: Jacob Donley 2017
+</span></pre></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\Build_LUT.m')"> <span class="mono">Build_LUT</span></a></td><td class="td-linetopleft"><pre>  Builds a soundfield coefficient Look-Up Table (LUT) for a given system object</pre><pre>  Builds a soundfield coefficient Look-Up Table (LUT) for a given system object
+  
+  Syntax:	BUILD_LUT( SYS )
+  
+  Inputs: 
+  	SYS - Soundfield Reproduction system object
+  
+  Example: 
+  	Build_LUT( Current_Systems.loadCurrentSRsystem )
+  
+  See also: loadCurrentSRsystem
+<br></pre><pre><a href="matlab:opentoline('M:\MSR\release\mfiles\Build_LUT.m',9)">&nbsp;9:</a> 
+Example: 
+Build_LUT( Current_Systems.loadCurrentSRsystem )
+</pre><pre><a href="matlab:opentoline('M:\MSR\release\mfiles\Build_LUT.m',12)">12:</a>See also: loadCurrentSRsystem</pre><pre><span style="font-size: 11">% Copyright: Jacob Donley 2017
+</span></pre></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\Calibrate_MSR_Loudspeaker_Signals.m')"> <span class="mono">Calibrate_MSR_Loudspeaker_Signals</span></a></td><td class="td-linetopleft"><pre>  Calibrates the generated loudspeaker signals with their associated hardware equalisation filters</pre><pre>  Calibrates the generated loudspeaker signals with their associated hardware equalisation filters
+  
+  Syntax:	CALIBRATE_MSR_LOUDSPEAKER_SIGNALS( SYS )
+  
+  Inputs: 
+  	SYS - Soundfield Reproduction system object
+  
+  Example: 
+  	Calibrate_MSR_Loudspeaker_Signals( Current_Systems.loadCurrentSRsystem )
+  
+  See also: loadCurrentSRsystem
+<br></pre><pre><a href="matlab:opentoline('M:\MSR\release\mfiles\Calibrate_MSR_Loudspeaker_Signals.m',9)">&nbsp;9:</a> 
+Example: 
+Calibrate_MSR_Loudspeaker_Signals( Current_Systems.loadCurrentSRsystem )
+</pre><pre><a href="matlab:opentoline('M:\MSR\release\mfiles\Calibrate_MSR_Loudspeaker_Signals.m',12)">12:</a>See also: loadCurrentSRsystem</pre><pre><span style="font-size: 11">% Copyright: Jacob Donley 2017
+</span></pre></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\Clean_from_LUT.m')"> <span class="mono">Clean_from_LUT</span></a></td><td class="td-linetopleft"><pre>  Generates spatially weighted loudspeaker signals for the reproduction of zoned clean speech.</pre><pre>  Generates spatially weighted loudspeaker signals for the reproduction of zoned clean speech.
+  
+  Syntax:	CLEAN_FROM_LUT( INPUT_FILE, SYS_OR_LUT_RESOLUTION, WEIGHT, SETUP )
+  
+  Inputs: 
+  	Input_file - The input audio file to generate loudspeaker signals for.
+  	SYS_or_LUT_resolution - Either a Soundfield Reproduction system object
+  	or a string containing the LUT resolution in the format:
+    '&lt;NFrequencies&gt;f_&lt;Nweights&gt;w', where &lt;NFrequencies&gt; is the number of
+    frequency coefficients and &lt;Nweights&gt; is the number of different zone
+    weights.
+  	weight - The multizone soundfield weight
+  	setup - Loudspeaker setup object
+  
+  Example: 
+  	Clean_from_LUT('C:\someaudiofile.wav', ...
+        Current_Systems.loadCurrentSRsystem)
+  
+  See also: getMSRLoudspeakerSignals, loadCurrentSRsystem, createSetup
+<br></pre><pre><a href="matlab:opentoline('M:\MSR\release\mfiles\Clean_from_LUT.m',16)">16:</a> 
+Example: 
+Clean_from_LUT('C:\someaudiofile.wav', ...
+Current_Systems.loadCurrentSRsystem)
+</pre><pre><a href="matlab:opentoline('M:\MSR\release\mfiles\Clean_from_LUT.m',20)">20:</a>See also: getMSRLoudspeakerSignals, loadCurrentSRsystem, createSetup</pre><pre><span style="font-size: 11">% Copyright: Jacob Donley 2017
+</span></pre></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\Clean_from_LUT_FlatMask.m')"> <span class="mono">Clean_from_LUT_FlatMask</span></a></td><td class="td-linetopleft"><pre> Analyse_Broadband_Signals_from_LUT Summary of this function goes here</pre><pre> Analyse_Broadband_Signals_from_LUT Summary of this function goes here
     Detailed explanation goes here
 <br></pre><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br><span style="background: #FFC0C0">No copyright line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\Clean_from_LUT_ZoneWeightedMask.m')"> <span class="mono">Clean_from_LUT_ZoneWeightedMask</span></a></td><td class="td-linetopleft"><pre> Clean_from_LUT_ZoneWeightedMask Summary of this function goes here</pre><pre> Clean_from_LUT_ZoneWeightedMask Summary of this function goes here
     Detailed explanation goes here
@@ -92,7 +162,7 @@ Line 3 of example
 Example: 
 [ y ] = GreyNoise( 10, 16000, 0.8); % 10 seconds of grey noise at 16kHz sampling frequency and 0.8 gain.
 </pre><pre><a href="matlab:opentoline('M:\MSR\release\mfiles\GreyNoise.m',17)">17:</a>See also: awgn, randn, wgn</pre><pre><span style="font-size: 11">% Copyright: Jacob Donley 2015
-</span></pre><span style="background: #FFC0C0">Copyright year is not current</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\IEEETransactions_System_C.m')"> <span class="mono">IEEETransactions_System_C</span></a></td><td class="td-linetopleft"><span style="background: #FFC0C0">No description line</span><br><span style="background: #FFC0C0">No help</span><br><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br><span style="background: #FFC0C0">No copyright line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\IEEE_Trans2016_C.m')"> <span class="mono">IEEE_Trans2016_C</span></a></td><td class="td-linetopleft"><pre> TEMPLATE Summary of this function goes here</pre><pre> TEMPLATE Summary of this function goes here
+</span></pre><span style="background: #FFC0C0">Copyright year is not current</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\IEEETransactions_System_E.m')"> <span class="mono">IEEETransactions_System_E</span></a></td><td class="td-linetopleft"><span style="background: #FFC0C0">No description line</span><br><span style="background: #FFC0C0">No help</span><br><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br><span style="background: #FFC0C0">No copyright line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\IEEE_Trans2016_E.m')"> <span class="mono">IEEE_Trans2016_E</span></a></td><td class="td-linetopleft"><pre> TEMPLATE Summary of this function goes here</pre><pre> TEMPLATE Summary of this function goes here
  
   Syntax:	[OUTPUTARGS] = TEMPLATE(INPUTARGS) Explain usage here
  
@@ -111,12 +181,12 @@ Example:
   	Line 3 of example
  
   See also: List related files here
-<br></pre><pre><a href="matlab:opentoline('M:\MSR\release\mfiles\IEEE_Trans2016_C.m',15)">15:</a> 
+<br></pre><pre><a href="matlab:opentoline('M:\MSR\release\mfiles\IEEE_Trans2016_E.m',15)">15:</a> 
 Example:
 Line 1 of example
 Line 2 of example
 Line 3 of example
-</pre><pre><a href="matlab:opentoline('M:\MSR\release\mfiles\IEEE_Trans2016_C.m',20)">20:</a>See also: List related files here</pre><span style="background: #FFC0C0">Function related does not appear on the path</span><br><span style="background: #FFC0C0">Function files does not appear on the path</span><br><span style="background: #FFC0C0">Function here does not appear on the path</span><br><pre><span style="font-size: 11">% Copyright: Jacob Donley 2016
+</pre><pre><a href="matlab:opentoline('M:\MSR\release\mfiles\IEEE_Trans2016_E.m',20)">20:</a>See also: List related files here</pre><span style="background: #FFC0C0">Function related does not appear on the path</span><br><span style="background: #FFC0C0">Function files does not appear on the path</span><br><span style="background: #FFC0C0">Function here does not appear on the path</span><br><pre><span style="font-size: 11">% Copyright: Jacob Donley 2016
 </span></pre><span style="background: #FFC0C0">Copyright year is not current</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\IRsFromRecordings.m')"> <span class="mono">IRsFromRecordings</span></a></td><td class="td-linetopleft"><pre> IRSFROMRECORDING Find the impulse response for each recording</pre><pre> IRSFROMRECORDING Find the impulse response for each recording
 <br></pre><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br><span style="background: #FFC0C0">No copyright line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\LTASS.m')"> <span class="mono">LTASS</span></a></td><td class="td-linetopleft"><pre>  Computes the Long-Term Average Speech Spectrum from a folder of speech files or vector of speech samples</pre><pre>  Computes the Long-Term Average Speech Spectrum from a folder of speech files or vector of speech samples
  
@@ -267,16 +337,24 @@ Line 3 of example
  close all;
 <br></pre><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br><span style="background: #FFC0C0">No copyright line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\Reverberant_MSR_Analysis.m')"> <span class="mono">Reverberant_MSR_Analysis</span></a></td><td class="td-linetopleft"><span style="background: #FFC0C0">No description line</span><br><span style="background: #FFC0C0">No help</span><br><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br><span style="background: #FFC0C0">No copyright line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\Reverberant_MSR_Analysis_batchfunc.m')"> <span class="mono">Reverberant_MSR_Analysis_batchfunc</span></a></td><td class="td-linetopleft"><span style="background: #FFC0C0">No description line</span><br><span style="background: #FFC0C0">No help</span><br><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br><span style="background: #FFC0C0">No copyright line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\Reverberant_MSR_batchfunc.m')"> <span class="mono">Reverberant_MSR_batchfunc</span></a></td><td class="td-linetopleft"><span style="background: #FFC0C0">No description line</span><br><span style="background: #FFC0C0">No help</span><br><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br><span style="background: #FFC0C0">No copyright line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\Room.m')"> <span class="mono">Room</span></a></td><td class="td-linetopleft"><pre> ROOM Summary of this class goes here</pre><pre> ROOM Summary of this class goes here
     Detailed explanation goes here
-<br></pre><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br><span style="background: #FFC0C0">No copyright line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: matlab.desktop.editor.openAndGoToFunction('M:\MSR\release\mfiles\Room.m','setReproductionCentre')"> <span class="mono">Room.setReproductionCentre</span></a></td><td class="td-dashtopleft"><span style="background: #FFC0C0">No description line</span><br><span style="background: #FFC0C0">No help</span><br><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: matlab.desktop.editor.openAndGoToFunction('M:\MSR\release\mfiles\Room.m','setRoomSize')"> <span class="mono">Room.setRoomSize</span></a></td><td class="td-dashtopleft"><span style="background: #FFC0C0">No description line</span><br><span style="background: #FFC0C0">No help</span><br><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: matlab.desktop.editor.openAndGoToFunction('M:\MSR\release\mfiles\Room.m','setRoom_Type')"> <span class="mono">Room.setRoom_Type</span></a></td><td class="td-dashtopleft"><span style="background: #FFC0C0">No description line</span><br><span style="background: #FFC0C0">No help</span><br><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: matlab.desktop.editor.openAndGoToFunction('M:\MSR\release\mfiles\Room.m','setWall_Absorb_Coeff')"> <span class="mono">Room.setWall_Absorb_Coeff</span></a></td><td class="td-dashtopleft"><span style="background: #FFC0C0">No description line</span><br><span style="background: #FFC0C0">No help</span><br><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: matlab.desktop.editor.openAndGoToFunction('M:\MSR\release\mfiles\Room.m','setWall_Reflect_Coeff')"> <span class="mono">Room.setWall_Reflect_Coeff</span></a></td><td class="td-dashtopleft"><span style="background: #FFC0C0">No description line</span><br><span style="background: #FFC0C0">No help</span><br><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\SR_System.m')"> <span class="mono">SR_System</span></a></td><td class="td-linetopleft"><pre>  This class provides complete soundfield reproduction system information</pre><pre>  This class provides complete soundfield reproduction system information
+<br></pre><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br><span style="background: #FFC0C0">No copyright line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: matlab.desktop.editor.openAndGoToFunction('M:\MSR\release\mfiles\Room.m','setReproductionCentre')"> <span class="mono">Room.setReproductionCentre</span></a></td><td class="td-dashtopleft"><span style="background: #FFC0C0">No description line</span><br><span style="background: #FFC0C0">No help</span><br><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: matlab.desktop.editor.openAndGoToFunction('M:\MSR\release\mfiles\Room.m','setRoomSize')"> <span class="mono">Room.setRoomSize</span></a></td><td class="td-dashtopleft"><span style="background: #FFC0C0">No description line</span><br><span style="background: #FFC0C0">No help</span><br><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: matlab.desktop.editor.openAndGoToFunction('M:\MSR\release\mfiles\Room.m','setRoom_Type')"> <span class="mono">Room.setRoom_Type</span></a></td><td class="td-dashtopleft"><span style="background: #FFC0C0">No description line</span><br><span style="background: #FFC0C0">No help</span><br><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: matlab.desktop.editor.openAndGoToFunction('M:\MSR\release\mfiles\Room.m','setWall_Absorb_Coeff')"> <span class="mono">Room.setWall_Absorb_Coeff</span></a></td><td class="td-dashtopleft"><span style="background: #FFC0C0">No description line</span><br><span style="background: #FFC0C0">No help</span><br><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: matlab.desktop.editor.openAndGoToFunction('M:\MSR\release\mfiles\Room.m','setWall_Reflect_Coeff')"> <span class="mono">Room.setWall_Reflect_Coeff</span></a></td><td class="td-dashtopleft"><span style="background: #FFC0C0">No description line</span><br><span style="background: #FFC0C0">No help</span><br><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\SPL_Freq.m')"> <span class="mono">SPL_Freq</span></a></td><td class="td-linetopleft"><pre> SPL_Freq Generates axes objects for suppression results</pre><pre> SPL_Freq Generates axes objects for suppression results
+ 
+  Syntax:	[ axs, legendStrings ] = SPL_Freq( SYS, axH )
+ 
+  Inputs:
+  	SYS - Soundfield reproduction system specification object
+    axH - Axis handle to reuse
+ 
+  Outputs:
+  	axs - Axis objects containing the SPL vs Frequency styled plots.
+    legendEntries - The text for the legend of the plot.
+ 
+ 
+  See also:
+<br></pre><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br><pre><span style="font-size: 11">% Copyright: Jacob Donley 2017
+</span></pre></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\SR_System.m')"> <span class="mono">SR_System</span></a></td><td class="td-linetopleft"><pre>  This class provides complete soundfield reproduction system information</pre><pre>  This class provides complete soundfield reproduction system information
   from compatible loudspeaker setup, signal information, hardware system
   information and room information.
- 
-  Author: Jacob Donley
-  University of Wollongong
-  Email: jrd089@uowmail.edu.au
-  Date: 20 July 2017
-  Revision: 0.1
- 
 <br></pre><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br><span style="background: #FFC0C0">No copyright line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\STI.m')"> <span class="mono">STI</span></a></td><td class="td-linetopleft"><pre>  Calculation of the Speech Transmission Index (STI)</pre><pre>  Calculation of the Speech Transmission Index (STI)
   
   Syntax:	[STI_val, ALcons, STI_val_approx, ALcons_approx] = STI(ImpulseResponse, fs, OctaveFilters)
@@ -351,22 +429,7 @@ tic;
 toc
 [STIval,ALcons,STIval_,ALcons_]=STI(y,fs)
 toc
-</pre><pre><a href="matlab:opentoline('M:\MSR\release\mfiles\STI_BandFilters.m',27)">27:</a>See also: STI.m</pre><span style="background: #FFC0C0">No copyright line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\STOI_PESQ.m')"> <span class="mono">STOI_PESQ</span></a></td><td class="td-linetopleft"><pre> STOI_PESQ Generates axes objects with STOI and PESQ results</pre><pre> STOI_PESQ Generates axes objects with STOI and PESQ results
- 
-  Syntax:	[ ax ] = STOI_PESQ( SYS )
- 
-  Inputs:
-  	SYS - Soundfield reproduction system specification object
-    axH - Axis handle to reuse
- 
-  Outputs:
-  	axs - Axis objects containing the STOI and PESQ styled plots.
-    legendEntries - The text for the legend of the plot.
- 
- 
-  See also:
-<br></pre><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br><pre><span style="font-size: 11">% Copyright: Jacob Donley 2016-2017
-</span></pre></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\Save_Reverb_PESQ_Result.m')"> <span class="mono">Save_Reverb_PESQ_Result</span></a></td><td class="td-linetopleft"><pre> SAVE_REVERB_PESQ_RESULT Summary of this function goes here</pre><pre> SAVE_REVERB_PESQ_RESULT Summary of this function goes here
+</pre><pre><a href="matlab:opentoline('M:\MSR\release\mfiles\STI_BandFilters.m',27)">27:</a>See also: STI.m</pre><span style="background: #FFC0C0">No copyright line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\Save_Reverb_PESQ_Result.m')"> <span class="mono">Save_Reverb_PESQ_Result</span></a></td><td class="td-linetopleft"><pre> SAVE_REVERB_PESQ_RESULT Summary of this function goes here</pre><pre> SAVE_REVERB_PESQ_RESULT Summary of this function goes here
   
   Syntax:	SAVE_REVERB_PESQ_RESULT(Original_, Rec_Sigs_B, Rec_Sigs_Q, Fs, ResultsPath, Output_file_path_ext, FileName)
   
@@ -529,7 +592,18 @@ Line 3 of example
   
   See also: errorbar.m
 <br></pre><span style="background: #FFC0C0">No examples</span><br><pre><a href="matlab:opentoline('M:\MSR\release\mfiles\confidence_intervals.m',29)">29:</a>See also: errorbar.m</pre><pre><span style="font-size: 11">% Copyright: Jacob Donley 2017
-</span></pre></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\createSetup.m')"> <span class="mono">createSetup</span></a></td><td class="td-linetopleft"><pre> CREATESETUP Summary of this function goes here</pre><pre> CREATESETUP Summary of this function goes here
+</span></pre></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\createFit.m')"> <span class="mono">createFit</span></a></td><td class="td-linetopleft"><pre> CREATEFIT(NOISELEVEL,SI_WC_BRIGHT)</pre><pre> CREATEFIT(NOISELEVEL,SI_WC_BRIGHT)
+   Create a fit.
+ 
+   Data for 'untitled fit 1' fit:
+       X Input : NoiseLevel
+       Y Output: SI_WC_Bright
+   Output:
+       fitresult : a fit object representing the fit.
+       gof : structure with goodness-of fit info.
+ 
+   See also FIT, CFIT, SFIT.
+<br></pre><span style="background: #FFC0C0">No examples</span><br><pre><a href="matlab:opentoline('M:\MSR\release\mfiles\createFit.m',12)">12:</a>See also FIT, CFIT, SFIT.</pre><span style="background: #FFC0C0">No copyright line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\createSetup.m')"> <span class="mono">createSetup</span></a></td><td class="td-linetopleft"><pre> CREATESETUP Summary of this function goes here</pre><pre> CREATESETUP Summary of this function goes here
     Detailed explanation goes here
 <br></pre><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br><span style="background: #FFC0C0">No copyright line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\deleteResultsFile.m')"> <span class="mono">deleteResultsFile</span></a></td><td class="td-linetopleft"><pre> DELETERESULTSFILE Summary of this function goes here</pre><pre> DELETERESULTSFILE Summary of this function goes here
 <br></pre><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br><span style="background: #FFC0C0">No copyright line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\extractIR.m')"> <span class="mono">extractIR</span></a></td><td class="td-linetopleft"><pre>  Extract impulse response from swept-sine response.</pre><pre>  Extract impulse response from swept-sine response.
@@ -584,7 +658,33 @@ Line 3 of example
   
  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 <br></pre><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br><pre><span style="font-size: 11">% Copyright: Jacob Donley 2017
-</span></pre></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\getAliasingFrequency.m')"> <span class="mono">getAliasingFrequency</span></a></td><td class="td-linetopleft"><pre> GETALIASINGFREQUENCY Summary of this function goes here</pre><pre> GETALIASINGFREQUENCY Summary of this function goes here
+</span></pre></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\generatePlotData.m')"> <span class="mono">generatePlotData</span></a></td><td class="td-linetopleft"><pre> GENERATEPLOTDATA Organises input data into nice trending plottable data</pre><pre> GENERATEPLOTDATA Organises input data into nice trending plottable data
+ for plots, area plots and errorbar plots.
+  
+  Syntax:	[Hrz_Vec, Res_Matrix, Res_trend, Res_area, Res_CI, CI_vec] = GENERATEPLOTDATA(X_vals,Res,ConfInt_Low,ConfInt_Up) Explain usage here
+  
+  Inputs: 
+  	input1 - Description
+  	input2 - Description
+  	input3 - Description
+  
+  Outputs: 
+  	output1 - Description
+  	output2 - Description
+  
+  Example: 
+  	Line 1 of example
+  	Line 2 of example
+  	Line 3 of example
+  
+  See also: List related files here
+<br></pre><pre><a href="matlab:opentoline('M:\MSR\release\mfiles\generatePlotData.m',16)">16:</a> 
+Example: 
+Line 1 of example
+Line 2 of example
+Line 3 of example
+</pre><pre><a href="matlab:opentoline('M:\MSR\release\mfiles\generatePlotData.m',21)">21:</a>See also: List related files here</pre><span style="background: #FFC0C0">Function related does not appear on the path</span><br><span style="background: #FFC0C0">Function files does not appear on the path</span><br><span style="background: #FFC0C0">Function here does not appear on the path</span><br><pre><span style="font-size: 11">% Copyright: Jacob Donley 2015
+</span></pre><span style="background: #FFC0C0">Copyright year is not current</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\getAliasingFrequency.m')"> <span class="mono">getAliasingFrequency</span></a></td><td class="td-linetopleft"><pre> GETALIASINGFREQUENCY Summary of this function goes here</pre><pre> GETALIASINGFREQUENCY Summary of this function goes here
     Detailed explanation goes here
 <br></pre><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br><span style="background: #FFC0C0">No copyright line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\getAllFiles.m')"> <span class="mono">getAllFiles</span></a></td><td class="td-linetopleft"><pre>  Retrieves a list of all files within a directory</pre><pre>  Retrieves a list of all files within a directory
   
@@ -629,23 +729,22 @@ files = getAllFiles(searchPath);
 <br></pre><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br><span style="background: #FFC0C0">No copyright line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\getResultsPath.m')"> <span class="mono">getResultsPath</span></a></td><td class="td-linetopleft"><pre> GETDATABASEFROMSETUP Summary of this function goes here</pre><pre> GETDATABASEFROMSETUP Summary of this function goes here
 <br></pre><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br><span style="background: #FFC0C0">No copyright line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\getZoneSpectrumFromDB.m')"> <span class="mono">getZoneSpectrumFromDB</span></a></td><td class="td-linetopleft"><pre> GETZONESPECTRUM Summary of this function goes here</pre><pre> GETZONESPECTRUM Summary of this function goes here
     Detailed explanation goes here
-<br></pre><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br><span style="background: #FFC0C0">No copyright line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\import_SpeechIntelligibility_Reverb.m')"> <span class="mono">import_SpeechIntelligibility_Reverb</span></a></td><td class="td-linetopleft"><pre> IMPORTFILE Import numeric data from a text file as column vectors.</pre><pre> IMPORTFILE Import numeric data from a text file as column vectors.
-    [NOISE_MASK_LEVEL,WC_BRIGHT,WC_QUIET,CONFINT_BRIGHT_LOW,CONFINT_BRIGHT_UP,CONFINT_QUIET_LOW,CONFINT_QUIET_UP]
-    = IMPORTFILE(FILENAME) Reads data from text file FILENAME for the
+<br></pre><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br><span style="background: #FFC0C0">No copyright line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\import_SoundPressureLevels_vs_Freq.m')"> <span class="mono">import_SoundPressureLevels_vs_Freq</span></a></td><td class="td-linetopleft"><pre> import_SoundPressureLevels_vs_Freq Import numeric data from a text file as column vectors.</pre><pre> import_SoundPressureLevels_vs_Freq Import numeric data from a text file as column vectors.
+    [BlockLen,SUPP,ConfInt_Low,ConfInt_Up]
+    = import_SoundPressureLevels_vs_Freq(FILENAME) Reads data from text file FILENAME for the
     default selection.
  
-    [NOISE_MASK_LEVEL,WC_BRIGHT,WC_QUIET,CONFINT_BRIGHT_LOW,CONFINT_BRIGHT_UP,CONFINT_QUIET_LOW,CONFINT_QUIET_UP]
-    = IMPORTFILE(FILENAME, STARTROW, ENDROW) Reads data from rows STARTROW
+    [BlockLen,SUPP,ConfInt_Low,ConfInt_Up]
+    = import_SoundPressureLevels_vs_Freq(FILENAME, STARTROW, ENDROW) Reads data from rows STARTROW
     through ENDROW of text file FILENAME.
  
   Example:
-    [Noise_Mask_Level,WC_Bright,WC_Quiet,ConfInt_Bright_Low,ConfInt_Bright_Up,ConfInt_Quiet_Low,ConfInt_Quiet_Up] = importfile('SI_Results_10000weight__withFlatMask.csv',1, 180);
+    [BlockLen,SUPP,ConfInt_Low,ConfInt_Up] = import_Suppression_Reverb('Suppression_Results.mat',1, 180);
  
-     See also TEXTSCAN.
-<br></pre><pre><a href="matlab:opentoline('M:\MSR\release\mfiles\import_SpeechIntelligibility_Reverb.m',11)">11:</a> 
+<br></pre><pre><a href="matlab:opentoline('M:\MSR\release\mfiles\import_SoundPressureLevels_vs_Freq.m',11)">11:</a> 
 Example:
-[Noise_Mask_Level,WC_Bright,WC_Quiet,ConfInt_Bright_Low,ConfInt_Bright_Up,ConfInt_Quiet_Low,ConfInt_Quiet_Up] = importfile('SI_Results_10000weight__withFlatMask.csv',1, 180);
-</pre><pre><a href="matlab:opentoline('M:\MSR\release\mfiles\import_SpeechIntelligibility_Reverb.m',14)">14:</a>See also TEXTSCAN.</pre><span style="background: #FFC0C0">No copyright line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\interpVal.m')"> <span class="mono">interpVal</span></a></td><td class="td-linetopleft"><pre>  This function will interpolate from desired arbitrarily spaced index values</pre><pre>  This function will interpolate from desired arbitrarily spaced index values
+[BlockLen,SUPP,ConfInt_Low,ConfInt_Up] = import_Suppression_Reverb('Suppression_Results.mat',1, 180);
+</pre><span style="background: #FFC0C0">No See Also line</span><br><span style="background: #FFC0C0">No copyright line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\interpVal.m')"> <span class="mono">interpVal</span></a></td><td class="td-linetopleft"><pre>  This function will interpolate from desired arbitrarily spaced index values</pre><pre>  This function will interpolate from desired arbitrarily spaced index values
   
   Syntax:	[ interpolated_values,  interpolated_indices] = interpVal( values, index_values, desired_index_values )
   
@@ -797,7 +896,7 @@ Line 1 of example
 Line 2 of example
 Line 3 of example
 </pre><pre><a href="matlab:opentoline('M:\MSR\release\mfiles\linTFalign.m',20)">20:</a>See also: List related files here</pre><span style="background: #FFC0C0">Function related does not appear on the path</span><br><span style="background: #FFC0C0">Function files does not appear on the path</span><br><span style="background: #FFC0C0">Function here does not appear on the path</span><br><pre><span style="font-size: 11">% Copyright: Jacob Donley 2017
-</span></pre></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\loadCurrentSRsystem.m')"> <span class="mono">loadCurrentSRsystem</span></a></td><td class="td-linetopleft"><pre> LOADCURRENTSYSTEM Loads the current Soundfield Reproduction system</pre><pre> LOADCURRENTSYSTEM Loads the current Soundfield Reproduction system
+</span></pre></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\loadCurrentSRsystem.m')"> <span class="mono">loadCurrentSRsystem</span></a></td><td class="td-linetopleft"><pre>  Loads the current Soundfield Reproduction system</pre><pre>  Loads the current Soundfield Reproduction system
 <br></pre><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br><span style="background: #FFC0C0">No copyright line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\loadDatabaseFromSetup.m')"> <span class="mono">loadDatabaseFromSetup</span></a></td><td class="td-linetopleft"><pre> GETDATABASEFROMSETUP Summary of this function goes here</pre><pre> GETDATABASEFROMSETUP Summary of this function goes here
     Detailed explanation goes here
 <br></pre><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br><span style="background: #FFC0C0">No copyright line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\loadRIRDatabaseFromSetup.m')"> <span class="mono">loadRIRDatabaseFromSetup</span></a></td><td class="td-linetopleft"><pre> GETDATABASEFROMSETUP Summary of this function goes here</pre><pre> GETDATABASEFROMSETUP Summary of this function goes here
@@ -881,20 +980,26 @@ Line 3 of example
 </span></pre></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\parametric_soundfield.m')"> <span class="mono">parametric_soundfield</span></a></td><td class="td-linetopleft"><pre> PARAMETRIC_SOUNDFIELD Summary of this class goes here</pre><pre> PARAMETRIC_SOUNDFIELD Summary of this class goes here
     Detailed explanation goes here
 <br></pre><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br><pre><span style="font-size: 11">    % Copyright: Jacob Donley 2016
-</span></pre><span style="background: #FFC0C0">Copyright year is not current</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: matlab.desktop.editor.openAndGoToFunction('M:\MSR\release\mfiles\parametric_soundfield.m','convolutionalModel')"> <span class="mono">parametric_soundfield.convolutionalModel</span></a></td><td class="td-dashtopleft"><span style="background: #FFC0C0">No description line</span><br><span style="background: #FFC0C0">No help</span><br><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: matlab.desktop.editor.openAndGoToFunction('M:\MSR\release\mfiles\parametric_soundfield.m','createEmptySoundfield')"> <span class="mono">parametric_soundfield.createEmptySoundfield</span></a></td><td class="td-dashtopleft"><span style="background: #FFC0C0">No description line</span><br><span style="background: #FFC0C0">No help</span><br><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: matlab.desktop.editor.openAndGoToFunction('M:\MSR\release\mfiles\parametric_soundfield.m','createSoundfield')"> <span class="mono">parametric_soundfield.createSoundfield</span></a></td><td class="td-dashtopleft"><span style="background: #FFC0C0">No description line</span><br><span style="background: #FFC0C0">No help</span><br><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: matlab.desktop.editor.openAndGoToFunction('M:\MSR\release\mfiles\parametric_soundfield.m','get_f1')"> <span class="mono">parametric_soundfield.get_f1</span></a></td><td class="td-dashtopleft"><span style="background: #FFC0C0">No description line</span><br><span style="background: #FFC0C0">No help</span><br><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: matlab.desktop.editor.openAndGoToFunction('M:\MSR\release\mfiles\parametric_soundfield.m','get_f2')"> <span class="mono">parametric_soundfield.get_f2</span></a></td><td class="td-dashtopleft"><span style="background: #FFC0C0">No description line</span><br><span style="background: #FFC0C0">No help</span><br><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: matlab.desktop.editor.openAndGoToFunction('M:\MSR\release\mfiles\parametric_soundfield.m','get_fd')"> <span class="mono">parametric_soundfield.get_fd</span></a></td><td class="td-dashtopleft"><span style="background: #FFC0C0">No description line</span><br><span style="background: #FFC0C0">No help</span><br><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: matlab.desktop.editor.openAndGoToFunction('M:\MSR\release\mfiles\parametric_soundfield.m','plotSoundfield')"> <span class="mono">parametric_soundfield.plotSoundfield</span></a></td><td class="td-dashtopleft"><span style="background: #FFC0C0">No description line</span><br><span style="background: #FFC0C0">No help</span><br><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: matlab.desktop.editor.openAndGoToFunction('M:\MSR\release\mfiles\parametric_soundfield.m','reproduceSoundfield')"> <span class="mono">parametric_soundfield.reproduceSoundfield</span></a></td><td class="td-dashtopleft"><span style="background: #FFC0C0">No description line</span><br><span style="background: #FFC0C0">No help</span><br><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: matlab.desktop.editor.openAndGoToFunction('M:\MSR\release\mfiles\parametric_soundfield.m','setTau')"> <span class="mono">parametric_soundfield.setTau</span></a></td><td class="td-dashtopleft"><span style="background: #FFC0C0">No description line</span><br><span style="background: #FFC0C0">No help</span><br><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: matlab.desktop.editor.openAndGoToFunction('M:\MSR\release\mfiles\parametric_soundfield.m','set_f1')"> <span class="mono">parametric_soundfield.set_f1</span></a></td><td class="td-dashtopleft"><span style="background: #FFC0C0">No description line</span><br><span style="background: #FFC0C0">No help</span><br><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: matlab.desktop.editor.openAndGoToFunction('M:\MSR\release\mfiles\parametric_soundfield.m','set_f2')"> <span class="mono">parametric_soundfield.set_f2</span></a></td><td class="td-dashtopleft"><span style="background: #FFC0C0">No description line</span><br><span style="background: #FFC0C0">No help</span><br><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: matlab.desktop.editor.openAndGoToFunction('M:\MSR\release\mfiles\parametric_soundfield.m','set_fd')"> <span class="mono">parametric_soundfield.set_fd</span></a></td><td class="td-dashtopleft"><span style="background: #FFC0C0">No description line</span><br><span style="background: #FFC0C0">No help</span><br><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\pesq_mex_vec.m')"> <span class="mono">pesq_mex_vec</span></a></td><td class="td-linetopleft"><pre>  Accepts vectors for a mex compiled version of the objective Perceptual Evaluation of Speech Quality measure</pre><pre>  Accepts vectors for a mex compiled version of the objective Perceptual Evaluation of Speech Quality measure
+</span></pre><span style="background: #FFC0C0">Copyright year is not current</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: matlab.desktop.editor.openAndGoToFunction('M:\MSR\release\mfiles\parametric_soundfield.m','convolutionalModel')"> <span class="mono">parametric_soundfield.convolutionalModel</span></a></td><td class="td-dashtopleft"><span style="background: #FFC0C0">No description line</span><br><span style="background: #FFC0C0">No help</span><br><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: matlab.desktop.editor.openAndGoToFunction('M:\MSR\release\mfiles\parametric_soundfield.m','createEmptySoundfield')"> <span class="mono">parametric_soundfield.createEmptySoundfield</span></a></td><td class="td-dashtopleft"><span style="background: #FFC0C0">No description line</span><br><span style="background: #FFC0C0">No help</span><br><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: matlab.desktop.editor.openAndGoToFunction('M:\MSR\release\mfiles\parametric_soundfield.m','createSoundfield')"> <span class="mono">parametric_soundfield.createSoundfield</span></a></td><td class="td-dashtopleft"><span style="background: #FFC0C0">No description line</span><br><span style="background: #FFC0C0">No help</span><br><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: matlab.desktop.editor.openAndGoToFunction('M:\MSR\release\mfiles\parametric_soundfield.m','get_f1')"> <span class="mono">parametric_soundfield.get_f1</span></a></td><td class="td-dashtopleft"><span style="background: #FFC0C0">No description line</span><br><span style="background: #FFC0C0">No help</span><br><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: matlab.desktop.editor.openAndGoToFunction('M:\MSR\release\mfiles\parametric_soundfield.m','get_f2')"> <span class="mono">parametric_soundfield.get_f2</span></a></td><td class="td-dashtopleft"><span style="background: #FFC0C0">No description line</span><br><span style="background: #FFC0C0">No help</span><br><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: matlab.desktop.editor.openAndGoToFunction('M:\MSR\release\mfiles\parametric_soundfield.m','get_fd')"> <span class="mono">parametric_soundfield.get_fd</span></a></td><td class="td-dashtopleft"><span style="background: #FFC0C0">No description line</span><br><span style="background: #FFC0C0">No help</span><br><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: matlab.desktop.editor.openAndGoToFunction('M:\MSR\release\mfiles\parametric_soundfield.m','plotSoundfield')"> <span class="mono">parametric_soundfield.plotSoundfield</span></a></td><td class="td-dashtopleft"><span style="background: #FFC0C0">No description line</span><br><span style="background: #FFC0C0">No help</span><br><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: matlab.desktop.editor.openAndGoToFunction('M:\MSR\release\mfiles\parametric_soundfield.m','reproduceSoundfield')"> <span class="mono">parametric_soundfield.reproduceSoundfield</span></a></td><td class="td-dashtopleft"><span style="background: #FFC0C0">No description line</span><br><span style="background: #FFC0C0">No help</span><br><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: matlab.desktop.editor.openAndGoToFunction('M:\MSR\release\mfiles\parametric_soundfield.m','setTau')"> <span class="mono">parametric_soundfield.setTau</span></a></td><td class="td-dashtopleft"><span style="background: #FFC0C0">No description line</span><br><span style="background: #FFC0C0">No help</span><br><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: matlab.desktop.editor.openAndGoToFunction('M:\MSR\release\mfiles\parametric_soundfield.m','set_f1')"> <span class="mono">parametric_soundfield.set_f1</span></a></td><td class="td-dashtopleft"><span style="background: #FFC0C0">No description line</span><br><span style="background: #FFC0C0">No help</span><br><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: matlab.desktop.editor.openAndGoToFunction('M:\MSR\release\mfiles\parametric_soundfield.m','set_f2')"> <span class="mono">parametric_soundfield.set_f2</span></a></td><td class="td-dashtopleft"><span style="background: #FFC0C0">No description line</span><br><span style="background: #FFC0C0">No help</span><br><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: matlab.desktop.editor.openAndGoToFunction('M:\MSR\release\mfiles\parametric_soundfield.m','set_fd')"> <span class="mono">parametric_soundfield.set_fd</span></a></td><td class="td-dashtopleft"><span style="background: #FFC0C0">No description line</span><br><span style="background: #FFC0C0">No help</span><br><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\pesq_mex_fast_vec.m')"> <span class="mono">pesq_mex_fast_vec</span></a></td><td class="td-linetopleft"><pre>  Accepts vectors for a mex compiled version of the objective Perceptual Evaluation of Speech Quality measure</pre><pre>  Accepts vectors for a mex compiled version of the objective Perceptual Evaluation of Speech Quality measure
   
   Syntax:	[ res ] = pesq_mex_vec( reference_sig, degraded_sig, Fs )
   
   Inputs: 
-  	reference_sig - Reference (clean, talker, sender) speech signal
-  	degraded_sig - Degraded (noisy, listener, receiver) speech signal
-  	Fs - Sampling Frequency
+  	  reference_sig - Reference (clean, talker, sender) speech signal
+  	   degraded_sig - Degraded (noisy, listener, receiver) speech signal
+  	             Fs - Sampling Frequency
+    modeOfOperation - This optional string argument is used to specify
+                      whether the PESQ mex function runs in narrowband,
+                      wideband or both. The possible values are 
+                      'narrowband', 'wideband' (default) or 'both'.
   
   Outputs: 
-  	res - MOS-LQO result for wideband
+  	res - MOS-LQO result for given modeOfOperation (wideband by default). 
+          If 'both' is specified as the modeOfOperation then res is a
+          column vector of the format [narrowband_result; wideband_result].
   
   See also: pesq2mos.m
-<br></pre><span style="background: #FFC0C0">No examples</span><br><pre><a href="matlab:opentoline('M:\MSR\release\mfiles\pesq_mex_vec.m',14)">14:</a>See also: pesq2mos.m</pre><pre><span style="font-size: 11">% Copyright: Jacob Donley 2017
+<br></pre><span style="background: #FFC0C0">No examples</span><br><pre><a href="matlab:opentoline('M:\MSR\release\mfiles\pesq_mex_fast_vec.m',20)">20:</a>See also: pesq2mos.m</pre><pre><span style="font-size: 11">% Copyright: Jacob Donley 2017
 </span></pre></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\playMSR_andRec.m')"> <span class="mono">playMSR_andRec</span></a></td><td class="td-linetopleft"><pre> PLAYMSR_ANDREC Summary of this function goes here</pre><pre> PLAYMSR_ANDREC Summary of this function goes here
 <br></pre><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br><span style="background: #FFC0C0">No copyright line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\power_norm.m')"> <span class="mono">power_norm</span></a></td><td class="td-linetopleft"><pre> POWER_NORM Summary of this function goes here</pre><pre> POWER_NORM Summary of this function goes here
     Detailed explanation goes here
@@ -920,14 +1025,17 @@ Line 3 of example
 <br></pre><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br><pre><span style="font-size: 11">% Copyright: Jacob Donley 2016
 </span></pre><span style="background: #FFC0C0">Copyright year is not current</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\saveLoudspeakerSignals.m')"> <span class="mono">saveLoudspeakerSignals</span></a></td><td class="td-linetopleft"><pre> SAVELOUDSPEAKERSIGNALS Summary of this function goes here</pre><pre> SAVELOUDSPEAKERSIGNALS Summary of this function goes here
     Detailed explanation goes here
-<br></pre><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br><span style="background: #FFC0C0">No copyright line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\setErrorAxis.m')"> <span class="mono">setErrorAxis</span></a></td><td class="td-linetopleft"><pre> SETERRORAXIS Sets parameters of an axis from a SR_System object and other inputs</pre><pre> SETERRORAXIS Sets parameters of an axis from a SR_System object and other inputs
+<br></pre><span style="background: #FFC0C0">No examples</span><br><span style="background: #FFC0C0">No See Also line</span><br><span style="background: #FFC0C0">No copyright line</span><br></td></tr><tr><td valign="top" class="td-dashtop"><a href="matlab: edit('M:\MSR\release\mfiles\setAxisParameters.m')"> <span class="mono">setAxisParameters</span></a></td><td class="td-linetopleft"><pre> SETAXISPARAMETERS Sets parameters of an axis from a SR_System object and other inputs</pre><pre> SETAXISPARAMETERS Sets parameters of an axis from a SR_System object and other inputs
  
-  Syntax:	SETERRORAXIS( ax, errMSG, filepath )
+  Syntax:	SETAXISPARAMETERS( SYS, ax, range, domain, range_lbl, domain_lbl )
  
   Inputs:
+  	SYS - Soundfield reproduction system specification object
     ax - Axis handle to reuse
-    errMSG - Error message to display in the axis
-    filepath - Filepath to show in command window warning
+    range - Axis range (two element vector)
+    domain - Axis domain (two element vector)
+    range_lbl - Axis y-label
+    domain_lbl - Axis x-label
  
  
   See also:
