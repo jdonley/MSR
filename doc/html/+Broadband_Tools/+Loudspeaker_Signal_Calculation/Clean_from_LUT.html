@@ -4,7 +4,7 @@
 <head>
   <title>Description of Clean_from_LUT</title>
   <meta name="keywords" content="Clean_from_LUT">
-  <meta name="description" content="CLEAN_FROM_LUT Generates spatially weighted loudspeaker signals for the">
+  <meta name="description" content="Generates spatially weighted loudspeaker signals for the reproduction of zoned clean speech.">
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
   <meta name="generator" content="">
   <meta name="robots" content="index, follow">
@@ -22,14 +22,31 @@
 </h1>
 
 <!-- <h2><a name="_name"></a>Summary <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2> -->
-<div class="purpose">CLEAN_FROM_LUT Generates spatially weighted loudspeaker signals for the</div>
+<div class="purpose">Generates spatially weighted loudspeaker signals for the reproduction of zoned clean speech.</div>
 
 <h2><a name="_synopsis"></a>Syntax <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
 <div class="box">function Clean_from_LUT( Input_file, SYS_or_LUT_resolution, weight, setup ) </div>
 
 <h2><a name="_description"></a>Description <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
-<div class="fragment"><pre class="comment">CLEAN_FROM_LUT Generates spatially weighted loudspeaker signals for the
-reproduction of zoned clean speech.</pre></div>
+<div class="fragment"><pre class="comment"> Generates spatially weighted loudspeaker signals for the reproduction of zoned clean speech.
+ 
+ Syntax:    CLEAN_FROM_LUT( INPUT_FILE, SYS_OR_LUT_RESOLUTION, WEIGHT, SETUP )
+ 
+ Inputs: 
+     Input_file - The input audio file to generate loudspeaker signals for.
+     SYS_or_LUT_resolution - Either a Soundfield Reproduction system object
+     or a string containing the LUT resolution in the format:
+   '&lt;NFrequencies&gt;f_&lt;Nweights&gt;w', where &lt;NFrequencies&gt; is the number of
+   frequency coefficients and &lt;Nweights&gt; is the number of different zone
+   weights.
+     weight - The multizone soundfield weight
+     setup - Loudspeaker setup object
+ 
+ Example: 
+     Clean_from_LUT('C:\someaudiofile.wav', ...
+       Current_Systems.loadCurrentSRsystem)
+ 
+ See also: <a href="getMSRLoudspeakerSignals.html" class="code" title="function [ Loudspeaker_Signals, Original_ ] = getMSRLoudspeakerSignals( Input_Signal, setup, signal_info, system_info )">getMSRLoudspeakerSignals</a>, loadCurrentSRsystem, createSetup</pre></div>
 
 <!-- crossreference -->
 <h2><a name="_cross"></a>Cross-Reference Information <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
@@ -44,6 +61,6 @@ This function is called by:
 
 
 
-<hr><address>Generated on Tue 25-Jul-2017 14:22:46 for <strong><a href="https://www.soundzones.com" title="Sound Zones - code | research | blog">Sound Zones</a></strong></address>
+<hr><address>Generated on Sun 06-Aug-2017 23:15:43 for <strong><a href="https://www.soundzones.com" title="Sound Zones - code | research | blog">Sound Zones</a></strong></address>
 </body>
 </html>

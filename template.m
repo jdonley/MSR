@@ -1,5 +1,5 @@
 function [outputArgs] = template(inputArgs)
-%TEMPLATE Summary of this function goes here
+% Summary of this function goes here
 % 
 % Syntax:	[OUTPUTARGS] = TEMPLATE(INPUTARGS) Explain usage here
 % 
@@ -22,8 +22,8 @@ function [outputArgs] = template(inputArgs)
 % Author: Jacob Donley
 % University of Wollongong
 % Email: jrd089@uowmail.edu.au
-% Copyright: Jacob Donley 2015
-% Date: 03 October 2015 
+% Copyright: Jacob Donley 2017
+% Date: 01 January 2017
 % Revision: 0.1
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

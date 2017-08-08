@@ -45,6 +45,7 @@ Bx =  0;
 By =  0.6;
 Qx =  0;
 Qy = -0.6;
+recTypeList={};
 
 for ang = 1:numel(SourceAngleSetIndices)
     SourceAngleSetIndice = SourceAngleSetIndices(ang);
@@ -59,6 +60,8 @@ for ang = 1:numel(SourceAngleSetIndices)
                 arr, ...
                 rt, ...
                 ang);
+            
+            recTypeList{end+1} = rec_types{rt};
             
             if strcmpi(array_type_,'circle')
                 switch SourceAngleSetIndice
@@ -187,9 +190,12 @@ signal_info.f_high_meas = 7000; % Hz %Maximum frequency with accurate response a
 signal_info.OctaveBandSpace = 1/12; % Octave band spacing for filtering operations
 signal_info.clipLevelAdjust = -35; % dB %RMS level to adjust to in order to avoid clipping (Hope that -35dB RMS level is low enough to avoid clipping upon saving)
 signal_info.L_noise_mask = [-40 -35 -30 -25 -20 -15 -10 -5 0 5 10 15 20]; % dB
-signal_info.recording_type = rec_types; % The type of recordings to be analysed
 signal_info.weight = 100; % This can be auto-calculated for maximum contrast by setting to 'Auto'
 signal_info.method = ''; % Default empty (temporary variable)
+
+
+signal_info.recording_type = rec_types; % The type of recordings to be analysed
+signal_info.recording_type_list = recTypeList; % The list of the type of recordings to be analysed which matches the setup order
 
 Nsets = numel(array_type)*numel(rec_types);
 signal_info.methods_list ... % List of methods to synthesize
@@ -218,7 +224,6 @@ signal_info.speech_filepath = '+Miscellaneous\+Speech_Files\';
 %signal_info.speech_filepath = '+Miscellaneous\+Sine_Sweep\';
 
 %% System Setup
-system_info.CurrentSpeakerArrayType = 'line';
 system_info.dev_model = 'ASIO Hammerfall DSP';
 system_info.fs = 48000;
 system_info.f_low = 100; % Hz %Minimum calibration frequency
@@ -234,8 +239,9 @@ system_info.playbackChannels = ...
 % system_info.recordChZoneAlloc = ... % Allocation of the recorded channels to their respective zones (1 is for Bright Zone, 2 is for Quiet Zone)
 %     [ 1 2 ];
 
-% zone = 'bright';
-zone = 'quiet';
+system_info.CurrentSpeakerArrayType = 'circle';
+zone = 'bright';
+% zone = 'quiet';
 
 system_info.recordChannels = ...
     [ 1 2 3 4];

@@ -61,9 +61,6 @@ d(end+1).Name           = 'Parfor_Progress';
   d(end).URL            = 'http://au.mathworks.com/matlabcentral/fileexchange/32101-progress-monitor--progress-bar--that-works-with-parfor/';
   d(end).Required       = true;
               
-d(end+1).Name           = 'PESQ';
-  d(end).URL            = '<now included in MSR package>';
-              
 d(end+1).Name           = 'PhaseUnwrapping2D';
   d(end).URL            = 'http://au.mathworks.com/matlabcentral/fileexchange/29497-goldsteinunwrap2d-r1';
               
