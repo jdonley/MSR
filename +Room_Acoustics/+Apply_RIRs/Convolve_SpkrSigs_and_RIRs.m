@@ -1,7 +1,7 @@
 function [Receiver_Signals] = Convolve_SpkrSigs_and_RIRs( Speaker_Signals, RIRs, Method )
-%CONVOLVE_SPKRSIGS_AND_RIRS Convolves Room Impulse Responses (RIRs) with Loudspeaker Signals
+% Convolves Room Impulse Responses (RIRs) with Loudspeaker Signals
 %
-% Syntax:	[Receiver_Signals] = CONVOLVE_SPKRSIGS_AND_RIRS( Speaker_Signals, RIRs ) Explain usage here
+% Syntax:	[Receiver_Signals] = CONVOLVE_SPKRSIGS_AND_RIRS( Speaker_Signals, RIRs )
 %
 % Inputs:
 % 	Speaker_Signals - A 2D matrix of Speaker Signals such that each
@@ -28,7 +28,7 @@ function [Receiver_Signals] = Convolve_SpkrSigs_and_RIRs( Speaker_Signals, RIRs,
 % Author: Jacob Donley
 % University of Wollongong
 % Email: jrd089@uowmail.edu.au
-% Copyright: Jacob Donley 2015
+% Copyright: Jacob Donley 2017
 % Date: 04 August 2015
 % Revision: 0.1
 %
