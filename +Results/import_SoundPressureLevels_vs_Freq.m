@@ -19,7 +19,7 @@ ConfInt_Up=[];
 %%
 rec_types = SYS.signal_info.recording_type;
 failCnt = 0;
-for rt = 1:numel(SYS.signal_info.recording_type)
+for rt = 1:numel(rec_types)
     SYS.signal_info.recording_type = rec_types(rt);
         %%
         SYS.signal_info.method = 'Sweep'; % This software framework uses an exponential sine sweep method to accurately compute the SPL per frequency.
@@ -53,19 +53,21 @@ for rt = 1:numel(SYS.signal_info.recording_type)
         ConfIntQ_Low(:,rt) = mean(CQ,2).';
         
 end
-
-SPLB(1,:)=[];SPLQ(1,:)=[];ConfIntB_Low(1,:)=[];ConfIntQ_Low(1,:)=[];
-Freqs=f_(fi) / 1e3; %KiloHertz
-SPLB(~fi,:)=[];
-SPLQ(~fi,:)=[];
-ConfIntB_Low(~fi,:)=[];
-ConfIntQ_Low(~fi,:)=[];
-
-SPL(:,:,1) = SPLB;
-SPL(:,:,2) = SPLQ;
-ConfInt_Low(:,:,1) = ConfIntB_Low;
-ConfInt_Low(:,:,2) = ConfIntQ_Low;
-ConfInt_Up = ConfInt_Low;
-
+if failCnt < numel(rec_types)
+    SPLB(1,:)=[];SPLQ(1,:)=[];ConfIntB_Low(1,:)=[];ConfIntQ_Low(1,:)=[];
+    Freqs=f_(fi) / 1e3; %KiloHertz
+    SPLB(~fi,:)=[];
+    SPLQ(~fi,:)=[];
+    ConfIntB_Low(~fi,:)=[];
+    ConfIntQ_Low(~fi,:)=[];
+    
+    SPL(:,:,1) = SPLB;
+    SPL(:,:,2) = SPLQ;
+    ConfInt_Low(:,:,1) = ConfIntB_Low;
+    ConfInt_Low(:,:,2) = ConfIntQ_Low;
+    ConfInt_Up = ConfInt_Low;
+else
+    error('No results files exist.');
+end
 
 

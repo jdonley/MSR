@@ -19,11 +19,26 @@ function [Receiver_Signals] = Convolve_SpkrSigs_and_RIRs( Speaker_Signals, RIRs,
 %   Receiver_Signals( NLoudspeakers, NReceivers, Signal_Length + RIR_Length - 1 )
 %
 % Example:
-% 	Line 1 of example
-% 	Line 2 of example
-% 	Line 3 of example
+%     SYS = Current_Systems.loadCurrentSRsystem;
+%     SYS.signal_info.method = SYS.signal_info.methods_list{1};
+%     spkrPath = Broadband_Tools.getLoudspeakerSignalPath( ...
+%         SYS.Main_Setup(1), ...
+%         SYS.signal_info, ...
+%         SYS.system_info.LUT_resolution, ...
+%         SYS.system_info.Drive);
+%     spkrFiles = Tools.getAllFiles(spkrPath);
+%     spkrSigs = audioread(spkrFiles{1});
+%     DBpath = Soundfield_Database.getDatabasePath( ...
+%         SYS.Main_Setup(1), ...
+%         SYS.system_info.LUT_resolution, ...
+%         SYS.system_info.Drive);
+%     DB = load(DBpath);
+%     receivedSigs = Convolve_SpkrSigs_and_RIRs( ...
+%         spkrSigs, ...
+%         DB.RIRs.Bright_RIRs, ...
+%         'FFT');
 %
-% See also: List related files here
+% See also: getLoudspeakerSignalPath, getDatabasePath, loadCurrentSRsystem
 
 % Author: Jacob Donley
 % University of Wollongong
@@ -41,7 +56,7 @@ end
 
 % Check matrix compatibility
 if size(Speaker_Signals, 1) ~= size(RIRs, 3)
-    error('Number of loudspeakers along the corresponding dimensions does not match!')
+    error('Number of loudspeakers along the corresponding dimension does not match!')
 end
 
 NLoudspeakers = size(Speaker_Signals, 1);
@@ -84,5 +99,4 @@ else
     end
 end
 
-            %Rec_Sigs_B = squeeze(sum(Rec_Sigs_B,1));
 end

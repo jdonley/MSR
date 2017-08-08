@@ -5,6 +5,15 @@
 %==========================================================================
 clc;clear;clear classes;close all;fclose all;delete(gcp('nocreate'));
 
+% Author: Jacob Donley
+% University of Wollongong
+% Email: jrd089@uowmail.edu.au
+% Copyright: Jacob Donley 2017
+% Date: 14 June 2016
+% Revision: 0.1
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 %% Build Look-Up Tables
 Soundfield_Database.LUT_Builders.Build_LUT
 

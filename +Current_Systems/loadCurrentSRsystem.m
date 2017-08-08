@@ -5,9 +5,13 @@ All_Settings.Global_Settings;
 System_Path = Settings.DefaultSystemsPath;
 
 %% ALTERNATIVE SYSTEM PATHS
+% System_Path = 'D:\some\alternative\system\path';
+
 % System_Path = 'D:\Dropbox\Business and Work\Research Assistance\Novecom Project\MATLAB_Code';
 
 %% SYSTEM NAMES
+% Current_System = 'A_current_system_filename';
+
 % Current_System = 'IEEELetters2017_System_A';
 
 % Current_System = 'IEEETransactions_System_A'; % Differing Source Angles
