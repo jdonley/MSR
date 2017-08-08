@@ -4,7 +4,7 @@
 <head>
   <title>Description of Convolve_SpkrSigs_and_RIRs</title>
   <meta name="keywords" content="Convolve_SpkrSigs_and_RIRs">
-  <meta name="description" content="CONVOLVE_SPKRSIGS_AND_RIRS Convolves Room Impulse Responses (RIRs) with Loudspeaker Signals">
+  <meta name="description" content="Convolves Room Impulse Responses (RIRs) with Loudspeaker Signals">
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
   <meta name="generator" content="">
   <meta name="robots" content="index, follow">
@@ -22,15 +22,15 @@
 </h1>
 
 <!-- <h2><a name="_name"></a>Summary <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2> -->
-<div class="purpose">CONVOLVE_SPKRSIGS_AND_RIRS Convolves Room Impulse Responses (RIRs) with Loudspeaker Signals</div>
+<div class="purpose">Convolves Room Impulse Responses (RIRs) with Loudspeaker Signals</div>
 
 <h2><a name="_synopsis"></a>Syntax <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
 <div class="box">function [Receiver_Signals] = Convolve_SpkrSigs_and_RIRs( Speaker_Signals, RIRs, Method ) </div>
 
 <h2><a name="_description"></a>Description <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
-<div class="fragment"><pre class="comment">CONVOLVE_SPKRSIGS_AND_RIRS Convolves Room Impulse Responses (RIRs) with Loudspeaker Signals
+<div class="fragment"><pre class="comment"> Convolves Room Impulse Responses (RIRs) with Loudspeaker Signals
 
- Syntax:    [Receiver_Signals] = CONVOLVE_SPKRSIGS_AND_RIRS( Speaker_Signals, RIRs ) Explain usage here
+ Syntax:    [Receiver_Signals] = CONVOLVE_SPKRSIGS_AND_RIRS( Speaker_Signals, RIRs )
 
  Inputs:
      Speaker_Signals - A 2D matrix of Speaker Signals such that each
@@ -48,11 +48,26 @@
    Receiver_Signals( NLoudspeakers, NReceivers, Signal_Length + RIR_Length - 1 )
 
  Example:
-     Line 1 of example
-     Line 2 of example
-     Line 3 of example
+     SYS = Current_Systems.loadCurrentSRsystem;
+     SYS.signal_info.method = SYS.signal_info.methods_list{1};
+     spkrPath = Broadband_Tools.getLoudspeakerSignalPath( ...
+         SYS.Main_Setup(1), ...
+         SYS.signal_info, ...
+         SYS.system_info.LUT_resolution, ...
+         SYS.system_info.Drive);
+     spkrFiles = Tools.getAllFiles(spkrPath);
+     spkrSigs = audioread(spkrFiles{1});
+     DBpath = Soundfield_Database.getDatabasePath( ...
+         SYS.Main_Setup(1), ...
+         SYS.system_info.LUT_resolution, ...
+         SYS.system_info.Drive);
+     DB = load(DBpath);
+     receivedSigs = Convolve_SpkrSigs_and_RIRs( ...
+         spkrSigs, ...
+         DB.RIRs.Bright_RIRs, ...
+         'FFT');
 
- See also: List related files here</pre></div>
+ See also: getLoudspeakerSignalPath, getDatabasePath, loadCurrentSRsystem</pre></div>
 
 <!-- crossreference -->
 <h2><a name="_cross"></a>Cross-Reference Information <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
@@ -67,6 +82,6 @@ This function is called by:
 
 
 
-<hr><address>Generated on Tue 08-Aug-2017 17:53:33 for <strong><a href="https://www.soundzones.com" title="Sound Zones - code | research | blog">Sound Zones</a></strong></address>
+<hr><address>Generated on Wed 09-Aug-2017 00:40:51 for <strong><a href="https://www.soundzones.com" title="Sound Zones - code | research | blog">Sound Zones</a></strong></address>
 </body>
 </html>
