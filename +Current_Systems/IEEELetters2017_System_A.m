@@ -2,7 +2,6 @@ function SR_SYSTEM = IEEELetters2017_System_A()
 
 
 array_type = '2line';
-spkr_type  = 'Dynamic';
 spkr_radius = 3.0;
 N_spkrs = 24 * 2; % Times 2 for dipole
 
@@ -73,7 +72,6 @@ elseif contains(lower(array_type), 'line')
     spkr_spacing = 0.001; %1mm spacing between adjacent loudspeakers
 end
 
-if strcmpi(spkr_type, 'Dynamic')
     loudspeaker_layout = { ...
         'angleto_firstloudspeaker',      90, ...
         'angleof_loudspeakerarc',        180 * N_spkrs/(N_spkrs-1) , ...
@@ -84,7 +82,7 @@ if strcmpi(spkr_type, 'Dynamic')
         'speaker_array_type',            array_type, ...
         'angleof_loudspeakerarrcentre', 180, ...
         'quiet_weight',                 1e2};
-end
+
 
 N_tlkrs = 1;
 talker_layout = { ...

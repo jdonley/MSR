@@ -723,8 +723,8 @@ classdef loudspeaker_setup
                 %fq = mag2db(abs(obj.Quiet_Samples));
                 %CaxisSize(1) = floor(min(fq(~isnan(fq))));
                 %CaxisSize(2) = ceil(max(fb(~isnan(fb))));
-                CaxisSize(1) = floor(min(field(:)));
-                CaxisSize(2) = ceil(max(field(:)));
+                CaxisSize(1) = floor(min(field(~isnan(field(:)))));
+                CaxisSize(2) = ceil(max(field(~isnan(field(:)))));
             end
             
             if ~details.DrawDetails
