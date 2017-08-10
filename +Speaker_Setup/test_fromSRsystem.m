@@ -78,7 +78,7 @@ Z1 = Z1*gainNorm; pk(1) = pk(1)*gainNorm;
 Z2 = Z2*gainNorm; pk(2) = pk(2)*gainNorm;
 Z3 = Z3*gainNorm; pk(3) = pk(3)*gainNorm;
 
-clipFact = 1;
+clipFact = 2;
 Z1(abs(Z1)>clipFact*pk(1))=nan;
 Z2(abs(Z2)>clipFact*pk(2))=nan;
 Z3(abs(Z3)>clipFact*pk(3))=nan;
@@ -214,7 +214,7 @@ E(end+1) = mag2db(setup(1).MSE_Bright);
 disp(['   Contrast: ' num2str(mag2db(setup(1).Acoustic_Contrast)) 'dB']);
 disp(['        MSE: ' num2str(mag2db(setup(1).MSE_Bright)) 'dB']);
 disp(['Attenuation: ' num2str(setup(1).Attenuation_dB(1)) 'dB (±' num2str(setup(1).Attenuation_dB(2)) 'dB)']);
-
+mean(mag2db(abs(Z3(:)-Z1(:))))
 %%
 %fprintf(Speaker_Setup.printSetupDetails(setup));
 
