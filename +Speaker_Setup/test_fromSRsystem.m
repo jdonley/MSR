@@ -106,7 +106,7 @@ text(10,size(Z1,1)-FontSize-10,1e3,'(A)',...
 ax.Title.String = '';%'Pressure Soundfield of Talker';
 ax.XLabel = [];
 ax.XTickLabel = [];
-clim_=[-1 1].*pk(1);
+clim_=[-1 1].*pk(3);
 ax.CLim = clim_;
 colorbar off
 
@@ -143,7 +143,7 @@ text(10,size(Z2,1)-FontSize-10,1e3,'(D)',...
 ax.Title=[];
 ax.YLabel = [];
 ax.YTickLabel = [];
-ax.CLim=[-20 0];
+ax.CLim=[-60 0];
 colorbar off;
 % tightfig;
 

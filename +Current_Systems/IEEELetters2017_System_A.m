@@ -34,10 +34,16 @@ Bx = 0.0;
 Qy = 0.0;
 Qx = 0.0;
 
-reproRegionAspect = [1.0 1.0]; % [Width, Height] 
 
-BZr = spkr_radius;
-QZr = spkr_radius;
+
+BZr = spkr_radius - 2*(0.2); % 0.2m buffer around the edge to allow for soundfield energy to flatten out over the region
+QZr = spkr_radius - 2*(0.2);
+
+ReproSize = Room_Setup.Room_Size(1:2); % [Width, Height] 
+BrightSize = Room_Setup.Room_Size(1:2) - 2*(0.2); % [Width, Height] 
+QuietSize = Room_Setup.Room_Size(1:2) - 2*(0.2); % [Width, Height] 
+
+reproRegionAspect = [1.0 1.0]; 
 
 srcX = -spkr_radius + 2.0;
 srcY = -0.0;

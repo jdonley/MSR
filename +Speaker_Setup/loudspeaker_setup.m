@@ -231,6 +231,8 @@ classdef loudspeaker_setup
             else
                 S=[];
             end
+            
+            S(isinf(S))=nan; % Don't incluide inf values, set them to nan instead.
         end
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
