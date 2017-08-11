@@ -5,9 +5,47 @@ function [ RIR_Bright, RIR_Quiet, Rec_Bright_Pos, Rec_Quiet_Pos, rec_b, rec_q ] 
 %   sample point (rows).
 %
 %
-%   Author: Jacob Donley, University of Wollongong, Australia
-%   Email: Jacob.Donley089@uowmail.edu.au
-%
+
+% Computes the RIR for each sample point in each zone for a given multizone loudspeaker setup using rir_generator
+% 
+% Syntax:   [ RIR_Bright, RIR_Quiet, ...
+%             Rec_Bright_Pos, Rec_Quiet_Pos, ...
+%             rec_b, rec_q ] = ...
+%                   RIR_from_loudspeaker_setup_rir_generator( ...
+%                       loudspeaker_setup, room, reverb_time, ...
+%                       signal_info, rec_positions )
+% 
+% Inputs: 
+% 	loudspeaker_setup - The Speaker_Setup.loudspeaker_setup object
+% 	room - The Room_Acoustics.Room object
+% 	reverb_time - The reverberation time as described in rir_generator
+% 	signal_info - The SR system objects signal_info structure
+% 	rec_positions - (Optional) Structure of specific recevier positions
+%                   (see Room_Acoustics.Generate_RIR_Database for example)
+% 
+% Outputs: 
+% 	RIR_Bright - RIRs in the bright zone
+% 	RIR_Quiet - RIRs in the quiet zone
+% 	Rec_Bright_Pos - Position of the RIRs in the bright zone
+% 	Rec_Quiet_Pos - Position of the RIRs in the quiet zone
+% 	rec_b - All possible RIR bright zone positions
+% 	rec_q - All possible RIR quiet zone positions
+% 
+% Example: 
+% 	%See Room_Acoustics.Generate_RIR_Database
+% 
+% See also: Generate_RIR_Database
+
+% Author: Jacob Donley
+% University of Wollongong
+% Email: jrd089@uowmail.edu.au
+% Copyright: Jacob Donley 2015-2017
+% Date: 15 August 2015
+% Revision: 0.1
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 tic;
 
 %Set up room dimensions and characteristics
@@ -27,6 +65,12 @@ else
 end
 if nargin < 5
     rec_positions = [];
+end
+if ~isempty(room.ReceiverPositions)
+    rec_positions = struct('Bright_Receiver_Positions', ...
+                            room.ReceiverPositions(:,:,1), ...
+                            'Quiet_Receiver_Positions', ...
+                            room.ReceiverPositions(:,:,2));
 end
 
 dim = room.Room_Dimensions;

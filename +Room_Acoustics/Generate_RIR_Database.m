@@ -1,11 +1,26 @@
 function Generate_RIR_Database( SYS )
+% Generates a database of room impulse responses for a Soundfield Reproduction system
+%
+% Syntax:	Generate_RIR_Database( SYS )
+%
+% Inputs:
+% 	SYS - Soundfield Reproduction system object
+%
+% Example:
+%  	Room_Acoustics.Generate_RIR_Database( ...
+%         Current_Systems.loadCurrentSRsystem );
+%
+% See also: loadCurrentSRsystem
 
-%clear;
-% clear classes;
-close all;
-tic;
+% Author: Jacob Donley
+% University of Wollongong
+% Email: jrd089@uowmail.edu.au
+% Copyright: Jacob Donley 2015-2017
+% Date: 15 August 2015
+% Revision: 0.1
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%
 if nargin < 1, SYS = Current_Systems.loadCurrentSRsystem; end
 
 %%
@@ -16,6 +31,7 @@ DBsetups = 1:length(Setups);
 if isfield(SYS.system_info,'DB_indices')
     DBsetups(~reshape([SYS.system_info.DB_indices{1}],1,[]))=[];
 end
+tic;
 for s = DBsetups
     Setup = Setups(s);
     delete(gcp('nocreate'));
@@ -68,7 +84,7 @@ for s = DBsetups
             'Matched_Receivers', {RIR_DB_fullpath});
     end
     
-        
+    
     
     %% Save the RIRs to a database for reuse
     RIR_DB_fullpath = Room_Acoustics.getRIRDatabasePath( ...
@@ -99,7 +115,7 @@ for s = DBsetups
     %%
     %clear
     %
-%     hold on;
+    %     hold on;
     scat1 = scatter(rec_b(:,1),rec_b(:,2),'.g'); hold on
     scat2 = scatter(rec_q(:,1),rec_q(:,2),'.y');
     if isprop(scat1,'MarkMarkerEdgeAlpha'), scat1.MarkMarkerEdgeAlpha = 0.2; end
@@ -117,11 +133,7 @@ for s = DBsetups
     %axis([0 room.Room_Size(1) 0 room.Room_Size(2)]);
     
 end
-
-%%
 toc
-
-    
-
+end
 
 

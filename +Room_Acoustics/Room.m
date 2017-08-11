@@ -14,7 +14,8 @@ classdef Room
         
         Wall_Absorb_Coeff = 1.0;
         Wall_Reflect_Coeff = 0;
-        NoReceivers = 32;
+        NoReceivers = 32; % Per zone
+        ReceiverPositions = [];
         
     end
     
@@ -52,6 +53,10 @@ classdef Room
            else
                obj.Room_Type = 'Reverberant';
            end
+        end
+        
+        function obj = setReceiverPositions(obj, RecPos)
+            obj.ReceiverPositions = RecPos;
         end
     end
     
