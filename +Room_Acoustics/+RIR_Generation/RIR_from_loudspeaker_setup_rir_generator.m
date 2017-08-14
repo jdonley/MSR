@@ -114,8 +114,13 @@ if isempty(rec_positions) || ~isempty(room.ReceiverPositions)
 end
 
 if isempty(rec_positions)
-    Rec_Bright_Pos = rec_b;
-    Rec_Quiet_Pos = rec_q;
+    RmBounds = room.Room_Size([2 1 3]);
+    % Only use positions that are within the room
+    validPosInds = (rec_b(:,1) >= 0) & (rec_b(:,1) <= RmBounds(1)) & ...
+                   (rec_b(:,2) >= 0) & (rec_b(:,2) <= RmBounds(2)) & ...
+                   (rec_b(:,3) >= 0) & (rec_b(:,3) <= RmBounds(3)); 
+    Rec_Bright_Pos = rec_b(validPosInds,:);
+    Rec_Quiet_Pos  = rec_q(validPosInds,:);
     % Generate random number seed from current time
     rng('shuffle');
     %Use random samples

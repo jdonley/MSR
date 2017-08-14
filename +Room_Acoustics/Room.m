@@ -22,8 +22,8 @@ classdef Room
         
         Room_Dimensions = 3;        % 2-Dimensional or 3-Dimensional
         
-        Wall_Absorb_Coeff = 1.0;
-        Wall_Reflect_Coeff = 0;
+        Wall_Absorb_Coeff = 1.0;    % [ Ax1, Ax2, Ay1, Ay2, Az1, Az2 ]
+        Wall_Reflect_Coeff = 0;     % [ Bx1, Bx2, By1, By2, Bz1, Bz2 ]
         Reflection_Order = -1;      % The order of image sources (reflections) to compute. -1 computes the maximum reflection order for the given length of RIR
         NoReceivers = 32;           % Quantity per zone
         ReceiverPositions = [];     % [Width, Depth, Height] <=> [ x, y, z ]
@@ -47,12 +47,18 @@ classdef Room
         end
         
         function obj = setWall_Absorb_Coeff(obj, wall_absorb_coeff)
+            if numel(wall_absorb_coeff) == 1
+                wall_absorb_coeff = repmat(wall_absorb_coeff,1,6);
+            end
            obj.Wall_Absorb_Coeff = wall_absorb_coeff;
            obj.Wall_Reflect_Coeff = sqrt(1-obj.Wall_Absorb_Coeff);
            obj = obj.setRoom_Type();
         end
         
         function obj = setWall_Reflect_Coeff(obj, wall_reflect_coeff)
+            if numel(wall_reflect_coeff) == 1
+                wall_reflect_coeff = repmat(wall_reflect_coeff,1,6);
+            end
            obj.Wall_Reflect_Coeff = wall_reflect_coeff;
            obj.Wall_Absorb_Coeff = 1 - obj.Wall_Reflect_Coeff.^2;
            obj = obj.setRoom_Type();
