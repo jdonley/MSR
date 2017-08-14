@@ -12,7 +12,7 @@ dimensions = 3;
 
 %% Room Geometry
 Room_Setup = Room_Acoustics.Room;
-Room_Setup.NoReceivers = 1;
+Room_Setup.NoReceivers = 1; % Number per zone
 Room_Setup.ReceiverPositions(:,:,1) = [0, 0, 0]; % Bright Zone (x,y,z)
 Room_Setup.ReceiverPositions(:,:,2) = [0, 0, 0]; % Quiet  Zone (x,y,z)
 
