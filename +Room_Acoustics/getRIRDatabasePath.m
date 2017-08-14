@@ -60,7 +60,7 @@ try
         [~,~,~,array_style_dir, spkr_array_dir, zone_positions_dir] = Soundfield_Database.getDatabasePath(setup, '', database_workingdir, 'new4');
         
         room_details_path = ['+' room.Room_Size_txt 'Dim_' ...
-                             num2str(room.Wall_Absorb_Coeff) 'Ab\'];
+                             room.Wall_Absorb_Coeff_txt 'Ab\'];
         
         RIR_Name__Details = [num2str(room.NoReceivers) 'Rec_' ...
                              room.Reproduction_Centre_txt 'Ctr'];

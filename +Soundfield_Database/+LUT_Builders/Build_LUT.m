@@ -54,10 +54,12 @@ for s = DBsetups
         SYS.signal_info.f_high,'lin');
     
     single_LUT_weight = (SYS.system_info.LUT_weights == 1);
-    if Setup.Loudspeaker_Count > 1
+    if Setup.Loudspeaker_Count > 1 && ~single_LUT_weight
         Weights = [0,  logspace(log10( min(SYS.system_info.LUT_weight_range) ), ...
             log10( max(SYS.system_info.LUT_weight_range) ), ...
             SYS.system_info.LUT_weights - 1) ];
+    elseif Setup.Loudspeaker_Count > 1 && single_LUT_weight       
+        Weights = SYS.system_info.LUT_weight_range;
     elseif Setup.Loudspeaker_Count == 1 && single_LUT_weight
         Weights = 1;
     end
@@ -125,7 +127,7 @@ for s = DBsetups
     Loudspeaker_Locations = Setup.Loudspeaker_Locations;
     
     %% Save
-    if ~exist(DBpath,'dir'), mkdir(DBpath);end;
+    if ~exist(DBpath,'dir'), mkdir(DBpath);end
     save(DB_fullpath, ...
         'Frequencies', ...
         'Weights', ...

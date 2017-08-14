@@ -34,7 +34,6 @@ end
 tic;
 for s = DBsetups
     Setup = Setups(s);
-%     delete(gcp('nocreate')); % TODO: Check why this is here. Is it necessary to delete the pool each loop?
     
     Setup.Multizone_Soundfield = ...
         Setup.Multizone_Soundfield.createSoundfield('DEBUG');
@@ -148,6 +147,9 @@ for s = DBsetups
     
 end
 toc
+
+delete(gcp('nocreate'));
+
 end
 
 

@@ -12,8 +12,8 @@ System_Path = Settings.DefaultSystemsPath;
 %% SYSTEM NAMES
 % Current_System = 'A_current_system_filename';
 
-Current_System = 'IEEELetters2017_System_A';
-% Current_System = 'IEEELetters2017_System_B';
+% Current_System = 'IEEELetters2017_System_A';
+Current_System = 'IEEELetters2017_System_B';
 
 % Current_System = 'IEEETransactions_System_A'; % Differing Source Angles
 % Current_System = 'IEEETransactions_System_B'; % Differing Loudspeaker Count

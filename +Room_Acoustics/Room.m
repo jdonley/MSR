@@ -23,11 +23,17 @@ classdef Room
         Room_Dimensions = 3;        % 2-Dimensional or 3-Dimensional
         
         Wall_Absorb_Coeff = 1.0;    % [ Ax1, Ax2, Ay1, Ay2, Az1, Az2 ]
+        Wall_Absorb_Coeff_txt = ''; % 'Ax1|Ax2|Ay1|Ay2|Az1|Az2'
         Wall_Reflect_Coeff = 0;     % [ Bx1, Bx2, By1, By2, Bz1, Bz2 ]
         Reflection_Order = -1;      % The order of image sources (reflections) to compute. -1 computes the maximum reflection order for the given length of RIR
         NoReceivers = 32;           % Quantity per zone
         ReceiverPositions = [];     % [Width, Depth, Height] <=> [ x, y, z ]
         
+    end
+    
+    properties (Access = private)
+        RStxt_sep = 'x';
+        WACtxt_sep = '-';
     end
     
     methods
@@ -38,15 +44,16 @@ classdef Room
         
         function obj = setRoomSize(obj, room_size)
            obj.Room_Size = room_size;
-           obj.Room_Size_txt = strrep(sprintf(strrep(repmat('%g',1,length(room_size)),'g%','g %'),room_size),' ','x');
+           obj.Room_Size_txt = strrep(sprintf(strrep(repmat('%g',1,length(room_size)),'g%','g %'),room_size),' ',obj.RStxt_sep);
         end
         
         function obj = setReproductionCentre(obj, reproduction_centre)
             obj.Reproduction_Centre = reproduction_centre;
-            obj.Reproduction_Centre_txt = strrep(sprintf(strrep(repmat('%g',1,length(reproduction_centre)),'g%','g %'),reproduction_centre),' ','x');
+            obj.Reproduction_Centre_txt = strrep(sprintf(strrep(repmat('%g',1,length(reproduction_centre)),'g%','g %'),reproduction_centre),' ',obj.RStxt_sep);
         end
         
         function obj = setWall_Absorb_Coeff(obj, wall_absorb_coeff)
+           obj = obj.setWall_Absorb_Coeff_txt(wall_absorb_coeff);
             if numel(wall_absorb_coeff) == 1
                 wall_absorb_coeff = repmat(wall_absorb_coeff,1,6);
             end
@@ -55,7 +62,14 @@ classdef Room
            obj = obj.setRoom_Type();
         end
         
+        function obj = setWall_Absorb_Coeff_txt(obj, wall_absorb_coeff)
+            AbsStr = num2str(wall_absorb_coeff);
+            AbsStr(regexp(AbsStr,'\s*')) = obj.WACtxt_sep;
+            obj.Wall_Absorb_Coeff_txt = strrep(AbsStr,' ','');
+        end
+        
         function obj = setWall_Reflect_Coeff(obj, wall_reflect_coeff)
+           obj = obj.setWall_Absorb_Coeff_txt(1 - wall_reflect_coeff.^2);
             if numel(wall_reflect_coeff) == 1
                 wall_reflect_coeff = repmat(wall_reflect_coeff,1,6);
             end

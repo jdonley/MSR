@@ -26,10 +26,11 @@ Room_Setup = Room_Setup.setReproductionCentre( ...
     spkr_radius ...
     Room_Setup.Room_Size(3)/2] ); % Centre of room [y, x, z]
 
-Room_Setup = Room_Setup.setWall_Absorb_Coeff(0.4);
+Room_Setup = Room_Setup.setWall_Absorb_Coeff( ...
+    [0.0, 1, 1, 1, 1, 1]);
 % Room_Setup = Room_Setup.setWall_Absorb_Coeff(1.0); % Anechoic (for testing) (comment out otherwise)
 
-Room_Setup.Reflection_Order = 1; % Order of image sources to compute
+% Room_Setup.Reflection_Order = 1; % Order of image sources to compute
 
 Room_Setup.NoReceivers = 1; % Number per zone
 Room_Setup.ReceiverPositions(:,:,1) = Room_Setup.Reproduction_Centre([2 1 3]); % Bright Zone (x,y,z)
@@ -255,7 +256,7 @@ system_info.Calibrated_Signals_dir = ['+Calibrated' system_info.sc 'Speaker_Sign
 
 system_info.LUT_frequencies = (signal_info.Nfft + signal_info.zeropadtime * signal_info.Fs)/2;
 % system_info.LUT_weights = 32;
-system_info.LUT_weights = 2; % First weight is always zero unless only a single weight is given in the LUT_weight_range variable
+system_info.LUT_weights = 1; % Number of Look-Up table multizone soundfield weights
 % system_info.LUT_weight_range = [1e-2 1e4]; % [Minimum Maximum] LUT weight
 system_info.LUT_weight_range = 1e2; % [Minimum Maximum] or a single LUT weight
 
