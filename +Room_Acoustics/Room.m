@@ -1,6 +1,16 @@
 classdef Room
-    %ROOM Summary of this class goes here
-    %   Detailed explanation goes here
+% This class provides room setup information for soundfield reproductions
+
+% Author: Jacob Donley
+% University of Wollongong
+% Email: jrd089@uowmail.edu.au
+% Copyright: Jacob Donley 2015-2017
+% Date: 14 August 2017
+% Version: 0.2 (14 August 2017)
+% Version: 0.1 (4 November 2015)
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
     
     properties
         Room_Size = [10 10 10];
@@ -27,12 +37,12 @@ classdef Room
         
         function obj = setRoomSize(obj, room_size)
            obj.Room_Size = room_size;
-           obj.Room_Size_txt = strrep(sprintf(strrep(repmat('%d',1,length(room_size)),'d%','d %'),room_size),' ','x');
+           obj.Room_Size_txt = strrep(sprintf(strrep(repmat('%g',1,length(room_size)),'g%','g %'),room_size),' ','x');
         end
         
         function obj = setReproductionCentre(obj, reproduction_centre)
             obj.Reproduction_Centre = reproduction_centre;
-            obj.Reproduction_Centre_txt = strrep(sprintf(strrep(repmat('%d',1,length(reproduction_centre)),'d%','d %'),reproduction_centre),' ','x');
+            obj.Reproduction_Centre_txt = strrep(sprintf(strrep(repmat('%g',1,length(reproduction_centre)),'g%','g %'),reproduction_centre),' ','x');
         end
         
         function obj = setWall_Absorb_Coeff(obj, wall_absorb_coeff)

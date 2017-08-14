@@ -1,14 +1,16 @@
 classdef loudspeaker_setup
 % This class provides practical setup information from a compatible desired multizone soundfield.
-%
+
 % Author: Jacob Donley
 % University of Wollongong
 % Email: jrd089@uowmail.edu.au
-% Copyright: Jacob Donley 2017
+% Copyright: Jacob Donley 2015-2017
 % Date: 20 July 2017
-% Revision: 0.1
+% Version: 0.2 (20 July 2017)
+% Version: 0.1 (15 August 2015)
 % 
-    
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   
     properties
         % Settings
         res = 50;                           % samples per metre %Resolution of soundfield
