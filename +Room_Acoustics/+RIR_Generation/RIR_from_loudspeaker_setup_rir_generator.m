@@ -84,8 +84,12 @@ Fs = signal_info.Fs; % Sample frequency (samples/s)
 
 %Add all sources (loudspeaker locations)
 src = [];
-[src(:,1), src(:,2)] = pol2cart( loudspeaker_setup.Loudspeaker_Locations(:,1), loudspeaker_setup.Loudspeaker_Locations(:,2));
-src = [src zeros(size(src,1),size(room.Room_Size,2)-2)] + repmat(room.Reproduction_Centre, size(src,1),1);
+[src(:,1), src(:,2)] = pol2cart( ...
+    loudspeaker_setup.Loudspeaker_Locations(:,1), ...
+    loudspeaker_setup.Loudspeaker_Locations(:,2));
+src = [src ...
+    zeros(size(src,1),size(room.Room_Size,2)-2)] ...
+    + repmat(room.Reproduction_Centre([2 1 3]), size(src,1),1);
 
 
 %Add all receviers (multizone sample point locations)
@@ -136,7 +140,7 @@ RIR_Bright = zeros([size(Rec_Bright_Pos,1), n, size(src,1)]);
 RIR_Quiet  = zeros([size(Rec_Quiet_Pos,1), n, size(src,1)]);
 
 room_size = room.Room_Size;
-current_pool = parpool; %Start new pool
+current_pool = gcp; %Start new pool
 fprintf('\n====== Building RIR Database ======\n');
 parfor_progress( size(src,1) );
 parfor s = 1:size(src,1)

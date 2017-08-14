@@ -13,19 +13,19 @@ classdef Room
     
     
     properties
-        Room_Size = [10 10 10];
+        Room_Size = [10 10 10];     % [Depth, Width, Height] <=> [ y, x, z ]
         Room_Size_txt;
-        Room_Type = '';
+        Room_Type = '';             % 'Anechoic' or 'Reverberant'
         
-        Reproduction_Centre;
+        Reproduction_Centre;        % [Depth, Width, Height] <=> [ y, x, z ]
         Reproduction_Centre_txt;
         
-        Room_Dimensions = 3;
+        Room_Dimensions = 3;        % 2-Dimensional or 3-Dimensional
         
         Wall_Absorb_Coeff = 1.0;
         Wall_Reflect_Coeff = 0;
-        NoReceivers = 32; % Per zone
-        ReceiverPositions = [];
+        NoReceivers = 32;           % Quantity per zone
+        ReceiverPositions = [];     % [Width, Depth, Height] <=> [ x, y, z ]
         
     end
     

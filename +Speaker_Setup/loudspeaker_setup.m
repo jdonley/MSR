@@ -16,7 +16,7 @@ classdef loudspeaker_setup
         res = 50;                           % samples per metre %Resolution of soundfield
         Dimensionality = 2;                 % 2D, 2.5D, 3D
         Loudspeaker_Count = 32;             % Number of speakers used in the reproduction (Number of speakers required = ceil( Angular_Window * (2*M + 1) / (2*pi) ) ).
-        Origin = [0,0];                     % [y,x]
+        Origin = [0,0];                     % [y,x] This coordinate system follows that of the Room_Acoustics.Room class which is [y,x,z]
         RoomSize = [];
         Radius = 1.5;                       % Radius of speaker layout
         Speaker_Arc_Angle = 180;            % Angle of the arc of speakers (360 = full circle, 180 = semi-circle)
@@ -24,7 +24,7 @@ classdef loudspeaker_setup
         Speaker_Array_Centre = 180;         % Angle of the centre of the loudspeaker arc
         Speaker_Array_Length = 0;           % Length of array (inclusive of end points)
         Speaker_Spacing = 0.01;             % The spacing between each consecutive loudspeaker
-        Speaker_Array_Type = 'circle';      % 'circle' or 'line' or 'coprime'
+        Speaker_Array_Type = 'circle';      % 'circle' or 'line' or 'coprime' % TODO: use 'point' name for array types with one loudspeaker
         ExtendedField = false;
         Loudspeaker_Dimensions;
         Loudspeaker_Type = 'Genelec 8010A'; % 'Genelec 8010A' or 'Genelec 8020C' or 'Meyer MM-4XP' or 'Parametric'
