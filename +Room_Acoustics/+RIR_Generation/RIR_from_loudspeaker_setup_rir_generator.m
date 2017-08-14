@@ -74,10 +74,10 @@ if ~isempty(room.ReceiverPositions)
 end
 
 dim = room.Room_Dimensions;
-mtype = 'omnidirectional';  % Type of microphone
-order = -1;                 % -1 equals maximum reflection order!
-orientation = 0;            % Microphone orientation (rad)
-hp_filter = 0;              % Enable high-pass filter
+mtype = 'omnidirectional';      % Type of microphone
+order = room.Reflection_Order;  % -1 equals maximum reflection order!
+orientation = 0;                % Microphone orientation (rad)
+hp_filter = 0;                  % Enable high-pass filter
 
 c = signal_info.c;    % Speed of sound (m/s)
 Fs = signal_info.Fs; % Sample frequency (samples/s) 
@@ -102,14 +102,14 @@ if isempty(rec_positions) || ~isempty(room.ReceiverPositions)
     angl = loudspeaker_setup.Bright_Samples_Locations(:,:,1);
     dis = loudspeaker_setup.Bright_Samples_Locations(:,:,2);
     [rec_b(:,1), rec_b(:,2)] = pol2cart( angl(:), dis(:));
-    rec_b = [rec_b zeros(size(rec_b,1),size(room.Room_Size,2)-2)] + repmat(room.Reproduction_Centre, size(rec_b,1),1);
+    rec_b = [rec_b zeros(size(rec_b,1),size(room.Room_Size,2)-2)] + repmat(room.Reproduction_Centre([2 1 3]), size(rec_b,1),1);
     rec_b = rec_b(mask_b(:) ~= 0,:);
     
     rec_q = [];
     angl = loudspeaker_setup.Quiet_Samples_Locations(:,:,1);
     dis = loudspeaker_setup.Quiet_Samples_Locations(:,:,2);
     [rec_q(:,1), rec_q(:,2)] = pol2cart( angl(:), dis(:));
-    rec_q = [rec_q zeros(size(rec_q,1),size(room.Room_Size,2)-2)] + repmat(room.Reproduction_Centre, size(rec_q,1),1);
+    rec_q = [rec_q zeros(size(rec_q,1),size(room.Room_Size,2)-2)] + repmat(room.Reproduction_Centre([2 1 3]), size(rec_q,1),1);
     rec_q = rec_q(mask_q(:) ~= 0,:);
 end
 
@@ -139,7 +139,7 @@ end
 RIR_Bright = zeros([size(Rec_Bright_Pos,1), n, size(src,1)]);
 RIR_Quiet  = zeros([size(Rec_Quiet_Pos,1), n, size(src,1)]);
 
-room_size = room.Room_Size;
+room_size = room.Room_Size([2 1 3]); % Needs to be [x,y,z]
 current_pool = gcp; %Start new pool
 fprintf('\n====== Building RIR Database ======\n');
 parfor_progress( size(src,1) );

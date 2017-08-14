@@ -19,20 +19,21 @@ Room_Setup = Room_Acoustics.Room;
 % Room_Setup = Room_Setup.setRoomSize( [4 9 3] ); % 35.G46e
 %Room_Setup = Room_Setup.setRoomSize( [8 10 3] ); % 6.107
 %Room_Setup = Room_Setup.setRoomSize( [9 14 3] ); % Out to lunch (Cafe)
-Room_Setup = Room_Setup.setRoomSize( [3 6 3] ); % Custom
+Room_Setup = Room_Setup.setRoomSize( [3 6 3] ); % Custom [y, x, z]
     
 Room_Setup = Room_Setup.setReproductionCentre( ...
     [Room_Setup.Room_Size(1)/2 ...
     spkr_radius ...
-    Room_Setup.Room_Size(3)/2] ); % Centre of room
+    Room_Setup.Room_Size(3)/2] ); % Centre of room [y, x, z]
 
 Room_Setup = Room_Setup.setWall_Absorb_Coeff(0.4);
 % Room_Setup = Room_Setup.setWall_Absorb_Coeff(1.0); % Anechoic (for testing) (comment out otherwise)
 
+Room_Setup.Reflection_Order = 1; % Order of image sources to compute
 
 Room_Setup.NoReceivers = 1; % Number per zone
-Room_Setup.ReceiverPositions(:,:,1) = Room_Setup.Reproduction_Centre; % Bright Zone (x,y,z)
-Room_Setup.ReceiverPositions(:,:,2) = Room_Setup.Reproduction_Centre; % Quiet  Zone (x,y,z)
+Room_Setup.ReceiverPositions(:,:,1) = Room_Setup.Reproduction_Centre([2 1 3]); % Bright Zone (x,y,z)
+Room_Setup.ReceiverPositions(:,:,2) = Room_Setup.Reproduction_Centre([2 1 3]); % Quiet  Zone (x,y,z)
 
 %% Multizone Soundfield Geometry and Loudspeaker Array
 By = 0.0;
@@ -42,13 +43,13 @@ Qx = 0.0;
 
 
 
-BZr = spkr_radius - 2*(0.2); % 0.2m buffer around the edge to allow for soundfield energy to flatten out over the region
-QZr = spkr_radius - 2*(0.2);
+BZr = spkr_radius;
+QZr = spkr_radius;
 
-spkrLen = spkr_radius * 2;
-ReproSize = [spkrLen spkrLen]; % [Width, Height] 
-BrightSize = ReproSize;% - 2*(0.2); % [Width, Height] 
-QuietSize = ReproSize;% - 2*(0.2); % [Width, Height] 
+spkrLen    = spkr_radius * 2;
+ReproSize  = [spkrLen spkrLen];  % [Width, Height] 
+BrightSize = ReproSize;          % [Width, Height] 
+QuietSize  = ReproSize;          % [Width, Height] 
 
 srcX = -spkr_radius + 1.0;
 srcY = -0.0;
@@ -212,14 +213,16 @@ signal_info.reference = false; % False or True to record reference signal
 signal_info.reference_channel = 1; %Some arbitrary reference signal channel
 signal_info.rir_duration = 0.5; % Room Impulse Response length in seconds
 signal_info.input_filename = [];
-signal_info.speech_filepath = '+Miscellaneous\+Speech_Files\';
-%signal_info.speech_filepath = '+Miscellaneous\+TestAudio_Files\';
+% signal_info.speech_filepath = '+Miscellaneous\+Speech_Files\';
+signal_info.speech_filepath = '+Miscellaneous\+TestAudio_Files\';
 
 %signal_info.speech_filepath = '+Miscellaneous\+Speech_File_Test\';
 %signal_info.speech_filepath = '+Miscellaneous\+Noise_Files\';
 %signal_info.speech_filepath = '+Miscellaneous\+STIPA_Test\';
 %signal_info.speech_filepath = '+Miscellaneous\+Impulse_Response\';
 %signal_info.speech_filepath = '+Miscellaneous\+Sine_Sweep\';
+
+signal_info.InverseFilter_filepath = '+Miscellaneous\+TestAudio_Files_InvFilts\';
 
 %% System Setup
 system_info.dev_model = 'ASIO Hammerfall DSP';

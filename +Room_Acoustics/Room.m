@@ -24,6 +24,7 @@ classdef Room
         
         Wall_Absorb_Coeff = 1.0;
         Wall_Reflect_Coeff = 0;
+        Reflection_Order = -1;      % The order of image sources (reflections) to compute. -1 computes the maximum reflection order for the given length of RIR
         NoReceivers = 32;           % Quantity per zone
         ReceiverPositions = [];     % [Width, Depth, Height] <=> [ x, y, z ]
         
