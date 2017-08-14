@@ -12,9 +12,6 @@ dimensions = 3;
 
 %% Room Geometry
 Room_Setup = Room_Acoustics.Room;
-Room_Setup.NoReceivers = 1; % Number per zone
-Room_Setup.ReceiverPositions(:,:,1) = [0, 0, 0]; % Bright Zone (x,y,z)
-Room_Setup.ReceiverPositions(:,:,2) = [0, 0, 0]; % Quiet  Zone (x,y,z)
 
 % % ROOM 1
 % % Anechoic
@@ -30,6 +27,11 @@ Room_Setup = Room_Setup.setReproductionCentre( ...
     Room_Setup.Room_Size(3)/2] ); % Centre of room
 
 Room_Setup = Room_Setup.setWall_Absorb_Coeff(0.4);
+
+
+Room_Setup.NoReceivers = 1; % Number per zone
+Room_Setup.ReceiverPositions(:,:,1) = Room_Setup.Reproduction_Centre; % Bright Zone (x,y,z)
+Room_Setup.ReceiverPositions(:,:,2) = Room_Setup.Reproduction_Centre; % Quiet  Zone (x,y,z)
 
 %% Multizone Soundfield Geometry and Loudspeaker Array
 By = 0.0;

@@ -1,12 +1,50 @@
 function [Path, err, room_details_path, RIR_Name__Details] = getRIRDatabasePath( setup, room, database_workingdir, method )
-%GETDATABASEFROMSETUP Summary of this function goes here
-%   Detailed explanation goes here
+% Returns the path of the room impulse response database for a given setup and room or SR system
+% 
+% Syntax:	[Path, err, room_details_path, RIR_Name__Details] = ...
+%               getRIRDatabasePath( ...
+%                   setup, room, database_workingdir, method )
+% 
+% Inputs: 
+% 	setup - Speaker_Setup.loudspeaker_setup object to generate RIR path from
+% 	room - Room_Acoustics.Room object to generate RIR path from
+% 	database_workingdir - The directory (folder) for the databases
+% 	method - the method used to generate the path (for backwards
+%            compatibility) (using old methods may result in ambiguities)
+%            (defaults to the newest method)
+% 
+% Outputs: 
+% 	Path - The room impulse response database path
+% 	err - Error flag is false unless error is thrown when trying to
+% 	      generate path
+% 	room_details_path - A subpath generated from the room parameters only
+% 	RIR_Name__Details - Part of the name of the final database file
+% 
+% Example: 
+%     SYS = Current_Systems.loadCurrentSRsystem;
+%     Room_Acoustics.getRIRDatabasePath( ...
+%         SYS.Main_Setup(1), ...
+%         SYS.Room_Setup, ...
+%         SYS.system_info.Drive)
+% 
+% See also: loadCurrentSRsystem, SR_System, loudspeaker_setup, Room 
+
+% Author: Jacob Donley
+% University of Wollongong
+% Email: jrd089@uowmail.edu.au
+% Copyright: Jacob Donley 2015-2017
+% Date: 13 November 2015
+% Version: 0.1 (13 November 2015)
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+global Settings
+
 latest_method = 'new2';
 if nargin < 4
     method = latest_method;
 end
 if nargin < 3
-    database_workingdir = 'Z:\';
+    database_workingdir = Settings.DefaultDatabasePath;
 end
 
 
