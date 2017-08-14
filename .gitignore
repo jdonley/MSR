@@ -4,6 +4,8 @@
 *.mat
 *.png
 *.csv
+release/
+!release/*.zip
 !.gitignore
 !.gitmodules
 !*.m

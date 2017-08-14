@@ -15,7 +15,7 @@ Room_Setup = Room_Acoustics.Room;
 
 % % ROOM 1
 % % Anechoic
-% Room_Setup = Room_Setup.setRoomSize( [*1.110 10 10] ); %Anechoic
+% Room_Setup = Room_Setup.setRoomSize( [10 10 10] ); %Anechoic
 % Room_Setup = Room_Setup.setRoomSize( [4 9 3] ); % 35.G46e
 %Room_Setup = Room_Setup.setRoomSize( [8 10 3] ); % 6.107
 %Room_Setup = Room_Setup.setRoomSize( [9 14 3] ); % Out to lunch (Cafe)
@@ -27,6 +27,7 @@ Room_Setup = Room_Setup.setReproductionCentre( ...
     Room_Setup.Room_Size(3)/2] ); % Centre of room
 
 Room_Setup = Room_Setup.setWall_Absorb_Coeff(0.4);
+% Room_Setup = Room_Setup.setWall_Absorb_Coeff(1.0); % Anechoic (for testing) (comment out otherwise)
 
 
 Room_Setup.NoReceivers = 1; % Number per zone
