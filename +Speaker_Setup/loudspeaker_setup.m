@@ -659,7 +659,7 @@ classdef loudspeaker_setup
             [locations(:,:,1), ...
                 locations(:,:,2)] = cart2pol(xx,yy);
             samples = obj.computeField(xx,yy);
-            meansample = mean( abs( samples(mask) ) );
+            meansample = mean( abs( samples(mask(:)) ) );
             
         end
         
