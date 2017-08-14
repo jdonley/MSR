@@ -89,7 +89,7 @@ src = [src zeros(size(src,1),size(room.Room_Size,2)-2)] + repmat(room.Reproducti
 
 
 %Add all receviers (multizone sample point locations)
-if isempty(rec_positions)
+if isempty(rec_positions) || ~isempty(room.ReceiverPositions)
     
     mask_b = loudspeaker_setup.Multizone_Soundfield.Bright_Zone.Soundfield_d_mask;
     mask_q = loudspeaker_setup.Multizone_Soundfield.Quiet_Zone.Soundfield_d_mask;
@@ -107,8 +107,9 @@ if isempty(rec_positions)
     [rec_q(:,1), rec_q(:,2)] = pol2cart( angl(:), dis(:));
     rec_q = [rec_q zeros(size(rec_q,1),size(room.Room_Size,2)-2)] + repmat(room.Reproduction_Centre, size(rec_q,1),1);
     rec_q = rec_q(mask_q(:) ~= 0,:);
-    
-    
+end
+
+if isempty(rec_positions)
     Rec_Bright_Pos = rec_b;
     Rec_Quiet_Pos = rec_q;
     % Generate random number seed from current time
