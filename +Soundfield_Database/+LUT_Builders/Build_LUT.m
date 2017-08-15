@@ -97,9 +97,9 @@ for s = DBsetups
     
     parfor_progress( length(Weights) * length(Frequencies) );
     
-    parfor w = 1:length(Weights)
+    for w = 1:length(Weights)
         currWeight = Weights( w ); % Current Weight to process
-        for f = 1:length(Frequencies)
+        parfor f = 1:length(Frequencies)
             
             parsetup = Setup;
             parsetup.Multizone_Soundfield.Quiet_Zone = ...
