@@ -216,7 +216,7 @@ signal_info.f_low_meas = 100; % Hz %Minimum loudspeaker response
 signal_info.f_high_meas = 7000; % Hz %Maximum frequency with accurate response at given sampling rate
 signal_info.L_noise_mask = [0]; % dB
 signal_info.recording_type = {'simulated'}; % The type of recordings to be analysed
-signal_info.weight = 0; % This can be auto-calculated for maximum contrast by setting to 'Auto'
+signal_info.weight = 1; % This can be auto-calculated for maximum contrast by setting to 'Auto'
 signal_info.method = ''; % Default empty (temporary variable)
 signal_info.methods_list ... % List of methods to synthesize
     = {'NoMaskCancel', ... % Speech Signal
@@ -273,7 +273,7 @@ system_info.LUT_frequencies = (signal_info.Nfft + signal_info.zeropadtime * sign
 % system_info.LUT_weights = 32;
 system_info.LUT_weights = 1; % Number of Look-Up table multizone soundfield weights
 % system_info.LUT_weight_range = [1e-2 1e4]; % [Minimum Maximum] LUT weight
-system_info.LUT_weight_range = 0; % [Minimum Maximum] or a single LUT weight
+system_info.LUT_weight_range = 1; % [Minimum Maximum] or a single LUT weight
 
 system_info.LUT_resolution = [num2str(system_info.LUT_frequencies) 'f' ...
                               system_info.sc ...

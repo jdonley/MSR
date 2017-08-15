@@ -99,7 +99,7 @@ for s = DBsetups
     
     for w = 1:length(Weights)
         currWeight = Weights( w ); % Current Weight to process
-        parfor f = 1:length(Frequencies)
+        parfor f = randperm(length(Frequencies)) % randomising this gives a better indication as to when the LUT will finish building
             
             parsetup = Setup;
             parsetup.Multizone_Soundfield.Quiet_Zone = ...
