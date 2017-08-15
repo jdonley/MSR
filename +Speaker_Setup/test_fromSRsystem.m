@@ -53,7 +53,7 @@ end
 
 
 %%
-try close('111'); catch; end
+% try close('111'); catch; end
 
 figNums = [101,102,103];
 realistic = false;
@@ -86,7 +86,7 @@ Z3(abs(Z3)>clipFact*pk(3))=nan;
 % Z3 = abs(Z/setup.res);
 % Z_ = mag2db((Z)./pk);
 
-close all;
+% close all;
 fH = figure(111);
 ha = tightPlots( 2, 2, ...
 SYS.publication_info.figure_width*2, ...
