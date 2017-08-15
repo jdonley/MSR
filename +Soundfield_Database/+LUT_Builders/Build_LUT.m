@@ -97,7 +97,7 @@ for s = DBsetups
     
     parfor_progress( length(Weights) * length(Frequencies) );
     
-    for w = 1:length(Weights)
+    parfor w = 1:length(Weights)
         currWeight = Weights( w ); % Current Weight to process
         for f = 1:length(Frequencies)
             
