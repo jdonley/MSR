@@ -20,7 +20,7 @@ function Build_LUT( SYS )
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-tic; %Start timing this script
+startTime = tic; %Start timing this script
 delete(gcp('nocreate'));
 current_pool = parpool; %Start new pool
 C = clock;
@@ -93,9 +93,9 @@ for s = DBsetups
     fprintf(Speaker_Setup.printSetupDetails(Setup));
     fprintf(['No. of Frequencies:\t' num2str(SYS.system_info.LUT_frequencies) '\n']);
     fprintf(['No. of Weights:\t\t' num2str(length(Weights)) '\n\n']);
-    fprintf('\t Completion: ');n=0;
+    fprintf('\t Completion: '); Tools.showTimeToCompletion;
     
-    parfor_progress( length(Weights) * length(Frequencies) );
+    percCompl = parfor_progress( length(Weights) * length(Frequencies) );
     
     for w = 1:length(Weights)
         currWeight = Weights( w ); % Current Weight to process
@@ -126,8 +126,8 @@ for s = DBsetups
             Loudspeaker_Weights__Weight_Vs_Frequency{ w, f } = parsetup.Loudspeaker_Weights; 
             
             %%%
-            parfor_progress;
-            % n = Tools.showTimeToCompletion(percCompl/100, n);
+            percCompl = parfor_progress;
+            Tools.showTimeToCompletion( percCompl/100, [], [], startTime );
             %%%
         end
     end    
