@@ -7,33 +7,33 @@ function [ RIR_Bright, RIR_Quiet, Rec_Bright_Pos, Rec_Quiet_Pos, rec_b, rec_q ] 
 %
 
 % Computes the RIR for each sample point in each zone for a given multizone loudspeaker setup using rir_generator
-% 
+%
 % Syntax:   [ RIR_Bright, RIR_Quiet, ...
 %             Rec_Bright_Pos, Rec_Quiet_Pos, ...
 %             rec_b, rec_q ] = ...
 %                   RIR_from_loudspeaker_setup_rir_generator( ...
 %                       loudspeaker_setup, room, reverb_time, ...
 %                       signal_info, rec_positions )
-% 
-% Inputs: 
+%
+% Inputs:
 % 	loudspeaker_setup - The Speaker_Setup.loudspeaker_setup object
 % 	room - The Room_Acoustics.Room object
 % 	reverb_time - The reverberation time as described in rir_generator
 % 	signal_info - The SR system objects signal_info structure
 % 	rec_positions - (Optional) Structure of specific recevier positions
 %                   (see Room_Acoustics.Generate_RIR_Database for example)
-% 
-% Outputs: 
+%
+% Outputs:
 % 	RIR_Bright - RIRs in the bright zone
 % 	RIR_Quiet - RIRs in the quiet zone
 % 	Rec_Bright_Pos - Position of the RIRs in the bright zone
 % 	Rec_Quiet_Pos - Position of the RIRs in the quiet zone
 % 	rec_b - All possible RIR bright zone positions
 % 	rec_q - All possible RIR quiet zone positions
-% 
-% Example: 
+%
+% Example:
 % 	%See Room_Acoustics.Generate_RIR_Database
-% 
+%
 % See also: Generate_RIR_Database
 
 % Author: Jacob Donley
@@ -42,11 +42,11 @@ function [ RIR_Bright, RIR_Quiet, Rec_Bright_Pos, Rec_Quiet_Pos, rec_b, rec_q ] 
 % Copyright: Jacob Donley 2015-2017
 % Date: 15 August 2015
 % Revision: 0.1
-% 
+%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-tic;
+startTime = tic; %Start timing this function
 
 %Set up room dimensions and characteristics
 if nargin < 2
@@ -68,9 +68,9 @@ if nargin < 5
 end
 if ~isempty(room.ReceiverPositions)
     rec_positions = struct('Bright_Receiver_Positions', ...
-                            room.ReceiverPositions(:,:,1), ...
-                            'Quiet_Receiver_Positions', ...
-                            room.ReceiverPositions(:,:,2));
+        room.ReceiverPositions(:,:,1), ...
+        'Quiet_Receiver_Positions', ...
+        room.ReceiverPositions(:,:,2));
 end
 
 dim = room.Room_Dimensions;
@@ -80,7 +80,7 @@ orientation = 0;                % Microphone orientation (rad)
 hp_filter = 0;                  % Enable high-pass filter
 
 c = signal_info.c;    % Speed of sound (m/s)
-Fs = signal_info.Fs; % Sample frequency (samples/s) 
+Fs = signal_info.Fs; % Sample frequency (samples/s)
 
 %Add all sources (loudspeaker locations)
 src = [];
@@ -117,8 +117,8 @@ if isempty(rec_positions)
     RmBounds = room.Room_Size([2 1 3]);
     % Only use positions that are within the room
     validPosInds = (rec_b(:,1) >= 0) & (rec_b(:,1) <= RmBounds(1)) & ...
-                   (rec_b(:,2) >= 0) & (rec_b(:,2) <= RmBounds(2)) & ...
-                   (rec_b(:,3) >= 0) & (rec_b(:,3) <= RmBounds(3)); 
+        (rec_b(:,2) >= 0) & (rec_b(:,2) <= RmBounds(2)) & ...
+        (rec_b(:,3) >= 0) & (rec_b(:,3) <= RmBounds(3));
     Rec_Bright_Pos = rec_b(validPosInds,:);
     Rec_Quiet_Pos  = rec_q(validPosInds,:);
     % Generate random number seed from current time
@@ -147,7 +147,9 @@ RIR_Quiet  = zeros([size(Rec_Quiet_Pos,1), n, size(src,1)]);
 room_size = room.Room_Size([2 1 3]); % Needs to be [x,y,z]
 current_pool = gcp; %Start new pool
 fprintf('\n====== Building RIR Database ======\n');
-parfor_progress( size(src,1) );
+fprintf('\t Completion: '); startTime = tic;
+Tools.showTimeToCompletion;
+percCompl = parfor_progress( size(src,1) );
 parfor s = 1:size(src,1)
     RIR_Bright(:,:,s) = rir_generator( ...
         c, Fs, ...
@@ -162,10 +164,14 @@ parfor s = 1:size(src,1)
         src(s,:), ...
         room_size, ...
         beta, n , mtype, order, dim, orientation, hp_filter);
-        
-	parfor_progress;
+    
+    %%%
+    percCompl = parfor_progress;
+    Tools.showTimeToCompletion( percCompl/100, [], [], startTime );
+    %%%
 end
-parfor_progress(0);
+percCompl=parfor_progress(0);
+Tools.showTimeToCompletion( percCompl/100, [], [], startTime );
 
 %%
 tEnd = toc;
