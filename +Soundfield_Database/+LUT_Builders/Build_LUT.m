@@ -99,7 +99,8 @@ for s = DBsetups
     
     for w = 1:length(Weights)
         currWeight = Weights( w ); % Current Weight to process
-        parfor f = randperm(length(Frequencies)) % randomising this gives a better indication as to when the LUT will finish building
+        
+        parfor f = 1:length(Frequencies)
             
             parsetup = Setup;
             parsetup.Multizone_Soundfield.Quiet_Zone = ...
@@ -126,9 +127,9 @@ for s = DBsetups
             
             %%%
             parfor_progress;
+            % n = Tools.showTimeToCompletion(percCompl/100, n);
             %%%
         end
-%         n = Tools.showTimeToCompletion(w/length(Weights), n); 
     end    
     parfor_progress(0);
     
