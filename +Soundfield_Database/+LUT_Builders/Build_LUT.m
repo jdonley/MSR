@@ -14,9 +14,9 @@ function Build_LUT( SYS )
 % Author: Jacob Donley
 % University of Wollongong
 % Email: jrd089@uowmail.edu.au
-% Copyright: Jacob Donley 2017
+% Copyright: Jacob Donley 2015-2017
 % Date: 31 October 2015 
-% Revision: 0.1
+% Revision: 0.1 (31 October 2015)
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -97,7 +97,7 @@ for s = DBsetups
     
     parfor_progress( length(Weights) * length(Frequencies) );
     
-    parfor w = 1:length(Weights)
+    for w = 1:length(Weights)
         currWeight = Weights( w ); % Current Weight to process
         for f = 1:length(Frequencies)
             
