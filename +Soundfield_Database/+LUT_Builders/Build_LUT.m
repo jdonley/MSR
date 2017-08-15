@@ -94,10 +94,12 @@ for s = DBsetups
     fprintf(['No. of Frequencies:\t' num2str(SYS.system_info.LUT_frequencies) '\n']);
     fprintf(['No. of Weights:\t\t' num2str(length(Weights)) '\n\n']);
     fprintf('\t Completion: ');n=0;
-    a=1;
-    for w = 1:length(Weights)
+    
+    parfor_progress( length(Weights) * length(Frequencies) );
+    
+    parfor w = 1:length(Weights)
         currWeight = Weights( w ); % Current Weight to process
-        parfor f = 1:length(Frequencies)
+        for f = 1:length(Frequencies)
             
             parsetup = Setup;
             parsetup.Multizone_Soundfield.Quiet_Zone = ...
@@ -121,9 +123,15 @@ for s = DBsetups
             end
             Acoustic_Contrast__Weight_Vs_Frequency( w, f ) = parsetup.Acoustic_Contrast;
             Loudspeaker_Weights__Weight_Vs_Frequency{ w, f } = parsetup.Loudspeaker_Weights; 
+            
+            %%%
+            parfor_progress;
+            %%%
         end
-        n = Tools.showTimeToCompletion(w/length(Weights), n); 
-    end
+%         n = Tools.showTimeToCompletion(w/length(Weights), n); 
+    end    
+    parfor_progress(0);
+    
     Loudspeaker_Locations = Setup.Loudspeaker_Locations;
     
     %% Save
