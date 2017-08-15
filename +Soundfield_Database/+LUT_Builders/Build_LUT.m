@@ -115,7 +115,7 @@ for s = DBsetups
             if parsetup.Loudspeaker_Count > 1
                 Bright_Sample__Weight_Vs_Frequency( w, f ) = parsetup.Bright_Sample;
                 Quiet_Sample__Weight_Vs_Frequency( w, f ) = parsetup.Quiet_Sample;
-            elseif parsetup.Loudspeaker_Count == 1 && single_LUT_weight
+            elseif parsetup.Loudspeaker_Count == 1 && single_LUT_weight 
                 Bright_Sample__Weight_Vs_Frequency{ w, f } = parsetup.Bright_Samples;
                 Quiet_Sample__Weight_Vs_Frequency{ w, f } = parsetup.Quiet_Samples;
             end
