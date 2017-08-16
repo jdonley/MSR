@@ -32,9 +32,10 @@ Room_Setup = Room_Setup.setWall_Absorb_Coeff( ...
 
 % Room_Setup.Reflection_Order = 1; % Order of image sources to compute
 
-Room_Setup.NoReceivers = 1; % Number per zone
-Room_Setup.ReceiverPositions(:,:,1) = Room_Setup.Reproduction_Centre([2 1 3]); % Bright Zone (x,y,z)
-Room_Setup.ReceiverPositions(:,:,2) = Room_Setup.Reproduction_Centre([2 1 3]); % Quiet  Zone (x,y,z)
+Room_Setup.NoReceivers = 4; % Number per zone
+% If positions are not specified then the positions will be randomised
+% Room_Setup.ReceiverPositions(:,:,1) = Room_Setup.Reproduction_Centre([2 1 3]); % Bright Zone (x,y,z)
+% Room_Setup.ReceiverPositions(:,:,2) = Room_Setup.Reproduction_Centre([2 1 3]); % Quiet  Zone (x,y,z)
 
 %% Multizone Soundfield Geometry and Loudspeaker Array
 By = 0.0;
