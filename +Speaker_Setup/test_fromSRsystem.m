@@ -16,7 +16,7 @@ SYS = Current_Systems.IEEELetters2017_System_A;
 % SYS = Current_Systems.IEEETransactions_System_D;
 
 %%
-f = 1000;
+f = 2000;
 %  f = Broadband_Tools.getAliasingFrequency(SYS.Main_Setup(2))*343/2/pi;
 c = 343;
 % Freqs = 200:100:3000;

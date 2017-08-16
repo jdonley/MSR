@@ -168,7 +168,7 @@ classdef loudspeaker_setup
                         & -obj.RoomSize(1)/2<yy ...
                         & yy<=obj.RoomSize(1)/2;
             bMask = obj.Multizone_Soundfield.Bright_Zone.Soundfield_d_mean_mask ...
-                & roomMask;
+                    & roomMask;
             BrightSamples = obj.Bright_Samples;
             BrightSamples(isnan(BrightSamples))=0;
             maxBrightVal = mean(abs(BrightSamples(bMask(:)))); % Find the average as our goal is to have the bright zone fit on average.
