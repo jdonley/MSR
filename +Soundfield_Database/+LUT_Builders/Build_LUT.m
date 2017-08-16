@@ -148,7 +148,7 @@ for s = DBsetups
         'Loudspeaker_Locations');
 
     %% Finished
-    tEnd = toc;
+    tEnd = toc(startTime);
     fprintf('\nExecution time: %dmin(s) %fsec(s)\n', floor(tEnd/60), rem(tEnd,60)); %Time taken to execute this script
     
 end
