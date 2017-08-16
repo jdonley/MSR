@@ -149,7 +149,7 @@ classdef multizone_soundfield_OBE
                     end
                 end
                 
-                if ~contains(Debug,'suppress_output'); fprintf('\n\n'); end;
+                if ~contains(Debug,'suppress_output'); fprintf('\n\n'); end
             end
             
 %             if ~strcmp(Debug, 'Bright') && ~strcmp(Debug, 'Quiet')

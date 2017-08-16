@@ -14,7 +14,7 @@ classdef loudspeaker_setup
     properties
         % Settings
         res = 50;                           % samples per metre %Resolution of soundfield
-        Dimensionality = 2;                 % 2D, 2.5D, 3D
+        Dimensionality = 2;                 % 2D, 3D
         Loudspeaker_Count = 32;             % Number of speakers used in the reproduction (Number of speakers required = ceil( Angular_Window * (2*M + 1) / (2*pi) ) ).
         Origin = [0,0];                     % [y,x] This coordinate system follows that of the Room_Acoustics.Room class which is [y,x,z]
         RoomSize = [];
@@ -124,7 +124,7 @@ classdef loudspeaker_setup
     %% Public Methods
     methods
         
-        %%%%%%%%%%%%%%%%%%  Main Soundfield Creation Function  %%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%  Main Soundfield Synthesis Function  %%%%%%%%%%%%%%%%%%%
         
         function obj = reproduceSoundfield(obj, Debug, Radius)
             %  if ~strcmp(Debug, 'SAMPLES_ONLY')
@@ -144,44 +144,44 @@ classdef loudspeaker_setup
             obj = obj.save_Bright_Samples();
             obj = obj.save_Quiet_Samples();
             
-            if ~strcmp(Debug, 'SAMPLES_ONLY')
-                
+            if ~strcmp(Debug, 'SAMPLES_ONLY')                
                 O = size(obj.Soundfield_reproduced) / 2; %Set the centre of the zone for indexing
                 x = ((1:O(2)*2) - O(2)) / obj.res - obj.Origin(2);
                 y = ((1:O(1)*2) - O(1)) / obj.res - obj.Origin(1);
                 [xx,yy] = meshgrid(x,y);
                 
-                obj.Soundfield_reproduced = obj.computeField(xx,yy);
-                
+                obj.Soundfield_reproduced = obj.computeField(xx,yy);                
             end
             
             if obj.Dimensionality == 2
                 % Equalise frequency dependent decay
                 T = abs(besselh(0, obj.k_global)); % Magnitude compensation
-                obj.Loudspeaker_Weights = obj.Loudspeaker_Weights .* T; %Remove effect of frequency dependent decay (2D ATF compensation)
+                obj.Loudspeaker_Weights = obj.Loudspeaker_Weights .* T; %Remove effect of frequency dependent decay (2D ATF compensation for 3D reproductions)
             end
             
-            % Normalise to the maximum of the absolute bright zone values
-            bMask = obj.Multizone_Soundfield.Bright_Zone.Soundfield_d_mean_mask;
+            % Normalise to the average of the absolute bright zone values
+            [xx,yy] = obj.getCoordinateMesh( ...
+                obj.Multizone_Soundfield.ReproRegionSize ...
+                *obj.Multizone_Soundfield.res);
+            roomMask =    -obj.RoomSize(2)/2<xx ...
+                        & xx<=obj.RoomSize(2)/2 ...
+                        & -obj.RoomSize(1)/2<yy ...
+                        & yy<=obj.RoomSize(1)/2;
+            bMask = obj.Multizone_Soundfield.Bright_Zone.Soundfield_d_mean_mask ...
+                & roomMask;
             BrightSamples = obj.Bright_Samples;
             BrightSamples(isnan(BrightSamples))=0;
-            maxBrightVal = mean(abs(BrightSamples(bMask(:)))); % Changed to find the average as our goal is to have the bright zone fit on average.
-            % Normalise phase about desired bright zone centre
-            %             O = floor(size(obj.Bright_Samples)/2);
-            %             centBrightAngle = angle(obj.Bright_Samples(O(1),O(2))) ...
-            %                 -angle(obj.Multizone_Soundfield.Bright_Zone.Soundfield_d(O(1),O(2)));
-            %             spkrAngleNorm = angle(obj.Loudspeaker_Weights(ceil(end/2)));%Normalise to centre of loudspeaker array
-            %             adjAngle = 0;%spkrAngleNorm;% + centBrightAngle;
+            maxBrightVal = mean(abs(BrightSamples(bMask(:)))); % Find the average as our goal is to have the bright zone fit on average.
             
-            % Normalise and align phase to bright zone
-            obj.Loudspeaker_Weights     = obj.Loudspeaker_Weights   / maxBrightVal;% * exp(-1i*adjAngle); %Added to keep speaker weights tied with their response
-            obj.Soundfield_reproduced   = obj.Soundfield_reproduced / maxBrightVal;% * exp(-1i*adjAngle);
-            obj.Bright_Samples          = obj.Bright_Samples        / maxBrightVal;% * exp(-1i*adjAngle);
-            obj.Quiet_Samples           = obj.Quiet_Samples         / maxBrightVal;% * exp(-1i*adjAngle);
+            % Normalise to bright zone
+            obj.Loudspeaker_Weights     = obj.Loudspeaker_Weights   / maxBrightVal; %Added to keep speaker weights tied with their response
+            obj.Soundfield_reproduced   = obj.Soundfield_reproduced / maxBrightVal;
+            obj.Bright_Samples          = obj.Bright_Samples        / maxBrightVal;
+            obj.Quiet_Samples           = obj.Quiet_Samples         / maxBrightVal;
             obj.Bright_Sample           = obj.Bright_Sample         / maxBrightVal;
             obj.Quiet_Sample            = obj.Quiet_Sample          / maxBrightVal;
             
-            % Compute measures
+            % Compute preliminary measures
             obj.Acoustic_Contrast = obj.getAcoustic_Contrast();
             obj.MSE_Bright = obj.getBrightError();
             obj.Attenuation_dB = obj.getMaxPossibleAttenuation();
@@ -527,17 +527,21 @@ classdef loudspeaker_setup
             end
         end
         
-        function obj = calcDesiredMask(obj)
-            %             [w,h] = obj.getFieldSize();
-            %             x = linspace(-obj.Radius, obj.Radius , w);
-            %             y = linspace(-obj.Radius, obj.Radius , h);
-            %             [xx,yy] = meshgrid(xyvec,xyvec);
-            [O(2), O(1)] = obj.getFieldSize(); %Set the centre of the zone for indexing
+        function [xx,yy] = getCoordinateMesh(obj,MeshSize)
+            if nargin < 2
+                [O(2), O(1)] = obj.getFieldSize(); %Set the centre of the zone for indexing
+            else
+                O = MeshSize; % MeshSize will be centred on the origin
+            end
             O = double(O)/2;
             x = ((1:O(2)*2) - O(2)) / obj.res - obj.Origin(2);
             y = ((1:O(1)*2) - O(1)) / obj.res - obj.Origin(1);
             [xx,yy] = meshgrid(x,y);
-            obj.Desired_Mask = xx.^2 + yy.^2 <= (obj.Multizone_Soundfield.Radius)^2 * ones(numel(y), numel(x));
+        end
+        function obj = calcDesiredMask(obj)
+            [xx,yy] = obj.getCoordinateMesh;
+
+            obj.Desired_Mask = xx.^2 + yy.^2 <= (obj.Multizone_Soundfield.Radius)^2 * ones(size(xx));
         end
         
         function f = getFrequency(obj)
