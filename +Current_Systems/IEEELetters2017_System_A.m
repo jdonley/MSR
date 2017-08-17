@@ -179,23 +179,25 @@ Masker_Setup=[];
 
 
 %% Room Setup Continued ...
-Room_Setup = Room_Setup.setReproductionCentre( ...
-    [Room_Setup.Room_Size(1)/2 ...
+Room_Setup(1).SystemType = 'Transmit';
+Room_Setup(1) = Room_Setup(1).setReproductionCentre( ...
+    [Room_Setup(1).Room_Size(1)/2 ...
     spkr_radius ...
-    Room_Setup.Room_Size(3)/2] ); % Centre of room [y, x, z]
+    Room_Setup(1).Room_Size(3)/2] ); % Centre of room [y, x, z]
 
-Room_Setup = Room_Setup.setWall_Absorb_Coeff( ...
+Room_Setup(1) = Room_Setup(1).setWall_Absorb_Coeff( ...
     [0.0, 1, 1, 1, 1, 1]);
 % Room_Setup = Room_Setup.setWall_Absorb_Coeff(1.0); % Anechoic (for testing) (comment out otherwise)
 
 % Room_Setup.Reflection_Order = 1; % Order of image sources to compute
 
-Room_Setup.NoReceivers = 4; % Number per zone
+Room_Setup(1).NoReceivers = 4; % Number per zone
 % If positions are not specified then the positions will be randomised
 
 
 %% Receiving Microphone Room Setup
 Room_Setup(2) = Room_Setup;
+Room_Setup(2).SystemType = 'Receive';
 Room_Setup(2).NoReceivers = Main_Setup(1).Loudspeaker_Count; % Number per zone
 
 spkrLocs = Main_Setup(1).Loudspeaker_Locations;
@@ -205,6 +207,7 @@ Room_Setup(2).ReceiverPositions(:,:,1) = ...
     [spkrLocs, ...
     zeros(Room_Setup(2).NoReceivers,1)] ...
     + Room_Setup(2).Reproduction_Centre([2 1 3]);
+
 
 
 %% Signal Setup and Path Info

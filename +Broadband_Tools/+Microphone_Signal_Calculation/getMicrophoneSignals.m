@@ -1,4 +1,4 @@
-function [ Mic_Signals, Original_ ] = getMicrophoneSignals( Input_Signal, SYS )
+function [ Mic_Signals ] = getMicrophoneSignals( Input_Signal, SYS )
 % Summary of this function goes here
 % 
 % Syntax:	[ Mic_Signals, Original_ ] = getMicrophoneSignals( Input_Signal, SYS )
@@ -30,7 +30,9 @@ function [ Mic_Signals, Original_ ] = getMicrophoneSignals( Input_Signal, SYS )
 
 DB = Room_Acoustics.loadRIRDatabaseFromSetup(SYS);
 
-Tools.fconv
+Mic_Signals = Tools.fconv( ...
+    repmat(Input_Signal,1,SYS.Room_Setup.NoReceivers), ...
+    DB.RIRs.Bright_RIRs.');
 
 %{
 if ~isfield(signal_info,'f_high_meas')

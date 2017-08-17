@@ -34,7 +34,7 @@ signal_info.input_filename = Input_file_name;
 
 
 [Output_path, Output_file_name, Output_file_ext] = ...
-    Broadband_Tools.getLoudspeakerSignalPath( setup, signal_info, system_info.LUT_resolution, system_info.Drive, 'new');
+    Broadband_Tools.getMicrophoneSignalPath( setup, signal_info, system_info.LUT_resolution, system_info.Drive, 'new');
 
 
 

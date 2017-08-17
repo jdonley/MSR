@@ -29,6 +29,7 @@ classdef Room
         NoReceivers = 32;           % Quantity per zone
         ReceiverPositions = [];     % [Width, Depth, Height] <=> [ x, y, z ]
         
+        SystemType = '';            % 'Receive' or 'Transmit'
     end
     
     properties (Access = private)
