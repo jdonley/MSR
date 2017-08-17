@@ -1,4 +1,4 @@
-function [ Path, Name, Ext, err, SubPath, spkr_sig_info_dir, Output_file_path_ext ] = getLoudspeakerSignalPath( setup, signal_info, database_res, database_workingdir, method )
+function [ Path, Name, Ext, err, SubPath, spkr_sig_info_dir, Output_file_path_ext ] = getMicrophoneSignalPath( setup, signal_info, database_res, database_workingdir, method )
 % Summary of this function goes here
 % 
 % Syntax:	[OUTPUTARGS] = TEMPLATE(INPUTARGS) Explain usage here
@@ -41,7 +41,7 @@ end
     SubPath, spkr_sig_info_dir, Output_file_path_ext ] ...
     = getSignalPath( ...
     setup, signal_info, database_res, database_workingdir, ...
-    'Speaker_Signals', method );
+    'Microphone_Signals', method );
 
 end
 

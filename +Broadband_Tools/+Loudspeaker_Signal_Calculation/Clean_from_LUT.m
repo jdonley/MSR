@@ -22,9 +22,9 @@ function Clean_from_LUT( Input_file, SYS_or_LUT_resolution, weight, setup )
 % Author: Jacob Donley
 % University of Wollongong
 % Email: jrd089@uowmail.edu.au
-% Copyright: Jacob Donley 2017
+% Copyright: Jacob Donley 2015-2017
 % Date: 15 August 2015
-% Revision: 0.1
+% Version: 0.1 (15 August 2015)
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
