@@ -14,10 +14,19 @@ clc;clear;clear classes;close all;fclose all;delete(gcp('nocreate'));
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%% Build Look-Up Tables
+%% Build Receiver Room Impulse Responses
+Room_Acoustics.Generate_RIR_Database
+
+
+%% Generate Microphone Signals
+Broadband_Tools.Generate_Microphone_Signals
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Build Reproduction Look-Up Tables
 Soundfield_Database.LUT_Builders.Build_LUT
 
-%% Build Room Impulse Responses
+%% Build Reproduction Room Impulse Responses
 Room_Acoustics.Generate_RIR_Database
 
 
@@ -32,10 +41,10 @@ Speaker_Setup.Calibration.Perform_Full_Calibration
 Speaker_Setup.Calibration.Calibrate_MSR_Loudspeaker_Signals
 
 
-%% Realworld Recording
+%% Realworld Reproduction Recording
 Hardware_Control.Play_and_Rec_System
 
-%% Simulate Recording 
+%% Simulated Reproduction Recording 
 Room_Acoustics.Reverberant_MSR
 
 
