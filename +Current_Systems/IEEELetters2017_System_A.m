@@ -20,22 +20,7 @@ Room_Setup = Room_Acoustics.Room;
 %Room_Setup = Room_Setup.setRoomSize( [8 10 3] ); % 6.107
 %Room_Setup = Room_Setup.setRoomSize( [9 14 3] ); % Out to lunch (Cafe)
 Room_Setup = Room_Setup.setRoomSize( [3 6 3] ); % Custom [y, x, z]
-    
-Room_Setup = Room_Setup.setReproductionCentre( ...
-    [Room_Setup.Room_Size(1)/2 ...
-    spkr_radius ...
-    Room_Setup.Room_Size(3)/2] ); % Centre of room [y, x, z]
 
-Room_Setup = Room_Setup.setWall_Absorb_Coeff( ...
-    [0.0, 1, 1, 1, 1, 1]);
-% Room_Setup = Room_Setup.setWall_Absorb_Coeff(1.0); % Anechoic (for testing) (comment out otherwise)
-
-% Room_Setup.Reflection_Order = 1; % Order of image sources to compute
-
-Room_Setup.NoReceivers = 4; % Number per zone
-% If positions are not specified then the positions will be randomised
-% Room_Setup.ReceiverPositions(:,:,1) = Room_Setup.Reproduction_Centre([2 1 3]); % Bright Zone (x,y,z)
-% Room_Setup.ReceiverPositions(:,:,2) = Room_Setup.Reproduction_Centre([2 1 3]); % Quiet  Zone (x,y,z)
 
 %% Multizone Soundfield Geometry and Loudspeaker Array
 By = 0.0;
@@ -191,6 +176,36 @@ for s = 1:numel(Main_Setup)
 end
 
 Masker_Setup=[];
+
+
+%% Room Setup Continued ...
+Room_Setup = Room_Setup.setReproductionCentre( ...
+    [Room_Setup.Room_Size(1)/2 ...
+    spkr_radius ...
+    Room_Setup.Room_Size(3)/2] ); % Centre of room [y, x, z]
+
+Room_Setup = Room_Setup.setWall_Absorb_Coeff( ...
+    [0.0, 1, 1, 1, 1, 1]);
+% Room_Setup = Room_Setup.setWall_Absorb_Coeff(1.0); % Anechoic (for testing) (comment out otherwise)
+
+% Room_Setup.Reflection_Order = 1; % Order of image sources to compute
+
+Room_Setup.NoReceivers = 4; % Number per zone
+% If positions are not specified then the positions will be randomised
+
+
+%% Receiving Microphone Room Setup
+Room_Setup(2) = Room_Setup;
+Room_Setup(2).NoReceivers = Main_Setup(1).Loudspeaker_Count; % Number per zone
+
+spkrLocs = Main_Setup(1).Loudspeaker_Locations;
+[spkrLocs(:,1),spkrLocs(:,2)]=pol2cart(spkrLocs(:,1),spkrLocs(:,2));
+
+Room_Setup(2).ReceiverPositions(:,:,1) = ...
+    [spkrLocs, ...
+    zeros(Room_Setup(2).NoReceivers,1)] ...
+    + Room_Setup(2).Reproduction_Centre([2 1 3]);
+
 
 %% Signal Setup and Path Info
 signal_info.c = c; % Speed of sound in metres/sec

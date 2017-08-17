@@ -40,7 +40,7 @@ classdef loudspeaker_setup
         % Results
         % 3D
         Loudspeaker_Weights = [];
-        Loudspeaker_Locations = [];
+        Loudspeaker_Locations = [];         %
         Loudspeaker_Directions = [];
         Soundfield_reproduced = [];         % The complex values of the reproduced sound field that is produced from this class.
         Soundfield_virtual = [];            % The complete virtual source soundfield
