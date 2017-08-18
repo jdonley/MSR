@@ -40,13 +40,11 @@ end
 toc;
 %%
 for ti = 1:numel(tt)
-surf(ff/1e3,0:N,mag2db(mag2db(abs(squeeze(B(:,ti,N+1:end))))).','linestyle','none'); 
-view(2);
+plot(ff/1e3,unwrap(angle(sum(squeeze(B(:,ti,N+1:end)),2)))); 
+xlim([0.1 10])
 set(gca,'XScale','log')
-set(gca,'YScale','log')
-zlim([-100 300]);
-caxis([0 200]);
-pause(0.1)
+% ylim([-pi pi]);
+pause(0.5)
 drawnow
 end
 
