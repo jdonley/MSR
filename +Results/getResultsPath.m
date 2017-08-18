@@ -1,5 +1,32 @@
 function [Path, err] = getResultsPath( SYS_or_setup, database_res, room, signal_info, database_workingdir, method )
-%GETDATABASEFROMSETUP Summary of this function goes here
+% Summary of this function goes here
+% 
+% Syntax:	[OUTPUTARGS] = TEMPLATE(INPUTARGS) Explain usage here
+% 
+% Inputs: 
+% 	input1 - Description
+% 	input2 - Description
+% 	input3 - Description
+% 
+% Outputs: 
+% 	output1 - Description
+% 	output2 - Description
+% 
+% Example: 
+% 	Line 1 of example
+% 	Line 2 of example
+% 	Line 3 of example
+% 
+% See also: List related files here
+
+% Author: Jacob Donley
+% University of Wollongong
+% Email: jrd089@uowmail.edu.au
+% Copyright: Jacob Donley 2016-2017
+% Date: 22 February 2016
+% Version: 0.1 (22 February 2016)
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 SYS_type = 'Current_Systems.SR_System';
 

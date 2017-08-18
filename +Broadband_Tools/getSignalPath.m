@@ -34,6 +34,7 @@ end
 
 if nargin < 4
     database_workingdir = 'Z:\';
+    SigTypeTxt = 'IO_Signals';
 end
 
 err = false;
