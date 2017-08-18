@@ -581,6 +581,9 @@ classdef loudspeaker_setup
             elseif strcmp(Type, 'Parametric')
                 obj.Loudspeaker_Dimensions = obj.Loudspeaker_Object.Spkr_Dimensions; %Parametric Array Loudspeaker (PAL) Dimensions
                 
+            elseif strcmp(Type, 'Human')
+                obj.Loudspeaker_Dimensions = [0.20, 0.20, 0.25]; %Human Head
+                
             else
                 error('Loudspeaker type not supported.');
             end

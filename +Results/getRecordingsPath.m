@@ -41,6 +41,11 @@ if nargin == 1
         setup = SYS.Main_Setup;
         room = SYS.Room_Setup;
         database_workingdir = SYS.system_info.Drive;
+        if strcmpi(SYS.Room_Setup.SystemType, 'receive')
+           PathType = 'Microphone_Signals'; 
+        else
+            PathType = 'Recordings';
+        end
         if any(size(signal_info.L_noise_mask)~=1)
             signal_info.L_noise_mask = -inf;
             Tools.simpleWarning(...
@@ -76,7 +81,7 @@ end
 
 Recordings_Path = [ ...
     database_workingdir ...
-    '+Recordings\'];
+    '+' PathType filesep];
 
 %%
 err = false;
@@ -84,7 +89,7 @@ try
     
     if strcmpi(method, latest_method)
         
-        [~,~,~,~,reproduction_info_dirs, spkr_sig_info_dirs] = Broadband_Tools.getLoudspeakerSignalPath( setup, signal_info, database_res );
+        [~,~,~,~,reproduction_info_dirs, spkr_sig_info_dirs] = Broadband_Tools.getSignalPath( setup, signal_info, database_res );
         
         [~,~,room_info_dir1,room_info_dir2] = Room_Acoustics.getRIRDatabasePath( setup, room );
         room_info_dirs = [room_info_dir1, room_info_dir2, filesep];

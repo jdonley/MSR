@@ -28,13 +28,14 @@ function [ Path, Name, Ext, err, SubPath, spkr_sig_info_dir, Output_file_path_ex
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-if nargin < 5
+if nargin < 6
     method = 'new';
 end
-
+if nargin < 5   
+    SigTypeTxt = 'IO_Signals'; 
+end
 if nargin < 4
     database_workingdir = 'Z:\';
-    SigTypeTxt = 'IO_Signals';
 end
 
 err = false;

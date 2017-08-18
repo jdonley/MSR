@@ -36,7 +36,7 @@ signal_info.input_filename = Input_file_name;
 
 
 
-[Output_path, Output_file_name, Output_file_ext] = ...
+[Output_path, Output_file_name] = ...
     Broadband_Tools.getMicrophoneSignalPath( SYS );
 
 
