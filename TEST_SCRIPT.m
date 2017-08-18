@@ -1,25 +1,54 @@
+tic;
 SYS = Current_Systems.IEEELetters2017_System_B;
 
-N = SYS.Main_Setup(1).Multizone_Soundfield.N;
 room = SYS.Room_Setup(2);
+c = SYS.signal_info.c;
+fmax = SYS.signal_info.f_high;
+R = SYS.Main_Setup(1).Radius;
+N = ceil(2*pi*fmax/c*R);
 
-J=[];
-for m = 1:size(data,2)
-    [S(:,:,m),ff,t] = spectrogram(data(:,m),hamming(512,'p'),256,512,fs);
+S=[];
+for m = 1:size(data,2)/2
+    [S(:,:,m),ff,tt] = spectrogram(data(:,m),hamming(512,'p'),256,512,fs);
     
+end
+B=zeros(numel(ff),numel(tt),2*N+1);
+badFreq=[];
+for f_ = 1:numel(ff)
+    f = ff(f_);
+    k = 2*pi*f/c;
+    Q = room.NoReceivers/2;
+    mLocs = room.ReceiverPositions(1:end/2,:) - repmat(room.Reproduction_Centre([2 1 3]),Q,1);
+    [th,r] = cart2pol( mLocs(:,1), mLocs(:,2) );
+        
+    [rr,NN] = meshgrid(r,-N:N);
     
-    for f_ = 1:numel(ff)
-        f = ff(f_);
-        N = 20;
-        c=343;
-        mLocs = room.ReceiverPositions - repmat(room.Reproduction_Centre,room.NoReceivers,1);
-        [th,r] = cart2pol( mLocs(:,1), mLocs(:,2) );
-        J(:,:,f_,m) = diag( besselj(-N:N,2*pi*f/c * r(m)) );
+    J = besselj(NN, k * rr);
+    badFreq(f_) = any(J(:)==0);
+    [thth,NN] = meshgrid(th,-N:N);
+    T = 1/Q * exp( -1i*NN.*thth ) ./ J;
+    
+    for t_ = 1:numel(tt)
+        t = tt(t_);
+        Y = repmat(squeeze(S(f_,t_,:)).',2*N+1,1);
+        B(f_,t_,:) = sum(Y .* T, 2);
     end
-    
+    Tools.showTimeToCompletion(f_/numel(ff));
 end
 
 
+toc;
+%%
+for ti = 1:numel(tt)
+surf(ff/1e3,0:N,mag2db(mag2db(abs(squeeze(B(:,ti,N+1:end))))).','linestyle','none'); 
+view(2);
+set(gca,'XScale','log')
+set(gca,'YScale','log')
+zlim([-100 300]);
+caxis([0 200]);
+pause(0.1)
+drawnow
+end
 
 %%
 % N=4;
