@@ -39,6 +39,7 @@ end
 
 toc;
 %% Build ATFs for room
+setup = SYS.Main_Setup(1);
 SpkrLocs = setup.Loudspeaker_Locations;
 L = size(SpkrLocs,1);
 [SpkrLocs(:,1),SpkrLocs(:,2)]=pol2cart(SpkrLocs(:,1),SpkrLocs(:,2));
@@ -51,7 +52,7 @@ y = 0.1:1/setup.res:room.Room_Size(1);
 ff(ff>2500)=[];
 
 F=[]; Fm=[]; H=[]; FIELD=[]; tic;
-for t_ = [100:20:600]%:numel(tt)
+for t_ = [200:100:500]%:numel(tt)
     for f_ = 2:numel(ff)
         f = ff(f_);
         k = 2*pi*f/c;
@@ -65,7 +66,7 @@ for t_ = [100:20:600]%:numel(tt)
             
             H = 1i/4*besselh(0,1,k*r);
             
-            Fm(:,:,m) = S(f_,t_,m) .* H;
+            Fm(:,:,m) = S(f_,t_,m) ./ H;
         end
         F(f_,:,:) = sum(Fm,3);
     end
@@ -79,9 +80,15 @@ SRC_MAG = abs(squeeze(sum(FIELD,1)));
 [~,pkI] = max(SRC_MAG(:));
 [xx,yy] = meshgrid( x, y);
 
-xx(pkI), yy(pkI)
+[xx(pkI), yy(pkI)]
 
 surf(SRC_MAG); view(2);
+
+SRC_Pos = isophote(SRC_MAG,0.4);
+SRC_Pos(SRC_Pos==0)=nan;
+surf(SRC_Pos);view(2)
+[~,pkI] = max(SRC_Pos(:));
+[xx(pkI), yy(pkI)]
 
 %%
 for ti = 1:numel(tt)
