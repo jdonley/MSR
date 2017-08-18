@@ -3,12 +3,12 @@ SYS = Current_Systems.IEEELetters2017_System_B;
 
 room = SYS.Room_Setup(2);
 c = SYS.signal_info.c;
-fmax = SYS.signal_info.f_high;
+fmax = 2000;
 R = SYS.Main_Setup(1).Radius;
 N = ceil(2*pi*fmax/c*R);
 
 S=[];
-for m = 1:size(data,2)/2
+for m = 1:size(data,2)
     [S(:,:,m),ff,tt] = spectrogram(data(:,m),hamming(512,'p'),256,512,fs);
     
 end
@@ -17,8 +17,8 @@ badFreq=[];
 for f_ = 1:numel(ff)
     f = ff(f_);
     k = 2*pi*f/c;
-    Q = room.NoReceivers/2;
-    mLocs = room.ReceiverPositions(1:end/2,:) - repmat(room.Reproduction_Centre([2 1 3]),Q,1);
+    Q = room.NoReceivers;
+    mLocs = room.ReceiverPositions - repmat(room.Reproduction_Centre([2 1 3]),Q,1);
     [th,r] = cart2pol( mLocs(:,1), mLocs(:,2) );
         
     [rr,NN] = meshgrid(r,-N:N);
@@ -40,14 +40,44 @@ end
 toc;
 %% Build ATFs for room
 SpkrLocs = setup.Loudspeaker_Locations;
+L = size(SpkrLocs,1);
 [SpkrLocs(:,1),SpkrLocs(:,2)]=pol2cart(SpkrLocs(:,1),SpkrLocs(:,2));
 
-[SpkrLocs SpkrLocs*0] - repmat(room.Reproduction_Centre([2 1 3]),size(SpkrLocs,1),1)
+SpkrLocs = [SpkrLocs zeros(L,1)] + repmat(room.Reproduction_Centre([2 1 3]),size(SpkrLocs,1),1);
+
+ff(ff>2500)=[];
+
+H=[]; tic;
+for f_ = 1:numel(ff)
+    f = ff(f_);
+    k = 2*pi*f/c;
+    
+    for t_ = 400%:numel(tt)
+        for m = 1:size(data,2)
+            
+            x = 0:1/setup.res:room.Room_Size(2);
+            y = 0:1/setup.res:room.Room_Size(1);
+            [xx,yy] = meshgrid( ...
+                x - SpkrLocs(m,1), ...
+                y - SpkrLocs(m,2));
+            [th,r] = cart2pol(xx,yy);
+            
+            H = 1i/4*besselh(0,1,k*r);
+            
+            Fm(f_,:,:,m) = S(f_,t_,m) .* H;
+        end
+        F = sum(Fm,4);
+    end
+    Tools.showTimeToCompletion(f_/numel(ff));
+end
+toc;
+
+surf(unwrap(angle(squeeze(sum(F(2:end,:,:),1))))); view(2);
 
 %%
 for ti = 1:numel(tt)
     squeeze(B(:,ti,:))
-plot(ff/1e3,); 
+plot(ff/1e3,1); 
 xlim([0.1 10])
 set(gca,'XScale','log')
 % ylim([-pi pi]);
