@@ -39,7 +39,7 @@ fprintf('Started execution at %.0f:%.0f:%.0f on the %.0f/%.0f/%.0f\n',C([4:6 3:-
 files = Tools.getAllFiles( SYS.signal_info.speech_filepath );
 
 fprintf('\n====== Receiving Microphone Signals ======\n');
-fprintf('\tCompletion: ');n=[];
+fprintf('\tCompletion: ');n=0;
 
 F=length(files);
 

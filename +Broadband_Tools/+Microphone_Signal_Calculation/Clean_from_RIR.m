@@ -23,6 +23,9 @@ function Clean_from_RIR( Input_file, SYS )
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Setup Variables
+if isempty(SYS.signal_info.method)
+    SYS.signal_info.method = 'Clean';
+end
 room = SYS.Room_Setup;
 signal_info = SYS.signal_info;
 system_info = SYS.system_info;
