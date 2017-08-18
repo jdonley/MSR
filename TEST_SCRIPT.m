@@ -38,9 +38,16 @@ end
 
 
 toc;
+%% Build ATFs for room
+SpkrLocs = setup.Loudspeaker_Locations;
+[SpkrLocs(:,1),SpkrLocs(:,2)]=pol2cart(SpkrLocs(:,1),SpkrLocs(:,2));
+
+[SpkrLocs SpkrLocs*0] - repmat(room.Reproduction_Centre([2 1 3]),size(SpkrLocs,1),1)
+
 %%
 for ti = 1:numel(tt)
-plot(ff/1e3,unwrap(angle(sum(squeeze(B(:,ti,N+1:end)),2)))); 
+    squeeze(B(:,ti,:))
+plot(ff/1e3,); 
 xlim([0.1 10])
 set(gca,'XScale','log')
 % ylim([-pi pi]);
