@@ -45,18 +45,19 @@ L = size(SpkrLocs,1);
 
 SpkrLocs = [SpkrLocs zeros(L,1)] + repmat(room.Reproduction_Centre([2 1 3]),size(SpkrLocs,1),1);
 
+x = 0.1:1/setup.res:room.Room_Size(2);
+y = 0.1:1/setup.res:room.Room_Size(1);
+
 ff(ff>2500)=[];
 
-H=[]; tic;
-for f_ = 1:numel(ff)
-    f = ff(f_);
-    k = 2*pi*f/c;
-    
-    for t_ = 400%:numel(tt)
+F=[]; Fm=[]; H=[]; FIELD=[]; tic;
+for t_ = [100:20:600]%:numel(tt)
+    for f_ = 2:numel(ff)
+        f = ff(f_);
+        k = 2*pi*f/c;
+        
         for m = 1:size(data,2)
             
-            x = 0:1/setup.res:room.Room_Size(2);
-            y = 0:1/setup.res:room.Room_Size(1);
             [xx,yy] = meshgrid( ...
                 x - SpkrLocs(m,1), ...
                 y - SpkrLocs(m,2));
@@ -64,15 +65,23 @@ for f_ = 1:numel(ff)
             
             H = 1i/4*besselh(0,1,k*r);
             
-            Fm(f_,:,:,m) = S(f_,t_,m) .* H;
+            Fm(:,:,m) = S(f_,t_,m) .* H;
         end
-        F = sum(Fm,4);
+        F(f_,:,:) = sum(Fm,3);
     end
-    Tools.showTimeToCompletion(f_/numel(ff));
+    FIELD(t_,:,:) = sum(F,1);
+    disp(t_)
 end
 toc;
 
-surf(unwrap(angle(squeeze(sum(F(2:end,:,:),1))))); view(2);
+SRC_MAG = abs(squeeze(sum(FIELD,1)));
+
+[~,pkI] = max(SRC_MAG(:));
+[xx,yy] = meshgrid( x, y);
+
+xx(pkI), yy(pkI)
+
+surf(SRC_MAG); view(2);
 
 %%
 for ti = 1:numel(tt)
