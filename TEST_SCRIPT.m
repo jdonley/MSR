@@ -12,8 +12,8 @@ R = SYS.Main_Setup(1).Radius;
 N = ceil(2*pi*fmax/c*R);
 
 S=[];
-for m = 1:size(mic_sigs,2)
-    [S(:,:,m),ff,tt] = spectrogram(mic_sigs(:,m),hamming(512,'p'),256,512,fs);
+for l = 1:size(mic_sigs,2)
+    [S(:,:,l),ff,tt] = spectrogram(mic_sigs(:,l),hamming(512,'p'),256,512,fs);
     
 end
 B=zeros(numel(ff),numel(tt),2*N+1);
@@ -28,10 +28,10 @@ for f_ = 2:numel(ff)
         
     [rr,NN] = meshgrid(r,-N:N);
     
-    J = besselj(NN, k * rr);
+    H = besselh(NN, k * rr);
     badFreq(f_) = any(J(:)==0);
     [thth,NN] = meshgrid(th,-N:N);
-    T = 1/Q * exp( -1i*NN.*thth ) ./ J;
+    T = 1/Q * exp( -1i*NN.*thth ) ./ H;
     
     for t_ = 1:numel(tt)
         t = tt(t_);
@@ -43,21 +43,16 @@ end
 
 
 toc;
-%% Build ATFs for room
+%% Determine Loudspeaker Weights
 setup = SYS.Main_Setup(1);
 SpkrLocs = setup.Loudspeaker_Locations;
 L = size(SpkrLocs,1);
 [SpkrLocs(:,1),SpkrLocs(:,2)]=pol2cart(SpkrLocs(:,1),SpkrLocs(:,2));
 
-% SpkrLocs = [SpkrLocs zeros(L,1)] + repmat(room.Reproduction_Centre([2 1 3]),size(SpkrLocs,1),1);
-
-x = 0.1:1/setup.res:room.Room_Size(2);
-y = 0.1:1/setup.res:room.Room_Size(1);
-
 ff(ff>2500)=[];
 
-X=[];Xb=[]; F=[]; Fm=[]; H=[]; FIELD=[]; tic;
-for t_ = 400%:numel(tt)
+X=[]; 
+for t_ = 301%:numel(tt)
     for f_ = 2:numel(ff)
         f = ff(f_);
         k = 2*pi*f/c;
@@ -78,28 +73,47 @@ for t_ = 400%:numel(tt)
         L_ = L/2;
         delta_phi_s = phi / L_;
         X(f_,:) = sum(  beta .* exp(1i*NN.*thth) * delta_phi_s ,2).';
-        Xb(f_,:) = sum(  exp(1i*NN.*thth) * delta_phi_s ,2).';
         
-%         X(f_,:) = -pinv(T) * beta;
+        
             
-%         for m = 1:size(mic_sigs,2)
-%             
-% %             [xx,yy] = meshgrid( ...
-% %                 x - SpkrLocs(m,1), ...
-% %                 y - SpkrLocs(m,2));
-% %             
-% %             [th,r] = cart2pol(xx,yy);
-%             
-%             
-%             H = 1i/4*besselh(0,1,k*r);
-%             
-%             Fm(:,:,m) = S(f_,t_,m) .* H;
-%         end
-%         F(f_,:,:) = sum(Fm,3);
+
     end
-%     FIELD(t_,:,:) = sum(F,1);
     disp(t_)
 end
+
+
+%%
+x = 0.1:1/100:room.Room_Size(2);
+y = 0.1:1/100:room.Room_Size(1);
+
+setup = SYS.Main_Setup(1);
+SpkrLocs = setup.Loudspeaker_Locations;
+L = size(SpkrLocs,1);
+[SpkrLocs(:,1),SpkrLocs(:,2)]=pol2cart(SpkrLocs(:,1),SpkrLocs(:,2));
+ SpkrLocs = [SpkrLocs zeros(L,1)] + repmat(room.Reproduction_Centre([2 1 3]),size(SpkrLocs,1),1);
+
+F=[]; Fm=[]; H=[]; FIELD=[]; tic;
+for t_ = 301%:numel(tt)
+        for f_ = 2:numel(ff)
+
+            for l = 1:size(SpkrLocs,1)
+    
+                [xx,yy] = meshgrid( ...
+                    x - SpkrLocs(l,1), ...
+                    y - SpkrLocs(l,2));
+    
+                [th,r] = cart2pol(xx,yy);
+    
+    
+                H = 1i/4*besselh(0,k*r);
+    %S(f_,t_,l) .*
+                Fm(:,:,l) =  X(f_,l) .* H;
+            end
+            F(f_,:,:) = sum(Fm,3);
+        end
+    FIELD(t_,:,:) = sum(F,1);
+end
+
 toc;
 
 SRC_MAG = abs(squeeze(sum(FIELD,1)));
