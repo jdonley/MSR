@@ -23,6 +23,9 @@ function Clean_from_RIR( Input_file, SYS )
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Setup Variables
+[~, Input_file_name, Input_file_ext] = fileparts( Input_file );
+SYS.signal_info.input_filename = Input_file_name;
+
 if isempty(SYS.signal_info.method)
     SYS.signal_info.method = 'Clean';
 end
@@ -31,8 +34,7 @@ signal_info = SYS.signal_info;
 system_info = SYS.system_info;
 setup = SYS.Main_Setup;
     
-[~, Input_file_name, Input_file_ext] = fileparts( Input_file );
-signal_info.input_filename = Input_file_name;
+
 
 
 
@@ -68,7 +70,6 @@ Original_ = Original_ ./ max(abs(Original_(:)));
 Broadband_Tools.Microphone_Signal_Calculation.saveMicrophoneSignals( ...
     Output_path, ...
     Output_file_name, ...
-    Output_file_ext, ...
     Microphone_Signals, ...
     room.NoReceivers, ...
     Original_, ...

@@ -1,6 +1,10 @@
 tic;
 SYS = Current_Systems.IEEELetters2017_System_B;
 
+data = load('Z:\_MICRO~1\_3D_LI~1\_1HUMA~1\_0BX_0~1\_VSRC_~1\_DATAB~1\_3X6X3~1\48REC_~1.5CT\_150HZ~1\ESS_100Hz-7kHz_10sec_1secTail_1secHead_48Ch.mat');
+fs = data.fs;
+mic_sigs = data.mic_signals;
+
 room = SYS.Room_Setup(2);
 c = SYS.signal_info.c;
 fmax = 2000;
@@ -8,12 +12,13 @@ R = SYS.Main_Setup(1).Radius;
 N = ceil(2*pi*fmax/c*R);
 
 S=[];
-for m = 1:size(data,2)
-    [S(:,:,m),ff,tt] = spectrogram(data(:,m),hamming(512,'p'),256,512,fs);
+for m = 1:size(mic_sigs,2)
+    [S(:,:,m),ff,tt] = spectrogram(mic_sigs(:,m),hamming(512,'p'),256,512,fs);
     
 end
 B=zeros(numel(ff),numel(tt),2*N+1);
 badFreq=[];
+fprintf('\t Completion: '); Tools.showTimeToCompletion; startTime=tic;
 for f_ = 1:numel(ff)
     f = ff(f_);
     k = 2*pi*f/c;
@@ -33,7 +38,7 @@ for f_ = 1:numel(ff)
         Y = repmat(squeeze(S(f_,t_,:)).',2*N+1,1);
         B(f_,t_,:) = sum(Y .* T, 2);
     end
-    Tools.showTimeToCompletion(f_/numel(ff));
+    Tools.showTimeToCompletion(f_/numel(ff), [], [], startTime );
 end
 
 
@@ -52,21 +57,21 @@ y = 0.1:1/setup.res:room.Room_Size(1);
 ff(ff>2500)=[];
 
 F=[]; Fm=[]; H=[]; FIELD=[]; tic;
-for t_ = 400%:numel(tt)
+for t_ = [200:50:500]%:numel(tt)
     for f_ = 2:numel(ff)
         f = ff(f_);
         k = 2*pi*f/c;
         
-        for m = 1:size(data,2)
+        for m = 1:size(mic_sigs,2)
             
             [xx,yy] = meshgrid( ...
                 x - SpkrLocs(m,1), ...
                 y - SpkrLocs(m,2));
             [th,r] = cart2pol(xx,yy);
-            
+            r(r<0.5)=0.5;
             H = 1i/4*besselh(0,1,k*r);
             
-            Fm(:,:,m) = S(f_,t_,m) ./ H .* abs(H);
+            Fm(:,:,m) = S(f_,t_,m) .* H .* abs(H).^2;
         end
         F(f_,:,:) = sum(Fm,3);
     end
@@ -82,7 +87,7 @@ SRC_MAG = abs(squeeze(sum(FIELD,1)));
 
 [xx(pkI), yy(pkI)]
 
-surf(SRC_MAG); view(2);
+surf(x,y,SRC_MAG); view(2);
 
 % SRC_Pos = isophote(SRC_MAG,0.4);
 % SRC_Pos(SRC_Pos==0)=nan;
