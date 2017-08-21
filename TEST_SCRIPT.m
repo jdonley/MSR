@@ -56,7 +56,7 @@ y = 0.1:1/setup.res:room.Room_Size(1);
 
 ff(ff>2500)=[];
 
-X=[]; F=[]; Fm=[]; H=[]; FIELD=[]; tic;
+X=[];Xb=[]; F=[]; Fm=[]; H=[]; FIELD=[]; tic;
 for t_ = 400%:numel(tt)
     for f_ = 2:numel(ff)
         f = ff(f_);
@@ -66,20 +66,21 @@ for t_ = 400%:numel(tt)
         
         [th,r] = cart2pol( SpkrLocs(:,1), SpkrLocs(:,2) );
         
-        [rr,NN] = meshgrid(r,-N:N);
+        [NN,rr] = meshgrid(-N:N,r);
         
         J = besselj(NN, k * rr);
-        [thth,NN] = meshgrid(th,-N:N);
-        T = 1/L * exp( -1i*NN.*thth ) ./ J;
-        T(isinf(T)) = 0;
+        [NN,thth] = meshgrid(-N:N,th);
+%         T = 1/L * exp( -1i*NN.*thth ) ./ J;
+%         T(isinf(T)) = 0;
         
-        beta = squeeze(B(f_,t_,:));
+        beta = repmat( squeeze(B(f_,t_,:)).', L, 1);
         phi = setup.Speaker_Arc_Angle / 180 * pi;
         L_ = L/2;
         delta_phi_s = phi / L_;
-        LW(f_,:) = sum(  beta .* exp(1i*NN.*thth) * delta_phi_s ,2).';
+        X(f_,:) = sum(  beta .* exp(1i*NN.*thth) * delta_phi_s ,2).';
+        Xb(f_,:) = sum(  exp(1i*NN.*thth) * delta_phi_s ,2).';
         
-        X(f_,:) = -pinv(T) * beta;
+%         X(f_,:) = -pinv(T) * beta;
             
 %         for m = 1:size(mic_sigs,2)
 %             
