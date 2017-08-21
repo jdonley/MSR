@@ -16,22 +16,23 @@ for l = 1:size(mic_sigs,2)
     [S(:,:,l),ff,tt] = spectrogram(mic_sigs(:,l),hamming(512,'p'),256,512,fs);
     
 end
+
+Q = room.NoReceivers;
+mLocs = room.ReceiverPositions - repmat(room.Reproduction_Centre([2 1 3]),Q,1);
+[th,r] = cart2pol( mLocs(:,1), mLocs(:,2) );
+[rr,NN] = meshgrid( r,-N:N);
+thth    = meshgrid(th,-N:N);
+
 B=zeros(numel(ff),numel(tt),2*N+1);
 badFreq=[];
 fprintf('\t Completion: '); Tools.showTimeToCompletion; startTime=tic;
 for f_ = 2:numel(ff)
     f = ff(f_);
-    k = 2*pi*f/c;
-    Q = room.NoReceivers;
-    mLocs = room.ReceiverPositions - repmat(room.Reproduction_Centre([2 1 3]),Q,1);
-    [th,r] = cart2pol( mLocs(:,1), mLocs(:,2) );
-        
-    [rr,NN] = meshgrid(r,-N:N);
+    k = 2*pi*f/c;    
     
-    H = besselh(NN, k * rr);
-    badFreq(f_) = any(J(:)==0);
-    [thth,NN] = meshgrid(th,-N:N);
-    T = 1/Q * exp( -1i*NN.*thth ) ./ H;
+
+    T = 1/Q * exp( -1i*NN.*thth ) ./ besselh(NN, k * rr);
+    
     
     for t_ = 1:numel(tt)
         t = tt(t_);
@@ -47,61 +48,61 @@ toc;
 setup = SYS.Main_Setup(1);
 SpkrLocs = setup.Loudspeaker_Locations;
 L = size(SpkrLocs,1);
+phi = setup.Speaker_Arc_Angle / 180 * pi;
+L_ = L/2;
+delta_phi_s = phi / L_;
+
 [SpkrLocs(:,1),SpkrLocs(:,2)]=pol2cart(SpkrLocs(:,1),SpkrLocs(:,2));
+
+[th,r] = cart2pol( SpkrLocs(:,1), SpkrLocs(:,2) );
+[rr,NN] = meshgrid( r,-N:N);
+thth    = meshgrid(th,-N:N);
 
 ff(ff>2500)=[];
 
+
+
 X=[]; 
-for t_ = 301%:numel(tt)
+for t_ = 400%:numel(tt)
     for f_ = 2:numel(ff)
         f = ff(f_);
-        k = 2*pi*f/c;
         
+        
+        beta = repmat( squeeze(B(f_,t_,:)), 1, L );
 
         
-        [th,r] = cart2pol( SpkrLocs(:,1), SpkrLocs(:,2) );        
-        
-        [NN,rr] = meshgrid(-N:N,r);
-        
-%         J = besselj(NN, k * rr);
-        [NN,thth] = meshgrid(-N:N,th);
-%         T = 1/L * exp( -1i*NN.*thth ) ./ J;
-%         T(isinf(T)) = 0;
-        
-        beta = repmat( squeeze(B(f_,t_,:)).', L, 1);
-        phi = setup.Speaker_Arc_Angle / 180 * pi;
-        L_ = L/2;
-        delta_phi_s = phi / L_;
-        X(f_,:) = sum(  beta .* exp(1i*NN.*thth) * delta_phi_s ,2).';
+        X(f_,:) = sum(  beta .* exp(1i*NN.*thth) * delta_phi_s ,1 );
         
         
-            
-
     end
     disp(t_)
 end
 
 
 %%
-x = 0.1:1/100:room.Room_Size(2);
-y = 0.1:1/100:room.Room_Size(1);
+x = 0.1:1/40:room.Room_Size(2);
+y = 0.1:1/40:room.Room_Size(1);
 
 setup = SYS.Main_Setup(1);
 SpkrLocs = setup.Loudspeaker_Locations;
 L = size(SpkrLocs,1);
 [SpkrLocs(:,1),SpkrLocs(:,2)]=pol2cart(SpkrLocs(:,1),SpkrLocs(:,2));
  SpkrLocs = [SpkrLocs zeros(L,1)] + repmat(room.Reproduction_Centre([2 1 3]),size(SpkrLocs,1),1);
-
+                
+ [xx_,yy_] = meshgrid( x , y );
+ 
+ 
 F=[]; Fm=[]; H=[]; FIELD=[]; tic;
-for t_ = 301%:numel(tt)
+% for t_ = 301%:numel(tt)
         for f_ = 2:numel(ff)
+            f = ff(f_);
+            k = 2*pi*f/c;
 
             for l = 1:size(SpkrLocs,1)
     
-                [xx,yy] = meshgrid( ...
-                    x - SpkrLocs(l,1), ...
-                    y - SpkrLocs(l,2));
-    
+                xx = xx_ - SpkrLocs(l,1);
+                yy = yy_ - SpkrLocs(l,2);
+                
                 [th,r] = cart2pol(xx,yy);
     
     
@@ -111,19 +112,21 @@ for t_ = 301%:numel(tt)
             end
             F(f_,:,:) = sum(Fm,3);
         end
-    FIELD(t_,:,:) = sum(F,1);
-end
+%     FIELD(t_,:,:) = sum(F,1);
+     FIELD = squeeze(sum(F,1));
+% end
+surf(real(FIELD),'lines','no');view(2)
 
 toc;
 
-SRC_MAG = abs(squeeze(sum(FIELD,1)));
-
-[~,pkI] = max(SRC_MAG(:));
-[xx,yy] = meshgrid( x, y);
-
-[xx(pkI), yy(pkI)]
-
-surf(x,y,SRC_MAG); view(2);
+% SRC_MAG = abs(squeeze(sum(FIELD,1)));
+% 
+% [~,pkI] = max(SRC_MAG(:));
+% [xx,yy] = meshgrid( x, y);
+% 
+% [xx(pkI), yy(pkI)]
+% 
+% surf(x,y,SRC_MAG); view(2);
 
 % SRC_Pos = isophote(SRC_MAG,0.4);
 % SRC_Pos(SRC_Pos==0)=nan;
