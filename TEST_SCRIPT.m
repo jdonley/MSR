@@ -56,26 +56,47 @@ y = 0.1:1/setup.res:room.Room_Size(1);
 
 ff(ff>2500)=[];
 
-F=[]; Fm=[]; H=[]; FIELD=[]; tic;
-for t_ = [200:50:500]%:numel(tt)
+X=[]; F=[]; Fm=[]; H=[]; FIELD=[]; tic;
+for t_ = 400%:numel(tt)
     for f_ = 2:numel(ff)
         f = ff(f_);
         k = 2*pi*f/c;
         
-        for m = 1:size(mic_sigs,2)
+
+        
+        [th,r] = cart2pol( SpkrLocs(:,1), SpkrLocs(:,2) );
+        
+        [rr,NN] = meshgrid(r,-N:N);
+        
+        J = besselj(NN, k * rr);
+        [thth,NN] = meshgrid(th,-N:N);
+        T = 1/L * exp( -1i*NN.*thth ) ./ J;
+        T(isinf(T)) = 0;
+        
+        beta = squeeze(B(f_,t_,:));
+        phi = setup.Speaker_Arc_Angle / 180 * pi;
+        L_ = L/2;
+        delta_phi_s = phi / L_;
+        LW(f_,:) = sum(  beta .* exp(1i*NN.*thth) * delta_phi_s ,2).';
+        
+        X(f_,:) = -pinv(T) * beta;
             
-            [xx,yy] = meshgrid( ...
-                x - SpkrLocs(m,1), ...
-                y - SpkrLocs(m,2));
-            [th,r] = cart2pol(xx,yy);
-            r(r<0.5)=0.5;
-            H = 1i/4*besselh(0,1,k*r);
-            
-            Fm(:,:,m) = S(f_,t_,m) .* H .* abs(H).^2;
-        end
-        F(f_,:,:) = sum(Fm,3);
+%         for m = 1:size(mic_sigs,2)
+%             
+% %             [xx,yy] = meshgrid( ...
+% %                 x - SpkrLocs(m,1), ...
+% %                 y - SpkrLocs(m,2));
+% %             
+% %             [th,r] = cart2pol(xx,yy);
+%             
+%             
+%             H = 1i/4*besselh(0,1,k*r);
+%             
+%             Fm(:,:,m) = S(f_,t_,m) .* H;
+%         end
+%         F(f_,:,:) = sum(Fm,3);
     end
-    FIELD(t_,:,:) = sum(F,1);
+%     FIELD(t_,:,:) = sum(F,1);
     disp(t_)
 end
 toc;
@@ -95,16 +116,7 @@ surf(x,y,SRC_MAG); view(2);
 % [~,pkI] = max(SRC_Pos(:));
 % [xx(pkI), yy(pkI)]
 
-%%
-for ti = 1:numel(tt)
-    squeeze(B(:,ti,:))
-plot(ff/1e3,1); 
-xlim([0.1 10])
-set(gca,'XScale','log')
-% ylim([-pi pi]);
-pause(0.5)
-drawnow
-end
+
 
 %%
 % N=4;
