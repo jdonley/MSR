@@ -26,7 +26,7 @@ thth    = meshgrid(th+pi/2,-N:N);
 B=zeros(numel(ff),numel(tt),2*N+1);
 badFreq=[];
 fprintf('\t Completion: '); Tools.showTimeToCompletion; startTime=tic;
-for f_ = 2:numel(ff)
+for f_ = 33%2:numel(ff)
     f = ff(f_);
     k = 2*pi*f/c;    
     
@@ -66,7 +66,7 @@ ff(ff>2500)=[];
 
 X=[]; 
 for t_ = 400%:numel(tt)
-    for f_ = 2:numel(ff)
+    for f_ = 33%2:numel(ff)
         f = ff(f_);
         
         
@@ -96,7 +96,7 @@ L = size(SpkrLocs,1);
  
 F=[]; Fm=[]; H=[]; FIELD=[]; tic;
 % for t_ = 301%:numel(tt)
-        for f_ = 2:numel(ff)
+        for f_ = 33%2:numel(ff)
             f = ff(f_);
             k = 2*pi*f/c;
 
