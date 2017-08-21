@@ -19,7 +19,7 @@ end
 B=zeros(numel(ff),numel(tt),2*N+1);
 badFreq=[];
 fprintf('\t Completion: '); Tools.showTimeToCompletion; startTime=tic;
-for f_ = 1:numel(ff)
+for f_ = 2:numel(ff)
     f = ff(f_);
     k = 2*pi*f/c;
     Q = room.NoReceivers;
@@ -49,7 +49,7 @@ SpkrLocs = setup.Loudspeaker_Locations;
 L = size(SpkrLocs,1);
 [SpkrLocs(:,1),SpkrLocs(:,2)]=pol2cart(SpkrLocs(:,1),SpkrLocs(:,2));
 
-SpkrLocs = [SpkrLocs zeros(L,1)] + repmat(room.Reproduction_Centre([2 1 3]),size(SpkrLocs,1),1);
+% SpkrLocs = [SpkrLocs zeros(L,1)] + repmat(room.Reproduction_Centre([2 1 3]),size(SpkrLocs,1),1);
 
 x = 0.1:1/setup.res:room.Room_Size(2);
 y = 0.1:1/setup.res:room.Room_Size(1);
@@ -64,11 +64,11 @@ for t_ = 400%:numel(tt)
         
 
         
-        [th,r] = cart2pol( SpkrLocs(:,1), SpkrLocs(:,2) );
+        [th,r] = cart2pol( SpkrLocs(:,1), SpkrLocs(:,2) );        
         
         [NN,rr] = meshgrid(-N:N,r);
         
-        J = besselj(NN, k * rr);
+%         J = besselj(NN, k * rr);
         [NN,thth] = meshgrid(-N:N,th);
 %         T = 1/L * exp( -1i*NN.*thth ) ./ J;
 %         T(isinf(T)) = 0;
