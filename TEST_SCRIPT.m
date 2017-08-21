@@ -21,7 +21,7 @@ Q = room.NoReceivers;
 mLocs = room.ReceiverPositions - repmat(room.Reproduction_Centre([2 1 3]),Q,1);
 [th,r] = cart2pol( mLocs(:,1), mLocs(:,2) );
 [rr,NN] = meshgrid( r,-N:N);
-thth    = meshgrid(th,-N:N);
+thth    = meshgrid(th+pi/2,-N:N);
 
 B=zeros(numel(ff),numel(tt),2*N+1);
 badFreq=[];
@@ -31,12 +31,14 @@ for f_ = 2:numel(ff)
     k = 2*pi*f/c;    
     
 
-    T = 1/Q * exp( -1i*NN.*thth ) ./ besselh(NN, k * rr);
+    T = 1/Q * exp( -1i*NN.*thth ) ./ (1i/4*besselh(NN, k * rr));
     
     
     for t_ = 1:numel(tt)
         t = tt(t_);
-        Y = repmat(squeeze(S(f_,t_,:)).',2*N+1,1);
+        Y = squeeze(S(f_,t_,:)).';
+        Y = abs(Y) .* exp(1i*unwrap(angle(Y)));
+        Y = repmat(Y,2*N+1,1);
         B(f_,t_,:) = sum(Y .* T, 2);
     end
     Tools.showTimeToCompletion(f_/numel(ff), [], [], startTime );
@@ -98,7 +100,7 @@ F=[]; Fm=[]; H=[]; FIELD=[]; tic;
             f = ff(f_);
             k = 2*pi*f/c;
 
-            for l = 1:size(SpkrLocs,1)
+            for l = 1:size(SpkrLocs,1)/2
     
                 xx = xx_ - SpkrLocs(l,1);
                 yy = yy_ - SpkrLocs(l,2);
