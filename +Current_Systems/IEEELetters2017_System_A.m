@@ -21,6 +21,21 @@ Room_Setup = Room_Acoustics.Room;
 %Room_Setup = Room_Setup.setRoomSize( [9 14 3] ); % Out to lunch (Cafe)
 Room_Setup = Room_Setup.setRoomSize( [3 6 3] ); % Custom [y, x, z]
 
+Room_Setup(1).SystemType = 'Transmit';
+Room_Setup(1) = Room_Setup(1).setReproductionCentre( ...
+    [Room_Setup(1).Room_Size(1)/2 ...
+    spkr_radius ...
+    Room_Setup(1).Room_Size(3)/2] ); % Centre of room [y, x, z]
+
+Room_Setup(1) = Room_Setup(1).setWall_Absorb_Coeff( ...
+    [0.0, 1, 1, 1, 1, 1]);
+% Room_Setup = Room_Setup.setWall_Absorb_Coeff(1.0); % Anechoic (for testing) (comment out otherwise)
+
+% Room_Setup.Reflection_Order = 1; % Order of image sources to compute
+
+Room_Setup(1).NoReceivers = 4; % Number per zone
+% If positions are not specified then the positions will be randomised
+
 
 %% Multizone Soundfield Geometry and Loudspeaker Array
 By = 0.0;
@@ -177,22 +192,6 @@ end
 
 Masker_Setup=[];
 
-
-%% Room Setup Continued ...
-Room_Setup(1).SystemType = 'Transmit';
-Room_Setup(1) = Room_Setup(1).setReproductionCentre( ...
-    [Room_Setup(1).Room_Size(1)/2 ...
-    spkr_radius ...
-    Room_Setup(1).Room_Size(3)/2] ); % Centre of room [y, x, z]
-
-Room_Setup(1) = Room_Setup(1).setWall_Absorb_Coeff( ...
-    [0.0, 1, 1, 1, 1, 1]);
-% Room_Setup = Room_Setup.setWall_Absorb_Coeff(1.0); % Anechoic (for testing) (comment out otherwise)
-
-% Room_Setup.Reflection_Order = 1; % Order of image sources to compute
-
-Room_Setup(1).NoReceivers = 4; % Number per zone
-% If positions are not specified then the positions will be randomised
 
 
 %% Receiving Microphone Room Setup

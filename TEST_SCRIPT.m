@@ -9,7 +9,7 @@ room = SYS.Room_Setup(2);
 c = SYS.signal_info.c;
 fmax = 2000;
 R = SYS.Main_Setup(1).Radius;
-N = ceil(2*pi*fmax/c*R);
+Nmax = ceil(2*pi*fmax/c*R);
 
 S=[];
 for l = 1:size(mic_sigs,2)
@@ -20,28 +20,34 @@ end
 Q = room.NoReceivers;
 mLocs = room.ReceiverPositions - repmat(room.Reproduction_Centre([2 1 3]),Q,1);
 [th,r] = cart2pol( mLocs(:,1), mLocs(:,2) );
-[rr,NN] = meshgrid( r,-N:N);
-thth    = meshgrid(th+pi/2,-N:N);
 
-B=zeros(numel(ff),numel(tt),2*N+1);
+B=zeros(numel(ff),numel(tt),2*Nmax+1);
 badFreq=[];
 fprintf('\t Completion: '); Tools.showTimeToCompletion; startTime=tic;
-for f_ = 65%2:numel(ff)
-    f = ff(f_);
-    k = 2*pi*f/c;    
+for t_ = 400%1:numel(tt)
+    t = tt(t_);
     
-
-    T = 1/Q * exp( -1i*NN.*thth ) ./ (1i/4*besselh(NN, k * rr));
-    
-    
-    for t_ = 1:numel(tt)
-        t = tt(t_);
+    for f_ = 33%2:numel(ff)
+        f = ff(f_);        
+        k = 2*pi*f/c;
+        N = ceil(k*R);
+        
         Y = squeeze(S(f_,t_,:)).';
-%         Y = abs(Y) .* exp(1i*unwrap(angle(Y)));
         Y = repmat(Y,2*N+1,1);
-        B(f_,t_,:) = sum(Y .* T, 2);
+        [rr,NN] = meshgrid( r,-N:N);
+        thth    = meshgrid(th+pi/2,-N:N);
+        
+        T = 1/Q * exp( -1i*NN.*thth ) ./ (1i/4*besselh(NN, k * rr));
+        
+        
+        BB = sum(Y .* T, 2);
+        B(f_,t_,:) = [zeros(Nmax-N,1);BB;zeros(Nmax-N,1)];
+        
+%         X(f_,:) = sum(  sum( exp( -1i*NN.*thth ) ./ (1i/4*besselh(NN, k * rr)), 2) ...
+%             .* exp(1i*NN.*thth) ,1 );
+        
+        Tools.showTimeToCompletion(f_/numel(ff), [], [], startTime );
     end
-    Tools.showTimeToCompletion(f_/numel(ff), [], [], startTime );
 end
 
 
@@ -57,23 +63,28 @@ delta_phi_s = phi / L_;
 [SpkrLocs(:,1),SpkrLocs(:,2)]=pol2cart(SpkrLocs(:,1),SpkrLocs(:,2));
 
 [th,r] = cart2pol( SpkrLocs(:,1), SpkrLocs(:,2) );
-[rr,NN] = meshgrid( r,-N:N);
-thth    = meshgrid(th,-N:N);
+
 
 ff(ff>2500)=[];
 
 
 
 X=[]; 
-for t_ = 504%:numel(tt)
-    for f_ = 65%2:numel(ff)
+for t_ = 400%:numel(tt)
+    for f_ = 33%2:numel(ff)
         f = ff(f_);
         
+               
+        k = 2*pi*f/c;
+        N = ceil(k*R);
+        
+        [rr,NN] = meshgrid( r,-N:N);
+        thth    = meshgrid(th+pi/2,-N:N);
         
         beta = repmat( squeeze(B(f_,t_,:)), 1, L );
 
         
-        X(f_,:) = sum(  beta .* exp(1i*NN.*thth) * delta_phi_s ,1 );
+        X(f_,:) = sum(  beta((-N:N)+Nmax+1,:) .* exp(1i*NN.*thth) * delta_phi_s ,1 );
         
         
     end
@@ -97,7 +108,7 @@ L = size(SpkrLocs,1);
  
 F=[]; Fm=[]; H=[]; FIELD=[]; tic;
 % for t_ = 301%:numel(tt)
-        for f_ = 65%2:numel(ff)
+        for f_ = 33%2:numel(ff)
             f = ff(f_);
             k = 2*pi*f/c;
 
@@ -139,7 +150,7 @@ FIELD = FIELD / mean(abs(FIELD(:)));
 
 Psrch = []; Pcncl = [];
 % for t_ = 301%:numel(tt)
-for f_ = 65%2:numel(ff)
+for f_ = 33%2:numel(ff)
     f = ff(f_);
     k = 2*pi*f/c;
     FLD = squeeze(F(f_,:,:));
