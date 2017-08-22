@@ -26,7 +26,7 @@ thth    = meshgrid(th+pi/2,-N:N);
 B=zeros(numel(ff),numel(tt),2*N+1);
 badFreq=[];
 fprintf('\t Completion: '); Tools.showTimeToCompletion; startTime=tic;
-for f_ = 33%2:numel(ff)
+for f_ = 65%2:numel(ff)
     f = ff(f_);
     k = 2*pi*f/c;    
     
@@ -65,8 +65,8 @@ ff(ff>2500)=[];
 
 
 X=[]; 
-for t_ = 400%:numel(tt)
-    for f_ = 33%2:numel(ff)
+for t_ = 504%:numel(tt)
+    for f_ = 65%2:numel(ff)
         f = ff(f_);
         
         
@@ -97,7 +97,7 @@ L = size(SpkrLocs,1);
  
 F=[]; Fm=[]; H=[]; FIELD=[]; tic;
 % for t_ = 301%:numel(tt)
-        for f_ = 33%2:numel(ff)
+        for f_ = 65%2:numel(ff)
             f = ff(f_);
             k = 2*pi*f/c;
 
@@ -120,8 +120,8 @@ F=[]; Fm=[]; H=[]; FIELD=[]; tic;
 % end
 figure(1);
 surf(x,y,real(FIELD),'lines','no');view(2)
-% figure(2);
-% surf(x,y,abs(FIELD),'lines','no');view(2)
+figure(2);
+surf(x,y,abs(FIELD),'lines','no');view(2)
 
 toc;
 
@@ -135,15 +135,36 @@ x_img = -room.Room_Size(2) : 1/searchFieldRes : -0.1;
 y_img = y; % image is about x
 [xx_img,yy_img] = meshgrid( x_img , y_img );
 
-Psrch = [];
-for p = 1:numel(xx_img(:))
-    
-    [th,r] = cart2pol( ...
-        xx_ - xx_img(p), ...
-        yy_ - yy_img(p) );
-    Psrch(:,:,p) = 1i/4*besselh(0,k*r);
-end
+FIELD = FIELD / mean(abs(FIELD(:)));
 
+Psrch = []; Pcncl = [];
+% for t_ = 301%:numel(tt)
+for f_ = 65%2:numel(ff)
+    f = ff(f_);
+    k = 2*pi*f/c;
+    FLD = squeeze(F(f_,:,:));
+    for p = 1:numel(xx_img(:))
+        
+        [th,r] = cart2pol( ...
+            xx_ - xx_img(p), ...
+            yy_ - yy_img(p) );
+        Psrch = 1i/4*besselh(0,k*r);
+        Psrch = Psrch / mean(abs(Psrch(:)));
+        
+        sup = zeros(1,100);
+        angs = linspace(-pi,pi,100);
+        FLDtot = sum(abs(FLD(:)));
+        for phas_ = 1:numel(angs)
+            phas = angs(phas_);
+            sup(phas_) = sum(sum(abs( FLD - Psrch*exp(1i*phas) ))) / FLDtot;
+        end
+        Pcncl(p,f_) = min(sup);
+        if ~mod(p,100)
+            disp(p/numel(xx_img(:)) * 100);
+        end
+    end
+end
+%end
 
 %%
 % N=4;
