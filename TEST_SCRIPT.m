@@ -100,7 +100,7 @@ end
 
 
 %%
-searchFieldRes = 20;
+searchFieldRes = 30;
 x = 0.1 : 1/searchFieldRes : room.Room_Size(2);
 y = 0.1 : 1/searchFieldRes : room.Room_Size(1);
 
@@ -138,7 +138,7 @@ F=[]; Fm=[]; H=[]; FIELD=[]; tic;
             F(f_,:,:) = sum(Fm,3);
         end
     FIELD(t_,:,:) = sum(F,1);
-    FIELD(t_,:,:) = FIELD(t_,:,:) / max(max(FIELD(t_,:,:)));
+    FIELD(t_,:,:) = FIELD(t_,:,:) / mean(mean(FIELD(t_,:,:)));
     disp(t_)
     
     
