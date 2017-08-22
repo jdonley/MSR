@@ -24,10 +24,10 @@ mLocs = room.ReceiverPositions - repmat(room.Reproduction_Centre([2 1 3]),Q,1);
 B=zeros(numel(ff),numel(tt),2*Nmax+1);
 badFreq=[];
 fprintf('\t Completion: '); Tools.showTimeToCompletion; startTime=tic;
-for t_ = 400%1:numel(tt)
+for t_ = 301%1:numel(tt)
     t = tt(t_);
     
-    for f_ = 33%2:numel(ff)
+    for f_ = 17%2:numel(ff)
         f = ff(f_);        
         k = 2*pi*f/c;
         N = ceil(k*R);
@@ -35,9 +35,9 @@ for t_ = 400%1:numel(tt)
         Y = squeeze(S(f_,t_,:)).';
         Y = repmat(Y,2*N+1,1);
         [rr,NN] = meshgrid( r,-N:N);
-        thth    = meshgrid(th+pi/2,-N:N);
+        thth    = meshgrid(th,-N:N);
         
-        T = 1/Q * exp( -1i*NN.*thth ) ./ (1i/4*besselh(NN, k * rr));
+        T = 1/Q ./ (1i/4*besselh(NN, k * rr) .* exp( 1i*NN.*thth ) );
         
         
         BB = sum(Y .* T, 2);
@@ -70,8 +70,8 @@ ff(ff>2500)=[];
 
 
 X=[]; 
-for t_ = 400%:numel(tt)
-    for f_ = 33%2:numel(ff)
+for t_ = 301%:numel(tt)
+    for f_ = 17%2:numel(ff)
         f = ff(f_);
         
                
@@ -79,7 +79,7 @@ for t_ = 400%:numel(tt)
         N = ceil(k*R);
         
         [rr,NN] = meshgrid( r,-N:N);
-        thth    = meshgrid(th+pi/2,-N:N);
+        thth    = meshgrid(th,-N:N);
         
         beta = repmat( squeeze(B(f_,t_,:)), 1, L );
 
@@ -108,7 +108,7 @@ L = size(SpkrLocs,1);
  
 F=[]; Fm=[]; H=[]; FIELD=[]; tic;
 % for t_ = 301%:numel(tt)
-        for f_ = 33%2:numel(ff)
+        for f_ = 17%2:numel(ff)
             f = ff(f_);
             k = 2*pi*f/c;
 
@@ -121,7 +121,9 @@ F=[]; Fm=[]; H=[]; FIELD=[]; tic;
     
     
                 H = 1i/4*besselh(0,k*r);
-    %S(f_,t_,l) .*
+    
+        
+%                 Fm(:,:,l) = S(f_,t_,l) .*H;
                 Fm(:,:,l) =  X(f_,l) .* H;
             end
             F(f_,:,:) = sum(Fm,3);
@@ -150,7 +152,7 @@ FIELD = FIELD / mean(abs(FIELD(:)));
 
 Psrch = []; Pcncl = [];
 % for t_ = 301%:numel(tt)
-for f_ = 33%2:numel(ff)
+for f_ = 17%2:numel(ff)
     f = ff(f_);
     k = 2*pi*f/c;
     FLD = squeeze(F(f_,:,:));
