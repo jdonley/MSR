@@ -147,6 +147,7 @@ for s = DBsetups
         + repmat(Room.Reproduction_Centre([2 1 3]), size(src,1),1);
     scatter(src(:,1),src(:,2),'sk');hold off;
     axis equal;
+    drawnow;
     
     %axis([0 room.Room_Size(1) 0 room.Room_Size(2)]);
     

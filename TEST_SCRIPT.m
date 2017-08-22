@@ -145,11 +145,11 @@ FIELDTOT = squeeze(sum(abs(FIELD),1));
 
          
 % Search for point source origin via soundfield correlations
-figure(2);
+figure(2); hold off;
 
 [fldMax,I]=max(FIELDTOT(:));
 [r_,c_]=ind2sub(size(FIELDTOT),I);
-scatter3(5,1.5,fldMax,'ro'); hold on;
+scatter3(2.5,2.5,fldMax,'ro'); hold on;
 scatter3(x(c_),y(r_),fldMax,'k.'); hold on;
 
 surf(x,y,abs(FIELDTOT),'lines','no');view(2)
