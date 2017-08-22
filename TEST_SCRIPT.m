@@ -109,7 +109,7 @@ L = size(SpkrLocs,1);
  
 F=[]; Fm=[]; H=[]; FIELD=[]; tic;
   for t_ = 301%:numel(tt)
-        for f_ = 17%2:numel(ff)
+        for f_ = 16:17%2:numel(ff)
             f = ff(f_);
             k = 2*pi*f/c;
 
@@ -123,12 +123,12 @@ F=[]; Fm=[]; H=[]; FIELD=[]; tic;
     
                 H = 1i/4*besselh(0,k*r);
     
-%                   X2 =  S(f_,t_,l);
-                Fm(:,:,l) = S(f_,t_,l) .*H;
-%                 Fm(:,:,l) =  X2 .* H;
+                  X2 =  conj(S(f_,t_,l) .* exp(1i*2*pi*f*f_/numel(ff)));
+%                 Fm(:,:,l) = S(f_,t_,l) .*H;
+                Fm(:,:,l) =  X2 .* H ;
 %                  Fm(:,:,l) =  X(f_,l) .* H;
             end
-            F(f_,:,:) = sum(Fm,3);
+            F(f_,:,:) = sum(Fm,3)  ;
         end
 %     FIELD(t_,:,:) = sum(F,1);
      FIELD = squeeze(sum(F,1));
@@ -140,7 +140,7 @@ surf(x,y,abs(FIELD),'lines','no');view(2)
 
 toc;
 
-% Search for point source origin via soundfield correlations
+%% Search for point source origin via soundfield correlations
 
 x = 0.1 : 1/searchFieldRes : room.Room_Size(2);
 y = 0.1 : 1/searchFieldRes : room.Room_Size(1);
@@ -155,7 +155,7 @@ FIELD = FIELD / mean(abs(FIELD(:)));
 c = SYS.signal_info.c;
 Psrch = []; Pcncl = [];
 % for t_ = 301%:numel(tt)
-for f_ = 17%2:numel(ff)
+for f_ = 2:numel(ff)
     f = ff(f_);
     k = 2*pi*f/c;
     FLD = squeeze(F(f_,:,:)) / mean(mean(abs(F(f_,:,:))));
@@ -179,13 +179,16 @@ for f_ = 17%2:numel(ff)
             disp(p/numel(xx_img(:)) * 100);
         end
     end
+    if ~mod(f_,100)
+        disp(f_/numel(ff) * 100);
+    end
 end
 %end
 P = reshape(sum(Pcncl,2),size(xx_img));
 surf( P );
 [~,I]=min(P(:));
-[r,c]=ind2sub(size(xx_img),I);
-x(r),y(c)
+[r_,c_]=ind2sub(size(xx_img),I);
+x_img(c_),y_img(r_)
 
 %%
 % N=4;
