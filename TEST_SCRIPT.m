@@ -138,6 +138,7 @@ F=[]; Fm=[]; H=[]; FIELD=[]; tic;
             F(f_,:,:) = sum(Fm,3);
         end
     FIELD(t_,:,:) = sum(F,1);
+    FIELD(t_,:,:) = FIELD(t_,:,:) / max(max(FIELD(t_,:,:)));
     disp(t_)
     
     
