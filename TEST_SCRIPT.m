@@ -1,7 +1,14 @@
 tic;
 SYS = Current_Systems.IEEELetters2017_System_B;
 
-data = load('Z:\_MICRO~1\_3D_LI~1\_1HUMA~1\_0BX_0~1\_VSRC_~1\_DATAB~1\_3X6X3~1\48REC_~1.5CT\_150HZ~1\ESS_100Hz-7kHz_10sec_1secTail_1secHead_48Ch.mat');
+subSYS = SYS;
+subSYS.Main_Setup(1)=[];
+subSYS.Room_Setup(1)=[];
+subSYS.signal_info.method = 'Clean';
+MicSigPath = Broadband_Tools.getMicrophoneSignalPath(subSYS);
+MicSigFiles = Tools.keepFilesFromFolder( Tools.getAllFiles(MicSigPath), subSYS.signal_info.speech_filepath);
+MicSigFiles(~contains(MicSigFiles,'.mat'))=[];
+data = load(MicSigFiles{:});
 fs = data.fs;
 mic_sigs = data.mic_signals;
 
@@ -16,7 +23,7 @@ for l = 1:size(mic_sigs,2)
     [S(:,:,l),ff,tt] = spectrogram(mic_sigs(:,l),hamming(512,'p'),256,512,fs);
     
 end
-
+%%
 Q = room.NoReceivers;
 mLocs = room.ReceiverPositions - repmat(room.Reproduction_Centre([2 1 3]),Q,1);
 [th,r] = cart2pol( mLocs(:,1), mLocs(:,2) );
@@ -108,8 +115,8 @@ L = size(SpkrLocs,1);
  
  
 F=[]; Fm=[]; H=[]; FIELD=[]; tic;
-  for t_ = 301%:numel(tt)
-        for f_ = 16:17%2:numel(ff)
+  for t_ = 200:10:550%:numel(tt)
+        for f_ = 2:numel(ff)
             f = ff(f_);
             k = 2*pi*f/c;
 
@@ -123,72 +130,29 @@ F=[]; Fm=[]; H=[]; FIELD=[]; tic;
     
                 H = 1i/4*besselh(0,k*r);
     
-                  X2 =  conj(S(f_,t_,l) .* exp(1i*2*pi*f*f_/numel(ff)));
+                  X2 =  (S(f_,t_,l) );
 %                 Fm(:,:,l) = S(f_,t_,l) .*H;
-                Fm(:,:,l) =  X2 .* H ;
+                Fm(:,:,l) =  X2 .* H .* exp(1i*2*pi*f*(f_-1)/numel(ff));
 %                  Fm(:,:,l) =  X(f_,l) .* H;
             end
-            F(f_,:,:) = sum(Fm,3)  ;
+            F(f_,:,:) = sum(Fm,3);
         end
-%     FIELD(t_,:,:) = sum(F,1);
-     FIELD = squeeze(sum(F,1));
+    FIELD(t_,:,:) = sum(F,1);
+    disp(t_)
   end
-figure(1);
-surf(x,y,real(FIELD),'lines','no');view(2)
+     FIELDTOT = squeeze(sum(abs(FIELD),1));
+% figure(1);
+% surf(x,y,real(FIELDTOT),'lines','no');view(2)
 figure(2);
-surf(x,y,abs(FIELD),'lines','no');view(2)
+surf(x,y,abs(FIELDTOT),'lines','no');view(2)
 
 toc;
 
-%% Search for point source origin via soundfield correlations
+% Search for point source origin via soundfield correlations
+[~,I]=max(FIELDTOT(:));
+[r_,c_]=ind2sub(size(FIELDTOT),I);
+-x(c_),y(r_)
 
-x = 0.1 : 1/searchFieldRes : room.Room_Size(2);
-y = 0.1 : 1/searchFieldRes : room.Room_Size(1);
-[xx_,yy_] = meshgrid( x , y );
-
-x_img = -room.Room_Size(2) : 1/searchFieldRes : -0.1;
-y_img = y; % image is about x
-[xx_img,yy_img] = meshgrid( x_img , y_img );
-
-FIELD = FIELD / mean(abs(FIELD(:)));
-
-c = SYS.signal_info.c;
-Psrch = []; Pcncl = [];
-% for t_ = 301%:numel(tt)
-for f_ = 2:numel(ff)
-    f = ff(f_);
-    k = 2*pi*f/c;
-    FLD = squeeze(F(f_,:,:)) / mean(mean(abs(F(f_,:,:))));
-    for p = 1:numel(xx_img(:))
-        
-        [th,r] = cart2pol( ...
-            xx_ - xx_img(p), ...
-            yy_ - yy_img(p) );
-        Psrch = 1i/4*besselh(0,k*r);
-        Psrch = Psrch / mean(abs(Psrch(:)));
-        
-        sup = zeros(1,100);
-        angs = linspace(-pi,pi,100);
-        FLDtot = sum(abs(FLD(:)));
-        for phas_ = 1:numel(angs)
-            phas = angs(phas_);
-            sup(phas_) = sum(sum(abs( FLD - Psrch*exp(1i*phas) ))) / FLDtot;
-        end
-        Pcncl(p,f_) = min(sup);
-        if ~mod(p,100)
-            disp(p/numel(xx_img(:)) * 100);
-        end
-    end
-    if ~mod(f_,100)
-        disp(f_/numel(ff) * 100);
-    end
-end
-%end
-P = reshape(sum(Pcncl,2),size(xx_img));
-surf( P );
-[~,I]=min(P(:));
-[r_,c_]=ind2sub(size(xx_img),I);
-x_img(c_),y_img(r_)
 
 %%
 % N=4;
