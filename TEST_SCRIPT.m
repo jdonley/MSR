@@ -35,16 +35,15 @@ for t_ = 301%1:numel(tt)
         Y = squeeze(S(f_,t_,:)).';
         Y = repmat(Y,2*N+1,1);
         [rr,NN] = meshgrid( r,-N:N);
-        thth    = meshgrid(th,-N:N);
+        thth    = meshgrid(th+pi/2,-N:N);
         
-        T = 1/Q ./ (1i/4*besselh(NN, k * rr) .* exp( 1i*NN.*thth ) );
+        H = 1i/4*besselh(NN, k * rr) ;
+        T = 1/Q ./ H .* exp( -1i*NN.*thth );
         
         
         BB = sum(Y .* T, 2);
         B(f_,t_,:) = [zeros(Nmax-N,1);BB;zeros(Nmax-N,1)];
         
-%         X(f_,:) = sum(  sum( exp( -1i*NN.*thth ) ./ (1i/4*besselh(NN, k * rr)), 2) ...
-%             .* exp(1i*NN.*thth) ,1 );
         
         Tools.showTimeToCompletion(f_/numel(ff), [], [], startTime );
     end
@@ -52,7 +51,7 @@ end
 
 
 toc;
-%% Determine Loudspeaker Weights
+% Determine Loudspeaker Weights
 setup = SYS.Main_Setup(1);
 SpkrLocs = setup.Loudspeaker_Locations;
 L = size(SpkrLocs,1);
@@ -66,6 +65,7 @@ delta_phi_s = phi / L_;
 
 
 ff(ff>2500)=[];
+c = SYS.signal_info.c;
 
 
 
@@ -98,6 +98,7 @@ x = 0.1 : 1/searchFieldRes : room.Room_Size(2);
 y = 0.1 : 1/searchFieldRes : room.Room_Size(1);
 
 setup = SYS.Main_Setup(1);
+c = SYS.signal_info.c;
 SpkrLocs = setup.Loudspeaker_Locations;
 L = size(SpkrLocs,1);
 [SpkrLocs(:,1),SpkrLocs(:,2)]=pol2cart(SpkrLocs(:,1),SpkrLocs(:,2));
@@ -107,7 +108,7 @@ L = size(SpkrLocs,1);
  
  
 F=[]; Fm=[]; H=[]; FIELD=[]; tic;
-% for t_ = 301%:numel(tt)
+  for t_ = 301%:numel(tt)
         for f_ = 17%2:numel(ff)
             f = ff(f_);
             k = 2*pi*f/c;
@@ -122,15 +123,16 @@ F=[]; Fm=[]; H=[]; FIELD=[]; tic;
     
                 H = 1i/4*besselh(0,k*r);
     
-        
-%                 Fm(:,:,l) = S(f_,t_,l) .*H;
-                Fm(:,:,l) =  X(f_,l) .* H;
+%                   X2 =  S(f_,t_,l);
+                Fm(:,:,l) = S(f_,t_,l) .*H;
+%                 Fm(:,:,l) =  X2 .* H;
+%                  Fm(:,:,l) =  X(f_,l) .* H;
             end
             F(f_,:,:) = sum(Fm,3);
         end
 %     FIELD(t_,:,:) = sum(F,1);
      FIELD = squeeze(sum(F,1));
-% end
+  end
 figure(1);
 surf(x,y,real(FIELD),'lines','no');view(2)
 figure(2);
@@ -138,7 +140,7 @@ surf(x,y,abs(FIELD),'lines','no');view(2)
 
 toc;
 
-%% Search for point source origin via soundfield correlations
+% Search for point source origin via soundfield correlations
 
 x = 0.1 : 1/searchFieldRes : room.Room_Size(2);
 y = 0.1 : 1/searchFieldRes : room.Room_Size(1);
@@ -150,12 +152,13 @@ y_img = y; % image is about x
 
 FIELD = FIELD / mean(abs(FIELD(:)));
 
+c = SYS.signal_info.c;
 Psrch = []; Pcncl = [];
 % for t_ = 301%:numel(tt)
 for f_ = 17%2:numel(ff)
     f = ff(f_);
     k = 2*pi*f/c;
-    FLD = squeeze(F(f_,:,:));
+    FLD = squeeze(F(f_,:,:)) / mean(mean(abs(F(f_,:,:))));
     for p = 1:numel(xx_img(:))
         
         [th,r] = cart2pol( ...
@@ -178,6 +181,11 @@ for f_ = 17%2:numel(ff)
     end
 end
 %end
+P = reshape(sum(Pcncl,2),size(xx_img));
+surf( P );
+[~,I]=min(P(:));
+[r,c]=ind2sub(size(xx_img),I);
+x(r),y(c)
 
 %%
 % N=4;
