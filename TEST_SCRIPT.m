@@ -37,7 +37,7 @@ for f_ = 33%2:numel(ff)
     for t_ = 1:numel(tt)
         t = tt(t_);
         Y = squeeze(S(f_,t_,:)).';
-        Y = abs(Y) .* exp(1i*unwrap(angle(Y)));
+%         Y = abs(Y) .* exp(1i*unwrap(angle(Y)));
         Y = repmat(Y,2*N+1,1);
         B(f_,t_,:) = sum(Y .* T, 2);
     end
@@ -82,8 +82,9 @@ end
 
 
 %%
-x = 0.1:1/40:room.Room_Size(2);
-y = 0.1:1/40:room.Room_Size(1);
+searchFieldRes = 20;
+x = 0.1 : 1/searchFieldRes : room.Room_Size(2);
+y = 0.1 : 1/searchFieldRes : room.Room_Size(1);
 
 setup = SYS.Main_Setup(1);
 SpkrLocs = setup.Loudspeaker_Locations;
@@ -100,7 +101,7 @@ F=[]; Fm=[]; H=[]; FIELD=[]; tic;
             f = ff(f_);
             k = 2*pi*f/c;
 
-            for l = 1:size(SpkrLocs,1)/2
+            for l = 1:size(SpkrLocs,1)
     
                 xx = xx_ - SpkrLocs(l,1);
                 yy = yy_ - SpkrLocs(l,2);
@@ -117,25 +118,31 @@ F=[]; Fm=[]; H=[]; FIELD=[]; tic;
 %     FIELD(t_,:,:) = sum(F,1);
      FIELD = squeeze(sum(F,1));
 % end
-surf(real(FIELD),'lines','no');view(2)
+figure(1);
+surf(x,y,real(FIELD),'lines','no');view(2)
+% figure(2);
+% surf(x,y,abs(FIELD),'lines','no');view(2)
 
 toc;
 
-% SRC_MAG = abs(squeeze(sum(FIELD,1)));
-% 
-% [~,pkI] = max(SRC_MAG(:));
-% [xx,yy] = meshgrid( x, y);
-% 
-% [xx(pkI), yy(pkI)]
-% 
-% surf(x,y,SRC_MAG); view(2);
+%% Search for point source origin via soundfield correlations
 
-% SRC_Pos = isophote(SRC_MAG,0.4);
-% SRC_Pos(SRC_Pos==0)=nan;
-% surf(SRC_Pos);view(2)
-% [~,pkI] = max(SRC_Pos(:));
-% [xx(pkI), yy(pkI)]
+x = 0.1 : 1/searchFieldRes : room.Room_Size(2);
+y = 0.1 : 1/searchFieldRes : room.Room_Size(1);
+[xx_,yy_] = meshgrid( x , y );
 
+x_img = -room.Room_Size(2) : 1/searchFieldRes : -0.1;
+y_img = y; % image is about x
+[xx_img,yy_img] = meshgrid( x_img , y_img );
+
+Psrch = [];
+for p = 1:numel(xx_img(:))
+    
+    [th,r] = cart2pol( ...
+        xx_ - xx_img(p), ...
+        yy_ - yy_img(p) );
+    Psrch(:,:,p) = 1i/4*besselh(0,k*r);
+end
 
 
 %%
