@@ -139,19 +139,27 @@ F=[]; Fm=[]; H=[]; FIELD=[]; tic;
         end
     FIELD(t_,:,:) = sum(F,1);
     disp(t_)
-  end
-     FIELDTOT = squeeze(sum(abs(FIELD),1));
-% figure(1);
-% surf(x,y,real(FIELDTOT),'lines','no');view(2)
+    
+    
+FIELDTOT = squeeze(sum(abs(FIELD),1));
+
+         
+% Search for point source origin via soundfield correlations
 figure(2);
+
+[fldMax,I]=max(FIELDTOT(:));
+[r_,c_]=ind2sub(size(FIELDTOT),I);
+scatter3(5,1.5,fldMax,'ro'); hold on;
+scatter3(x(c_),y(r_),fldMax,'k.'); hold on;
+
 surf(x,y,abs(FIELDTOT),'lines','no');view(2)
+drawnow;
+  end
+
 
 toc;
 
-% Search for point source origin via soundfield correlations
-[~,I]=max(FIELDTOT(:));
-[r_,c_]=ind2sub(size(FIELDTOT),I);
--x(c_),y(r_)
+
 
 
 %%
