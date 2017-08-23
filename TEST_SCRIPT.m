@@ -10,7 +10,6 @@ MicSigFiles = Tools.keepFilesFromFolder( Tools.getAllFiles(MicSigPath), subSYS.s
 MicSigFiles(~contains(MicSigFiles,'.mat'))=[];
 data = load(MicSigFiles{:});
 fs = data.fs;
-mic_sigs = data.mic_signals;
 
 room = SYS.Room_Setup(2);
 c = SYS.signal_info.c;
@@ -18,8 +17,10 @@ fmax = 2000;
 R = SYS.Main_Setup(1).Radius;
 Nmax = ceil(2*pi*fmax/c*R);
 
-S=[];
+S=[];mic_sigs=[];
 for l = 1:size(mic_sigs,2)
+
+    mic_sigs(:,l) = awgn(data.mic_signals(:,l),40,'measured');
     [S(:,:,l),ff,tt] = spectrogram(mic_sigs(:,l),hamming(512,'p'),256,512,fs);
     
 end
@@ -125,7 +126,8 @@ L = size(SpkrLocs,1);
 %  FF = (ff(end)*((2:numel(ff)).'-1)/numel(ff));
  FF = ff(2:end);
 
-FF(FF<500 & FF>2500)=[];
+ ffI = FF<250 | FF>2500;
+FF(ffI)=[];
  k = 2*pi*FF/c;
  kk = repmat( permute(k,[2 3 4 1]),[size(r) 1]);
  rr = repmat(r,[1 1 1 numel(FF)]);
@@ -144,7 +146,7 @@ FF(FF<500 & FF>2500)=[];
 %             for l = 1:size(SpkrLocs,1)
                 
                 
-                XX = repmat( permute(S(2:end,t_,:),[4 2 3 1]), [size(xx_) 1 1 ] );
+                XX = repmat( permute(S(~ffI,t_,:),[4 2 3 1]), [size(xx_) 1 1 ] );
 
 %                 X2 =  (S(f_,t_,l) );
                 FLD = sum( XX .* H .* exps, 3 );
