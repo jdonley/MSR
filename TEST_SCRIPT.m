@@ -100,7 +100,7 @@ end
 
 
 %%
-searchFieldRes = 30;
+searchFieldRes = 20;
 x = 0.1 : 1/searchFieldRes : room.Room_Size(2);
 y = 0.1 : 1/searchFieldRes : room.Room_Size(1);
 
@@ -132,7 +132,7 @@ F=[]; Fm=[]; H=[]; FIELD=[]; tic;
     
                   X2 =  (S(f_,t_,l) );
 %                 Fm(:,:,l) = S(f_,t_,l) .*H;
-                Fm(:,:,l) =  X2 .* H .* exp(1i*2*pi*f*(f_-1)/numel(ff));
+                Fm(:,:,l) =  X2 .* H .* exp(-1i*2*pi*f*(f_-1)/numel(ff));
 %                  Fm(:,:,l) =  X(f_,l) .* H;
             end
             F(f_,:,:) = sum(Fm,3);
