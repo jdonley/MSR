@@ -23,83 +23,83 @@ for l = 1:size(mic_sigs,2)
     [S(:,:,l),ff,tt] = spectrogram(mic_sigs(:,l),hamming(512,'p'),256,512,fs);
     
 end
-%%
-Q = room.NoReceivers;
-mLocs = room.ReceiverPositions - repmat(room.Reproduction_Centre([2 1 3]),Q,1);
-[th,r] = cart2pol( mLocs(:,1), mLocs(:,2) );
+%% Determine soundfield coefficients for mics that aren't colocated 
+% Q = room.NoReceivers;
+% mLocs = room.ReceiverPositions - repmat(room.Reproduction_Centre([2 1 3]),Q,1);
+% [th,r] = cart2pol( mLocs(:,1), mLocs(:,2) );
+% 
+% B=zeros(numel(ff),numel(tt),2*Nmax+1);
+% badFreq=[];
+% fprintf('\t Completion: '); Tools.showTimeToCompletion; startTime=tic;
+% for t_ = 301%1:numel(tt)
+%     t = tt(t_);
+%     
+%     for f_ = 17%2:numel(ff)
+%         f = ff(f_);        
+%         k = 2*pi*f/c;
+%         N = ceil(k*R);
+%         
+%         Y = squeeze(S(f_,t_,:)).';
+%         Y = repmat(Y,2*N+1,1);
+%         [rr,NN] = meshgrid( r,-N:N);
+%         thth    = meshgrid(th+pi/2,-N:N);
+%         
+%         H = 1i/4*besselh(NN, k * rr) ;
+%         T = 1/Q ./ H .* exp( -1i*NN.*thth );
+%         
+%         
+%         BB = sum(Y .* T, 2);
+%         B(f_,t_,:) = [zeros(Nmax-N,1);BB;zeros(Nmax-N,1)];
+%         
+%         
+%         Tools.showTimeToCompletion(f_/numel(ff), [], [], startTime );
+%     end
+% end
+% 
+% 
+% toc;
+% % Determine Loudspeaker Weights
+% setup = SYS.Main_Setup(1);
+% SpkrLocs = setup.Loudspeaker_Locations;
+% L = size(SpkrLocs,1);
+% phi = setup.Speaker_Arc_Angle / 180 * pi;
+% L_ = L/2;
+% delta_phi_s = phi / L_;
+% 
+% [SpkrLocs(:,1),SpkrLocs(:,2)]=pol2cart(SpkrLocs(:,1),SpkrLocs(:,2));
+% 
+% [th,r] = cart2pol( SpkrLocs(:,1), SpkrLocs(:,2) );
+% 
+% 
+% ff(ff>2500)=[];
+% c = SYS.signal_info.c;
+% 
+% 
+% 
+% X=[]; 
+% for t_ = 301%:numel(tt)
+%     for f_ = 17%2:numel(ff)
+%         f = ff(f_);
+%         
+%                
+%         k = 2*pi*f/c;
+%         N = ceil(k*R);
+%         
+%         [rr,NN] = meshgrid( r,-N:N);
+%         thth    = meshgrid(th,-N:N);
+%         
+%         beta = repmat( squeeze(B(f_,t_,:)), 1, L );
+% 
+%         
+%         X(f_,:) = sum(  beta((-N:N)+Nmax+1,:) .* exp(1i*NN.*thth) * delta_phi_s ,1 );
+%         
+%         
+%     end
+%     disp(t_)
+% end
 
-B=zeros(numel(ff),numel(tt),2*Nmax+1);
-badFreq=[];
-fprintf('\t Completion: '); Tools.showTimeToCompletion; startTime=tic;
-for t_ = 301%1:numel(tt)
-    t = tt(t_);
-    
-    for f_ = 17%2:numel(ff)
-        f = ff(f_);        
-        k = 2*pi*f/c;
-        N = ceil(k*R);
-        
-        Y = squeeze(S(f_,t_,:)).';
-        Y = repmat(Y,2*N+1,1);
-        [rr,NN] = meshgrid( r,-N:N);
-        thth    = meshgrid(th+pi/2,-N:N);
-        
-        H = 1i/4*besselh(NN, k * rr) ;
-        T = 1/Q ./ H .* exp( -1i*NN.*thth );
-        
-        
-        BB = sum(Y .* T, 2);
-        B(f_,t_,:) = [zeros(Nmax-N,1);BB;zeros(Nmax-N,1)];
-        
-        
-        Tools.showTimeToCompletion(f_/numel(ff), [], [], startTime );
-    end
-end
 
-
-toc;
-% Determine Loudspeaker Weights
-setup = SYS.Main_Setup(1);
-SpkrLocs = setup.Loudspeaker_Locations;
-L = size(SpkrLocs,1);
-phi = setup.Speaker_Arc_Angle / 180 * pi;
-L_ = L/2;
-delta_phi_s = phi / L_;
-
-[SpkrLocs(:,1),SpkrLocs(:,2)]=pol2cart(SpkrLocs(:,1),SpkrLocs(:,2));
-
-[th,r] = cart2pol( SpkrLocs(:,1), SpkrLocs(:,2) );
-
-
-ff(ff>2500)=[];
-c = SYS.signal_info.c;
-
-
-
-X=[]; 
-for t_ = 301%:numel(tt)
-    for f_ = 17%2:numel(ff)
-        f = ff(f_);
-        
-               
-        k = 2*pi*f/c;
-        N = ceil(k*R);
-        
-        [rr,NN] = meshgrid( r,-N:N);
-        thth    = meshgrid(th,-N:N);
-        
-        beta = repmat( squeeze(B(f_,t_,:)), 1, L );
-
-        
-        X(f_,:) = sum(  beta((-N:N)+Nmax+1,:) .* exp(1i*NN.*thth) * delta_phi_s ,1 );
-        
-        
-    end
-    disp(t_)
-end
-
-
-%%
+%% Determine position or replicated soundfield 
 searchFieldRes = 20;
 x = 0.1 : 1/searchFieldRes : room.Room_Size(2);
 y = 0.1 : 1/searchFieldRes : room.Room_Size(1);
@@ -115,7 +115,7 @@ L = size(SpkrLocs,1);
  
  
 F=[]; Fm=[]; H=[]; FIELD=[]; tic;
-  for t_ = 200:10:550%:numel(tt)
+  for t_ = 250%200:10:550%:numel(tt)
         for f_ = 2:numel(ff)
             f = ff(f_);
             k = 2*pi*f/c;
@@ -130,10 +130,9 @@ F=[]; Fm=[]; H=[]; FIELD=[]; tic;
     
                 H = 1i/4*besselh(0,k*r);
     
-                  X2 =  (S(f_,t_,l) );
-%                 Fm(:,:,l) = S(f_,t_,l) .*H;
-                Fm(:,:,l) =  X2 .* H .* exp(-1i*2*pi*f*(f_-1)/numel(ff));
-%                  Fm(:,:,l) =  X(f_,l) .* H;
+                X2 =  (S(f_,t_,l) );
+                
+                Fm(:,:,l) =  X2 .* H .* exp(1i*2*pi*ff(end)*(f_-1)/numel(ff));
             end
             F(f_,:,:) = sum(Fm,3);
         end
