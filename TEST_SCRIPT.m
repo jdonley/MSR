@@ -11,6 +11,8 @@ MicSigFiles(~contains(MicSigFiles,'.mat'))=[];
 data = load(MicSigFiles{:});
 fs = data.fs;
 
+SNRdb = 10;
+
 room = SYS.Room_Setup(2);
 c = SYS.signal_info.c;
 fmax = 2000;
@@ -18,9 +20,9 @@ R = SYS.Main_Setup(1).Radius;
 Nmax = ceil(2*pi*fmax/c*R);
 
 S=[];mic_sigs=[];
-for l = 1:size(mic_sigs,2)
+for l = 1:size(data.mic_signals,2)
 
-    mic_sigs(:,l) = awgn(data.mic_signals(:,l),40,'measured');
+    mic_sigs(:,l) = awgn(data.mic_signals(:,l).',SNRdb,'measured').';
     [S(:,:,l),ff,tt] = spectrogram(mic_sigs(:,l),hamming(512,'p'),256,512,fs);
     
 end
@@ -126,7 +128,7 @@ L = size(SpkrLocs,1);
 %  FF = (ff(end)*((2:numel(ff)).'-1)/numel(ff));
  FF = ff(2:end);
 
- ffI = FF<250 | FF>2500;
+ ffI = FF<500 | FF>3000;
 FF(ffI)=[];
  k = 2*pi*FF/c;
  kk = repmat( permute(k,[2 3 4 1]),[size(r) 1]);
@@ -150,7 +152,7 @@ FF(ffI)=[];
 
 %                 X2 =  (S(f_,t_,l) );
                 FLD = sum( XX .* H .* exps, 3 );
-                FIELD(:,:,t_) = sum( abs( FLD ), 4 );
+                FIELD(:,:,t_) = sum( mag2db(abs( FLD )), 4 );
                                 
 %                 Fm(:,:,l) =  X2 .* H .* exp(1i*2*pi*ff(end)*(f_-1)/numel(ff));
 %             end
@@ -161,8 +163,8 @@ FF(ffI)=[];
     disp(t_)
     
     
-% FIELDTOT = squeeze(sum(abs(FIELD),3));
-FIELDTOT = abs(FIELD(:,:,t_));
+FIELDTOT = squeeze(sum(FIELD,3));
+% FIELDTOT = (FIELD(:,:,t_));
 
          
 % Search for point source origin via soundfield correlations
@@ -176,7 +178,9 @@ VS = SYS.Room_Setup(2).Reproduction_Centre([2 1]) + VSloc;
 scatter3(VS(1),VS(2),fldMax,'ro'); hold on;
 scatter3(x(c_),y(r_),fldMax,'k.'); hold on;
 
-surf(x,y,FIELDTOT,'lines','no');view(2);axis equal;
+surf(x,y,FIELDTOT,'lines','no');
+view(2);axis equal;
+xlim([min(x) max(x)]);ylim([min(y) max(y)]);
 drawnow;
   end
 
