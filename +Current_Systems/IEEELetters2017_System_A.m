@@ -54,7 +54,7 @@ BrightSize = ReproSize;          % [Width, Height]
 QuietSize  = ReproSize;          % [Width, Height] 
 
 srcX = -spkr_radius + 1;
-srcY = 0.0;
+srcY = 1.0;
 [srcA,srcD] = cart2pol(srcX,srcY);
 
 imgsrcX = -2*spkr_radius - srcX;
@@ -248,9 +248,9 @@ signal_info.reference_channel = 1; %Some arbitrary reference signal channel
 signal_info.rir_duration = 0.5; % Room Impulse Response length in seconds
 signal_info.input_filename = [];
 % signal_info.speech_filepath = '+Miscellaneous\+Speech_Files\';
-signal_info.speech_filepath = '+Miscellaneous\+TestAudio_Files\';
+% signal_info.speech_filepath = '+Miscellaneous\+TestAudio_Files\';
 
-%signal_info.speech_filepath = '+Miscellaneous\+Speech_File_Test\';
+signal_info.speech_filepath = '+Miscellaneous\+Speech_File_Test\';
 %signal_info.speech_filepath = '+Miscellaneous\+Noise_Files\';
 %signal_info.speech_filepath = '+Miscellaneous\+STIPA_Test\';
 %signal_info.speech_filepath = '+Miscellaneous\+Impulse_Response\';

@@ -113,7 +113,6 @@ L = size(SpkrLocs,1);
                 
  [xx_,yy_] = meshgrid( x , y );
  
- F=[]; Fm=[]; H=[]; FIELD=[];
  %%%
  
  SLx = repmat(permute(SpkrLocs(:,1),[2 3 1]),[size(xx_) 1]);
@@ -134,7 +133,7 @@ L = size(SpkrLocs,1);
  
  %%%
  %%
-  tic;
+  FIELD=[];FIELDTOT=[]; tic;
   for t_ = 200:10:550%:numel(tt)
 %         for f_ = 2:numel(ff)
 %             f = ff(f_);
@@ -166,10 +165,13 @@ figure(2); hold off;
 
 [fldMax,I]=max(FIELDTOT(:));
 [r_,c_]=ind2sub(size(FIELDTOT),I);
-scatter3(2.5,2.5,fldMax,'ro'); hold on;
+VSlocpol = SYS.Main_Setup(2).Loudspeaker_Locations;
+[VSloc(1), VSloc(2)] = pol2cart(VSlocpol(1),VSlocpol(2));
+VS = SYS.Room_Setup(2).Reproduction_Centre([2 1]) + VSloc;
+scatter3(VS(1),VS(2),fldMax,'ro'); hold on;
 scatter3(x(c_),y(r_),fldMax,'k.'); hold on;
 
-surf(x,y,abs(FIELDTOT),'lines','no');view(2)
+surf(x,y,abs(FIELDTOT),'lines','no');view(2);axis equal;
 drawnow;
   end
 
