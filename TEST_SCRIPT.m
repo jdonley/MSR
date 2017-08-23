@@ -123,9 +123,11 @@ L = size(SpkrLocs,1);
  
  [th,r] = cart2pol(xx,yy);
  
- k = 2*pi*ff(2:end)/c;
+ FF = (ff(end)*((2:numel(ff)).'-1)/numel(ff));
+%  FF = ff(2:end);
+ k = 2*pi*FF/c;
  kk = repmat( permute(k,[2 3 4 1]),[size(r) 1]);
- rr = repmat(r,[1 1 1 numel(ff(2:end))]);
+ rr = repmat(r,[1 1 1 numel(FF)]);
  
  H = 1i/4*besselh(0,kk.*rr);
  exps = exp( 1i*c*kk ); % <- this could be off .. used to be  exp(1i*2*pi*ff(end)*(f_-1)/numel(ff))
@@ -133,7 +135,7 @@ L = size(SpkrLocs,1);
  %%%
  %%
   tic;
-  for t_ = 450%200:10:550%:numel(tt)
+  for t_ = 200:10:550%:numel(tt)
 %         for f_ = 2:numel(ff)
 %             f = ff(f_);
 %             k = 2*pi*ff/c;
@@ -155,7 +157,8 @@ L = size(SpkrLocs,1);
     disp(t_)
     
     
-FIELDTOT = squeeze(sum(abs(FIELD),3));
+% FIELDTOT = squeeze(sum(abs(FIELD),3));
+FIELDTOT = abs(FIELD(:,:,t_));
 
          
 % Search for point source origin via soundfield correlations
