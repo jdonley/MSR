@@ -122,8 +122,10 @@ L = size(SpkrLocs,1);
  
  [th,r] = cart2pol(xx,yy);
  
- FF = (ff(end)*((2:numel(ff)).'-1)/numel(ff));
-%  FF = ff(2:end);
+%  FF = (ff(end)*((2:numel(ff)).'-1)/numel(ff));
+ FF = ff(2:end);
+
+FF(FF<500 & FF>2500)=[];
  k = 2*pi*FF/c;
  kk = repmat( permute(k,[2 3 4 1]),[size(r) 1]);
  rr = repmat(r,[1 1 1 numel(FF)]);
@@ -134,7 +136,7 @@ L = size(SpkrLocs,1);
  %%%
  %%
   FIELD=[];FIELDTOT=[]; tic;
-  for t_ = 200:10:550%:numel(tt)
+  for t_ = 1:1:numel(tt)
 %         for f_ = 2:numel(ff)
 %             f = ff(f_);
 %             k = 2*pi*ff/c;
@@ -145,8 +147,9 @@ L = size(SpkrLocs,1);
                 XX = repmat( permute(S(2:end,t_,:),[4 2 3 1]), [size(xx_) 1 1 ] );
 
 %                 X2 =  (S(f_,t_,l) );
-                FIELD(:,:,t_) = sum( sum( XX .* H .* exps, 3 ), 4 );
-                
+                FLD = sum( XX .* H .* exps, 3 );
+                FIELD(:,:,t_) = sum( abs( FLD ), 4 );
+                                
 %                 Fm(:,:,l) =  X2 .* H .* exp(1i*2*pi*ff(end)*(f_-1)/numel(ff));
 %             end
 %             F(f_,:,:) = sum(Fm,3);
@@ -171,7 +174,7 @@ VS = SYS.Room_Setup(2).Reproduction_Centre([2 1]) + VSloc;
 scatter3(VS(1),VS(2),fldMax,'ro'); hold on;
 scatter3(x(c_),y(r_),fldMax,'k.'); hold on;
 
-surf(x,y,abs(FIELDTOT),'lines','no');view(2);axis equal;
+surf(x,y,FIELDTOT,'lines','no');view(2);axis equal;
 drawnow;
   end
 
