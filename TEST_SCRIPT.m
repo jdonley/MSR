@@ -113,35 +113,49 @@ L = size(SpkrLocs,1);
                 
  [xx_,yy_] = meshgrid( x , y );
  
+ F=[]; Fm=[]; H=[]; FIELD=[];
+ %%%
  
-F=[]; Fm=[]; H=[]; FIELD=[]; tic;
-  for t_ = 250%200:10:550%:numel(tt)
-        for f_ = 2:numel(ff)
-            f = ff(f_);
-            k = 2*pi*f/c;
+ SLx = repmat(permute(SpkrLocs(:,1),[2 3 1]),[size(xx_) 1]);
+ SLy = repmat(permute(SpkrLocs(:,2),[2 3 1]),[size(yy_) 1]);
+ xx = repmat(xx_,1,1,L) - SLx;
+ yy = repmat(yy_,1,1,L) - SLy;
+ 
+ [th,r] = cart2pol(xx,yy);
+ 
+ k = 2*pi*ff(2:end)/c;
+ kk = repmat( permute(k,[2 3 4 1]),[size(r) 1]);
+ rr = repmat(r,[1 1 1 numel(ff(2:end))]);
+ 
+ H = 1i/4*besselh(0,kk.*rr);
+ exps = exp( 1i*c*kk ); % <- this could be off .. used to be  exp(1i*2*pi*ff(end)*(f_-1)/numel(ff))
+ 
+ %%%
+ %%
+  tic;
+  for t_ = 450%200:10:550%:numel(tt)
+%         for f_ = 2:numel(ff)
+%             f = ff(f_);
+%             k = 2*pi*ff/c;
 
-            for l = 1:size(SpkrLocs,1)
-    
-                xx = xx_ - SpkrLocs(l,1);
-                yy = yy_ - SpkrLocs(l,2);
+%             for l = 1:size(SpkrLocs,1)
                 
-                [th,r] = cart2pol(xx,yy);
-    
-    
-                H = 1i/4*besselh(0,k*r);
-    
-                X2 =  (S(f_,t_,l) );
                 
-                Fm(:,:,l) =  X2 .* H .* exp(1i*2*pi*ff(end)*(f_-1)/numel(ff));
-            end
-            F(f_,:,:) = sum(Fm,3);
-        end
-    FIELD(t_,:,:) = sum(F,1);
-    FIELD(t_,:,:) = FIELD(t_,:,:) / mean(mean(FIELD(t_,:,:)));
+                XX = repmat( permute(S(2:end,t_,:),[4 2 3 1]), [size(xx_) 1 1 ] );
+
+%                 X2 =  (S(f_,t_,l) );
+                FIELD(:,:,t_) = sum( sum( XX .* H .* exps, 3 ), 4 );
+                
+%                 Fm(:,:,l) =  X2 .* H .* exp(1i*2*pi*ff(end)*(f_-1)/numel(ff));
+%             end
+%             F(f_,:,:) = sum(Fm,3);
+%         end
+%     FIELD(t_,:,:) = sum(F,1);
+%     FIELD(t_,:,:) = FIELD(t_,:,:) / mean(mean(FIELD(t_,:,:)));
     disp(t_)
     
     
-FIELDTOT = squeeze(sum(abs(FIELD),1));
+FIELDTOT = squeeze(sum(abs(FIELD),3));
 
          
 % Search for point source origin via soundfield correlations
