@@ -28,7 +28,7 @@ Room_Setup(1) = Room_Setup(1).setReproductionCentre( ...
     Room_Setup(1).Room_Size(3)/2] ); % Centre of room [y, x, z]
 
 Room_Setup(1) = Room_Setup(1).setWall_Absorb_Coeff( ...
-    [0.4, [1, 1, 1, 1, 1]*0.4]);
+    [0.8, [1, 1, 1, 1, 1]*0.8]);
 % Room_Setup = Room_Setup.setWall_Absorb_Coeff(1.0); % Anechoic (for testing) (comment out otherwise)
 
 % Room_Setup.Reflection_Order = 1; % Order of image sources to compute
@@ -53,8 +53,8 @@ ReproSize  = [spkrLen spkrLen];  % [Width, Height]
 BrightSize = ReproSize;          % [Width, Height] 
 QuietSize  = ReproSize;          % [Width, Height] 
 
-srcX = -spkr_radius + 5;
-srcY = 0.0;
+srcX = -spkr_radius + 2.5;
+srcY = 1.0;
 [srcA,srcD] = cart2pol(srcX,srcY);
 
 imgsrcX = -2*spkr_radius - srcX;

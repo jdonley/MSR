@@ -142,7 +142,7 @@ FF(ffI)=[];
  FIELD=[];FIELDTOT=[]; tic;
  for t_ = 1:1:numel(tt)
      
-     if max(max(abs(S(~ffI,t_,:)))) < 0.1
+     if max(max(abs(S(~ffI,t_,:)))) < 0.05
          continue
      end
      XX = repmat( permute(S(~ffI,t_,:),[4 2 3 1]), [size(xx_) 1 1 ] );
