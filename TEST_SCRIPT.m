@@ -149,7 +149,7 @@ FF(ffI)=[];
      XX = repmat( permute(S(~ffI,t_,:),[4 2 3 1]), [size(xx_) 1 1 ] );
      
      FLD = sum( XX .* H .* exps, 3 );
-     FIELD(:,:,t_) = (sum( abs(FLD), 4 )).^4; % Squaring the absolute sum helps when noise is present
+     FIELD(:,:,t_) = (sum( abs(FLD), 4 )).^2; % Squaring the absolute sum helps when noise is present
      
      disp(t_)
      
