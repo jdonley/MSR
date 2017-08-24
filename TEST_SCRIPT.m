@@ -11,7 +11,7 @@ MicSigFiles(~contains(MicSigFiles,'.mat'))=[];
 data = load(MicSigFiles{:});
 fs = data.fs;
 
-SNRdb = 10;
+SNRdb = 120;
 
 room = SYS.Room_Setup(2);
 c = SYS.signal_info.c;
