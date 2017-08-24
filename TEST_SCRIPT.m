@@ -11,7 +11,7 @@ MicSigFiles(~contains(MicSigFiles,'.mat'))=[];
 data = load(MicSigFiles{:});
 fs = data.fs;
 
-SNRdb = 120;
+SNRdb = 10;
 
 room = SYS.Room_Setup(2);
 c = SYS.signal_info.c;
@@ -139,53 +139,46 @@ FF(ffI)=[];
  
  %%%
  %%
-  FIELD=[];FIELDTOT=[]; tic;
-  for t_ = 200:500%1:1:numel(tt)
-%         for f_ = 2:numel(ff)
-%             f = ff(f_);
-%             k = 2*pi*ff/c;
-
-%             for l = 1:size(SpkrLocs,1)
-                
-                
-                XX = repmat( permute(S(~ffI,t_,:),[4 2 3 1]), [size(xx_) 1 1 ] );
-
-%                 X2 =  (S(f_,t_,l) );
-                FLD = sum( XX .* H .* exps, 3 );
-                FIELD(:,:,t_) = sum( (abs( FLD )), 4 );
-                                
-%                 Fm(:,:,l) =  X2 .* H .* exp(1i*2*pi*ff(end)*(f_-1)/numel(ff));
-%             end
-%             F(f_,:,:) = sum(Fm,3);
-%         end
-%     FIELD(t_,:,:) = sum(F,1);
-%     FIELD(t_,:,:) = FIELD(t_,:,:) / mean(mean(FIELD(t_,:,:)));
-    disp(t_)
-    
-    
-FIELDTOT = squeeze(sum(FIELD(:,:,t_-50:t_),3));
-% FIELDTOT = (FIELD(:,:,t_));
-
-         
-% Search for point source origin via soundfield correlations
-figure(2); hold off;
-
-[fldMax,I]=max(FIELDTOT(:));
-[r_,c_]=ind2sub(size(FIELDTOT),I);
-VSlocpol = SYS.Main_Setup(2).Loudspeaker_Locations;
-[VSloc(1), VSloc(2)] = pol2cart(VSlocpol(1),VSlocpol(2));
-VS = SYS.Room_Setup(2).Reproduction_Centre([2 1]) + VSloc;
-scatter3(VS(1),VS(2),fldMax,'ro'); hold on;
-scatter3(x(c_),y(r_),fldMax,'k.'); hold on;
-
-surf(x,y,FIELDTOT,'lines','no');
-view(2);axis equal;
-xlim([min(x) max(x)]);ylim([min(y) max(y)]);
-drawnow;
-  end
-
-
-toc;
+ FIELD=[];FIELDTOT=[]; tic;
+ for t_ = 1:1:numel(tt)
+     
+     if max(max(abs(S(~ffI,t_,:)))) < 0.1
+         continue
+     end
+     XX = repmat( permute(S(~ffI,t_,:),[4 2 3 1]), [size(xx_) 1 1 ] );
+     
+     FLD = sum( XX .* H .* exps, 3 );
+     FIELD(:,:,t_) = -(sum( -mag2db(abs( FLD )), 4 ));
+     
+     disp(t_)
+     
+     if t_-50 > 0
+         FIELDTOT = (squeeze(sum(FIELD(:,:,t_-50:t_),3)));
+     else
+         FIELDTOT = (squeeze(sum(FIELD(:,:,1:t_),3)));
+     end
+     % FIELDTOT = (FIELD(:,:,t_));
+     
+     
+     % Search for point source origin via soundfield correlations
+     figure(2); hold off;
+     
+     [fldMax,I]=max(FIELDTOT(:));
+     [r_,c_]=ind2sub(size(FIELDTOT),I);
+     VSlocpol = SYS.Main_Setup(2).Loudspeaker_Locations;
+     [VSloc(1), VSloc(2)] = pol2cart(VSlocpol(1),VSlocpol(2));
+     VS = SYS.Room_Setup(2).Reproduction_Centre([2 1]) + VSloc;
+     scatter3(VS(1),VS(2),fldMax,'ro'); hold on;
+     scatter3(x(c_),y(r_),fldMax,'k.'); hold on;
+     
+     surf(x,y,FIELDTOT,'lines','no');
+     view(2);axis equal;
+     xlim([min(x) max(x)]);ylim([min(y) max(y)]);
+     drawnow;
+ end
+ 
+ 
+ toc;
 
 
 
