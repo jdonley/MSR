@@ -19,7 +19,7 @@ Room_Setup = Room_Acoustics.Room;
 % Room_Setup = Room_Setup.setRoomSize( [4 9 3] ); % 35.G46e
 %Room_Setup = Room_Setup.setRoomSize( [8 10 3] ); % 6.107
 %Room_Setup = Room_Setup.setRoomSize( [9 14 3] ); % Out to lunch (Cafe)
-Room_Setup = Room_Setup.setRoomSize( [3 6 3] ); % Custom [y, x, z]
+Room_Setup = Room_Setup.setRoomSize( [3 3 3] ); % Custom [y, x, z]
 
 Room_Setup(1).SystemType = 'Transmit';
 Room_Setup(1) = Room_Setup(1).setReproductionCentre( ...
@@ -28,7 +28,7 @@ Room_Setup(1) = Room_Setup(1).setReproductionCentre( ...
     Room_Setup(1).Room_Size(3)/2] ); % Centre of room [y, x, z]
 
 Room_Setup(1) = Room_Setup(1).setWall_Absorb_Coeff( ...
-    [0.8, [1, 1, 1, 1, 1]*0.8]);
+    [0.6, [1, 1, 1, 1, 1]*0.6]);
 % Room_Setup = Room_Setup.setWall_Absorb_Coeff(1.0); % Anechoic (for testing) (comment out otherwise)
 
 % Room_Setup.Reflection_Order = 1; % Order of image sources to compute
@@ -53,8 +53,8 @@ ReproSize  = [spkrLen spkrLen];  % [Width, Height]
 BrightSize = ReproSize;          % [Width, Height] 
 QuietSize  = ReproSize;          % [Width, Height] 
 
-srcX = -spkr_radius + 2.5;
-srcY = 1.0;
+srcX = -spkr_radius + 1.5;
+srcY = 0.0;
 [srcA,srcD] = cart2pol(srcX,srcY);
 
 imgsrcX = -2*spkr_radius - srcX;
