@@ -128,7 +128,7 @@ L = size(SpkrLocs,1);
 %  FF = (ff(end)*((2:numel(ff)).'-1)/numel(ff));
  FF = ff(2:end);
 
- ffI = FF<500 | FF>3000;
+ ffI = FF<250 | FF>3000;
 FF(ffI)=[];
  k = 2*pi*FF/c;
  kk = repmat( permute(k,[2 3 4 1]),[size(r) 1]);
@@ -139,25 +139,27 @@ FF(ffI)=[];
  
  %%%
  %%
+ ignoreLevel = max(abs(S(:)))*db2mag(-20);
  FIELD=[];FIELDTOT=[]; tic;
  for t_ = 1:1:numel(tt)
      
-     if max(max(abs(S(~ffI,t_,:)))) < 0.05
+     if max(max(abs(S(~ffI,t_,:)))) < ignoreLevel
          continue
      end
      XX = repmat( permute(S(~ffI,t_,:),[4 2 3 1]), [size(xx_) 1 1 ] );
      
      FLD = sum( XX .* H .* exps, 3 );
-     FIELD(:,:,t_) = (sum( abs(FLD), 4 )).^2; % Squaring the absolute sum helps when noise is present
+     FIELD(:,:,t_) = (sum( abs(FLD), 4 )).^4; % Squaring the absolute sum helps when noise is present
      
      disp(t_)
      
-     if t_-50 > 0
-         FIELDTOT = (squeeze(sum(FIELD(:,:,t_-50:t_),3))); % Using a longer time segment helps when reverberation exists
+     avgingLen = ceil( SYS.signal_info.rir_duration /diff(tt(1:2)))+1;
+     if t_-avgingLen > 0
+         FIELDTOT = (squeeze(sum(FIELD(:,:,t_-avgingLen:t_),3))); % Using a longer time segment helps when reverberation exists
      else
          FIELDTOT = (squeeze(sum(FIELD(:,:,1:t_),3)));
      end
-     % FIELDTOT = (FIELD(:,:,t_));
+%      FIELDTOT = (FIELD(:,:,t_));
      
      
      % Search for point source origin via soundfield correlations
