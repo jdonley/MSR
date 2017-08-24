@@ -53,8 +53,8 @@ ReproSize  = [spkrLen spkrLen];  % [Width, Height]
 BrightSize = ReproSize;          % [Width, Height] 
 QuietSize  = ReproSize;          % [Width, Height] 
 
-srcX = -spkr_radius + 1;
-srcY = 1.0;
+srcX = -spkr_radius + 5;
+srcY = 0.0;
 [srcA,srcD] = cart2pol(srcX,srcY);
 
 imgsrcX = -2*spkr_radius - srcX;

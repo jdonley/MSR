@@ -11,7 +11,7 @@ MicSigFiles(~contains(MicSigFiles,'.mat'))=[];
 data = load(MicSigFiles{:});
 fs = data.fs;
 
-SNRdb = 10;
+SNRdb = 60;
 
 room = SYS.Room_Setup(2);
 c = SYS.signal_info.c;
@@ -22,7 +22,7 @@ Nmax = ceil(2*pi*fmax/c*R);
 S=[];mic_sigs=[];
 for l = 1:size(data.mic_signals,2)
 
-    mic_sigs(:,l) = awgn(data.mic_signals(:,l).',SNRdb,'measured').';
+    mic_sigs(:,l) = data.mic_signals(:,l);%awgn(data.mic_signals(:,l).',SNRdb,'measured').';
     [S(:,:,l),ff,tt] = spectrogram(mic_sigs(:,l),hamming(512,'p'),256,512,fs);
     
 end
@@ -103,7 +103,7 @@ end
 
 
 %% Determine position or replicated soundfield 
-searchFieldRes = 20;
+searchFieldRes = 30;
 x = 0.1 : 1/searchFieldRes : room.Room_Size(2);
 y = 0.1 : 1/searchFieldRes : room.Room_Size(1);
 
@@ -128,7 +128,7 @@ L = size(SpkrLocs,1);
 %  FF = (ff(end)*((2:numel(ff)).'-1)/numel(ff));
  FF = ff(2:end);
 
- ffI = FF<250 | FF>3000;
+ ffI = FF<500 | FF>3000;
 FF(ffI)=[];
  k = 2*pi*FF/c;
  kk = repmat( permute(k,[2 3 4 1]),[size(r) 1]);
@@ -148,12 +148,12 @@ FF(ffI)=[];
      XX = repmat( permute(S(~ffI,t_,:),[4 2 3 1]), [size(xx_) 1 1 ] );
      
      FLD = sum( XX .* H .* exps, 3 );
-     FIELD(:,:,t_) = -(sum( -mag2db(abs( FLD )), 4 ));
+     FIELD(:,:,t_) = (sum( abs(FLD), 4 )).^2; % Squaring the absolute sum helps when noise is present
      
      disp(t_)
      
      if t_-50 > 0
-         FIELDTOT = (squeeze(sum(FIELD(:,:,t_-50:t_),3)));
+         FIELDTOT = (squeeze(sum(FIELD(:,:,t_-50:t_),3))); % Using a longer time segment helps when reverberation exists
      else
          FIELDTOT = (squeeze(sum(FIELD(:,:,1:t_),3)));
      end
