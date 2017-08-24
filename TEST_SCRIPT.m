@@ -128,7 +128,7 @@ L = size(SpkrLocs,1);
 %  FF = (ff(end)*((2:numel(ff)).'-1)/numel(ff));
  FF = ff(2:end);
 
- ffI = FF<500 | FF>3000;
+ ffI = FF<250 | FF>3000;
 FF(ffI)=[];
  k = 2*pi*FF/c;
  kk = repmat( permute(k,[2 3 4 1]),[size(r) 1]);
@@ -140,7 +140,7 @@ FF(ffI)=[];
  %%%
  %%
   FIELD=[];FIELDTOT=[]; tic;
-  for t_ = 1:1:numel(tt)
+  for t_ = 200:500%1:1:numel(tt)
 %         for f_ = 2:numel(ff)
 %             f = ff(f_);
 %             k = 2*pi*ff/c;
@@ -152,7 +152,7 @@ FF(ffI)=[];
 
 %                 X2 =  (S(f_,t_,l) );
                 FLD = sum( XX .* H .* exps, 3 );
-                FIELD(:,:,t_) = sum( mag2db(abs( FLD )), 4 );
+                FIELD(:,:,t_) = sum( (abs( FLD )), 4 );
                                 
 %                 Fm(:,:,l) =  X2 .* H .* exp(1i*2*pi*ff(end)*(f_-1)/numel(ff));
 %             end
@@ -163,7 +163,7 @@ FF(ffI)=[];
     disp(t_)
     
     
-FIELDTOT = squeeze(sum(FIELD,3));
+FIELDTOT = squeeze(sum(FIELD(:,:,t_-50:t_),3));
 % FIELDTOT = (FIELD(:,:,t_));
 
          
