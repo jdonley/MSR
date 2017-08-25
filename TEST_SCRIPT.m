@@ -25,6 +25,9 @@ for l = 1:size(data.mic_signals,2)
 
     mic_sigs(:,l) = data.mic_signals(:,l);%awgn(data.mic_signals(:,l).',SNRdb,'measured').';
     [S(:,:,l),ff,tt] = spectrogram(mic_sigs(:,l),hamming(512,'p'),256,512,fs);
+    ss(:,:,l) = enframe(mic_sigs(:,l),hamming(512,'p'),256);
+    SStmp = fft(permute(ss(:,:,l),[2 1 3]));
+    SS(:,:,l) = SStmp(1:end/2+1,:);
     
 end
 %% Determine soundfield coefficients for mics that aren't colocated 
@@ -147,8 +150,8 @@ FF(ffI)=[];
  
  [~,c_true]=min(abs(x-VS(1)));
  [~,r_true]=min(abs(y-VS(2)));
- FF = ff;
 
+ 
  k2 = 2*pi*ff/c;
  kk2 = repmat(permute(k2,[2 1]),[size(r,3) 1]);
  rr2 = repmat(squeeze(r(r_true,c_true,:)),[1 numel(ff)]);
@@ -207,7 +210,13 @@ FF(ffI)=[];
  
  
  toc;
-
+ 
+ Ssrcfft = [Ssrc; conj(Ssrc(end-1:-1:2,:))];
+ 
+ srcSigFrm = ifft(Ssrcfft);
+ 
+ srcSig = Broadband_Tools.OverlapAdd(srcSigFrm.',0.5);
+ 
  surf(tt,ff/1e3,abs(Ssrc),'lines','no');
  view(2);set(gca,'yscale','log');ylim([0.1 10])
 

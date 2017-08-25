@@ -1,16 +1,14 @@
 function [ TimeSignal ] = OverlapAdd( FramedSig, Overlap )
-% Summary of this function goes here
+% Performs overlap-add on the framed time signal
 % 
 % Syntax:	[ TimeSignal ] = OverlapAdd( FramedSig, Overlap )
 % 
 % Inputs: 
-% 	FramedSig - Description
-% 	input2 - Description
-% 	input3 - Description
+% 	FramedSig - The framed signal as a 2D matrix (Frames x Time)
+% 	Overlap - The amount of overlap as a decimal number (0.5 = 50% overlap)
 % 
 % Outputs: 
-% 	output1 - Description
-% 	output2 - Description
+% 	TimeSignal - The one dimensional time domain signal
 % 
 % Example: 
 % 	Line 1 of example
