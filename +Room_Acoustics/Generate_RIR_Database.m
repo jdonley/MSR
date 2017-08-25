@@ -17,7 +17,7 @@ function Generate_RIR_Database( SYS )
 % Email: jrd089@uowmail.edu.au
 % Copyright: Jacob Donley 2015-2017
 % Date: 15 August 2015
-% Revision: 0.1
+% Version: 0.1 (15 August 2015)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -34,8 +34,6 @@ end
 tic;
 for s = DBsetups
     Setup = Setups(s);
-
-    delete(gcp('nocreate'));
 
     if numel(SYS.Room_Setup) > 1
         Room = SYS.Room_Setup(s);
@@ -158,6 +156,7 @@ for s = DBsetups
 end
 toc
 
+delete(gcp('nocreate'));
 
 end
 

@@ -40,8 +40,9 @@ function [ RIR_Bright, RIR_Quiet, Rec_Bright_Pos, Rec_Quiet_Pos, rec_b, rec_q ] 
 % University of Wollongong
 % Email: jrd089@uowmail.edu.au
 % Copyright: Jacob Donley 2015-2017
-% Date: 15 August 2015
-% Revision: 0.1
+% Date: 25 August 2017
+% Version: 0.2 (25 August 2017)
+% Version: 0.1 (15 August 2015)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -143,28 +144,40 @@ else
     
 end
 
+if all(isnan(Rec_Bright_Pos(:)))
+    Rec_Bright_Pos = nan*Rec_Quiet_Pos;
+elseif all(isnan(Rec_Quiet_Pos(:)))
+    Rec_Quiet_Pos = nan*Rec_Bright_Pos;
+end
+
+
 %%
 %Evalute the Room Impulse Responses
-RIR_Bright = zeros([size(Rec_Bright_Pos,1), n, size(src,1)]);
-RIR_Quiet  = zeros([size(Rec_Quiet_Pos,1), n, size(src,1)]);
+Nsrc = size(src,1);
+Nrec = size(Rec_Bright_Pos,1);
+Ntot = Nsrc*Nrec;
+
+RIR_Bright = zeros([Ntot, n]);
+RIR_Quiet  = zeros([Ntot, n]);
 
 room_size = room.Room_Size([2 1 3]); % Needs to be [x,y,z]
 current_pool = gcp; %Start new pool
 fprintf('\n====== Building RIR Database ======\n');
 fprintf('\t Completion: '); startTime = tic;
 Tools.showTimeToCompletion;
-percCompl = parfor_progress( size(src,1) );
-parfor s = 1:size(src,1)
-    RIR_Bright(:,:,s) = rir_generator( ...
+percCompl = parfor_progress( Ntot );
+parfor rs = 1:Ntot
+    [r,s] = ind2sub([Nrec Nsrc],rs);
+    RIR_Bright(rs,:) = rir_generator( ...
         c, Fs, ...
-        Rec_Bright_Pos, ...
+        Rec_Bright_Pos(r,:), ...
         src(s,:), ...
         room_size, ...
         beta, n , mtype, order, dim, orientation, hp_filter);
     
-    RIR_Quiet(:,:,s) = rir_generator( ...
+    RIR_Quiet(rs,:) = rir_generator( ...
         c, Fs, ...
-        Rec_Quiet_Pos, ...
+        Rec_Quiet_Pos(r,:), ...
         src(s,:), ...
         room_size, ...
         beta, n , mtype, order, dim, orientation, hp_filter);
@@ -174,6 +187,11 @@ parfor s = 1:size(src,1)
     Tools.showTimeToCompletion( percCompl/100, [], [], startTime );
     %%%
 end
+
+% Reshape due to 1D parfor
+RIR_Bright = permute( reshape(RIR_Bright,[Nrec Nsrc n]), [1 3 2]);
+RIR_Quiet  = permute( reshape(RIR_Quiet ,[Nrec Nsrc n]), [1 3 2]);
+
 percCompl=parfor_progress(0);
 Tools.showTimeToCompletion( percCompl/100, [], [], startTime );
 
