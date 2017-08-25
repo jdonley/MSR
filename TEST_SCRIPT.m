@@ -140,22 +140,26 @@ FF(ffI)=[];
  
  %%%
  %%
+ VSlocpol = SYS.Main_Setup(2).Loudspeaker_Locations;
+ [VSloc(1), VSloc(2)] = pol2cart(VSlocpol(1),VSlocpol(2));
+ VS = SYS.Room_Setup(2).Reproduction_Centre([2 1]) + VSloc;
+ 
  [~,c_true]=min(abs(x-VS(1)));
  [~,r_true]=min(abs(y-VS(2)));
  FF = ff;
 
  k2 = 2*pi*ff/c;
- kk2 = permute(k2,[2 1]);
+ kk2 = repmat(permute(k2,[2 1]),[size(r,3) 1]);
  rr2 = repmat(squeeze(r(r_true,c_true,:)),[1 numel(ff)]);
  
  H2 = 1i/4*besselh(0,kk2.*rr2);
-%  exps2 = exp( 1i*c*kk2 );
+ exps2 = exp( 1i*c*kk2 );
  
  
  
  ignoreLevel = max(abs(S(:)))*db2mag(-20);
  FIELD=[];FIELDTOT=[]; tic;
- for t_ = 1:1:numel(tt)
+ for t_ = 10:1:numel(tt)
      
      if max(max(abs(S(~ffI,t_,:)))) < ignoreLevel % Ignore speech level that is lower than -20dB of peak value
          continue
@@ -165,8 +169,11 @@ FF(ffI)=[];
      
      
      VirtualSenseSig = squeeze(...
-         XX2(r_true,c_true,:,:) ...
-         .* H2(r_true,c_true,:,:) );
+         conj(XX2(r_true,c_true,:,:))) ...
+         ./ H2 .* exps2;
+     
+     VirtualSenseSig(:,1) = 0;
+     
      
      FLD = sum( XX .* H .* exps, 3 );
      FIELD(:,:,t_) = (sum( abs(FLD), 4 )).^2; % Squaring the absolute sum helps when noise is present
@@ -187,9 +194,6 @@ FF(ffI)=[];
      
      [fldMax,I]=max(FIELDTOT(:));
      [r_,c_]=ind2sub(size(FIELDTOT),I);
-     VSlocpol = SYS.Main_Setup(2).Loudspeaker_Locations;
-     [VSloc(1), VSloc(2)] = pol2cart(VSlocpol(1),VSlocpol(2));
-     VS = SYS.Room_Setup(2).Reproduction_Centre([2 1]) + VSloc;
      scatter3(VS(1),VS(2),fldMax,'ro'); hold on;
      scatter3(x(c_),y(r_),fldMax,'k.'); hold on;
      
