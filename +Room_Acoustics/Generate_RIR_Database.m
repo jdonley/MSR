@@ -34,6 +34,9 @@ end
 tic;
 for s = DBsetups
     Setup = Setups(s);
+
+    delete(gcp('nocreate'));
+
     if numel(SYS.Room_Setup) > 1
         Room = SYS.Room_Setup(s);
     elseif numel(SYS.Room_Setup) == 1
@@ -151,10 +154,10 @@ for s = DBsetups
     
     %axis([0 room.Room_Size(1) 0 room.Room_Size(2)]);
     
+
 end
 toc
 
-delete(gcp('nocreate'));
 
 end
 

@@ -105,8 +105,8 @@ end
 
 %% Determine position or replicated soundfield 
 searchFieldRes = 30;
-x = 0.1 : 1/searchFieldRes : room.Room_Size(2);
-y = 0.1 : 1/searchFieldRes : room.Room_Size(1);
+x = 0.2 : 1/searchFieldRes : room.Room_Size(2);
+y = 0.2 : 1/searchFieldRes : room.Room_Size(1);
 
 setup = SYS.Main_Setup(1);
 c = SYS.signal_info.c;
@@ -135,7 +135,8 @@ FF(ffI)=[];
  kk = repmat( permute(k,[2 3 4 1]),[size(r) 1]);
  rr = repmat(r,[1 1 1 numel(FF)]);
  
- H = 1i/4*besselh(0,kk.*rr);
+%  H = 1i/4*besselh(0,kk.*rr); %2D
+ H = exp(1i*kk.*rr) ./ (4*pi*rr); %3D;
  exps = exp( 1i*c*kk ); 
  
  %%%
@@ -152,64 +153,63 @@ FF(ffI)=[];
  kk2 = repmat(permute(k2,[2 1]),[size(r,3) 1]);
  rr2 = repmat(squeeze(r(r_true,c_true,:)),[1 numel(ff)]);
  
- H2 = 1i/4*besselh(0,kk2.*rr2);
+%  H2 = 1i/4*besselh(0,kk2.*rr2); %2D
+ H2 = exp(1i*kk2.*rr2) ./ (4*pi*rr2); %3D
  exps2 = exp( 1i*c*kk2 );
  
  
  
  ignoreLevel = max(abs(S(:)))*db2mag(-20);
+ Ssrc = [];
  FIELD=[];FIELDTOT=[]; tic;
- for t_ = 10:1:numel(tt)
+ for t_ = 1:1:numel(tt)
      
-     if max(max(abs(S(~ffI,t_,:)))) < ignoreLevel % Ignore speech level that is lower than -20dB of peak value
-         continue
-     end
-     XX = repmat( permute(S(~ffI,t_,:),[4 2 3 1]), [size(xx_) 1 1 ] );
-     XX2 = repmat( permute(S(:,t_,:),[4 2 3 1]), [size(xx_) 1 1 ] );
+%      if max(max(abs(S(~ffI,t_,:)))) < ignoreLevel % Ignore speech level that is lower than -20dB of peak value
+%          continue
+%      end
+%      XX = repmat( permute(S(~ffI,t_,:),[4 2 3 1]), [size(xx_) 1 1 ] );
+     XX2 = squeeze(S(:,t_,:)).';
      
      
-     VirtualSenseSig = squeeze(...
-         conj(XX2(r_true,c_true,:,:))) ...
-         ./ H2 .* exps2;
+     VirtualSenseSig = conj(XX2) ./ H2 .* exps2;
      
      VirtualSenseSig(:,1) = 0;
      
+     Ssrc(:,t_) = mean(VirtualSenseSig);
      
-     FLD = sum( XX .* H .* exps, 3 );
-     FIELD(:,:,t_) = (sum( abs(FLD), 4 )).^2; % Squaring the absolute sum helps when noise is present
-     
-     disp(t_)
-     
-     avgingLen = ceil( SYS.signal_info.rir_duration /diff(tt(1:2)))+1;
-     if t_-avgingLen > 0
-         FIELDTOT = (squeeze(sum(FIELD(:,:,t_-avgingLen:t_),3))); % Using a longer time segment helps when reverberation exists
-     else
-         FIELDTOT = (squeeze(sum(FIELD(:,:,1:t_),3)));
-     end
-%      FIELDTOT = (FIELD(:,:,t_));
-     
-     
-     % Search for point source origin via soundfield correlations
-     figure(2); hold off;
-     
-     [fldMax,I]=max(FIELDTOT(:));
-     [r_,c_]=ind2sub(size(FIELDTOT),I);
-     scatter3(VS(1),VS(2),fldMax,'ro'); hold on;
-     scatter3(x(c_),y(r_),fldMax,'k.'); hold on;
-     
-     surf(x,y,FIELDTOT,'lines','no');
-     view(2);axis equal;
-     xlim([min(x) max(x)]);ylim([min(y) max(y)]);
-     drawnow;
+%      FLD = sum( XX .* H .* exps, 3 );
+%      FIELD(:,:,t_) = (sum( abs(FLD), 4 )).^2; % Squaring the absolute sum helps when noise is present
+%      
+%       disp(t_)
+%      
+%      avgingLen = ceil( SYS.signal_info.rir_duration /diff(tt(1:2)))+1;
+%      if t_-avgingLen > 0
+%          FIELDTOT = (squeeze(sum(FIELD(:,:,t_-avgingLen:t_),3))); % Using a longer time segment helps when reverberation exists
+%      else
+%          FIELDTOT = (squeeze(sum(FIELD(:,:,1:t_),3)));
+%      end
+% %      FIELDTOT = (FIELD(:,:,t_));
+%      
+%      
+%      % Search for point source origin via soundfield correlations
+%      figure(2); hold off;
+%      
+%      [fldMax,I]=max(FIELDTOT(:));
+%      [r_,c_]=ind2sub(size(FIELDTOT),I);
+%      scatter3(VS(1),VS(2),fldMax,'ro'); hold on;
+%      scatter3(x(c_),y(r_),fldMax,'k.'); hold on;
+%      
+%      surf(x,y,FIELDTOT,'lines','no');
+%      view(2);axis equal;
+%      xlim([min(x) max(x)]);ylim([min(y) max(y)]);
+%      drawnow;
  end
  
  
  toc;
 
-%%
-Rsrc = abs(sqrt(sum((...
-    SYS.Room_Setup(2).ReceiverPositions(:,[1 2]) - repmat(VS,Q,1)...
-    ).^2,2)));
+ surf(tt,ff/1e3,abs(Ssrc),'lines','no');
+ view(2);set(gca,'yscale','log');ylim([0.1 10])
 
 
 %%
