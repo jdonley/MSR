@@ -136,18 +136,37 @@ FF(ffI)=[];
  rr = repmat(r,[1 1 1 numel(FF)]);
  
  H = 1i/4*besselh(0,kk.*rr);
- exps = exp( 1i*c*kk ); % <- this could be off .. used to be  exp(1i*2*pi*ff(end)*(f_-1)/numel(ff))
+ exps = exp( 1i*c*kk ); 
  
  %%%
  %%
+ [~,c_true]=min(abs(x-VS(1)));
+ [~,r_true]=min(abs(y-VS(2)));
+ FF = ff;
+
+ k2 = 2*pi*ff/c;
+ kk2 = permute(k2,[2 1]);
+ rr2 = repmat(squeeze(r(r_true,c_true,:)),[1 numel(ff)]);
+ 
+ H2 = 1i/4*besselh(0,kk2.*rr2);
+%  exps2 = exp( 1i*c*kk2 );
+ 
+ 
+ 
  ignoreLevel = max(abs(S(:)))*db2mag(-20);
  FIELD=[];FIELDTOT=[]; tic;
  for t_ = 1:1:numel(tt)
      
-     if max(max(abs(S(~ffI,t_,:)))) < ignoreLevel
+     if max(max(abs(S(~ffI,t_,:)))) < ignoreLevel % Ignore speech level that is lower than -20dB of peak value
          continue
      end
      XX = repmat( permute(S(~ffI,t_,:),[4 2 3 1]), [size(xx_) 1 1 ] );
+     XX2 = repmat( permute(S(:,t_,:),[4 2 3 1]), [size(xx_) 1 1 ] );
+     
+     
+     VirtualSenseSig = squeeze(...
+         XX2(r_true,c_true,:,:) ...
+         .* H2(r_true,c_true,:,:) );
      
      FLD = sum( XX .* H .* exps, 3 );
      FIELD(:,:,t_) = (sum( abs(FLD), 4 )).^2; % Squaring the absolute sum helps when noise is present
