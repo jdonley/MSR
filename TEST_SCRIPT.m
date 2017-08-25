@@ -14,6 +14,7 @@ fs = data.fs;
 SNRdb = 60;
 
 room = SYS.Room_Setup(2);
+Q = room.NoReceivers;
 c = SYS.signal_info.c;
 fmax = 2000;
 R = SYS.Main_Setup(1).Radius;
@@ -27,7 +28,7 @@ for l = 1:size(data.mic_signals,2)
     
 end
 %% Determine soundfield coefficients for mics that aren't colocated 
-% Q = room.NoReceivers;
+
 % mLocs = room.ReceiverPositions - repmat(room.Reproduction_Centre([2 1 3]),Q,1);
 % [th,r] = cart2pol( mLocs(:,1), mLocs(:,2) );
 % 
@@ -182,7 +183,10 @@ FF(ffI)=[];
  
  toc;
 
-
+%%
+Rsrc = abs(sqrt(sum((...
+    SYS.Room_Setup(2).ReceiverPositions(:,[1 2]) - repmat(VS,Q,1)...
+    ).^2,2)));
 
 
 %%
