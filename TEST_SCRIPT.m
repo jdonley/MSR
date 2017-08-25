@@ -20,12 +20,14 @@ fmax = 2000;
 R = SYS.Main_Setup(1).Radius;
 Nmax = ceil(2*pi*fmax/c*R);
 
+WIN = sqrt(hann(512,'p'));
+
 S=[];mic_sigs=[];
 for l = 1:size(data.mic_signals,2)
 
     mic_sigs(:,l) = data.mic_signals(:,l);%awgn(data.mic_signals(:,l).',SNRdb,'measured').';
-    [S(:,:,l),ff,tt] = spectrogram(mic_sigs(:,l),hamming(512,'p'),256,512,fs);
-    ss(:,:,l) = enframe(mic_sigs(:,l),hamming(512,'p'),256);
+    [S(:,:,l),ff,tt] = spectrogram(mic_sigs(:,l),WIN,256,512,fs);
+    ss(:,:,l) = enframe(mic_sigs(:,l),WIN,256);
     SStmp = fft(permute(ss(:,:,l),[2 1 3]));
     SS(:,:,l) = SStmp(1:end/2+1,:);
     
@@ -165,7 +167,7 @@ FF(ffI)=[];
  ignoreLevel = max(abs(S(:)))*db2mag(-20);
  Ssrc = [];
  FIELD=[];FIELDTOT=[]; tic;
- for t_ = 1:1:numel(tt)
+ for t_ = 200:1:numel(tt)
      
 %      if max(max(abs(S(~ffI,t_,:)))) < ignoreLevel % Ignore speech level that is lower than -20dB of peak value
 %          continue
@@ -174,14 +176,17 @@ FF(ffI)=[];
      XX2 = squeeze(S(:,t_,:)).';
      
      
-     VirtualSenseSig = conj(XX2) ./ H2 .* exps2;
+     VirtualSenseSig = XX2 ./ conj(H2);% .* exps2;
      
      VirtualSenseSig(:,1) = 0;
+     VirtualSenseSig(:,end) = real(VirtualSenseSig(:,end));
      
      Ssrc(:,t_) = mean(VirtualSenseSig);
      
-%      FLD = sum( XX .* H .* exps, 3 );
-%      FIELD(:,:,t_) = (sum( abs(FLD), 4 )).^2; % Squaring the absolute sum helps when noise is present
+% %      FLD = sum( XX .* H .* exps, 3 );
+% %      FIELD(:,:,t_) = (sum( abs(FLD), 4 )).^2; % Squaring the absolute sum helps when noise is present
+%      FLD = sum( XX ./ conj(H), 3 );
+%      FIELD(:,:,t_) = (sum( abs(FLD), 4 )); % Squaring the absolute sum helps when noise is present
 %      
 %       disp(t_)
 %      
@@ -215,11 +220,15 @@ FF(ffI)=[];
  
  srcSigFrm = ifft(Ssrcfft);
  
- srcSig = Broadband_Tools.OverlapAdd(srcSigFrm.',0.5);
+%  srcSig = Broadband_Tools.OverlapAdd(srcSigFrm.',0.5);
+ srcSig = overlapadd(srcSigFrm.',WIN,256);
  
- surf(tt,ff/1e3,abs(Ssrc),'lines','no');
- view(2);set(gca,'yscale','log');ylim([0.1 10])
-
+%  [b,a] = cheby1(6,1,[250 2500]/8000);
+%  srcSig = filter(b,a,srcSig);
+ 
+ load('M:\MSR\+Miscellaneous\+TestAudio_Files_InvFilts\inverseESS.mat');
+ imp = Tools.extractIR(srcSig,invY);
+ plot(imp)
 
 %%
 % N=4;
