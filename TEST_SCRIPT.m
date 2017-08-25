@@ -128,7 +128,7 @@ L = size(SpkrLocs,1);
 %  FF = (ff(end)*((2:numel(ff)).'-1)/numel(ff));
  FF = ff(2:end);
 
- ffI = FF<250 | FF>2500;
+ ffI = FF<1000 | FF>2500;
 FF(ffI)=[];
  k = 2*pi*FF/c;
  kk = repmat( permute(k,[2 3 4 1]),[size(r) 1]);
