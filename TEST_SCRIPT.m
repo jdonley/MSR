@@ -181,7 +181,7 @@ FF(ffI)=[];
      VirtualSenseSig(:,1) = 0;
      VirtualSenseSig(:,end) = real(VirtualSenseSig(:,end));
      
-     Ssrc(:,t_) = mean(VirtualSenseSig);
+     Ssrc(:,t_) = diff(VirtualSenseSig([1 12],:));
      
 % %      FLD = sum( XX .* H .* exps, 3 );
 % %      FIELD(:,:,t_) = (sum( abs(FLD), 4 )).^2; % Squaring the absolute sum helps when noise is present
