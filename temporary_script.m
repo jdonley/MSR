@@ -26,7 +26,7 @@ S=[];mic_sigs=[];
 for l = 1:size(data.mic_signals,2)
 
     mic_sigs(:,l) = data.mic_signals(:,l);%awgn(data.mic_signals(:,l).',SNRdb,'measured').';
-    [S(:,:,l),ff,tt] = spectrogram(mic_sigs(:,l),WIN,256,512,fs);
+%     [S(:,:,l),ff,tt] = spectrogram(mic_sigs(:,l),WIN,256,512,fs);
     ss(:,:,l) = enframe(mic_sigs(:,l),WIN,256);
     SStmp = fft(permute(ss(:,:,l),[2 1 3]));
     SS(:,:,l) = SStmp(1:end/2+1,:);
@@ -165,7 +165,7 @@ FF(ffI)=[];
  
  
  ignoreLevel = max(abs(S(:)))*db2mag(-20);
- Ssrc = [];
+ Ssrc = [];  Ssrc1 = [];
  FIELD=[];FIELDTOT=[]; tic;
  for t_ = 1:1:numel(tt)
      
@@ -173,7 +173,7 @@ FF(ffI)=[];
 %          continue
 %      end
 %      XX = repmat( permute(S(~ffI,t_,:),[4 2 3 1]), [size(xx_) 1 1 ] );
-     XX2 = squeeze(S(:,t_,:)).';
+     XX2 = squeeze(SS(:,t_,:)).';
      
      
      VirtualSenseSig = XX2 ./ conj(H2);% .* exps2;
@@ -181,7 +181,8 @@ FF(ffI)=[];
      VirtualSenseSig(:,1) = 0;
      VirtualSenseSig(:,end) = real(VirtualSenseSig(:,end));
      
-     Ssrc(:,t_) = sum(VirtualSenseSig);
+     Ssrc(:,t_) = mean(VirtualSenseSig);
+     Ssrc1(:,t_) = VirtualSenseSig(12,:);
      
 % %      FLD = sum( XX .* H .* exps, 3 );
 % %      FIELD(:,:,t_) = (sum( abs(FLD), 4 )).^2; % Squaring the absolute sum helps when noise is present
@@ -217,15 +218,33 @@ FF(ffI)=[];
  toc;
  
  Ssrcfft = [Ssrc; conj(Ssrc(end-1:-1:2,:))];
+ Ssrc1fft = [Ssrc1; conj(Ssrc1(end-1:-1:2,:))];
  
  srcSigFrm = ifft(Ssrcfft);
+ src1SigFrm = ifft(Ssrc1fft);
  
-  srcSig = Broadband_Tools.OverlapAdd((srcSigFrm .* Tools.repmatmatch(WIN,srcSigFrm)).',0.5);
-%  srcSig = overlapadd(srcSigFrm.',WIN,256);
+ srcSig = Broadband_Tools.OverlapAdd((srcSigFrm .* Tools.repmatmatch(WIN,srcSigFrm)).',0.5);
+ src1Sig = Broadband_Tools.OverlapAdd((src1SigFrm .* Tools.repmatmatch(WIN,src1SigFrm)).',0.5);
+ %  srcSig = overlapadd(srcSigFrm.',WIN,256);
  
-%  [b,a] = cheby1(6,1,[250 2500]/8000);
-%  srcSig = filter(b,a,srcSig);
+ %  [b,a] = cheby1(6,1,[250 2500]/8000);
+ %  srcSig = filter(b,a,srcSig);
+ 
+ %normalise IRs
+ src1Sig = src1Sig/sum(src1Sig);
+ srcSig = srcSig/sum(srcSig);
  
  load('M:\MSR\+Miscellaneous\+TestAudio_Files_InvFilts\inverseESS.mat');
- imp = Tools.extractIR(srcSig,invY);
- plot(imp)
+ impmic   = Tools.extractIR(src1Sig,invY);
+ impsense = Tools.extractIR(srcSig,invY);
+ plot(impmic); hold on;
+ plot(impsense); hold off;
+ %%
+ 
+%  Broadband_Tools.PredictiveFraming(srcSigFrm);
+ 
+ 
+ 
+ 
+ 
+ 

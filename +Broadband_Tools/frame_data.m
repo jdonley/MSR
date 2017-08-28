@@ -1,5 +1,5 @@
 function [ d_framed ] = frame_data( d, OL, N )
-%FRAME_DATA Frames data with overlap
+%Frames data with overlap
 % 
 % Syntax:	[d_framed] = frame_data( d, OL, N ) 
 % 
@@ -16,14 +16,14 @@ function [ d_framed ] = frame_data( d, OL, N )
 % 	Line 2 of example
 % 	Line 3 of example
 % 
-% See also: List related files here
+% See also: enframe
 
 % Author: Jacob Donley
 % University of Wollongong
 % Email: jrd089@uowmail.edu.au
-% Copyright: Jacob Donley 2016
+% Copyright: Jacob Donley 2016-2017
 % Date: 16 August 2016
-% Revision: 0.1
+% Version: 0.1 (16 August 2016)
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

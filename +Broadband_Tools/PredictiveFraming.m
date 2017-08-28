@@ -1,31 +1,31 @@
 function [ Frames ] = PredictiveFraming( Frames, Buffer, Npredict, method )
-%PREDICTIVEFRAMING This function accepts a framed signal and corresponding
-%buffers to predict forward Npredict samples.
+%This function accepts a framed signal and corresponding buffers to predict forward Npredict samples.
 %
-% Syntax:	[ Frames ] = PredictiveFraming( Frames, Buffer, Npredict, Npad, method )
+% Syntax:   [ Frames ] = PredictiveFraming( Frames, Buffer, Npredict, method )
 %
 % Inputs:
-% 	Frames - Description
-% 	Buffer - Description
-% 	Npredict - Description
+%	  Frames - The framed signal for which to predict ahead of each frame
+%              by Npredict
+%	  Buffer - The set of buffers corresponding to each frame of 'Frames'
+%   Npredict - The number of samples to predict ahead of time at each frame
+%     method - The autoregressive method to use for prediction
 %
 % Outputs:
-% 	output1 - Description
-% 	output2 - Description
+% 	Frames - The set of frames containing the predicted samples
 %
 % Example:
 % 	Line 1 of example
 % 	Line 2 of example
 % 	Line 3 of example
 %
-% See also: List related files here
+% See also: predict, forecast, ar, lpc, aryule, arburg, arcov, armcov
 
 % Author: Jacob Donley
 % University of Wollongong
 % Email: jrd089@uowmail.edu.au
-% Copyright: Jacob Donley 2016
+% Copyright: Jacob Donley 2016-2017
 % Date: 16 August 2016
-% Revision: 0.1
+% Version: 0.1 (16 August 2016)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -57,10 +57,10 @@ for f=1:n1-1
     y(:,f) = filter([0 0], -a(f,:), zeros(1, Npredict), zf);
 end
 y_p = [B((end-m+Npredict+1):end,:); ...
-    y;] ; %Predicted part
+    y;] ; % Predicted part
 y_p(isnan(y_p))=0;
 
-F_p = [F_p(m/2+1:end,:); ... %Latest part-frame known values
+F_p = [F_p(m/2+1:end,:); ... % Latest part-frame known values
     y_p(1:m/2,:); ...
     y_p];
 
