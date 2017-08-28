@@ -20,7 +20,7 @@ Room_Acoustics.Generate_RIR_Database
 
 %% Generate Microphone Signals
 Broadband_Tools.Generate_Microphone_Signals
-TEST_SCRIPT
+% TEST_SCRIPT
 
 %% Build Reproduction Look-Up Tables
 Soundfield_Database.LUT_Builders.Build_LUT
