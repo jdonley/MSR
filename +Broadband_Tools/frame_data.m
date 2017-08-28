@@ -32,14 +32,14 @@ no_OL_sz = floor(N*(1-OL));
 OL_sz = N - no_OL_sz;
 
 % Pad the signal file to allow the creation of the matrix
-L = ceil( length(d) / no_OL_sz );
+L = ceil( length(d) / OL_sz );
 r = rem( length(d), no_OL_sz);
 r(r==0)=no_OL_sz;
 p = zeros( no_OL_sz - r , 1 );
-d = [d; p]';
+d = [d; p].';
 
 % Find the overlapping section and non-overlapping section
-Half1  = reshape(d, [OL_sz L]).';
+Half1 = reshape(d, [OL_sz L]).';
 Half2 = [Half1(2:end, 1:no_OL_sz); zeros(1,OL_sz)];
 
 % Concatenate the two sections

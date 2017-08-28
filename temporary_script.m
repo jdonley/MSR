@@ -1,4 +1,4 @@
-tic;
+clear; tic;
 SYS = Current_Systems.IEEELetters2017_System_B;
 
 subSYS = SYS;
@@ -20,18 +20,26 @@ fmax = 2000;
 R = SYS.Main_Setup(1).Radius;
 Nmax = ceil(2*pi*fmax/c*R);
 
+
+
 WIN = sqrt(hann(512,'p'));
 
 S=[];mic_sigs=[];
 for l = 1:size(data.mic_signals,2)
 
     mic_sigs(:,l) = data.mic_signals(:,l);%awgn(data.mic_signals(:,l).',SNRdb,'measured').';
-%     [S(:,:,l),ff,tt] = spectrogram(mic_sigs(:,l),WIN,256,512,fs);
-    ss(:,:,l) = enframe(mic_sigs(:,l),WIN,256);
-    SStmp = fft(permute(ss(:,:,l),[2 1 3]));
+%      [S(:,:,l),ff,tt] = spectrogram(mic_sigs(:,l),WIN,256,512,fs);
+%     ss(:,:,l) = enframe(mic_sigs(:,l),WIN,256);
+    SStmp = Broadband_Tools.frame_data(mic_sigs(:,l),0.5,numel(WIN));
+    SStmp = SStmp .* Tools.repmatmatch(WIN.',SStmp);
+    SStmp = fft(permute(SStmp,[2 1 3]));
     SS(:,:,l) = SStmp(1:end/2+1,:);
     
 end
+
+ff = linspace(0,SYS.signal_info.f_high,size(SS,1)).';
+tt = Broadband_Tools.frame_data((0:size(mic_sigs,1)-1).'/fs,0.5,numel(WIN));
+tt = tt(:,1);
 %% Determine soundfield coefficients for mics that aren't colocated 
 
 % mLocs = room.ReceiverPositions - repmat(room.Reproduction_Centre([2 1 3]),Q,1);
@@ -240,8 +248,10 @@ FF(ffI)=[];
  plot(impmic); hold on;
  plot(impsense); hold off;
  %%
+ b = Broadband_Tools.frame_data( srcSig, 0.5/2 , numel(WIN)*2);
+ s = Broadband_Tools.frame_data( srcSig, 0.5 , numel(WIN));
  
-%  Broadband_Tools.PredictiveFraming(srcSigFrm);
+Broadband_Tools.PredictiveFraming(srcSigFrm);
  
  
  

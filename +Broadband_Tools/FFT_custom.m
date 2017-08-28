@@ -26,8 +26,8 @@ function [ Y, frequencies, Frames, Windows, Yo, Frames_orig] = FFT_custom( audio
 % Email: jrd089@uowmail.edu.au
 % Copyright: Jacob Donley 2017
 % Date: 9 December 2016
-% Revision: 0.2 (9 December 2016)
-% Revision: 0.1 (15 August 2015)
+% Version: 0.2 (9 December 2016)
+% Version: 0.1 (15 August 2015)
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
