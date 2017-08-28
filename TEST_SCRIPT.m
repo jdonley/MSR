@@ -220,8 +220,8 @@ FF(ffI)=[];
  
  srcSigFrm = ifft(Ssrcfft);
  
- srcSig = Broadband_Tools.OverlapAdd(srcSigFrm.' .* ,0.5);
- srcSig = overlapadd(srcSigFrm.',WIN,256);
+  srcSig = Broadband_Tools.OverlapAdd((srcSigFrm .* Tools.repmatmatch(WIN,srcSigFrm)).',0.5);
+%  srcSig = overlapadd(srcSigFrm.',WIN,256);
  
 %  [b,a] = cheby1(6,1,[250 2500]/8000);
 %  srcSig = filter(b,a,srcSig);
