@@ -167,7 +167,7 @@ FF(ffI)=[];
  ignoreLevel = max(abs(S(:)))*db2mag(-20);
  Ssrc = [];
  FIELD=[];FIELDTOT=[]; tic;
- for t_ = 200:1:numel(tt)
+ for t_ = 1:1:numel(tt)
      
 %      if max(max(abs(S(~ffI,t_,:)))) < ignoreLevel % Ignore speech level that is lower than -20dB of peak value
 %          continue
@@ -181,7 +181,7 @@ FF(ffI)=[];
      VirtualSenseSig(:,1) = 0;
      VirtualSenseSig(:,end) = real(VirtualSenseSig(:,end));
      
-     Ssrc(:,t_) = diff(VirtualSenseSig([1 12],:));
+     Ssrc(:,t_) = sum(VirtualSenseSig);
      
 % %      FLD = sum( XX .* H .* exps, 3 );
 % %      FIELD(:,:,t_) = (sum( abs(FLD), 4 )).^2; % Squaring the absolute sum helps when noise is present
@@ -220,7 +220,7 @@ FF(ffI)=[];
  
  srcSigFrm = ifft(Ssrcfft);
  
-%  srcSig = Broadband_Tools.OverlapAdd(srcSigFrm.',0.5);
+ srcSig = Broadband_Tools.OverlapAdd(srcSigFrm.' .* ,0.5);
  srcSig = overlapadd(srcSigFrm.',WIN,256);
  
 %  [b,a] = cheby1(6,1,[250 2500]/8000);
