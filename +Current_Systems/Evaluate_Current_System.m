@@ -20,6 +20,7 @@ Room_Acoustics.Generate_RIR_Database
 
 %% Generate Microphone Signals
 Broadband_Tools.Generate_Microphone_Signals
+temporary_script
 % TEST_SCRIPT
 
 %% Build Reproduction Look-Up Tables

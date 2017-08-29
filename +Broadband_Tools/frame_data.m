@@ -22,7 +22,8 @@ function [ d_framed ] = frame_data( d, OL, N )
 % University of Wollongong
 % Email: jrd089@uowmail.edu.au
 % Copyright: Jacob Donley 2016-2017
-% Date: 16 August 2016
+% Date: 28 August 2016
+% Version: 0.2 (28 August 2017)
 % Version: 0.1 (16 August 2016)
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -32,18 +33,18 @@ no_OL_sz = floor(N*(1-OL));
 OL_sz = N - no_OL_sz;
 
 % Pad the signal file to allow the creation of the matrix
-L = ceil( length(d) / OL_sz );
 r = rem( length(d), no_OL_sz);
 r(r==0)=no_OL_sz;
 p = zeros( no_OL_sz - r , 1 );
 d = [d; p].';
+L = length(d) / no_OL_sz;
 
-% Find the overlapping section and non-overlapping section
-Half1 = reshape(d, [OL_sz L]).';
-Half2 = [Half1(2:end, 1:no_OL_sz); zeros(1,OL_sz)];
-
-% Concatenate the two sections
-d_framed = [Half1 Half2 ];
+% Find the overlapping section and non-overlapping section and concatenate
+partFrames = reshape(d, [no_OL_sz L]).';
+d_framed = partFrames; 
+for seg = 1:(1/(1-OL)-1)
+    d_framed = [d_framed [partFrames((seg+1):end, 1:min(OL_sz,no_OL_sz)); zeros(seg,min(OL_sz,no_OL_sz))]];
+end
 
 % Remove last frame if it contains no extra information other than an overlap
 if nnz(d_framed(end,:)) <= OL_sz

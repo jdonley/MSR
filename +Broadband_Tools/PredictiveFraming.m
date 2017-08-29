@@ -1,7 +1,7 @@
-function [ Frames ] = PredictiveFraming( Frames, Buffer, Npredict, method )
+function [ PredictedFrames, PredictedSignal ] = PredictiveFraming( Frames, Buffer, Npredict, method )
 %This function accepts a framed signal and corresponding buffers to predict forward Npredict samples.
 %
-% Syntax:   [ Frames ] = PredictiveFraming( Frames, Buffer, Npredict, method )
+% Syntax:   [ PredictedFrames, PredictedSignal ] = PredictiveFraming( Frames, Buffer, Npredict, method )
 %
 % Inputs:
 %	  Frames - The framed signal for which to predict ahead of each frame
@@ -11,7 +11,8 @@ function [ Frames ] = PredictiveFraming( Frames, Buffer, Npredict, method )
 %     method - The autoregressive method to use for prediction
 %
 % Outputs:
-% 	Frames - The set of frames containing the predicted samples
+% 	PredictedFrames - The set of frames containing the predicted samples
+%   PredictedSignal - The frame based predicted signal
 %
 % Example:
 % 	Line 1 of example
@@ -64,7 +65,29 @@ F_p = [F_p(m/2+1:end,:); ... % Latest part-frame known values
     y_p(1:m/2,:); ...
     y_p];
 
-Frames = reshape(F_p,m,[]).';
+PredictedFrames = reshape(F_p,m,[]).';
+PredictedSignal = [zeros(m,1); y(:)];
+
+%% Debug plots
+% f=figure(12321);f.Name='PredictiveFraming'; hold off;
+% for i = 0:size(Frames,1)
+%     
+%     subplot(3,1,1); xlim([-10*Npredict 0] + (i+1)*Npredict+m);  grid on;
+%     plot((1:m)+i*Npredict,Frames(i+1,:),'linew',1.5);hold on;
+%     
+%     subplot(3,1,2); xlim([-10*Npredict 0] + (i+1)*Npredict+m);  grid on;
+%     plot((-l+1:0)+m+i*Npredict,Buffer(i+1,:),'linew',1.5);hold on;
+%     
+%     subplot(3,1,3); xlim([-10*Npredict 0] + (i+1)*Npredict+m);  grid on;
+%     plot((1:m)+Npredict+i*Npredict,PredictedFrames(2*i+2,:),'linew',1.5);hold on;
+%     
+%     pause(0.1);
+%     drawnow;
+%     0;
+% %     input('enter to continue...');
+% end
+
+
 
 end
 

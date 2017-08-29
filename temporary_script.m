@@ -5,6 +5,9 @@ subSYS = SYS;
 subSYS.Main_Setup(1)=[];
 subSYS.Room_Setup(1)=[];
 subSYS.signal_info.method = 'Clean';
+
+originalSig = audioread(cell2mat(Tools.getAllFiles(subSYS.signal_info.speech_filepath)));
+
 MicSigPath = Broadband_Tools.getMicrophoneSignalPath(subSYS);
 MicSigFiles = Tools.keepFilesFromFolder( Tools.getAllFiles(MicSigPath), subSYS.signal_info.speech_filepath);
 MicSigFiles(~contains(MicSigFiles,'.mat'))=[];
@@ -242,19 +245,46 @@ FF(ffI)=[];
  src1Sig = src1Sig/sum(src1Sig);
  srcSig = srcSig/sum(srcSig);
  
- load('M:\MSR\+Miscellaneous\+TestAudio_Files_InvFilts\inverseESS.mat');
- impmic   = Tools.extractIR(src1Sig,invY);
- impsense = Tools.extractIR(srcSig,invY);
- plot(impmic); hold on;
- plot(impsense); hold off;
+%  load('M:\MSR\+Miscellaneous\+TestAudio_Files_InvFilts\inverseESS.mat');
+%  impmic   = Tools.extractIR(src1Sig,invY);
+%  impsense = Tools.extractIR(srcSig,invY);
+%  plot(impmic); hold on;
+%  plot(impsense); hold off;
  %%
- b = Broadband_Tools.frame_data( srcSig, 0.5/2 , numel(WIN)*2);
- s = Broadband_Tools.frame_data( srcSig, 0.5 , numel(WIN));
+ buffLen = 2;
+ ol = (1-(1-SYS.signal_info.overlap)/16);
  
-Broadband_Tools.PredictiveFraming(srcSigFrm);
+ b = Broadband_Tools.frame_data( [zeros(numel(WIN)*(buffLen-1),1);srcSig], 1-(1-ol)/buffLen , numel(WIN)*buffLen);
+ s = Broadband_Tools.frame_data( [srcSig; zeros(numel(WIN)*(buffLen-1),1)], ol , numel(WIN));
+ 
+ % debug: check the buffer and signal are correct
+%  figure(101); hold off;
+%  for i = 0:10
+%      subplot(2,1,1); xlim([-1100 4000]);  grid on;
+%  plot((1:512)+i*256,s(i+1,:),'linew',1.5);hold on;
+%  subplot(2,1,2); xlim([-1100 4000]);  grid on;
+%  plot((-1023:0)+i*256,b(i+1,:),'linew',1.5);hold on;
+%  drawnow;
+%  input('enter to continue...');
+%  end
+
+ 
+[~,sigPredicted] = Broadband_Tools.PredictiveFraming(s,b,(1-ol)*numel(WIN),'burg');
+ 
+ predError = [srcSig(:);zeros(numel(sigPredicted)-numel(srcSig),1)] - sigPredicted(:);
+ 
+figure(11);
+ plot(srcSig); hold on;
+ plot(sigPredicted); hold on;
+ plot(predError); hold off;
  
  
  
+ figure(22);
+ pwelch(srcSig,hamming(1024,'p'),512,1024,fs,'power');
+ hold on;
+ pwelch(predError,hamming(1024,'p'),512,1024,fs,'power');
+ set(gca,'xscale','log');xlim([0.1 10]);
  
  
  
