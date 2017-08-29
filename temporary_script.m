@@ -252,7 +252,7 @@ FF(ffI)=[];
 %  plot(impsense); hold off;
  %%
  buffLen = 2;
- ol = (1-(1-SYS.signal_info.overlap)/256);
+ ol = 508/512;
  
  b = Broadband_Tools.frame_data( [zeros(numel(WIN)*(buffLen-1),1);srcSig], 1-(1-ol)/buffLen , numel(WIN)*buffLen);
  s = Broadband_Tools.frame_data( [srcSig; zeros(numel(WIN)*(buffLen-1),1)], ol , numel(WIN));
@@ -268,8 +268,9 @@ FF(ffI)=[];
 %  input('enter to continue...');
 %  end
 
- 
-[~,sigPredicted] = Broadband_Tools.PredictiveFraming(s,b,(1-ol)*numel(WIN),'lpc');
+ tic
+[~,sigPredicted] = Broadband_Tools.PredictiveFraming(s,b,(1-ol)*numel(WIN),'burg');
+toc
  sigPredicted = sigPredicted(1:numel(srcSig));
 
  predError = srcSig(:) - sigPredicted(:);
