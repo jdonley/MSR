@@ -252,7 +252,7 @@ FF(ffI)=[];
 %  plot(impsense); hold off;
  %%
  buffLen = 2;
- ol = (1-(1-SYS.signal_info.overlap)/16);
+ ol = (1-(1-SYS.signal_info.overlap)/256);
  
  b = Broadband_Tools.frame_data( [zeros(numel(WIN)*(buffLen-1),1);srcSig], 1-(1-ol)/buffLen , numel(WIN)*buffLen);
  s = Broadband_Tools.frame_data( [srcSig; zeros(numel(WIN)*(buffLen-1),1)], ol , numel(WIN));
@@ -269,22 +269,36 @@ FF(ffI)=[];
 %  end
 
  
-[~,sigPredicted] = Broadband_Tools.PredictiveFraming(s,b,(1-ol)*numel(WIN),'burg');
+[~,sigPredicted] = Broadband_Tools.PredictiveFraming(s,b,(1-ol)*numel(WIN),'lpc');
+ sigPredicted = sigPredicted(1:numel(srcSig));
+
+ predError = srcSig(:) - sigPredicted(:);
  
- predError = [srcSig(:);zeros(numel(sigPredicted)-numel(srcSig),1)] - sigPredicted(:);
+ ti = (0:1/fs:(numel(srcSig)-1)/fs).' * 1e3; %milliseconds
  
 figure(11);
- plot(srcSig); hold on;
- plot(sigPredicted); hold on;
- plot(predError); hold off;
+ plot(ti,srcSig); hold on;
+ plot(ti,sigPredicted); hold on;
+ plot(ti,predError); hold off;
  
  
  
  figure(22);
- pwelch(srcSig,hamming(1024,'p'),512,1024,fs,'power');
- hold on;
- pwelch(predError,hamming(1024,'p'),512,1024,fs,'power');
- set(gca,'xscale','log');xlim([0.1 10]);
+ [pxxSrc,frqs] = pwelch(srcSig,hamming(1024,'p'),512,1024,fs,'power');
+ pxxErr = pwelch(predError,hamming(1024,'p'),512,1024,fs,'power');
+ plot(frqs/1e3,pow2db(pxxSrc)); hold on;
+ plot(frqs/1e3,pow2db(pxxErr)); hold on;
+ plot(frqs/1e3,pow2db(pxxErr)-pow2db(pxxSrc),'k'); hold off;
+%  plot(frqs/1e3,pow2db(pxxErr)); hold off;
+ set(gca,'xscale','log');xlim([0.1 10]);grid on;
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
  
  
  

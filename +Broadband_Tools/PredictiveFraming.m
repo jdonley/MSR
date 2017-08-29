@@ -53,7 +53,7 @@ end
 
 A = -[zeros(n1,1) a(:,2:end)].';
 y = zeros(Npredict,n1);
-for f=1:n1-1
+parfor f=1:n1-1
     [~, zf] = filter(A(:,f), 1, B(:,f));
     y(:,f) = filter([0 0], -a(f,:), zeros(1, Npredict), zf);
 end
