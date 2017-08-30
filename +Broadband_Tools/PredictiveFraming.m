@@ -1,4 +1,4 @@
-function [ PredictedFrames, PredictedSignal ] = PredictiveFraming( Frames, Buffer, Npredict, method )
+function [ PredictedFrames, PredictedSignal, a ] = PredictiveFraming( Frames, Buffer, Npredict, method )
 %This function accepts a framed signal and corresponding buffers to predict forward Npredict samples.
 %
 % Syntax:   [ PredictedFrames, PredictedSignal ] = PredictiveFraming( Frames, Buffer, Npredict, method )
@@ -13,6 +13,7 @@ function [ PredictedFrames, PredictedSignal ] = PredictiveFraming( Frames, Buffe
 % Outputs:
 % 	PredictedFrames - The set of frames containing the predicted samples
 %   PredictedSignal - The frame based predicted signal
+%                 a - AR based prediction filters
 %
 % Example:
 % 	Line 1 of example
@@ -39,7 +40,9 @@ if n1 ~= n2
     error('Number of frames mismatches with buffer.')
 end
 
-if strcmpi(method,'lpc') % Stable
+if method
+
+elseif strcmpi(method,'lpc') % Stable
     a = lpc(B,m-1);
 elseif strcmpi(method,'yule') % Yule-Walker (yule) and Autocorrelation method of Least-Squares (lpc) are equivalent
     a = aryule(B,m-1);

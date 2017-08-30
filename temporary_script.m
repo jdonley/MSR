@@ -251,9 +251,10 @@ FF(ffI)=[];
 %  plot(impmic); hold on;
 %  plot(impsense); hold off;
  %%
- N = 512;
+ N = 196;
  buffLen = 2;
- ol = (N-132)/N;
+ hopSz = ceil(SYS.Main_Setup(1).Speaker_Array_Length/SYS.signal_info.c*SYS.signal_info.Fs);
+ ol = (N-hopSz)/N;
  
 
 sigPredicted = [];
@@ -309,7 +310,7 @@ figure(11);
  subplot(2,1,2);
  plot(frqs/1e3,pow2db(pxxErr)-pow2db(pxxSrc),'k'); hold on;
  plot([realmin realmax],[0 0],'k');hold off;
- set(gca,'xscale','log');xlim([0.1 10]);grid on;ylim([-25 5]);
+ set(gca,'xscale','log');xlim([0.1 10]);grid on;ylim([-15 5]);
  
  
  

@@ -33,18 +33,18 @@ hopSz = double(int64(N*(1-OL)));    % Hop size
 olSz = N - hopSz;                   % Overlap size
 
 % Pad the signal file to allow the creation of the matrix
-L = ceil(length(d) / hopSz);              % Number of frames
 r = rem( length(d), hopSz);
 r(r==0)=hopSz;
-p = zeros( olSz - r, 1 );           % Zero padding
+Lx = ceil(1/(1-OL));                % Number of extension frames
+p = zeros( hopSz*Lx - r, 1 );           % Zero padding
 d = [d; p].';                       % Extend length of input signal
-Lx = (length(d) + hopSz) / hopSz;             % L + int64(1/(1-OL))-1 % Extended number of frames
+L = length(d) / hopSz;              % Number of frames
 
 % Find the overlapping section and non-overlapping section and concatenate
-d_framed = reshape(d(1:end-olSz), [hopSz L]).';
-OLinds = repmat((hopSz+1):N,L,1) ...
-    + repmat((0:hopSz:hopSz*(L-1)).',1,olSz);
-d_framed = [d_framed d(OLinds)];
+d_framed = reshape(d, [hopSz L]).';
+OLinds = repmat((hopSz+1):N,L-Lx,1) ...
+    + repmat((0:hopSz:hopSz*(L-Lx-1)).',1,olSz);
+d_framed = [d_framed(1:L-Lx,:) d(OLinds)];
 % d_framed = partFrames; 
 % for seg = 1:
 %     d_framed = [d_framed [partFrames((seg+1):end, 1:min(OL_sz,no_OL_sz)); zeros(seg,min(OL_sz,no_OL_sz))]];
