@@ -253,7 +253,7 @@ FF(ffI)=[];
  %%
  N = 192;
  buffLen = 2;
- hopSz = 96;
+ hopSz = 3;
  ol = (N-hopSz)/N;
  
 
@@ -265,7 +265,7 @@ FF(ffI)=[];
  
 sigPredicted = [];
 tic;
-mics = 12;%1:Q
+mics = 1;%1:Q
 for mic_ = 1:numel(mics)
     mic = mics(mic_);
  x = mic_sigs(:,mic);
@@ -284,7 +284,7 @@ for mic_ = 1:numel(mics)
 %  input('enter to continue...');
 %  end
 
-[~,sigPredicted(:,mic_)] = Broadband_Tools.PredictiveFraming(s,b,int64((1-ol)* N),'lpc');
+[~,sigPredicted(:,mic_)] = Broadband_Tools.PredictiveFraming(s,b,int64((1-ol)* N),'burg');
 
  disp(mic)
  toc
@@ -313,10 +313,10 @@ figure(11);
  plot(frqs/1e3,pow2db(pxxPrd)); hold on;
  plot(frqs/1e3,pow2db(pxxErr)); hold off;
  set(gca,'xscale','log');xlim([0.1 10]);grid on;
- subplot(2,1,2);
- plot(frqs/1e3,pow2db(pxxErr)-pow2db(pxxSrc),'k'); hold on;
+ subplot(2,1,2); hold on;
+ plot(frqs/1e3,pow2db(pxxErr)-pow2db(pxxSrc)); hold on;
  plot([realmin realmax],[0 0],'k');hold off;
- set(gca,'xscale','log');xlim([0.1 10]);grid on;ylim([-15 5]);
+ set(gca,'xscale','log');xlim([0.1 10]);grid on;ylim([-35 5]);
  
  
  
