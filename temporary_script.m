@@ -251,12 +251,18 @@ FF(ffI)=[];
 %  plot(impmic); hold on;
 %  plot(impsense); hold off;
  %%
- N = 196;
+ N = 192;
  buffLen = 2;
- hopSz = ceil(SYS.Main_Setup(1).Speaker_Array_Length/SYS.signal_info.c*SYS.signal_info.Fs);
+ hopSz = 96;
  ol = (N-hopSz)/N;
  
 
+  x = srcSig(1:size(mic_sigs,1));
+ b = Broadband_Tools.frame_data( [zeros( N*(buffLen-1),1);x], 1-(1-ol)/buffLen ,  N*buffLen);
+ s = Broadband_Tools.frame_data( [x; zeros( N*(buffLen-1),1)], ol ,  N);
+[~,~,aa] = Broadband_Tools.PredictiveFraming(s,b,int64((1-ol)* N),'lpc');
+ 
+ 
 sigPredicted = [];
 tic;
 mics = 12;%1:Q

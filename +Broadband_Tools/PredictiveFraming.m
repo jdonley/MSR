@@ -40,8 +40,8 @@ if n1 ~= n2
     error('Number of frames mismatches with buffer.')
 end
 
-if method
-
+if ~isa(method,'char') % Load coefficients from input
+    a = method;
 elseif strcmpi(method,'lpc') % Stable
     a = lpc(B,m-1);
 elseif strcmpi(method,'yule') % Yule-Walker (yule) and Autocorrelation method of Least-Squares (lpc) are equivalent
