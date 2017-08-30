@@ -251,11 +251,20 @@ FF(ffI)=[];
 %  plot(impmic); hold on;
 %  plot(impsense); hold off;
  %%
+ N = 512;
  buffLen = 2;
- ol = 508/512;
+ ol = (N-132)/N;
  
- b = Broadband_Tools.frame_data( [zeros(numel(WIN)*(buffLen-1),1);srcSig], 1-(1-ol)/buffLen , numel(WIN)*buffLen);
- s = Broadband_Tools.frame_data( [srcSig; zeros(numel(WIN)*(buffLen-1),1)], ol , numel(WIN));
+
+sigPredicted = [];
+tic;
+mics = 12;%1:Q
+for mic_ = 1:numel(mics)
+    mic = mics(mic_);
+ x = mic_sigs(:,mic);
+ 
+ b = Broadband_Tools.frame_data( [zeros( N*(buffLen-1),1);x], 1-(1-ol)/buffLen ,  N*buffLen);
+ s = Broadband_Tools.frame_data( [x; zeros( N*(buffLen-1),1)], ol ,  N);
  
  % debug: check the buffer and signal are correct
 %  figure(101); hold off;
@@ -268,30 +277,39 @@ FF(ffI)=[];
 %  input('enter to continue...');
 %  end
 
- tic
-[~,sigPredicted] = Broadband_Tools.PredictiveFraming(s,b,(1-ol)*numel(WIN),'burg');
-toc
- sigPredicted = sigPredicted(1:numel(srcSig));
+[~,sigPredicted(:,mic_)] = Broadband_Tools.PredictiveFraming(s,b,int64((1-ol)* N),'lpc');
 
- predError = srcSig(:) - sigPredicted(:);
+ disp(mic)
+ toc
+end
+
  
- ti = (0:1/fs:(numel(srcSig)-1)/fs).' * 1e3; %milliseconds
+ sP = sigPredicted(1:size(x,1),:);
  
+ predError = x - sP;
+ 
+ ti = (0:1/fs:(numel(x)-1)/fs).' * 1e3; %milliseconds
+ 
+ 
+ %
 figure(11);
- plot(ti,srcSig); hold on;
- plot(ti,sigPredicted); hold on;
- plot(ti,predError); hold off;
- 
- 
+ plot(x); hold on;
+ plot(sP); hold on;
+ plot(predError); hold off;
  
  figure(22);
- [pxxSrc,frqs] = pwelch(srcSig,hamming(1024,'p'),512,1024,fs,'power');
+ [pxxSrc,frqs] = pwelch(x,hamming(1024,'p'),512,1024,fs,'power');
+ pxxPrd = pwelch(sP,hamming(1024,'p'),512,1024,fs,'power');
  pxxErr = pwelch(predError,hamming(1024,'p'),512,1024,fs,'power');
+ subplot(2,1,1);
  plot(frqs/1e3,pow2db(pxxSrc)); hold on;
- plot(frqs/1e3,pow2db(pxxErr)); hold on;
- plot(frqs/1e3,pow2db(pxxErr)-pow2db(pxxSrc),'k'); hold off;
-%  plot(frqs/1e3,pow2db(pxxErr)); hold off;
+ plot(frqs/1e3,pow2db(pxxPrd)); hold on;
+ plot(frqs/1e3,pow2db(pxxErr)); hold off;
  set(gca,'xscale','log');xlim([0.1 10]);grid on;
+ subplot(2,1,2);
+ plot(frqs/1e3,pow2db(pxxErr)-pow2db(pxxSrc),'k'); hold on;
+ plot([realmin realmax],[0 0],'k');hold off;
+ set(gca,'xscale','log');xlim([0.1 10]);grid on;ylim([-25 5]);
  
  
  

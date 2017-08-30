@@ -29,7 +29,7 @@ function [ d_framed ] = frame_data( d, OL, N )
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Find lengths of the overlapping and non-overlapping sections
-no_OL_sz = floor(N*(1-OL));
+no_OL_sz = int64(N*(1-OL));
 OL_sz = N - no_OL_sz;
 
 % Pad the signal file to allow the creation of the matrix
@@ -42,7 +42,7 @@ L = length(d) / no_OL_sz;
 % Find the overlapping section and non-overlapping section and concatenate
 partFrames = reshape(d, [no_OL_sz L]).';
 d_framed = partFrames; 
-for seg = 1:(1/(1-OL)-1)
+for seg = 1:(int64(1/(1-OL))-1)
     d_framed = [d_framed [partFrames((seg+1):end, 1:min(OL_sz,no_OL_sz)); zeros(seg,min(OL_sz,no_OL_sz))]];
 end
 
