@@ -257,15 +257,15 @@ FF(ffI)=[];
  ol = (N-hopSz)/N;
  
 
-  x = srcSig(1:size(mic_sigs,1));
- b = Broadband_Tools.frame_data( [zeros( N*(buffLen-1),1);x], 1-(1-ol)/buffLen ,  N*buffLen);
- s = Broadband_Tools.frame_data( [x; zeros( N*(buffLen-1),1)], ol ,  N);
-[~,~,aa] = Broadband_Tools.PredictiveFraming(s,b,int64((1-ol)* N),'lpc');
+%   x = srcSig(1:size(mic_sigs,1));
+%  b = Broadband_Tools.frame_data( [zeros( N*(buffLen-1),1);x], 1-(1-ol)/buffLen ,  N*buffLen);
+%  s = Broadband_Tools.frame_data( [x; zeros( N*(buffLen-1),1)], ol ,  N);
+% [~,~,aa] = Broadband_Tools.PredictiveFraming(s,b,int64((1-ol)* N),'lpc');
  
  
 sigPredicted = [];
 tic;
-mics = 1;%1:Q
+mics = 1:Q;
 for mic_ = 1:numel(mics)
     mic = mics(mic_);
  x = mic_sigs(:,mic);
