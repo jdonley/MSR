@@ -33,6 +33,11 @@ DebugMode = 'DEBUG';        % Set this to 'DEBUG' for a fast aproximate output, 
 % You can suppress the output when executing a complete soundfield construction with 'suppress_output'
 
 %%
+if contains(SYS.signal_info.methods_list,'BoundaryCancel')
+    Tools.simpleWarning('Boundary cancellation does not require a Look-Up Table');
+    return;
+end
+
 Setups = [];
 if ~isempty(SYS.signal_info.methods_list_clean)
     Setups = [Setups(:); SYS.Main_Setup(:)];
