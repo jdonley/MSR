@@ -27,7 +27,11 @@ function Clean_from_RIR( Input_file, SYS )
 SYS.signal_info.input_filename = Input_file_name;
 
 if isempty(SYS.signal_info.method)
-    SYS.signal_info.method = 'Clean';
+    if isempty(SYS.signal_info.methods_list)
+        SYS.signal_info.method = 'Clean';
+    else
+        SYS.signal_info.method = SYS.signal_info.methods_list{1};
+    end
 end
 room = SYS.Room_Setup;
 signal_info = SYS.signal_info;

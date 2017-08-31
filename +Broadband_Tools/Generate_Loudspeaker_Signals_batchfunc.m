@@ -43,7 +43,7 @@ fprintf(['         Zone Weights: ' strrep(sprintf(strrep(repmat('%d',1,length(Zo
 if ~contains(Signal_Type,'NoMask')
 fprintf(['    Noise Mask Levels: ' [strrep(sprintf(strrep(repmat('%d',1,length(Noise_Mask_Levels)),'d%','d %'),Noise_Mask_Levels),' ','dB & ') 'dB'] '\n']); end
 fprintf(['          Signal Type: ' Signal_Type '\n']);
-fprintf(['         Source Angle: ' num2str(Main_Setup.Multizone_Soundfield.Bright_Zone.SourceOrigin.Angle) '\n\n']);n=0;
+fprintf(['         Source Angle: ' num2str(Main_Setup(1).Multizone_Soundfield.Bright_Zone.SourceOrigin.Angle) '\n\n']);n=0;
 fprintf('\tCompletion: ');
 
 fileLoopBreak = false; % Break file loop

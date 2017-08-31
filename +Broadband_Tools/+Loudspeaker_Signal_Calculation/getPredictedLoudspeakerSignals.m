@@ -28,14 +28,24 @@ function [Loudspeaker_Signals, Original_] = getPredictedLoudspeakerSignals( SYS 
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% Copy the system for dealing with the reception and transmission
+mSYS = SYS; %  Microphone System (M-SYS)
+lSYS = SYS; % Loudspeaker System (L-SYS)
 
 %% Read Microphone Signals
-MicSigPath = Broadband_Tools.getMicrophoneSignalPath( SYS );
-MicSigFiles = Tools.keepFilesFromFolder( Tools.getAllFiles(MicSigPath), SYS.signal_info.speech_filepath);
+sysI = strcmpi({mSYS.Room_Setup.SystemType},'receive');
+mSYS.Room_Setup = mSYS.Room_Setup( sysI ); 
+mSYS.Main_Setup = mSYS.Main_Setup( sysI ); 
+
+MicSigPath = Broadband_Tools.getMicrophoneSignalPath( mSYS );
+MicSigFiles = Tools.keepFilesFromFolder( Tools.getAllFiles(MicSigPath), mSYS.signal_info.speech_filepath);
 MicSigFiles(~contains(MicSigFiles,'.mat'))=[];
-MicSigFiles(~contains(MicSigFiles,SYS.signal_info.input_filename))=[];
+MicSigFiles(~contains(MicSigFiles,mSYS.signal_info.input_filename))=[];
 
 MSF = load(MicSigFiles{:}); % MicSigFile (MSF)
+
+MicSigs = MSF.mic_signals;
+Fs = MSF.fs;
 
 %%
 
