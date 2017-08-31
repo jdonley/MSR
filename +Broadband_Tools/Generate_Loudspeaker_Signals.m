@@ -41,6 +41,9 @@ for typ = 1:N
     SYS.signal_info.method = SYS.signal_info.methods_list{typ};
     
     subSYS = SYS;
+    if ~all(size(subSYS.Room_Setup)==1)
+        subSYS.Room_Setup = subSYS.Room_Setup(typ);
+    end
     if any(typ == subSYS.signal_info.methods_list_clean)
         if ~all(size(subSYS.Main_Setup)==1)
             subSYS.Main_Setup = subSYS.Main_Setup(typ == subSYS.signal_info.methods_list_clean);

@@ -21,15 +21,17 @@ function Passed_from_MicrophoneSignals( SYS )
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+
+
+%% Determine Loudspeaker Signals
+[Loudspeaker_Signals, Original_] = ...
+    Broadband_Tools.Loudspeaker_Signal_Calculation.getPredictedLoudspeakerSignals( ...
+    SYS );
+
 %% Setup Variables
 
 [Output_path, Output_file_name, Output_file_ext] = ...
     Broadband_Tools.getLoudspeakerSignalPath( setup, signal_info, system_info.LUT_resolution, system_info.Drive, 'new');
-
-
-%% Determine Loudspeaker Signals
-[Loudspeaker_Signals, Original_] = Broadband_Tools.Loudspeaker_Signal_Calculation.getPredictedLoudspeakerSignals( ...
-    Input_Signal, setup, signal_info, system_info );
 
 
 %% Read input signal

@@ -1,4 +1,4 @@
-function [outputArgs] = getPredictedLoudspeakerSignals( SYS )
+function [Loudspeaker_Signals, Original_] = getPredictedLoudspeakerSignals( SYS )
 %GETPREDICTEDLOUDSPEAKERSIGNALS Summary of this function goes here
 % 
 % Syntax:	[OUTPUTARGS] = GETPREDICTEDLOUDSPEAKERSIGNALS(INPUTARGS) Explain usage here
@@ -29,9 +29,15 @@ function [outputArgs] = getPredictedLoudspeakerSignals( SYS )
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
+%% Read Microphone Signals
 MicSigPath = Broadband_Tools.getMicrophoneSignalPath( SYS );
-
 MicSigFiles = Tools.keepFilesFromFolder( Tools.getAllFiles(MicSigPath), SYS.signal_info.speech_filepath);
+MicSigFiles(~contains(MicSigFiles,'.mat'))=[];
+MicSigFiles(~contains(MicSigFiles,SYS.signal_info.input_filename))=[];
+
+MSF = load(MicSigFiles{:}); % MicSigFile (MSF)
+
+%%
 
 
 end
