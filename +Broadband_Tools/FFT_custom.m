@@ -73,7 +73,8 @@ end
 x = x(:,1);
 
 %% Split audio file into frames with overlap
-Frames = enframe( x, Nfft, (1-Overlap)*Nfft );
+Frames = Tools.frame_data( x, Overlap, Nfft );
+% Frames = enframe( x, Nfft, (1-Overlap)*Nfft );
 N_of_frames = size(Frames,1);
 
 %% Predict ahead and frame

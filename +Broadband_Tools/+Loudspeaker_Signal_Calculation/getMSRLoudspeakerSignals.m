@@ -229,7 +229,8 @@ Original_ = overlapadd( Original, ones(signal_info.Nfft,1), (1-signal_info.overl
 if signal_info.predict_buff ~= 0
     LS_=[];
     for s=1:setup.Loudspeaker_Count
-        LS = enframe(Loudspeaker_Signals(:,s),signal_info.Nfft/2,signal_info.Nfft/2);
+        LS = Tools.frame_data(Loudspeaker_Signals(:,s),0,signal_info.Nfft/2);
+%         LS = enframe(Loudspeaker_Signals(:,s),signal_info.Nfft/2,signal_info.Nfft/2);
         LS_(:,s) = reshape(LS(2:2:end,:).',[],1);
     end
     Loudspeaker_Signals = LS_;
