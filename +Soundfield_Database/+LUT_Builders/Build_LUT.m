@@ -34,7 +34,7 @@ DebugMode = 'DEBUG';        % Set this to 'DEBUG' for a fast aproximate output, 
 
 %%
 if contains(SYS.signal_info.methods_list,'BoundaryCancel')
-    Tools.simpleWarning('Boundary cancellation does not require a Look-Up Table');
+    Tools.simpleWarning('Boundary cancellation does not require a Look-Up Table\n');
     return;
 end
 
