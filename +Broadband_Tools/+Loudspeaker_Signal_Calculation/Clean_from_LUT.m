@@ -76,7 +76,7 @@ if isfield(signal_info,'inputSignalNorm') && signal_info.inputSignalNorm
     Input_Signal = Input_Signal ./ rms(Input_Signal);
 end
 
-if ~isempty(strfind(lower(signal_info.method), 'cancel'))
+if contains(lower(signal_info.method), 'cancel')
     %%% TODO
     % Fix this magnitude adjustment which is dependent on the transfer
     % function for point sources. Originates somewhere in

@@ -33,7 +33,7 @@ for l = 1:size(data.mic_signals,2)
     mic_sigs(:,l) = data.mic_signals(:,l);%awgn(data.mic_signals(:,l).',SNRdb,'measured').';
 %      [S(:,:,l),ff,tt] = spectrogram(mic_sigs(:,l),WIN,256,512,fs);
 %     ss(:,:,l) = enframe(mic_sigs(:,l),WIN,256);
-    SStmp = Broadband_Tools.frame_data(mic_sigs(:,l),0.5,numel(WIN));
+    SStmp = Tools.frame_data(mic_sigs(:,l),0.5,numel(WIN));
     SStmp = SStmp .* Tools.repmatmatch(WIN.',SStmp);
     SStmp = fft(permute(SStmp,[2 1 3]));
     SS(:,:,l) = SStmp(1:end/2+1,:);
@@ -41,7 +41,7 @@ for l = 1:size(data.mic_signals,2)
 end
 
 ff = linspace(0,SYS.signal_info.f_high,size(SS,1)).';
-tt = Broadband_Tools.frame_data((0:size(mic_sigs,1)-1).'/fs,0.5,numel(WIN));
+tt = Tools.frame_data((0:size(mic_sigs,1)-1).'/fs,0.5,numel(WIN));
 tt = tt(:,1);
 %% Determine soundfield coefficients for mics that aren't colocated 
 
@@ -258,8 +258,8 @@ FF(ffI)=[];
  
 
 %   x = srcSig(1:size(mic_sigs,1));
-%  b = Broadband_Tools.frame_data( [zeros( N*(buffLen-1),1);x], 1-(1-ol)/buffLen ,  N*buffLen);
-%  s = Broadband_Tools.frame_data( [x; zeros( N*(buffLen-1),1)], ol ,  N);
+%  b = Tools.frame_data( [zeros( N*(buffLen-1),1);x], 1-(1-ol)/buffLen ,  N*buffLen);
+%  s = Tools.frame_data( [x; zeros( N*(buffLen-1),1)], ol ,  N);
 % [~,~,aa] = Broadband_Tools.PredictiveFraming(s,b,int64((1-ol)* N),'lpc');
  
  
@@ -270,8 +270,8 @@ for mic_ = 1:numel(mics)
     mic = mics(mic_);
  x = mic_sigs(:,mic);
  
- b = Broadband_Tools.frame_data( [zeros( N*(buffLen-1),1);x], 1-(1-ol)/buffLen ,  N*buffLen);
- s = Broadband_Tools.frame_data( [x; zeros( N*(buffLen-1),1)], ol ,  N);
+ b = Tools.frame_data( [zeros( N*(buffLen-1),1);x], 1-(1-ol)/buffLen ,  N*buffLen);
+ s = Tools.frame_data( [x; zeros( N*(buffLen-1),1)], ol ,  N);
  
  % debug: check the buffer and signal are correct
 %  figure(101); hold off;
@@ -293,19 +293,19 @@ end
  
  sP = sigPredicted(1:size(x,1),:);
  
- predError = x - sP;
+ predError = mic_sigs - sP;
  
  ti = (0:1/fs:(numel(x)-1)/fs).' * 1e3; %milliseconds
  
  
  %
 figure(11);
- plot(x); hold on;
+ plot(mic_sigs); hold on;
  plot(sP); hold on;
  plot(predError); hold off;
  
  figure(22);
- [pxxSrc,frqs] = pwelch(x,hamming(1024,'p'),512,1024,fs,'power');
+ [pxxSrc,frqs] = pwelch(mic_sigs,hamming(1024,'p'),512,1024,fs,'power');
  pxxPrd = pwelch(sP,hamming(1024,'p'),512,1024,fs,'power');
  pxxErr = pwelch(predError,hamming(1024,'p'),512,1024,fs,'power');
  subplot(2,1,1);
@@ -313,7 +313,7 @@ figure(11);
  plot(frqs/1e3,pow2db(pxxPrd)); hold on;
  plot(frqs/1e3,pow2db(pxxErr)); hold off;
  set(gca,'xscale','log');xlim([0.1 10]);grid on;
- subplot(2,1,2); hold on;
+ subplot(2,1,2);
  plot(frqs/1e3,pow2db(pxxErr)-pow2db(pxxSrc)); hold on;
  plot([realmin realmax],[0 0],'k');hold off;
  set(gca,'xscale','log');xlim([0.1 10]);grid on;ylim([-35 5]);

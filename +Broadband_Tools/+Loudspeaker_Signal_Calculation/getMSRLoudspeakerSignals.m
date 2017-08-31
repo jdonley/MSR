@@ -1,6 +1,36 @@
 function [ Loudspeaker_Signals, Original_ ] = getMSRLoudspeakerSignals( Input_Signal, setup, signal_info, system_info )
-%GETLOUDSPEAKERSIGNALS Summary of this function goes here
-%   Detailed explanation goes here
+%Generates multizone soundfield reproduction loudspeaker signals
+% 
+% Syntax:	[ Loudspeaker_Signals, Original_ ] = getMSRLoudspeakerSignals( Input_Signal, setup, signal_info, system_info )
+% 
+% Inputs: 
+% 	Input_Signal - The signal to reproduce in the bright zone.
+% 	setup - The loudspeaker setup description object.
+% 	signal_info - The signal information structure.
+% 	system_info - The system information structure.
+% 
+% Outputs: 
+% 	Loudspeaker_Signals - The loudspeaker signals used to reproduce the
+%                         multizone soundfield.
+% 	Original_ - The original input signal which has been exposed to the
+%               same processing as the loudspeaker signals (possibly
+%               bandfiltered).
+% 
+% Example: 
+% 	Line 1 of example
+% 	Line 2 of example
+% 	Line 3 of example
+% 
+% See also: List related files here
+
+% Author: Jacob Donley
+% University of Wollongong
+% Email: jrd089@uowmail.edu.au
+% Copyright: Jacob Donley 2016-2017
+% Date: 14 June 2016
+% Version: 0.1 (14 June 2016)
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 if ~isfield(signal_info,'f_high_meas')
     signal_info.f_high_meas = signal_info.f_high;
