@@ -239,7 +239,7 @@ signal_info.method = ''; % Default empty (temporary variable)
 signal_info.methods_list ... % List of methods to synthesize
     = {'BoundaryCancel'};    % Speech Signal
    
-signal_info.methods_list_clean = [1;2]; %Indices from the "methods_list" of the clean signals
+signal_info.methods_list_clean = [1]; %Indices from the "methods_list" of the clean signals
 signal_info.methods_list_masker = [0]; %Indices from the "methods_list" of the maskers, different hybrids are separated by columns
 % ( e.g. [2,3;4,0;6,7] is two hybrids, the first is 2&4&6, the second is 3&7, indices < 1 are ignored)
 signal_info.reference = false; % False or True to record reference signal
