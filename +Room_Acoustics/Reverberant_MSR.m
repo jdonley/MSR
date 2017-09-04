@@ -51,20 +51,20 @@ for typ = 1:N
         end
     end
     
-    if numel(SYS.Room_Setup) > 1
-        % If there is more than one room then we choose the room set up for
-        % reproduction (transmission) and the associated loudspeaker setup
-        I_tx = strcmpi({subSYS.Room_Setup.SystemType},'transmit');
-        subSYS = SYS;
-        subSYS.Main_Setup = SYS.Main_Setup(I_tx);
-        subSYS.Room_Setup = SYS.Room_Setup(I_tx);
-    end
+%     if numel(SYS.Room_Setup) > 1
+%         % If there is more than one room then we choose the room set up for
+%         % reproduction (transmission) and the associated loudspeaker setup
+%         I_tx = strcmpi({subSYS.Room_Setup.SystemType},'transmit');
+%         subSYS = SYS;
+%         subSYS.Main_Setup = SYS.Main_Setup(I_tx);
+%         subSYS.Room_Setup = SYS.Room_Setup(I_tx);
+%     end
     
     
     if isfield(SYS.signal_info, 'UseMeasuredATFs') && SYS.signal_info.UseMeasuredATFs, Room_Acoustics.useMeasuredATF(subSYS); end
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    Room_Acoustics.Apply_RIRs.Reverberant_MSR_batchfunc( subSYS );
+%     Room_Acoustics.Apply_RIRs.Reverberant_MSR_batchfunc( subSYS );
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     if isfield(SYS.signal_info, 'UseMeasuredATFs') && SYS.signal_info.UseMeasuredATFs, Room_Acoustics.useSimulatedATF(subSYS); end % Revert back after use
