@@ -30,25 +30,30 @@
 <h2><a name="_description"></a>Description <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 <div class="fragment"><pre class="comment"> This function will interpolate from desired abitrarily spaced index values in a 2D array
  
- Syntax:    [ interpolated_values ] = interpVal_2D( values, index_values1, index_values2, desired_index_values1, desired_index_values2, interpolation_type )
+ Syntax:    [ interpolated_values ] = interpVal_2D( ...
+               values, ...
+               index_values1, index_values2, ...
+               desired_index_values1, desired_index_values2, ...
+               interpolation_type )
  
  Inputs: 
-     values - A 2D matrix of Z-axis values to interpolate between
-     index_values1 - The x-axis values of the matrix
-     index_values2 - The y-axis values of the matrix
+                    values - A 2D matrix of Z-axis values to interpolate
+                           between
+           index_values1 - The x-axis values of the matrix
+             index_values2 - The y-axis values of the matrix
    desired_index_values1 - The desired x-axis values to interpolate to
-   (Can be spaced abitrarily)
+                           (Can be spaced abitrarily)
    desired_index_values2 - The desired y-axis values to interpolate to
-   (Can be spaced abitrarily)
-   interpolation_type - An interpolation type supported by interp2 (e.g.
-   'linear', 'nearest', 'cubic' or 'spline')
+                           (Can be spaced abitrarily)
+      interpolation_type - An interpolation type supported by interp2
+                           (e.g. 'linear', 'nearest', 'cubic' or 'spline')
  
  Outputs: 
-   interpolated_values - The new interpolated values
+     interpolated_values - The new interpolated values
  
  Example: 
  
- See also: List related files here</pre></div>
+ See also: interp2</pre></div>
 
 <!-- crossreference -->
 <h2><a name="_cross"></a>Cross-Reference Information <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
@@ -63,6 +68,6 @@ This function is called by:
 
 
 
-<hr><address>Generated on Wed 09-Aug-2017 00:40:51 for <strong><a href="https://www.soundzones.com" title="Sound Zones - code | research | blog">Sound Zones</a></strong></address>
+<hr><address>Generated on Mon 04-Sep-2017 16:29:08 for <strong><a href="https://www.soundzones.com" title="Sound Zones - code | research | blog">Sound Zones</a></strong></address>
 </body>
 </html>

@@ -17,9 +17,9 @@ function [axs, legendStrings] = SUPPRESSION_Freq( SYS, axH )
 % Author: Jacob Donley
 % University of Wollongong
 % Email: jrd089@uowmail.edu.au
-% Copyright: Jacob Donley 2016
-% Date: 04 September 2016
-% Revision: 0.1
+% Copyright: Jacob Donley 2016-2017
+% Date: 4 September 2016
+% Version: 0.1 (4 September 2016)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 measures = SYS.analysis_info.Measures;

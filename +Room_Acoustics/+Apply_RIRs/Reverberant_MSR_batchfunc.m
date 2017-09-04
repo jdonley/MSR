@@ -1,4 +1,34 @@
 function Reverberant_MSR_batchfunc( SYS_or_room_setup, mask_type, main_setup, weight, mask_level, Conv_Type )
+% Summary of this function goes here
+% 
+% Syntax:	Reverberant_MSR_batchfunc( ...
+%                   SYS_or_room_setup, ...
+%                   mask_type, main_setup, weight, mask_level, Conv_Type )
+% 
+% Inputs: 
+% 	input1 - Description
+% 	input2 - Description
+% 	input3 - Description
+% 
+% Outputs: 
+% 	output1 - Description
+% 	output2 - Description
+% 
+% Example: 
+% 	Line 1 of example
+% 	Line 2 of example
+% 	Line 3 of example
+% 
+% See also: List related files here
+
+% Author: Jacob Donley
+% University of Wollongong
+% Email: jrd089@uowmail.edu.au
+% Copyright: Jacob Donley 2015-2017
+% Date: 26 August 2015
+% Version: 0.1 (26 August 2015)
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 SYS_type = 'Current_Systems.SR_System';
 

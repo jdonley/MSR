@@ -1,4 +1,31 @@
 function Generate_Loudspeaker_Signals_batchfunc(SYS_or_Zone_Weights, Noise_Mask_Levels, Signal_Type, Main_Setup, Masker_Setup)
+% Summary of this function goes here
+% 
+% Syntax:	Generate_Loudspeaker_Signals_batchfunc( ...
+%               SYS_or_Zone_Weights, ...
+%               Noise_Mask_Levels, Signal_Type, Main_Setup, Masker_Setup)
+% 
+% Inputs: 
+% 	input1 - Description
+% 	input2 - Description
+% 	input3 - Description
+% 
+% Example: 
+% 	Line 1 of example
+% 	Line 2 of example
+% 	Line 3 of example
+% 
+% See also: List related files here
+
+% Author: Jacob Donley
+% University of Wollongong
+% Email: jrd089@uowmail.edu.au
+% Copyright: Jacob Donley 2015-2017
+% Date: 31 August 2017
+% Version: 0.2 (31 August 2017)
+% Version: 0.1 (27 August 2015)
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 SYS_type = 'Current_Systems.SR_System';
 

@@ -4,7 +4,7 @@
 <head>
   <title>Description of getRIRDatabasePath</title>
   <meta name="keywords" content="getRIRDatabasePath">
-  <meta name="description" content="GETDATABASEFROMSETUP Summary of this function goes here">
+  <meta name="description" content="Returns the path of the room impulse response database for a given setup and room or SR system">
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
   <meta name="generator" content="">
   <meta name="robots" content="index, follow">
@@ -22,14 +22,41 @@
 </h1>
 
 <!-- <h2><a name="_name"></a>Summary <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2> -->
-<div class="purpose">GETDATABASEFROMSETUP Summary of this function goes here</div>
+<div class="purpose">Returns the path of the room impulse response database for a given setup and room or SR system</div>
 
 <h2><a name="_synopsis"></a>Syntax <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 <div class="box">function [Path, err, room_details_path, RIR_Name__Details] = getRIRDatabasePath( setup, room, database_workingdir, method ) </div>
 
 <h2><a name="_description"></a>Description <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
-<div class="fragment"><pre class="comment">GETDATABASEFROMSETUP Summary of this function goes here
-   Detailed explanation goes here</pre></div>
+<div class="fragment"><pre class="comment"> Returns the path of the room impulse response database for a given setup and room or SR system
+ 
+ Syntax:    [Path, err, room_details_path, RIR_Name__Details] = ...
+               getRIRDatabasePath( ...
+                   setup, room, database_workingdir, method )
+ 
+ Inputs: 
+     setup - Speaker_Setup.loudspeaker_setup object to generate RIR path from
+     room - Room_Acoustics.Room object to generate RIR path from
+     database_workingdir - The directory (folder) for the databases
+     method - the method used to generate the path (for backwards
+            compatibility) (using old methods may result in ambiguities)
+            (defaults to the newest method)
+ 
+ Outputs: 
+     Path - The room impulse response database path
+     err - Error flag is false unless error is thrown when trying to
+           generate path
+     room_details_path - A subpath generated from the room parameters only
+     RIR_Name__Details - Part of the name of the final database file
+ 
+ Example: 
+     SYS = Current_Systems.loadCurrentSRsystem;
+     Room_Acoustics.getRIRDatabasePath( ...
+         SYS.Main_Setup(1), ...
+         SYS.Room_Setup, ...
+         SYS.system_info.Drive)
+ 
+ See also: loadCurrentSRsystem, SR_System, loudspeaker_setup, <a href="Room.html" class="code" title="classdef Room">Room</a></pre></div>
 
 <!-- crossreference -->
 <h2><a name="_cross"></a>Cross-Reference Information <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
@@ -44,6 +71,6 @@ This function is called by:
 
 
 
-<hr><address>Generated on Wed 09-Aug-2017 00:40:51 for <strong><a href="https://www.soundzones.com" title="Sound Zones - code | research | blog">Sound Zones</a></strong></address>
+<hr><address>Generated on Mon 04-Sep-2017 16:29:08 for <strong><a href="https://www.soundzones.com" title="Sound Zones - code | research | blog">Sound Zones</a></strong></address>
 </body>
 </html>

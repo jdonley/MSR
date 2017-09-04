@@ -1,7 +1,27 @@
 function Reverberant_MSR(SYS)
-% clear;
-%clear classes;
-%close all;
+% Summary of this function goes here
+% 
+% Syntax:	Reverberant_MSR(SYS)
+% 
+% Inputs: 
+% 	SYS - Soundfield Reproduction system object
+% 
+% Example: 
+% 	Line 1 of example
+% 	Line 2 of example
+% 	Line 3 of example
+% 
+% See also: List related files here
+
+% Author: Jacob Donley
+% University of Wollongong
+% Email: jrd089@uowmail.edu.au
+% Copyright: Jacob Donley 2016-2017
+% Date: 14 June 2017
+% Version: 0.1 (14 June 2017)
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 fclose all;
 delete(gcp('nocreate'));
 
@@ -32,7 +52,12 @@ for typ = 1:N
     end
     
     if numel(SYS.Room_Setup) > 1
+        % If there is more than one room then we choose the room set up for
+        % reproduction (transmission) and the associated loudspeaker setup
+        I_tx = strcmpi({subSYS.Room_Setup.SystemType},'transmit');
         subSYS = SYS;
+        subSYS.Main_Setup = SYS.Main_Setup(I_tx);
+        subSYS.Room_Setup = SYS.Room_Setup(I_tx);
     end
     
     

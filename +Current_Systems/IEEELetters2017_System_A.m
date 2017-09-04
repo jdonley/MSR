@@ -222,6 +222,7 @@ signal_info.Nfft = ...
                     ...28 ...
                     32 ...
                     * 1e-3 * signal_info.Fs;%1024;% Number of fft components
+signal_info.Nfft_optimal = signal_info.Nfft; % The optimal Nfft length for soundfield suppression
 signal_info.time_delay = [0] *1e-3; % Seconds %If empty the time delay will based on the frame length
 signal_info.magnitudeADJ = 0.8;
 signal_info.overlap = 0.50;
@@ -232,7 +233,7 @@ signal_info.f_low  = 150;  % Hz
 signal_info.f_high = 8000; % Hz
 signal_info.f_low_meas = 100; % Hz %Minimum loudspeaker response
 signal_info.f_high_meas = 7000; % Hz %Maximum frequency with accurate response at given sampling rate
-signal_info.L_noise_mask = [0]; % dB
+signal_info.L_noise_mask = [-inf]; % dB
 signal_info.recording_type = {'simulated'}; % The type of recordings to be analysed
 signal_info.weight = 1; % This can be auto-calculated for maximum contrast by setting to 'Auto'
 signal_info.method = ''; % Default empty (temporary variable)

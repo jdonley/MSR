@@ -1,16 +1,16 @@
 function [Loudspeaker_Signals, Original] = getPredictedLoudspeakerSignals( SYS )
 %GETPREDICTEDLOUDSPEAKERSIGNALS Summary of this function goes here
 %
-% Syntax:	[Loudspeaker_Signals, Original] = getPredictedLoudspeakerSignals( SYS )
+% Syntax:	[Loudspeaker_Signals, Original] = ...
+%               getPredictedLoudspeakerSignals( SYS )
 %
 % Inputs:
-% 	input1 - Description
-% 	input2 - Description
-% 	input3 - Description
+% 	SYS - Soundfield Reproduction system object
 %
 % Outputs:
-% 	output1 - Description
-% 	output2 - Description
+% 	Loudspeaker_Signals - The loudspeaker signals predicted to cancel the
+%                         soundfield from the received microphone signals
+% 	Original - The orignal audio file
 %
 % Example:
 % 	Line 1 of example

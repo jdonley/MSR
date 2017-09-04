@@ -21,6 +21,7 @@ ConfInt_Up=[];
 %%
 for a = 1:2
     
+    if is
     SYS.signal_info.Nfft = 12 * 1e-3 * SYS.signal_info.Fs;
     
     if a==1
