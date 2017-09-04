@@ -60,8 +60,11 @@ for typ = 1:N
             subSYS.Main_Setup = subSYS.Main_Setup(typ == subSYS.signal_info.methods_list_masker);
         end
     end
-    if numel(SYS.Room_Setup) > 1
+    if numel(SYS.Room_Setup) > 1 ...
+            && typ > 1
         subSYS = SYS;
+    else
+        subSYS.Room_Setup = SYS.Room_Setup(1);
     end
     
     Broadband_Tools.Generate_Loudspeaker_Signals_batchfunc( subSYS );
