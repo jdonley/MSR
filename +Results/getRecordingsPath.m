@@ -41,11 +41,6 @@ if nargin == 1
         setup = SYS.Main_Setup;
         room = SYS.Room_Setup;
         database_workingdir = SYS.system_info.Drive;
-        if strcmpi(SYS.Room_Setup.SystemType, 'receive')
-           PathType = 'Microphone_Signals'; 
-        else
-            PathType = 'Recordings';
-        end
         if any(size(signal_info.L_noise_mask)~=1)
             signal_info.L_noise_mask = -inf;
             Tools.simpleWarning(...
@@ -73,6 +68,12 @@ else
     if nargin < 4
         signal_info = [];
     end
+end
+
+if strcmpi(room.SystemType, 'receive')
+    PathType = 'Microphone_Signals';
+else
+    PathType = 'Recordings';
 end
 
 if nargin < 6

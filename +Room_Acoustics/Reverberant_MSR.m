@@ -31,6 +31,11 @@ for typ = 1:N
         end
     end
     
+    if numel(SYS.Room_Setup) > 1
+        subSYS = SYS;
+    end
+    
+    
     if isfield(SYS.signal_info, 'UseMeasuredATFs') && SYS.signal_info.UseMeasuredATFs, Room_Acoustics.useMeasuredATF(subSYS); end
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
