@@ -18,12 +18,18 @@ function [axs, legendStrings] = SUPPRESSION_Freq( SYS, axH )
 % University of Wollongong
 % Email: jrd089@uowmail.edu.au
 % Copyright: Jacob Donley 2016-2017
-% Date: 4 September 2016
+% Date: 4 September 2017
+% Version: 0.2 (4 September 2017)
 % Version: 0.1 (4 September 2016)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 measures = SYS.analysis_info.Measures;
-results_types = measures;
+if isfield(SYS.analysis_info,'Result_Type') ...
+        && ~isempty(SYS.analysis_info.Result_Type)
+    results_types = SYS.analysis_info.Result_Type;
+else
+    results_types = measures;
+end
 
 colours = {[ ...            R G B  values
     1.0 0.0 0.0       ; ...       Predicted Signal

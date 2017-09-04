@@ -224,6 +224,7 @@ signal_info.Nfft = ...
                     * 1e-3 * signal_info.Fs;%1024;% Number of fft components
 signal_info.Nfft_optimal = signal_info.Nfft; % The optimal Nfft length for soundfield suppression
 signal_info.time_delay = [0] *1e-3; % Seconds %If empty the time delay will based on the frame length
+signal_info.system_time_delay = [0] *1e-3; % Seconds %The artificial system time delay between receiving a signal and reproducing the soundfield
 signal_info.magnitudeADJ = 0.8;
 signal_info.overlap = 0.50;
 signal_info.zeropadtime = signal_info.Nfft / signal_info.Fs; % miliseconds of zero padding (i.e. maximum time shift before circular convolution)
@@ -238,7 +239,8 @@ signal_info.recording_type = {'simulated'}; % The type of recordings to be analy
 signal_info.weight = 1; % This can be auto-calculated for maximum contrast by setting to 'Auto'
 signal_info.method = ''; % Default empty (temporary variable)
 signal_info.methods_list ... % List of methods to synthesize
-    = {'BoundaryCancel'};    % Speech Signal
+    = {'BoundaryCancel', ... % There should be at least two entries here
+       'BoundaryCancel'};
    
 signal_info.methods_list_clean = [1]; %Indices from the "methods_list" of the clean signals
 signal_info.methods_list_masker = [0]; %Indices from the "methods_list" of the maskers, different hybrids are separated by columns
@@ -298,8 +300,10 @@ system_info.LUT_resolution = [num2str(system_info.LUT_frequencies) 'f' ...
                               num2str(system_info.LUT_weights) 'w'];
                           
 %% Analysis Information
-analysis_info.Measures = {'Predicted Signal'; ...
-                          'Actual Signal'};
+analysis_info.Measures    = {'Suppression'; ...
+                             'Suppression'};
+analysis_info.Result_Type = {'Predicted Signal'; ...
+                             'Actual Signal'};
 analysis_info.Nfft = 32 * 1e-3 * signal_info.Fs;%1024;% Number of fft components
 analysis_info.f_low = 150; % Hz
 analysis_info.f_high = 2000; % Hz
