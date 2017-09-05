@@ -102,8 +102,7 @@ for file = 1:F
     W = length(Zone_Weights);
     for w = 1:W
         
-        if strcmpi(Signal_Type, 'nomask') ...
-                || strcmpi(Signal_Type, 'clean')
+        if strcmpi(Signal_Type, 'nomask')
                 SYS.signal_info.weight = Zone_Weights(w);
                 Broadband_Tools. ...
                 Loudspeaker_Signal_Calculation. ...
