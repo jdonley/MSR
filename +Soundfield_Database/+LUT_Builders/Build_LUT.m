@@ -20,24 +20,25 @@ function Build_LUT( SYS )
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-startTime = tic; %Start timing this function
-delete(gcp('nocreate'));
-current_pool = parpool; %Start new pool
-C = clock;
-fprintf('Started execution at %.0f:%.0f:%.0f on the %.0f/%.0f/%.0f\n',C([4:6 3:-1:1]))
-
 %% Settings
 if nargin < 1, SYS = Current_Systems.loadCurrentSRsystem; end
 
 DebugMode = 'DEBUG';        % Set this to 'DEBUG' for a fast aproximate output, for complete soundfield contruction replace with ''
 % You can suppress the output when executing a complete soundfield construction with 'suppress_output'
 
-%%
-if contains(SYS.signal_info.methods_list,'BoundaryCancel')
+if any(contains(SYS.signal_info.methods_list,'BoundaryCancel'))
     Tools.simpleWarning('Boundary cancellation does not require a Look-Up Table\n');
     return;
 end
 
+%% Initialise timing and parallel processing pool
+startTime = tic; %Start timing this function
+delete(gcp('nocreate'));
+current_pool = parpool; %Start new pool
+C = clock;
+fprintf('Started execution at %.0f:%.0f:%.0f on the %.0f/%.0f/%.0f\n',C([4:6 3:-1:1]))
+
+%%
 Setups = [];
 if ~isempty(SYS.signal_info.methods_list_clean)
     Setups = [Setups(:); SYS.Main_Setup(:)];

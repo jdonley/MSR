@@ -33,14 +33,16 @@ if nargin < 1, SYS = Current_Systems.loadCurrentSRsystem; end
 
 %%
 
-for r = 1:numel(SYS.Room_Setup)
-    
-    if strcmpi(SYS.Room_Setup(r).SystemType, 'receive')
-        subSYS = SYS;
-        subSYS.Main_Setup = SYS.Main_Setup(r);
-        subSYS.Room_Setup = SYS.Room_Setup(r);
-        
-        Broadband_Tools.Generate_Microphone_Signals_batchfunc( subSYS );
-    end
-end
+subSYS = SYS;
+
+subSYS.Main_Setup = ...
+    SYS.Main_Setup(...
+    strcmpi(SYS.signal_info.methods_list,'clean'));
+
+subSYS.Room_Setup = ...
+    SYS.Room_Setup(...
+    strcmpi({SYS.Room_Setup.SystemType}, 'receive'));
+
+Broadband_Tools.Generate_Microphone_Signals_batchfunc( subSYS );
+
 

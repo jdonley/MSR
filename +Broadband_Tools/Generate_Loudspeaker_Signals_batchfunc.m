@@ -102,7 +102,8 @@ for file = 1:F
     W = length(Zone_Weights);
     for w = 1:W
         
-        if strcmp(Signal_Type, 'NoMask')
+        if strcmpi(Signal_Type, 'nomask') ...
+                || strcmpi(Signal_Type, 'clean')
                 SYS.signal_info.weight = Zone_Weights(w);
                 Broadband_Tools. ...
                 Loudspeaker_Signal_Calculation. ...
@@ -110,7 +111,7 @@ for file = 1:F
                     files{file}, ...
                     SYS);
 
-        elseif strcmp(Signal_Type, 'Boundary')
+        elseif strcmpi(Signal_Type, 'boundary')
             [~, Input_file_name] = fileparts( files{file} );
             SYS.signal_info.input_filename = Input_file_name;                
             Broadband_Tools. ...
