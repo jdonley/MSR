@@ -27,11 +27,11 @@ if nargin < 1, SYS = Current_Systems.loadCurrentSRsystem; end
 RIRs = [];
 Setups = [SYS.Main_Setup; ];
 
-if numel(SYS.Room_Setup) > 1 ...
-        && ~isempty(SYS.Room_Setup.SystemType)
-    % If there's more than one room assume the other rooms are for the
-    % second to last loudspeaker setups
-    Setups = [Setups; SYS.Main_Setup(2:end)];
+if numel(SYS.Room_Setup) == 2 ...
+        && ~any(cellfun(@isempty, {SYS.Room_Setup.SystemType}))
+    % If there's two rooms, assume the other room is for the first 
+    % loudspeaker setup
+    Setups = [Setups, SYS.Main_Setup(1)];
 end
 
 DBsetups = 1:length(Setups);
@@ -42,15 +42,15 @@ tic;
 for s = DBsetups
     Setup = Setups(s);
 
-    if numel(SYS.Room_Setup) > 1
+    if numel(SYS.Room_Setup) == 2
         if s <= numel(SYS.Main_Setup)
-            % Build an RIR database for the first room matching all
+            % Build an RIR database for the first room with all
             % loudspeaker setups
             Room = SYS.Room_Setup(1);
         else
-            % Match the subsequent rooms with all loudspeaker setups other
-            % than the first
-            Room = SYS.Room_Setup( s - numel(SYS.Main_Setup) + 1);
+            % Match the second room with all loudspeaker setups other
+            % than the first lot
+            Room = SYS.Room_Setup( 2 );
         end
     elseif numel(SYS.Room_Setup) == 1
         Room = SYS.Room_Setup;
