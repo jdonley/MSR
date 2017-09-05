@@ -63,6 +63,10 @@ for typ = 1:N
     if numel(SYS.Room_Setup) > 1 ...
             && typ > 1
         subSYS = SYS;
+        subSYS.Main_Setup = ...
+            SYS.Main_Setup(~strcmpi(SYS.signal_info.methods_list,'clean'));
+        subSYS.Room_Setup = ...
+            SYS.Room_Setup(~strcmpi(SYS.Room_Setup.SystemType,'transmit'));
     else
         subSYS.Room_Setup = SYS.Room_Setup(1);
     end
