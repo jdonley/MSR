@@ -224,7 +224,7 @@ signal_info.recording_type = {'simulated'}; % The type of recordings to be analy
 signal_info.weight = 1; % This can be auto-calculated for maximum contrast by setting to 'Auto'
 signal_info.method = ''; % Default empty (temporary variable)
 signal_info.methods_list ... % List of methods to synthesize
-    = {'Clean', ... % There should be at least two entries here
+    = {'Clean'; ... % There should be at least two entries here
        'BoundaryCancel'};
    
 signal_info.methods_list_clean = [1;2]; %Indices from the "methods_list" of the clean signals

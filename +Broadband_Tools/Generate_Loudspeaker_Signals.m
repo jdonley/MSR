@@ -32,7 +32,9 @@ function Generate_Loudspeaker_Signals(SYS)
 if nargin < 1, SYS = Current_Systems.loadCurrentSRsystem; end
 
 %%
-N = length(SYS.signal_info.methods_list_clean(SYS.signal_info.methods_list_clean>=1)) ...
+N = length(SYS.signal_info.methods_list_clean( ...
+    SYS.signal_info.methods_list_clean>=1 ...
+    & ~strcmpi(SYS.signal_info.methods_list,'clean'))) ...
     + length(SYS.signal_info.methods_list_masker(SYS.signal_info.methods_list_masker>=1));
 paired = isfield(SYS.signal_info,'methods_list_paired') && SYS.signal_info.methods_list_paired;
 
@@ -60,13 +62,12 @@ for typ = 1:N
             subSYS.Main_Setup = subSYS.Main_Setup(typ == subSYS.signal_info.methods_list_masker);
         end
     end
-    if numel(SYS.Room_Setup) > 1 ...
-            && typ > 1
+    if numel(SYS.Room_Setup) > 1
         subSYS = SYS;
         subSYS.Main_Setup = ...
             SYS.Main_Setup(~strcmpi(SYS.signal_info.methods_list,'clean'));
         subSYS.Room_Setup = ...
-            SYS.Room_Setup(~strcmpi(SYS.Room_Setup.SystemType,'transmit'));
+            SYS.Room_Setup(strcmpi({SYS.Room_Setup.SystemType},'transmit'));
     else
         subSYS.Room_Setup = SYS.Room_Setup(1);
     end
