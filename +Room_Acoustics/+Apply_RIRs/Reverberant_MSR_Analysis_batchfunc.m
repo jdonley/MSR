@@ -237,6 +237,9 @@ for m = 1:M
                 Rec_Bright = sum( Rec_Bright, 3 );
                 [~,Iforce]=sort(size(Rec_Bright)); 
                 Rec_Bright=permute(Rec_Bright,Iforce);% Force smaller dimension first
+                if strcmpi([num2str(room_setup.NoReceivers) 'ch'], ZoneType)
+                    Rec_Quiet = Rec_Bright;
+                end
             elseif strcmp('Quiet',ZoneType)
                 Rec_Quiet = [];
                 for s = signal_info.methods_list_clean.'
