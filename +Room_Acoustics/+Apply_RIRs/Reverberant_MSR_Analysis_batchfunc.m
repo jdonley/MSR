@@ -151,17 +151,19 @@ for m = 1:M
         end
         % Warn if there are no recordings to analyse and then return from the function
         if isempty(files_)
-            wrnCol = [255,100,0]/255;
-            cprintf(wrnCol, 'There was a problem reading associated recording files.\n');
-            cprintf(wrnCol, ['Do ''' signal_info.recording_type ''' recordings exist?\n']);
-            cprintf(wrnCol, ['Skipping ''' signal_info.recording_type ''' analysis procedure.\n']);
+            Tools.simpleWarning({...
+                ['There was a problem reading associated recording files.']; ...
+                ['Do ''' signal_info.recording_type ''' recordings exist?']; ...
+                ['Skipping ''' signal_info.recording_type ''' analysis procedure.'];''});
             delete(gcp('nocreate')); return;
         end
-        if ~any(contains(lower(files_),'bright'))
-            Tools.simpleWarning({'No ''Bright'' zone recordings were found!'});
-        end
-        if ~any(contains(lower(files_),'quiet'))
-            Tools.simpleWarning({'No ''Quiet'' zone recordings were found!'});
+        if ~any(contains(lower(files_),[num2str(room_setup.NoReceivers) 'ch']))
+            if ~any(contains(lower(files_),'bright'))
+                Tools.simpleWarning({'No ''Bright'' zone recordings were found!';''});
+            end
+            if ~any(contains(lower(files_),'quiet'))
+                Tools.simpleWarning({'No ''Quiet'' zone recordings were found!';''});
+            end
         end
         files{:,s} = sort(files_);
     end
@@ -213,7 +215,8 @@ for m = 1:M
                 Rec_Quiet = [];
             end
             
-            if strcmp('Bright',ZoneType)
+            if strcmp('Bright',ZoneType) ...
+                    || strcmpi([num2str(room_setup.NoReceivers) 'ch'], ZoneType)
                 Rec_Bright = [];
                 for s = signal_info.methods_list_clean.'
                     if ~isempty(files{s})
@@ -222,7 +225,11 @@ for m = 1:M
                         Rec_Bright_{s_1} = load(files{s_1}{file}); break;
                     end
                 end
-                if s_1==2, Rec_Bright_{s_1}.Rec_Sigs_B = Rec_Bright_{s_1}.Rec_Sigs_B'; end %TODO: Fix the recording so the dimensions are in the correct place.
+                if s_1==2, Rec_Bright_{s_1}.Rec_Sigs_B = Rec_Bright_{s_1}.Rec_Sigs_B.'; end %TODO: Fix the recording so the dimensions are in the correct place.
+                if isfield(Rec_Bright_{s_1},'mic_signals')
+                    Rec_Bright_{s_1}.Rec_Sigs_B = ...
+                        Rec_Bright_{s_1}.mic_signals.';
+                end
                 sLB = size( Rec_Bright_{s_1}.Rec_Sigs_B,2); %signal Length Bright
                 for s=s_1:S
                     Rec_Bright(:,:,s) = Rec_Bright_{s}.Rec_Sigs_B(:,1:sLB);

@@ -56,14 +56,12 @@ for rt = 1:Nrt
         for m = masker_list
             m(m<1)=[];
             
-            if numel(SYS.Room_Setup) > 1 ...
-                    && c_ > 1
+            if numel(SYS.Room_Setup) > 1 
                 % If there is more than one room then we choose the room set up for
                 % reproduction (transmission) and the associated loudspeaker setup
                 subSYS = SYS;
-                I_tx = strcmpi({subSYS.Room_Setup.SystemType},'transmit');
-                subSYS.Main_Setup = subSYS.Main_Setup(I_tx);
-                subSYS.Room_Setup = subSYS.Room_Setup(I_tx);
+                subSYS.Room_Setup = subSYS.Room_Setup( ...
+                    strcmpi({subSYS.Room_Setup.SystemType},'transmit'));
             else
                 
                 SYS.signal_info.methods_list = {...
