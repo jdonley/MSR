@@ -33,9 +33,10 @@ mSYS = SYS; %  Microphone System (M-SYS)
 lSYS = SYS; % Loudspeaker System (L-SYS)
 
 %% Read Microphone Signals
-sysI = strcmpi({mSYS.Room_Setup.SystemType},'receive');
-mSYS.Room_Setup = mSYS.Room_Setup( sysI );
-mSYS.Main_Setup = mSYS.Main_Setup( sysI );
+mSYS.Main_Setup = mSYS.Main_Setup( ...
+    strcmpi(SYS.signal_info.methods_list,'clean') );
+mSYS.Room_Setup = mSYS.Room_Setup( ...
+    strcmpi({mSYS.Room_Setup.SystemType},'receive') );
 
 MicSigPath = Broadband_Tools.getMicrophoneSignalPath( mSYS );
 MicSigFiles = Tools.keepFilesFromFolder( Tools.getAllFiles(MicSigPath), mSYS.signal_info.speech_filepath);
@@ -52,9 +53,10 @@ MicSigs = MSF.mic_signals;
 Fs = MSF.fs;
 
 %% Determine prediction length (hop size)
-sysI = strcmpi({lSYS.Room_Setup.SystemType},'transmit');
-lSYS.Room_Setup = lSYS.Room_Setup( sysI );
-lSYS.Main_Setup = lSYS.Main_Setup( sysI );
+lSYS.Main_Setup = lSYS.Main_Setup( ...
+    ~strcmpi(SYS.signal_info.methods_list,'clean')  );
+lSYS.Room_Setup = lSYS.Room_Setup( ...
+    strcmpi({lSYS.Room_Setup.SystemType},'transmit') );
 
 Q = mSYS.Room_Setup.NoReceivers;
 N = SYS.signal_info.Nfft;

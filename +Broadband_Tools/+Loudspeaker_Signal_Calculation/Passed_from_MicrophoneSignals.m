@@ -30,9 +30,10 @@ function Passed_from_MicrophoneSignals( SYS )
 
 %% Setup Variables
 lSYS = SYS; % Loudspeaker System (L-SYS)
-sysI = strcmpi({lSYS.Room_Setup.SystemType},'transmit');
-lSYS.Room_Setup = lSYS.Room_Setup( sysI );
-lSYS.Main_Setup = lSYS.Main_Setup( sysI );
+lSYS.Main_Setup = lSYS.Main_Setup( ...
+    ~strcmpi(SYS.signal_info.methods_list,'clean')  );
+lSYS.Room_Setup = lSYS.Room_Setup( ...
+    strcmpi({lSYS.Room_Setup.SystemType},'transmit') );
 [Output_path, Output_file_name, Output_file_ext] = ...
     Broadband_Tools.getLoudspeakerSignalPath( ...
     lSYS.Main_Setup, ...
@@ -41,9 +42,10 @@ lSYS.Main_Setup = lSYS.Main_Setup( sysI );
     SYS.system_info.Drive );
 
 mSYS = SYS; %  Microphone System (M-SYS)
-sysI = strcmpi({mSYS.Room_Setup.SystemType},'receive');
-mSYS.Room_Setup = mSYS.Room_Setup( sysI );
-mSYS.Main_Setup = mSYS.Main_Setup( sysI );
+mSYS.Main_Setup = mSYS.Main_Setup( ...
+    strcmpi(SYS.signal_info.methods_list,'clean') );
+mSYS.Room_Setup = mSYS.Room_Setup( ...
+    strcmpi({mSYS.Room_Setup.SystemType},'receive') );
 mpath = Broadband_Tools.getMicrophoneSignalPath( mSYS );
 mfiles = Tools.keepFilesFromFolder( Tools.getAllFiles(mpath), mSYS.signal_info.speech_filepath);
 [~,~,Input_file_ext] = fileparts(mfiles{contains(lower(mfiles),'original')});

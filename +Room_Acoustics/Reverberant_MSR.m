@@ -30,7 +30,9 @@ if nargin < 1, SYS = Current_Systems.loadCurrentSRsystem; end
 
 %%
 
-N = length(SYS.signal_info.methods_list_clean(SYS.signal_info.methods_list_clean>=1)) ...
+N = length(SYS.signal_info.methods_list_clean( ...
+    SYS.signal_info.methods_list_clean>=1 ...
+    & ~strcmpi(SYS.signal_info.methods_list,'clean') )) ...
     + length(SYS.signal_info.methods_list_masker(SYS.signal_info.methods_list_masker>=1));
 paired = isfield(SYS.signal_info,'methods_list_paired') && SYS.signal_info.methods_list_paired;
 
@@ -51,15 +53,18 @@ for typ = 1:N
         end
     end
     
-    if numel(SYS.Room_Setup) > 1 ...
-        && typ > 1
+    if numel(SYS.Room_Setup) > 1 
         % If there is more than one room and the first method has been 
         % completed then we choose the room set up for reproduction 
         % (transmission) and the associated loudspeaker setup
         subSYS = SYS;
-        I_tx = strcmpi({subSYS.Room_Setup.SystemType},'transmit');
-        subSYS.Main_Setup = SYS.Main_Setup(I_tx);
-        subSYS.Room_Setup = SYS.Room_Setup(I_tx);
+        subSYS.signal_info.method = ...
+            subSYS.signal_info.methods_list{...
+            ~strcmpi(SYS.signal_info.methods_list,'clean')};
+        subSYS.Main_Setup = SYS.Main_Setup( ...
+            ~strcmpi(SYS.signal_info.methods_list,'clean') );
+        subSYS.Room_Setup = SYS.Room_Setup( ...
+            strcmpi({subSYS.Room_Setup.SystemType},'transmit') );
     end
     
     
