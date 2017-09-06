@@ -1,4 +1,4 @@
-function [ fig ] = IEEE_ICASSP2017_A( SYS )
+function [ fig ] = IEEE_ICASSP2017_B( SYS )
 %TEMPLATE Summary of this function goes here
 %
 % Syntax:	[OUTPUTARGS] = TEMPLATE(INPUTARGS) Explain usage here

@@ -61,7 +61,7 @@ for a = 1:2
     B = [A{2:sk:end}];
     C = [A{3:sk:end}];
     C2=[];
-    for i=1:20
+    for i=1:(numel(A)/sk)
         tmp= Tools.confidence_intervals( [A{sk*(i-1)+1}].' , 95);
         C2(:,i)= tmp(:,2);
     end

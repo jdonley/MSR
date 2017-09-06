@@ -301,14 +301,10 @@ publication_info.DocumentPath = 'tex\latex\IEEE_Letters2017';
 
 publication_info.FigureName = 'IEEE_Letters2017_A';
 publication_info.axes_NumTicks = [8 5]; % Number of ticks [NumXticks NumYticks];
-publication_info.axes_limitBufs = [0.02 0.07]; % axis limits buffer in percentage [width, height]
-
-% publication_info.FigureName = 'IEEE_ICASSP2017_B';
-% publication_info.axes_NumTicks = [8 5]; % Number of ticks [NumXticks NumYticks];
-% publication_info.axes_limitBufs = [0.00 0.05]; % axis limits buffer in percentage [width, height]
-% publication_info.axes_Scales = {'log'; 'lin'}; % Axis scales
-% publication_info.XTicks_override = [0.156, 1, 8];
-% publication_info.leg_MarkerSize = 8;
+publication_info.axes_limitBufs = [0.00 0.05]; % axis limits buffer in percentage [width, height]
+publication_info.axes_Scales = {'log'; 'lin'}; % Axis scales
+publication_info.XTicks_override = [0.156, 1, 8];
+publication_info.leg_MarkerSize = 8;
 
 publication_info.FigureTitle = '';%'Active Speech Attenuation';
 publication_info.print_fmt = 'pdf'; %figure image file format
@@ -320,7 +316,9 @@ publication_info.axis_aspect_ratio = [1 0.4]; %Single axis aspect ration [width 
 publication_info.axes_gap = [0.5 0.5]; %Gap between axes [gap_height gap_width] %centimeters
 publication_info.axes_margins_height = [1 1]; %Axes height margins [lower upper]  %centimeters
 publication_info.axes_margins_width = [1 1]; %Axes width margins [left right]  %centimeters
-publication_info.axes_grid = 'minor'; % Show axes grid ('on', 'minor' or 'off')
+publication_info.axes_grid = 'off'; % Show axes grid ('on', 'minor' or 'off')
+publication_info.axes_gridMinorY = 'off'; % Override minor grid for Y axis ('on' or 'off')
+publication_info.axes_gridMinorX = 'off'; % Override minor grid for X axis ('on' or 'off')
 publication_info.sigRounding = 3; % number of significant figures rounding
 publication_info.axes_tickdir = 'both'; % Axes tick direction(s) ('in', 'out' or 'both')
 
