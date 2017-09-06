@@ -1,5 +1,5 @@
 clear; tic;
-SYS = Current_Systems.IEEELetters2017_System_B;
+SYS = Current_Systems.IEEELetters2017_System_A;
 
 subSYS = SYS;
 subSYS.Main_Setup(1)=[];
