@@ -21,7 +21,8 @@ function Passed_from_MicrophoneSignals( SYS )
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
+SYS.signal_info.method = SYS.signal_info.methods_list{ ...
+    strcmpi(SYS.signal_info.methods_list,'clean') };
 
 %% Determine Loudspeaker Signals
 [Loudspeaker_Signals, Original] = ...
