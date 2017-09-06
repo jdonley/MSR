@@ -79,14 +79,14 @@ for rt = 1:numel(measures)
             [Hrz_Vec, Res_Matrix{1}, Res_trend{1}, Res_area{1}, Res_CI{1}, CI_vec] = ...
                 Results.generatePlotData( Xvec, Vals(:,1), ConfInt_Low(:,1), ConfInt_Up(:,1), 'smoothingspline', [1.8 1.8]);
             Res_CI{1} = [ConfInt_Low(:,1), ConfInt_Up(:,1)];
-            legendStrings = {legendStrings{:}, [measures{rt}]};
+            legendStrings = {legendStrings{:}, [results_types{rt}]};
             
         case 'Actual Signal'
             % Generate Plottable data matrices and vectors
             [Hrz_Vec, Res_Matrix{2}, Res_trend{2}, Res_area{2}, Res_CI{2}, CI_vec] = ...
                 Results.generatePlotData( Xvec, Vals(:,2), ConfInt_Low(:,2), ConfInt_Up(:,2), 'smoothingspline', [1.8 1.8]);
             Res_CI{2} = [ConfInt_Low(:,2), ConfInt_Up(:,2)];
-            legendStrings = {legendStrings{:}, [measures{rt}]};
+            legendStrings = {legendStrings{:}, [results_types{rt}]};
             
         otherwise
             error(['Result type ''' results_types{rt} ''' not recognised']);
