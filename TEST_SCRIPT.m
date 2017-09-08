@@ -4,13 +4,26 @@ hlen = tlen*fs;
 
 td = tlen/2+SYS.Main_Setup(2).DipoleDistance/343;% + 0.00123456;
 
+
+
+D = 0.5;
+N = 10;
+h4 = [];
+for n=0:N
+    k=0:N;k(k==n)=[];
+    h4(n+1) = prod( (D-k)./(n-k) );
+end
+plot(h4)
+fvtool(h4)
+
+h = [h3.Data.' zeros(1,hlen-7)];
 % h = zeros(1,hlen);
 % h(1+td*fs) = 1;
-% H = fft(h);
+ H = fft(h);
 w = linspace(0,2*pi*(1-1/hlen),hlen);
 % 
-% A = -unwrap(angle(H))./w ;
-% plot(A);  xlim([0 4000]);
+ A = -unwrap(angle(H))./w ;
+ plot(A);  xlim([0 4000]);
 % hold on;
 
 H2 = exp(-1i*w*td*fs);
