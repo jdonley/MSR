@@ -33,8 +33,10 @@ mSYS = SYS; %  Microphone System (M-SYS)
 lSYS = SYS; % Loudspeaker System (L-SYS)
 
 %% Read Microphone Signals
+mSYS.signal_info.method = mSYS.signal_info.methods_list{ ...
+    strcmpi(mSYS.signal_info.methods_list,'clean') };
 mSYS.Main_Setup = mSYS.Main_Setup( ...
-    strcmpi(SYS.signal_info.methods_list,'clean') );
+    strcmpi(mSYS.signal_info.methods_list,'clean') );
 mSYS.Room_Setup = mSYS.Room_Setup( ...
     strcmpi({mSYS.Room_Setup.SystemType},'receive') );
 

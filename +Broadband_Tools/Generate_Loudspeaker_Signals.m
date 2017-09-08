@@ -66,7 +66,7 @@ for typ = 1:N
         subSYS = SYS;
         subSYS.signal_info.method = ...
             subSYS.signal_info.methods_list{...
-            ~strcmpi(SYS.signal_info.methods_list,'clean')};
+            ~strcmpi(subSYS.signal_info.methods_list,'clean')};
     else
         subSYS.Room_Setup = SYS.Room_Setup(1);
     end

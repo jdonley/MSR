@@ -62,7 +62,11 @@ for a = 1:2
     C = [A{3:sk:end}];
     C2=[];
     for i=1:(numel(A)/sk)
-        tmp= Tools.confidence_intervals( [A{sk*(i-1)+1}].' , 95);
+        results = [A{sk*(i-1)+1}].';
+        if size(results,1) == 1
+           results = repmat(results,2,1);
+        end
+        tmp= Tools.confidence_intervals( results , 95);
         C2(:,i)= tmp(:,2);
     end
     D = [A{sk:sk:end}];
