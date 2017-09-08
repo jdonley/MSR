@@ -79,6 +79,16 @@ d = sum(abs(spkLocCent(1:2) - micLocCent(1:2)).^2).^.5;
 hop = round(d/c*Fs);
 ol = (N-hop)/N;
 
+%% Dipole filtering
+if strcmpi(mSYS.Main_Setup.Speaker_Array_Type,'2line')
+    % TODO: Time-delay microphone signals for dipole setup
+    error('See TODO at this line');
+end
+if strcmpi(lSYS.Main_Setup.Speaker_Array_Type,'2line')
+    % TODO: Time-delay loudspeaker signals for dipole setup
+    error('See TODO at this line');
+end
+
 %%
 if ol == 1
     Loudspeaker_Signals = MicSigs;
