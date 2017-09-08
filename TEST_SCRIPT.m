@@ -1,12 +1,27 @@
+fs = 16000;
+tlen = 1.0;
+hlen = tlen*fs;
 
-h = zeros(1,16000);
-h(2) = 1;
+td = tlen/2+SYS.Main_Setup(2).DipoleDistance/343;% + 0.00123456;
+
+% h = zeros(1,hlen);
+% h(1+td*fs) = 1;
+% H = fft(h);
+w = linspace(0,2*pi*(1-1/hlen),hlen);
+% 
+% A = -unwrap(angle(H))./w ;
+% plot(A);  xlim([0 4000]);
+% hold on;
+
+H2 = exp(-1i*w*td*fs);
+H2(1)=0;
+
+h = real(ifft(H2));
+figure(1);
+plot(h);
+figure(2);
 H = fft(h);
-A = -unwrap(angle(H))./(linspace(-pi,pi,16000));
-plot(A);  xlim([0 4000])
-
-
-
+plot(abs(H))
 
 %%
 % tic;
