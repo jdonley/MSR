@@ -104,8 +104,8 @@ setup(1).plotSoundfield( (Z1), 'scientific_D1', realistic, details);
 text(10,size(Z1,1)-FontSize-10,1e3,'(A)',...
     'BackgroundColor',[1 1 1 0.7],'FontName',FontName,'FontSize',FontSize)
 ax.Title.String = '';%'Pressure Soundfield of Talker';
-ax.XLabel = [];
-ax.XTickLabel = [];
+% ax.XLabel = [];
+% ax.XTickLabel = [];
 clim_=[-1 1].*pk(1);
 ax.CLim = clim_;
 colorbar off
@@ -116,10 +116,10 @@ setup(1).plotSoundfield( Z2, 'scientific_D1', realistic, details);
 text(10,size(Z2,1)-FontSize-10,1e3,'(B)',...
     'BackgroundColor',[1 1 1 0.7],'FontName',FontName,'FontSize',FontSize)
 ax.Title=[];
-ax.XLabel = [];
-ax.XTickLabel = [];
-ax.YLabel = [];
-ax.YTickLabel = [];
+% ax.XLabel = [];
+% ax.XTickLabel = [];
+% ax.YLabel = [];
+% ax.YTickLabel = [];
 ax.CLim=clim_;
 % colorbar off
 hCB = colorbar(ax); 
