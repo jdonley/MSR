@@ -1,9 +1,9 @@
 function SR_SYSTEM = IEEELetters2017_System_A()
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 
-% Main_Setup(1) & Room_Setup(1) => Human Talker recorded in room
-% Main_Setup(2) & Room_Setup(1) => Loudspeaker Wall recorded in room
-% Main_Setup(1) & Room_Setup(2) => Human Talker recorded by microphone wall
+% Main_Setup(1) & Room_Setup(1) => Human talker recorded in room
+% Main_Setup(2) & Room_Setup(1) => Loudspeaker wall recorded in room
+% Main_Setup(1) & Room_Setup(2) => Human talker recorded by microphone wall
 % Main_Setup(2) & Room_Setup(2) => NOT USED
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -41,9 +41,10 @@ Room_Setup(1) = Room_Setup(1).setWall_Absorb_Coeff( ...
 
 % Room_Setup.Reflection_Order = 1; % Order of image sources to compute
 
-Room_Setup(1).NoReceivers = 4; % Number per zone
+Room_Setup(1).NoReceivers = 1; % Number per zone
 % If positions are not specified then the positions will be randomised
-
+Room_Setup(1).ReceiverPositions = ...
+    Room_Setup(1).Room_Size([2 1 3])/2 + [-0.5 0 0];
 
 %% Multizone Soundfield Geometry and Loudspeaker Array
 By = 0.0;
@@ -195,7 +196,7 @@ Room_Setup(2).NoReceivers = Main_Setup(2).Loudspeaker_Count; % Number per zone
 spkrLocs = Main_Setup(2).Loudspeaker_Locations;
 [spkrLocs(:,1),spkrLocs(:,2)]=pol2cart(spkrLocs(:,1),spkrLocs(:,2));
 
-Room_Setup(2).ReceiverPositions(:,:,1) = ...
+Room_Setup(2).ReceiverPositions = ...
     [spkrLocs, ...
     zeros(Room_Setup(2).NoReceivers,1)] ...
     + Room_Setup(2).Reproduction_Centre([2 1 3]);
