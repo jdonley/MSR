@@ -67,28 +67,28 @@ details.lblFontSize = 12;
 
  pk(1) = max(abs((setup(1).Bright_Samples(:))))*setup(1).res; % Masker (loudspeakers)
  pk(2) = max(abs((setup(2).Bright_Samples(:))))*setup(2).res; % Talker
- pk(3) = max(abs((setup(3).Bright_Samples(:))))*setup(3).res; % Image sources (reflections)
+%  pk(3) = max(abs((setup(3).Bright_Samples(:))))*setup(3).res; % Image sources (reflections)
  
 Z1 = setup(1).Soundfield_reproduced*setup(1).res;
 Z2 = setup(2).Soundfield_reproduced*setup(2).res;
-Z3 = setup(3).Soundfield_reproduced*setup(3).res;
+% Z3 = setup(3).Soundfield_reproduced*setup(3).res;
 
 gainNorm = 1/pk(1);
 Z1 = Z1*gainNorm; pk(1) = pk(1)*gainNorm;
 Z2 = Z2*gainNorm; pk(2) = pk(2)*gainNorm;
-Z3 = Z3*gainNorm; pk(3) = pk(3)*gainNorm;
+% Z3 = Z3*gainNorm; pk(3) = pk(3)*gainNorm;
 
 clipFact = 2;
 Z1(abs(Z1)>clipFact*pk(1))=nan;
 Z2(abs(Z2)>clipFact*pk(2))=nan;
-Z3(abs(Z3)>clipFact*pk(3))=nan;
+% Z3(abs(Z3)>clipFact*pk(3))=nan;
 % Z2 = angle(Z);
 % Z3 = abs(Z/setup.res);
 % Z_ = mag2db((Z)./pk);
 
 % close all;
 fH = figure(111);
-ha = tightPlots( 2, 2, ...
+ha = tightPlots( 1, 2, ...
 SYS.publication_info.figure_width*2, ...
 [1 1], ...
 SYS.publication_info.axes_gap, ...
@@ -106,13 +106,13 @@ text(10,size(Z1,1)-FontSize-10,1e3,'(A)',...
 ax.Title.String = '';%'Pressure Soundfield of Talker';
 ax.XLabel = [];
 ax.XTickLabel = [];
-clim_=[-1 1].*pk(3);
+clim_=[-1 1].*pk(1);
 ax.CLim = clim_;
 colorbar off
 
 axes(ha(2))
 ax=gca;
-setup(1).plotSoundfield( -Z1, 'scientific_D1', realistic, details);
+setup(1).plotSoundfield( Z2, 'scientific_D1', realistic, details);
 text(10,size(Z2,1)-FontSize-10,1e3,'(B)',...
     'BackgroundColor',[1 1 1 0.7],'FontName',FontName,'FontSize',FontSize)
 ax.Title=[];
@@ -125,37 +125,37 @@ ax.CLim=clim_;
 hCB = colorbar(ax); 
 hCB.Visible = 'off';
 
-axes(ha(3))
-ax=gca;
-setup(1).plotSoundfield( Z3-Z1, 'scientific_D1', realistic, details);
-text(10,size(Z2,1)-FontSize-10,1e3,'(C)',...
-    'BackgroundColor',[1 1 1 0.7],'FontName',FontName,'FontSize',FontSize)
-ax.Title=[];
-ax.CLim=clim_;
-colorbar off
-
-
-axes(ha(4))
-ax=gca;
-setup(1).plotSoundfield( abs(Z3-Z1), 'scientific_L9', realistic, details);
-text(10,size(Z2,1)-FontSize-10,1e3,'(D)',...
-    'BackgroundColor',[1 1 1 0.7],'FontName',FontName,'FontSize',FontSize)
-ax.Title=[];
-ax.YLabel = [];
-ax.YTickLabel = [];
-ax.CLim=[-60 0];
-colorbar off;
-% tightfig;
-
-hCB = colorbar; hCB.Units = 'points';
-hCB.Ticks = interp1(1:length(caxis),caxis,linspace(1,length(caxis),5));
-hCB.TickLabels = num2str(linspace( ax.CLim(1), ax.CLim(2),5)' );
-hCB.Label.String = 'Magnitude (dB)';
-
-set(fH.Children, 'Units','Points')
-for c = 1:numel(fH.Children)
- fH.Children(c).Position(2) = fH.Children(c).Position(2)+20;
-end
+% axes(ha(3))
+% ax=gca;
+% setup(1).plotSoundfield( Z3-Z1, 'scientific_D1', realistic, details);
+% text(10,size(Z2,1)-FontSize-10,1e3,'(C)',...
+%     'BackgroundColor',[1 1 1 0.7],'FontName',FontName,'FontSize',FontSize)
+% ax.Title=[];
+% ax.CLim=clim_;
+% colorbar off
+% 
+% 
+% axes(ha(4))
+% ax=gca;
+% setup(1).plotSoundfield( abs(Z3-Z1), 'scientific_L9', realistic, details);
+% text(10,size(Z2,1)-FontSize-10,1e3,'(D)',...
+%     'BackgroundColor',[1 1 1 0.7],'FontName',FontName,'FontSize',FontSize)
+% ax.Title=[];
+% ax.YLabel = [];
+% ax.YTickLabel = [];
+% ax.CLim=[-60 0];
+% colorbar off;
+% % tightfig;
+% 
+% hCB = colorbar; hCB.Units = 'points';
+% hCB.Ticks = interp1(1:length(caxis),caxis,linspace(1,length(caxis),5));
+% hCB.TickLabels = num2str(linspace( ax.CLim(1), ax.CLim(2),5)' );
+% hCB.Label.String = 'Magnitude (dB)';
+% 
+% set(fH.Children, 'Units','Points')
+% for c = 1:numel(fH.Children)
+%  fH.Children(c).Position(2) = fH.Children(c).Position(2)+20;
+% end
 
 
 
@@ -214,7 +214,7 @@ E(end+1) = mag2db(setup(1).MSE_Bright);
 disp(['   Contrast: ' num2str(mag2db(setup(1).Acoustic_Contrast)) 'dB']);
 disp(['        MSE: ' num2str(mag2db(setup(1).MSE_Bright)) 'dB']);
 disp(['Attenuation: ' num2str(setup(1).Attenuation_dB(1)) 'dB (±' num2str(setup(1).Attenuation_dB(2)) 'dB)']);
-mean(mag2db(abs(Z3(:)-Z1(:))))
+% mean(mag2db(abs(Z3(:)-Z1(:))))
 %%
 %fprintf(Speaker_Setup.printSetupDetails(setup));
 

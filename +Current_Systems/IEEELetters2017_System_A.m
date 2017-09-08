@@ -1,6 +1,14 @@
 function SR_SYSTEM = IEEELetters2017_System_A()
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
+% Main_Setup(1) & Room_Setup(1) => Human Talker recorded in room
+% Main_Setup(2) & Room_Setup(1) => Loudspeaker Wall recorded in room
+% Main_Setup(1) & Room_Setup(2) => Human Talker recorded by microphone wall
+% Main_Setup(2) & Room_Setup(2) => NOT USED
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
+%%
 array_type = '2line';
 spkr_radius = 3.0;
 N_spkrs = 24 * 2; % Times 2 for dipole
