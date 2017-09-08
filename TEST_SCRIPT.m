@@ -1,3 +1,14 @@
+
+h = zeros(1,16000);
+h(2) = 1;
+H = fft(h);
+A = -unwrap(angle(H))./(linspace(-pi,pi,16000));
+plot(A);  xlim([0 4000])
+
+
+
+
+%%
 % tic;
 % SYS = Current_Systems.IEEELetters2017_System_B;
 % 
