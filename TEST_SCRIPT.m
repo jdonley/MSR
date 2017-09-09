@@ -2,24 +2,25 @@ fs = 16000;
 tlen = 1.0;
 hlen = tlen*fs;
 
-td = tlen/2+SYS.Main_Setup(2).DipoleDistance/343;% + 0.00123456;
+sd = SYS.Main_Setup(2).DipoleDistance/343*fs;
+td = tlen/2+sd/fs;% + 0.00123456;
 
+fracd = rem(sd+0.5,1);
 
-
-D = 0.5;
-N = 10;
+N = ceil(2*sd);
+D = N/2 -0.5 + fracd;
 h4 = [];
 for n=0:N
     k=0:N;k(k==n)=[];
     h4(n+1) = prod( (D-k)./(n-k) );
 end
-plot(h4)
+h4
 fvtool(h4)
 
 h = [h3.Data.' zeros(1,hlen-7)];
 % h = zeros(1,hlen);
 % h(1+td*fs) = 1;
- H = fft(h);
+ H = fft(h4);
 w = linspace(0,2*pi*(1-1/hlen),hlen);
 % 
  A = -unwrap(angle(H))./w ;

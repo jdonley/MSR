@@ -80,8 +80,14 @@ hop = round(d/c*Fs);
 ol = (N-hop)/N;
 
 %% Dipole filtering
-if strcmpi(mSYS.Main_Setup.Speaker_Array_Type,'2line')
+if strcmpi(SYS.signal_info.method,'boundarycancel') ...
+        && strcmpi(lSYS.Main_Setup.Speaker_Array_Type,'2line')
     % TODO: Time-delay microphone signals for dipole setup
+    micDists = micLocs(1:end/2,:) - micLocs(end:-1:end/2+1,:);
+    d = round(mean(sum(micDists'.^2).^.5),10);
+    fracDelay = d/SYS.signal_info.c*SYS.signal_info.Fs;
+    h = Tools.fracDelayLagrange( fracDelay, 2 );
+    a = Tools.fconv( MicSigs(:,1:Q/2), h.' );
     error('See TODO at this line');
 end
 if strcmpi(lSYS.Main_Setup.Speaker_Array_Type,'2line')
