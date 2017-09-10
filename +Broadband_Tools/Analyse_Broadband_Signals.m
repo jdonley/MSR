@@ -71,7 +71,7 @@ Frequencies = Frequencies( :, trunc_index_low:trunc_index_high );
 
 % Work out the coresponding number of planewaves for these frequencies
 f_samples = length(Frequencies);
-Nplanewaves = round( +Tools.interpVal(ceil((300-30)/((f_samples-1)^4)*(0:(f_samples-1)).^4+30), ...
+Nplanewaves = round( Tools.interpVal(ceil((300-30)/((f_samples-1)^4)*(0:(f_samples-1)).^4+30), ...
     logspace(log10(150),log10(8000),f_samples), ...
     Frequencies));
 
@@ -172,9 +172,9 @@ end
 % Then we should perform the overlap-add method to obtain the complete time domain signal for each speaker
 %Loudspeaker_Signals = zeros( [(size(Z,1)+ceil(overlap))*size(Z,2)*2*(1-overlap) loudspeakers] );
 % for spkr = 1:loudspeakers
-%     Loudspeaker_Signals(:,spkr) = +Broadband_Tools.OverlapAdd( Loudspeakers_(:,:,spkr), overlap );
+%     Loudspeaker_Signals(:,spkr) = +Tools.OverlapAdd( Loudspeakers_(:,:,spkr), overlap );
 % end
-Original_ = +Broadband_Tools.OverlapAdd( Original, overlap );
+Original_ = Tools.OverlapAdd( Original, overlap );
 clear Loudspeakers_; % Save on memory
 
 % Normalise Loudspeaker Signals
@@ -224,8 +224,8 @@ for frame = 1:size(Z, 1)
 end
 
 % Then we should perform the overlap-add method to obtain the complete time domain signal for each speaker
-Bright_Signal = +Broadband_Tools.OverlapAdd( Bright, overlap );
-Quiet_Signal  = +Broadband_Tools.OverlapAdd( Quiet , overlap );
+Bright_Signal = Tools.OverlapAdd( Bright, overlap );
+Quiet_Signal  = Tools.OverlapAdd( Quiet , overlap );
 
 % Normalise Loudspeaker Signals
 maxVal = max(abs(Bright_Signal(:)));

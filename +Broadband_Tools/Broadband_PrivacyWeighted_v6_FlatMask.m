@@ -153,7 +153,7 @@ Original = [Z(:,:,1) conj( [-Z(:,1,1).*0 Z(:,end:-1:2,1)] )];
      Original(frame,:) = ifft( Original(frame, :) );
  end
  
- Original_ = +Broadband_Tools.OverlapAdd( Original, overlap );
+ Original_ = Tools.OverlapAdd( Original, overlap );
  
  Original_ = Original_ ./ max(abs(Original_(:)));
 
@@ -201,8 +201,8 @@ for frame = 1:size(Z, 1)
 end
 
 % Then we should perform the overlap-add method to obtain the complete time domain signal for each speaker
-Bright_Signal = +Broadband_Tools.OverlapAdd( Bright, overlap );
-Quiet_Signal  = +Broadband_Tools.OverlapAdd( Quiet , overlap );
+Bright_Signal = Tools.OverlapAdd( Bright, overlap );
+Quiet_Signal  = Tools.OverlapAdd( Quiet , overlap );
 
 
 %Add flat noise mask

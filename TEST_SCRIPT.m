@@ -260,7 +260,7 @@ plot(abs(H))
 %  
 %  srcSigFrm = ifft(Ssrcfft);
 %  
-%   srcSig = Broadband_Tools.OverlapAdd((srcSigFrm .* Tools.repmatmatch(WIN,srcSigFrm)).',0.5);
+%   srcSig = Tools.OverlapAdd((srcSigFrm .* Tools.repmatmatch(WIN,srcSigFrm)).',0.5);
 % %  srcSig = overlapadd(srcSigFrm.',WIN,256);
 %  
 % %  [b,a] = cheby1(6,1,[250 2500]/8000);

@@ -234,8 +234,8 @@ FF(ffI)=[];
  srcSigFrm = ifft(Ssrcfft);
  src1SigFrm = ifft(Ssrc1fft);
  
- srcSig = Broadband_Tools.OverlapAdd((srcSigFrm .* Tools.repmatmatch(WIN,srcSigFrm)).',0.5);
- src1Sig = Broadband_Tools.OverlapAdd((src1SigFrm .* Tools.repmatmatch(WIN,src1SigFrm)).',0.5);
+ srcSig = Tools.OverlapAdd((srcSigFrm .* Tools.repmatmatch(WIN,srcSigFrm)).',0.5);
+ src1Sig = Tools.OverlapAdd((src1SigFrm .* Tools.repmatmatch(WIN,src1SigFrm)).',0.5);
  %  srcSig = overlapadd(srcSigFrm.',WIN,256);
  
  %  [b,a] = cheby1(6,1,[250 2500]/8000);

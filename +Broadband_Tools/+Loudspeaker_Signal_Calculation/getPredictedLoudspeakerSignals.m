@@ -43,7 +43,7 @@ mSYS.Room_Setup = mSYS.Room_Setup( ...
 MicSigPath = Broadband_Tools.getMicrophoneSignalPath( mSYS );
 MicSigFiles = Tools.keepFilesFromFolder( Tools.getAllFiles(MicSigPath), mSYS.signal_info.speech_filepath);
 
-Original = audioread( ... 
+Original = audioread( ...
     MicSigFiles{contains(lower(MicSigFiles),'original')});
 
 MicSigFiles(~contains(MicSigFiles,'.mat'))=[];
@@ -68,7 +68,7 @@ armethod = SYS.signal_info.AR_method;
 
 spkLocsPol = lSYS.Main_Setup.Loudspeaker_Locations;    % Polar
 micLocs = mSYS.Room_Setup.ReceiverPositions ...        % Cartesian
-            - mSYS.Room_Setup.Reproduction_Centre([2 1 3]);
+    - mSYS.Room_Setup.Reproduction_Centre([2 1 3]);
 [spkLocs(:,1),spkLocs(:,2)] = ...
     pol2cart(spkLocsPol(:,1),spkLocsPol(:,2));
 
@@ -79,42 +79,58 @@ d = sum(abs(spkLocCent(1:2) - micLocCent(1:2)).^2).^.5;
 hop = round(d/c*Fs);
 ol = (N-hop)/N;
 
-%% Dipole filtering
+%% Microphone dipole filtering
 if strcmpi(SYS.signal_info.method,'boundarycancel') ...
         && strcmpi(lSYS.Main_Setup.Speaker_Array_Type,'2line')
-    % TODO: Time-delay microphone signals for dipole setup
+    
     micDists = micLocs(1:end/2,:) - micLocs(end:-1:end/2+1,:);
     d = round(mean(sum(micDists'.^2).^.5),10);
     fracDelay = d/SYS.signal_info.c*SYS.signal_info.Fs;
     h = Tools.fracDelayLagrange( fracDelay, 2 );
-    a = Tools.fconv( MicSigs(:,Q/2+1:Q), h.' );
-    error('See TODO at this line');
-end
-if strcmpi(lSYS.Main_Setup.Speaker_Array_Type,'2line')
-    % TODO: Time-delay loudspeaker signals for dipole setup
-    error('See TODO at this line');
+    MicSigsDP = Tools.fconv( MicSigs(:,Q/2+1:Q), h.' );
+    
+    MicSigs = (MicSigs(:,1:Q/2) + MicSigsDP(1:end-(numel(h)-1),:)) / 2;
+    Q = size(MicSigs,2); % Dipole is modelled as two monopoles
+    
 end
 
 %%
 if ol == 1
-    Loudspeaker_Signals = MicSigs;
-    return;
+    sigPredicted = MicSigs;
+    
+else
+    
+    mics = 1:Q;
+    for mic_ = 1:numel(mics)
+        mic = mics(mic_);
+        x = MicSigs(:,mic);
+        
+        b = Tools.frame_data( [zeros( N*(buffLen-1),1);x], 1-(1-ol)/buffLen ,  N*buffLen);
+        s = Tools.frame_data( [x; zeros( N*(buffLen-1),1)], ol ,  N);
+        
+        [~,sigPredicted(:,mic_)] = Broadband_Tools.PredictiveFraming( ...
+            s,b, ...
+            int64((1-ol)* N),...
+            armethod);
+        
+    end
 end
 
-mics = 1:Q;
-for mic_ = 1:numel(mics)
-    mic = mics(mic_);
-    x = MicSigs(:,mic);
+%% Loudspeaker dipole filtering
+if strcmpi(lSYS.Main_Setup.Speaker_Array_Type,'2line')
+    % TODO: Time-delay loudspeaker signals for dipole setup
+    micDists = micLocs(1:end/2,:) - micLocs(end:-1:end/2+1,:);
+    d = round(mean(sum(micDists'.^2).^.5),10);
+    fracDelay = d/SYS.signal_info.c*SYS.signal_info.Fs;
+    h = Tools.fracDelayLagrange( fracDelay, 2 );
+    MicSigs(:,Q/2+1:Q) = Tools.fconv( MicSigs(:,Q/2+1:Q), h.' );
     
-    b = Tools.frame_data( [zeros( N*(buffLen-1),1);x], 1-(1-ol)/buffLen ,  N*buffLen);
-    s = Tools.frame_data( [x; zeros( N*(buffLen-1),1)], ol ,  N);
+    MicSigs = (MicSigs(:,1:Q/2) + MicSigs(:,Q/2+1:Q)) / 2;
     
-    [~,sigPredicted(:,mic_)] = Broadband_Tools.PredictiveFraming( ...
-        s,b, ...
-        int64((1-ol)* N),...
-        armethod);
-    
+    error('See TODO at this line');
 end
+
+%%
 
 Loudspeaker_Signals = sigPredicted(1:size(MicSigs,1),:);
 
