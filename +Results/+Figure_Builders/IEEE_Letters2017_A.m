@@ -54,6 +54,8 @@ for r = 1:Nrow
         if numel(SYS.Room_Setup) > 1
             % If there is more than one room then we choose the room set up for
             % reproduction (transmission)
+            SYS.Main_Setup = SYS.Main_Setup( ...
+                strcmpi(SYS.signal_info.methods_list,'clean'));
             SYS.Room_Setup = SYS.Room_Setup( ...
                 strcmpi({SYS.Room_Setup.SystemType},'transmit'));
         end

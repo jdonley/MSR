@@ -22,7 +22,7 @@ function [axs, legendStrings] = RIR_Time( SYS, axH )
 % Version: 0.1 (10 September 2017)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% sigNames = SYS.analysis_info.SignalNames;
+sigNames = SYS.analysis_info.SignalNames;
 % recTypes = SYS.signal_info.recording_type;
 
 % Hyphenate "Realworld" word if it is not already
@@ -65,7 +65,7 @@ legendStrings = {};
 
 %%
 % RT = numel(recTypes);
-% SN = numel(sigNames);
+SN = numel(sigNames);
 % Res_Matrix  = cell(RT,SN);
 % Res_CI      = cell(RT,SN);
     
@@ -81,23 +81,18 @@ legendStrings = {};
         return
     end
     
-    for rt = 1:RT
         for sn = 1:SN
-            if any(rt==1:size(Vals,2)) && any(sn==1:size(Vals,3))
+            if any(sn==1:size(Vals,3))
                 % Generate Plottable data matrices and vectors
-                [Hrz_Vec, Res_Matrix{rt,sn}] = ...
-                    Results.generatePlotData( Xvec, Vals(:,rt,sn), ConfInt_Low(:,rt,sn), ConfInt_Up(:,rt,sn), 'smoothingspline', [1.8 1.8]);
-                Res_CI{rt,sn} = [ConfInt_Low(:,rt,sn), ConfInt_Up(:,rt,sn)];
-                legendStrings = {legendStrings{:}, [recTypes{rt} ' ' sigNames{sn}]};
+                [Hrz_Vec, Res_Matrix{sn}] = ...
+                    Results.generatePlotData( Xvec, Vals(:,sn), [], [], 'smoothingspline', [1.8 1.8]);
+                legendStrings = {legendStrings{:}, [sigNames{sn}]};
             else
                 Res_Matrix{rt,sn} = NaN(1,numel(Hrz_Vec));
-                Res_CI{rt,sn}     = NaN(numel(Hrz_Vec),2);
                 legendStrings = {legendStrings{:}, ['Not Found']};
             end
         end
-    end
     Res_Matrix = Res_Matrix.';
-    Res_CI     = Res_CI.';
     
 %%
 cols = colours{:};
@@ -137,20 +132,20 @@ for pl = size(cols,1):-1:1 % for each plottable set of data (plot in reverse ord
     axes(axCurr);
     hold on;
     
-    ha=area([Hrz_Vec; Hrz_Vec].', [Res_Matrix{pl}.'+Res_CI{pl}(:,2), -sum(Res_CI{pl},2)], ...
-        PlDetailsShade{:} );
-    ha(1).FaceColor=cols(pl,:);drawnow;
-    ha(2).FaceColor=cols(pl,:);drawnow;
-    v=version;i=find(v=='.');V=str2num(v(1:(i(2)-1)));
-    if V >= 8.6 % If MATLAB version is greater than 8.6 (R2015b)
-        ha(1).FaceAlpha=0.0;
-        ha(2).FaceAlpha=trendAlpha;
-    else
-       ha(1).Face.ColorType = 'truecoloralpha';
-       ha(1).Face.ColorData(4) = 255 * 0.0;
-       ha(2).Face.ColorType = 'truecoloralpha';
-       ha(2).Face.ColorData(4) = 255 * trendAlpha;
-    end        
+%     ha=area([Hrz_Vec; Hrz_Vec].', [Res_Matrix{pl}.'+Res_CI{pl}(:,2), -sum(Res_CI{pl},2)], ...
+%         PlDetailsShade{:} );
+%     ha(1).FaceColor=cols(pl,:);drawnow;
+%     ha(2).FaceColor=cols(pl,:);drawnow;
+%     v=version;i=find(v=='.');V=str2num(v(1:(i(2)-1)));
+%     if V >= 8.6 % If MATLAB version is greater than 8.6 (R2015b)
+%         ha(1).FaceAlpha=0.0;
+%         ha(2).FaceAlpha=trendAlpha;
+%     else
+%        ha(1).Face.ColorType = 'truecoloralpha';
+%        ha(1).Face.ColorData(4) = 255 * 0.0;
+%        ha(2).Face.ColorType = 'truecoloralpha';
+%        ha(2).Face.ColorData(4) = 255 * trendAlpha;
+%     end        
     
 %     trend_vec = linspace(Hrz_Vec(1),Hrz_Vec(end),numel(Hrz_Vec)*10);
 %     Pl = plot(axCurr,trend_vec,Res_trend{pl}(trend_vec),PlDetailsTrend{:});

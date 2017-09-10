@@ -1,4 +1,4 @@
-function Save_Reverb_RIR_Result(Rec_Sigs_B, Rec_Sigs_Q, ResultsPath, Output_file_path_ext, FileName, SYS)
+function Save_Reverb_RIR_Result(Talker, Rec_Sigs, ResultsPath, Output_file_path_ext, FileName, SYS)
 %SAVE_REVERB_RIR_RESULT Summary of this function goes here
 % 
 % Syntax:	SAVE_REVERB_RIR_RESULT(Rec_Sigs_B, Rec_Sigs_Q, Fs, Nfft, ResultsPath, Output_file_path_ext, FileName, SYS)
@@ -24,8 +24,8 @@ results_type = 'RIR';
 
 %% Deconvolve responses
 invFilt = load(cell2mat(Tools.getAllFiles(SYS.signal_info.InverseFilter_filepath)));invFilt=invFilt.invY;
-irQ = Tools.extractIR(Rec_Sigs_Q,invFilt);
-irB = Tools.extractIR(Rec_Sigs_B,invFilt);
+irT = Tools.extractIR(Talker,invFilt);
+irR = Tools.extractIR(Rec_Sigs,invFilt);
 
 %% Calculate and save Speech Intelligibility values to the results folder
 if ~exist([ResultsPath Output_file_path_ext],'dir'); mkdir([ResultsPath Output_file_path_ext]); end
@@ -35,8 +35,8 @@ if ~exist([fn '.mat'],'file'); S={};save(fn,'S'); end
 
 D = load([ResultsPath Output_file_path_ext results_type '_Results']);S=D.S;
 S{end+1} = {...
-    irB,...
-    irQ,...
+    irT,...
+    irR,...
     FileName };
 save(fn,'S');
 

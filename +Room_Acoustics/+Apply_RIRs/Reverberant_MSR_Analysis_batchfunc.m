@@ -379,7 +379,7 @@ for m = 1:M
                 
                 if any(cell2mat(strfind(upper(Measures),'RIR')))
                     % Room Impulse Response
-                    Room_Acoustics.Apply_RIRs.Save_Reverb_RIR_Result( Rec_Bright, Rec_Quiet, ResultsPath, [], SignalName, SYS );
+                    Room_Acoustics.Apply_RIRs.Save_Reverb_RIR_Result( Rec_Bright_{end}.Rec_Sigs_B(:,1:sLB), Rec_Bright, ResultsPath, [], SignalName, SYS );
                 end
                 % END calc and save results
                 

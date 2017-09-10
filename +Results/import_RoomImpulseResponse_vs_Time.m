@@ -13,13 +13,13 @@ function [Time,RIR] = import_RoomImpulseResponse_vs_Time( SYS )
 %
 
 
-        %%
-        SYS.signal_info.method = 'Sweep'; % This software framework uses an exponential sine sweep method to accurately compute the RIR.
+%%
 
-        S = load([Results.getResultsPath(SYS) 'RIR_Results.mat']);S=S.S;
-        RIR = S.S.RIR;
-        
-        
+S = load([Results.getResultsPath(SYS) 'RIR_Results.mat']);
+RIR = [S.S{1}{1:2}];
+Time = (0:size(RIR,1)-1).'/SYS.signal_info.Fs;
+
+
         
 end
 
