@@ -376,6 +376,11 @@ for m = 1:M
                     Room_Acoustics.Apply_RIRs.Save_Reverb_SPLs_Result( Rec_Bright, Rec_Quiet, signal_info.Fs, ...
                         analysis_info.Nfft, [analysis_info.f_low, analysis_info.f_high], ResultsPath, [], SignalName, SYS );
                 end
+                
+                if any(cell2mat(strfind(upper(Measures),'RIR')))
+                    % Room Impulse Response
+                    Room_Acoustics.Apply_RIRs.Save_Reverb_RIR_Result( Rec_Bright, Rec_Quiet, ResultsPath, [], SignalName, SYS );
+                end
                 % END calc and save results
                 
             end

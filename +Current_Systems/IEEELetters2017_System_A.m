@@ -293,8 +293,7 @@ system_info.LUT_resolution = [num2str(system_info.LUT_frequencies) 'f' ...
                               num2str(system_info.LUT_weights) 'w'];
                           
 %% Analysis Information
-analysis_info.Measures    = {'Suppression'; ...
-                             'Suppression'};
+analysis_info.Measures    = {'RIR'};
 analysis_info.Result_Type = {'Predicted Signal'; ...
                              'Actual Signal'};
 analysis_info.Nfft = 32 * 1e-3 * signal_info.Fs;%1024;% Number of fft components
