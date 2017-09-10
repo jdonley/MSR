@@ -11,7 +11,7 @@ function SR_SYSTEM = IEEELetters2017_System_A()
 %%
 array_type = '2line';
 dipoledist = 343/(2*pi*2000);
-spkr_radius = 1.5 - dipoledist/2;
+spkr_radius = 1.5 - dipoledist;
 N_spkrs = 24 * 2; % Times 2 for dipole
 
 geometry = 'rectangular';

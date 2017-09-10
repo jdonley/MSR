@@ -87,7 +87,7 @@ if strcmpi(SYS.signal_info.method,'boundarycancel') ...
     d = round(mean(sum(micDists'.^2).^.5),10);
     fracDelay = d/SYS.signal_info.c*SYS.signal_info.Fs;
     h = Tools.fracDelayLagrange( fracDelay, 2 );
-    a = Tools.fconv( MicSigs(:,1:Q/2), h.' );
+    a = Tools.fconv( MicSigs(:,Q/2+1:Q), h.' );
     error('See TODO at this line');
 end
 if strcmpi(lSYS.Main_Setup.Speaker_Array_Type,'2line')
