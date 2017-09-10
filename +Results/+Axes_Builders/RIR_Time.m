@@ -93,11 +93,14 @@ cols = colours{:};
 lines= lineStyles(:);
 mrks = markers{:};
 
-domain = round(Hrz_Vec([1 end]),SYS.publication_info.sigRounding,'significant');
+fs = SYS.signal_info.Fs;
+[pkV,pkI] = max(Res_Matrix{1});
+[pkVm,pkIm] = min(Res_Matrix{1});
+domain = round(Hrz_Vec([0 0.01*fs] + pkI-floor(0.001*fs)),SYS.publication_info.sigRounding,'significant');
 domain_lbl = 'Time ($\mathrm{s}$)';
 
 axCurr = ax(1);
-range = [-1 1];
+range = ceil(abs([pkVm pkV])*100)/100.*[-1 1];
 if isfield(SYS.publication_info,'YLim_override')
     range = SYS.publication_info.YLim_override;
 end

@@ -81,11 +81,19 @@ ax.XTickMode = 'manual';
 ax.YTickMode = 'manual';
 
 if ~isempty(strfind(ax.XScale, 'lin'))
-    ax.XTick = round( domain(1):diff(domain)/(nXT-1):domain(end) , ...
+    XTick = round( domain(1):diff(domain)/(nXT-1):domain(end) , ...
         sigRounding, 'significant');
+    if any(diff(XTick)==0)
+        XTick = domain(1):diff(domain)/(nXT-1):domain(end);
+    end
+    ax.XTick = XTick;
 elseif ~isempty(strfind(ax.XScale, 'log'))
-    ax.XTick = 10.^round( log10(domain(1)):diff(log10(domain))/(nXT-1):log10(domain(end)) , ...
+    XTick = 10.^round( log10(domain(1)):diff(log10(domain))/(nXT-1):log10(domain(end)) , ...
         sigRounding, 'significant');
+    if any(diff(XTick)==0)
+        XTick = 10.^ ( log10(domain(1)):diff(log10(domain))/(nXT-1):log10(domain(end)) );
+    end
+    ax.XTick = XTick;
 end
 if ~isempty(strfind(ax.YScale, 'lin'))
     ax.YTick = round( range(1):diff(range)/(nYT-1):range(end), ...
