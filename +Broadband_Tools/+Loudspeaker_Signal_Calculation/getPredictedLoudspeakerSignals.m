@@ -84,17 +84,20 @@ if strcmpi(SYS.signal_info.method,'boundarycancel') ...
         && strcmpi(lSYS.Main_Setup.Speaker_Array_Type,'2line')
     
     micDists = micLocs(1:end/2,:) - micLocs(end:-1:end/2+1,:);
-    d = round(mean(sum(micDists'.^2).^.5),10);
-    fracDelay = d/SYS.signal_info.c*SYS.signal_info.Fs;
-    h = Tools.fracDelayLagrange( fracDelay, 2 );
-    MicSigsDP = Tools.fconv( MicSigs(:,Q/2+1:Q), h.' );
+    dm = round(mean(sum(micDists'.^2).^.5),10);
+    fracDelayMic = dm / SYS.signal_info.c * SYS.signal_info.Fs;
+    hm = Tools.fracDelayLagrange( fracDelayMic, 2 );
     
-    MicSigs = (MicSigs(:,1:Q/2) + MicSigsDP(1:end-(numel(h)-1),:)) / 2;
+    MicSigsDP = Tools.fconv( ...
+        MicSigs(:,Q/2+1:Q), hm.' );
+    
+    MicSigs = (MicSigs(:,1:Q/2) + ...
+        flip(MicSigsDP(1:end-(numel(hm)-1),:),2) ) / 2;
     Q = size(MicSigs,2); % Dipole is modelled as two monopoles
     
 end
 
-%%
+%% Autoregressive Prediction
 if ol == 1
     sigPredicted = MicSigs;
     
@@ -116,23 +119,26 @@ else
     end
 end
 
+%% Loudspeaker Signals
+Loudspeaker_Signals = sigPredicted(1:size(MicSigs,1),:);
+
 %% Loudspeaker dipole filtering
 if strcmpi(lSYS.Main_Setup.Speaker_Array_Type,'2line')
     % TODO: Time-delay loudspeaker signals for dipole setup
-    micDists = micLocs(1:end/2,:) - micLocs(end:-1:end/2+1,:);
-    d = round(mean(sum(micDists'.^2).^.5),10);
-    fracDelay = d/SYS.signal_info.c*SYS.signal_info.Fs;
-    h = Tools.fracDelayLagrange( fracDelay, 2 );
-    MicSigs(:,Q/2+1:Q) = Tools.fconv( MicSigs(:,Q/2+1:Q), h.' );
+    spkDists = spkLocs(1:end/2,:) - spkLocs(end:-1:end/2+1,:);
+    ds = round(mean(sum(spkDists'.^2).^.5),10);
+    fracDelaySpkr = ds / SYS.signal_info.c * SYS.signal_info.Fs;
+    hs = Tools.fracDelayLagrange( fracDelaySpkr, 2 );
     
-    MicSigs = (MicSigs(:,1:Q/2) + MicSigs(:,Q/2+1:Q)) / 2;
+    Loudspeaker_SignalsDP = Tools.fconv( ...
+        Loudspeaker_Signals, hs.' );
     
-    error('See TODO at this line');
+    Loudspeaker_Signals = ...
+        [Loudspeaker_Signals, ...
+         flip(Loudspeaker_SignalsDP(1:end-(numel(hs)-1),:),2)] / 2;
+    
 end
 
-%%
-
-Loudspeaker_Signals = sigPredicted(1:size(MicSigs,1),:);
 
 
 end
