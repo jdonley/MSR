@@ -311,8 +311,8 @@ publication_info.DocumentPath = 'tex\latex\IEEE_Letters2017';
 publication_info.FigureName = 'IEEE_Letters2017_A';
 publication_info.axes_NumTicks = [8 5]; % Number of ticks [NumXticks NumYticks];
 publication_info.axes_limitBufs = [0.00 0.05]; % axis limits buffer in percentage [width, height]
-publication_info.axes_Scales = {'log'; 'lin'}; % Axis scales
-publication_info.XTicks_override = [0.156, 1, 8];
+publication_info.axes_Scales = {'lin'; 'lin'}; % Axis scales
+% publication_info.XTicks_override = [0.156, 1, 8];
 publication_info.leg_MarkerSize = 8;
 
 publication_info.FigureTitle = '';%'Active Speech Attenuation';

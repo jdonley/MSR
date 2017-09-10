@@ -33,22 +33,16 @@ sigNames = SYS.analysis_info.SignalNames;
 
 
 colours = {[ ...            R G B  values
-    0.2 0.2 1.0       ; ...       Simulated Bright Zone
-    1.0 0.0 0.0       ; ...       Simulated Quiet Zone
-    0.4 0.0 0.8       ; ...       Realworld Bright Zone
-    0.6 0.4 0.0       ;]}; %      Realworld Quiet Zone
+    1.0 0.0 0.0       ; ...       Active Wall Off
+    0.2 0.2 1.0       ;]}; %      Active Wall On
 
 lineStyles = { ...         Lines
-    '- '       ; ...       Simulated Bright Zone
-    ': '       ; ...       Simulated Quiet Zone
-    '-.'       ; ...       Realworld Bright Zone
-    '--'       ;}; %       Realworld Quiet Zone
+    ': '       ; ...       Active Wall Off
+    '- '       ;}; %       Active Wall On
 
 markers = {[ ...          Marker Shapes
-    '.'       ; ...       Simulated Bright Zone
-    '.'       ; ...       Simulated Quiet Zone
-    '.'       ; ...       Realworld Bright Zone
-    '.'       ;]}; %      Realworld Quiet Zone
+    '.'       ; ...       Active Wall Off
+    '.'       ;]}; %      Active Wall On
 
 trendAlpha = 0.33;
 
@@ -82,13 +76,13 @@ SN = numel(sigNames);
     end
     
         for sn = 1:SN
-            if any(sn==1:size(Vals,3))
+            if any(sn==1:size(Vals,2))
                 % Generate Plottable data matrices and vectors
-                [Hrz_Vec, Res_Matrix{sn}] = ...
-                    Results.generatePlotData( Xvec, Vals(:,sn), [], [], 'smoothingspline', [1.8 1.8]);
+                Res_Matrix{sn} = Vals(:,sn);
+                Hrz_Vec = Xvec.';
                 legendStrings = {legendStrings{:}, [sigNames{sn}]};
             else
-                Res_Matrix{rt,sn} = NaN(1,numel(Hrz_Vec));
+                Res_Matrix{sn} = NaN(1,numel(Hrz_Vec));
                 legendStrings = {legendStrings{:}, ['Not Found']};
             end
         end
@@ -100,14 +94,14 @@ lines= lineStyles(:);
 mrks = markers{:};
 
 domain = round(Hrz_Vec([1 end]),SYS.publication_info.sigRounding,'significant');
-domain_lbl = 'Frequency ($\mathrm{kHz}$)';
+domain_lbl = 'Time ($\mathrm{s}$)';
 
 axCurr = ax(1);
-range = [-40 0];
+range = [-1 1];
 if isfield(SYS.publication_info,'YLim_override')
     range = SYS.publication_info.YLim_override;
 end
-range_lbl = 'Magnitude ($\mathrm{dB}$)';
+range_lbl = 'Normalised Amplitude';
 
 
 

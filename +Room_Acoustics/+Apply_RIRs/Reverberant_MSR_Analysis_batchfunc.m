@@ -297,7 +297,8 @@ for m = 1:M
                 end
                 % END Downsample realworld recordings
                 
-                if ~any(cell2mat(strfind(upper(Measures),'SUPPRESSION')))
+                if ~any(cell2mat(strfind(upper(Measures),'SUPPRESSION'))) ...
+                        && ~any(cell2mat(strfind(upper(Measures),'RIR')))
                     % BEGIN filter signals to acceptable measurement frequency range
                     [b,a] = butter(6, [signal_info.f_low_meas signal_info.f_high_meas] ./ (signal_info.Fs/2) );
                     %[b,a] = cheby1(6 [signal_info.f_low_meas signal_info.f_high_meas] ./ (signal_info.Fs/2) );
@@ -379,7 +380,7 @@ for m = 1:M
                 
                 if any(cell2mat(strfind(upper(Measures),'RIR')))
                     % Room Impulse Response
-                    Room_Acoustics.Apply_RIRs.Save_Reverb_RIR_Result( Rec_Bright_{end}.Rec_Sigs_B(:,1:sLB), Rec_Bright, ResultsPath, [], SignalName, SYS );
+                    Room_Acoustics.Apply_RIRs.Save_Reverb_RIR_Result( Rec_Bright_{1}.Rec_Sigs_B(:,1:sLB), Rec_Bright, ResultsPath, [], SignalName, SYS );
                 end
                 % END calc and save results
                 
