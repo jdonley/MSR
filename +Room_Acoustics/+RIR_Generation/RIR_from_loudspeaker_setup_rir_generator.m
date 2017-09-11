@@ -79,10 +79,10 @@ if ~isempty(room.ReceiverPositions)
 end
 
 dim = room.Room_Dimensions;
-mtype = 'omnidirectional';      % Type of microphone
-order = room.Reflection_Order;  % -1 equals maximum reflection order!
-orientation = 0;                % Microphone orientation (rad)
-hp_filter = 0;                  % Enable high-pass filter
+mtype = room.ReceiverDirectivityPattern;    % Type of microphone
+order = room.Reflection_Order;              % -1 equals maximum reflection order!
+orientation = room.ReceiverOrientations;	% Microphone orientation [az el] (rad)
+hp_filter = 0;                              % Enable high-pass filter
 
 c = signal_info.c;    % Speed of sound (m/s)
 Fs = signal_info.Fs; % Sample frequency (samples/s)

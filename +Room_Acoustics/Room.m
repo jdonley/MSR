@@ -28,7 +28,13 @@ classdef Room
         Reflection_Order = -1;      % The order of image sources (reflections) to compute. -1 computes the maximum reflection order for the given length of RIR
         NoReceivers = 32;           % Quantity per zone
         ReceiverPositions = [];     % [Width, Depth, Height] <=> [ x, y, z ]
-        
+        ReceiverDirectivityPattern = ... % Microphone directivity pattern
+                 'omnidirectional'; % 'omnidirectional', 'subcardioid', 
+                                    % 'cardioid', 'hypercardioid', 
+                                    % 'bidirectional'
+        ReceiverOrientations = ...  % The orientation of the microphones
+                             [0 0]; % [azimuth elevation] in radians
+                                    
         SystemType = '';            % 'Receive' or 'Transmit'
     end
     
@@ -89,6 +95,26 @@ classdef Room
         
         function obj = setReceiverPositions(obj, RecPos)
             obj.ReceiverPositions = RecPos;
+        end
+        
+        function obj = setReceiverDirectivity(obj, Directivity)
+            if ischar(Directivity)
+               switch Directivity(1:2)
+                   case 'om'    % omnidirectional
+                       Directivity = 'omnidirectional';
+                   case 'su'    % subcardioid
+                       Directivity = 'subcardioid';
+                   case 'ca'    % cardioid
+                       Directivity = 'cardioid';
+                   case 'hy'    % hypercardioid
+                       Directivity = 'hypercardioid';
+                   case 'bi'    % bidirectional
+                       Directivity = 'bidirectional';
+                   otherwise
+                       error('Directivity undefined')
+               end
+            end
+            obj.ReceiverDirectivityPattern = Directivity;
         end
     end
     

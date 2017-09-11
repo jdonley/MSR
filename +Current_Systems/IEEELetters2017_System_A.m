@@ -190,9 +190,11 @@ Masker_Setup = [];
 %% Receiving Microphone Room Setup
 Room_Setup(2) = Room_Setup;
 Room_Setup(2).SystemType = 'Receive';
-Room_Setup(2).NoReceivers = Main_Setup(2).Loudspeaker_Count; % Number per zone
 
-spkrLocs = Main_Setup(2).Loudspeaker_Locations;
+M = Main_Setup(2).Loudspeaker_Count/2; % Number per zone
+Room_Setup(2).NoReceivers = M;
+
+spkrLocs = Main_Setup(2).Loudspeaker_Locations(1:M,:);
 [spkrLocs(:,1),spkrLocs(:,2)]=pol2cart(spkrLocs(:,1),spkrLocs(:,2));
 
 Room_Setup(2).ReceiverPositions = ...
@@ -200,7 +202,8 @@ Room_Setup(2).ReceiverPositions = ...
     zeros(Room_Setup(2).NoReceivers,1)] ...
     + Room_Setup(2).Reproduction_Centre([2 1 3]);
 
-
+Room_Setup(2) = Room_Setup(2).setReceiverDirectivity('cardioid');
+Room_Setup(2).ReceiverOrientations = zeros(M,2);
 
 %% Signal Setup and Path Info
 signal_info.c = c; % Speed of sound in metres/sec
