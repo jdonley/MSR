@@ -37,7 +37,7 @@ colours = {[ ...            R G B  values
     0.2 0.2 1.0       ;]}; %      Active Wall On
 
 lineStyles = { ...         Lines
-    ': '       ; ...       Active Wall Off
+    '--'       ; ...       Active Wall Off
     '- '       ;}; %       Active Wall On
 
 markers = {[ ...          Marker Shapes

@@ -200,10 +200,13 @@ spkrLocs = Main_Setup(2).Loudspeaker_Locations(1:M,:);
 Room_Setup(2).ReceiverPositions = ...
     [spkrLocs, ...
     zeros(Room_Setup(2).NoReceivers,1)] ...
-    + Room_Setup(2).Reproduction_Centre([2 1 3]);
+    + Room_Setup(2).Reproduction_Centre([2 1 3]) ...
+    + [dipoledist/2 0 0];
 
 Room_Setup(2) = Room_Setup(2).setReceiverDirectivity('cardioid');
 Room_Setup(2).ReceiverOrientations = zeros(M,2);
+
+
 
 %% Signal Setup and Path Info
 signal_info.c = c; % Speed of sound in metres/sec
