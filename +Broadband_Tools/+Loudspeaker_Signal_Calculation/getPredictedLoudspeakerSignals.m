@@ -139,7 +139,7 @@ if strcmpi(lSYS.Main_Setup.Speaker_Array_Type,'2line')
 %          flip(Loudspeaker_SignalsDP(1:end-(numel(hs)-1),:),2)] / 2;
     Loudspeaker_Signals = ...
         [Loudspeaker_Signals, ...
-         0*flip(Loudspeaker_SignalsDP(1:end-(numel(hs)-1),:),2)] / 2;
+         db2mag(-120)+0*flip(Loudspeaker_SignalsDP(1:end-(numel(hs)-1),:),2)] / 2;
     
 end
 
