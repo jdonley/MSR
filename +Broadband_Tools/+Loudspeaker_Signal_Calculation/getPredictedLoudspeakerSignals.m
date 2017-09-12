@@ -79,7 +79,7 @@ spkLocCent = mean(spkLocs,1);
 micLocCent = mean(micLocs,1);
 
 d = sum(abs(spkLocCent(1:2) - micLocCent(1:2)).^2).^.5;
-hop = round(d/c*Fs)+2; %todo: remove the plus 2, it was for debugging
+hop = round(d/c*Fs);
 ol = (N-hop)/N;
 
 %% Microphone dipole filtering
@@ -145,6 +145,6 @@ if strcmpi(lSYS.Main_Setup.Speaker_Array_Type,'2line')
          db2mag(-240)+0*flip(Loudspeaker_SignalsDP(1:end-(numel(hs)-1),:),2)] ;
 end
 
-
+Loudspeaker_Signals = Loudspeaker_Signals([2:end end],:); %  TODO: remove this line, it is for debugging
 
 end

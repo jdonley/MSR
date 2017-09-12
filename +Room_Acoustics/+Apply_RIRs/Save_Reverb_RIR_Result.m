@@ -22,10 +22,16 @@ function Save_Reverb_RIR_Result(Talker, Rec_Sigs, ResultsPath, Output_file_path_
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 results_type = 'RIR';
 
+%% Filter to analysis frequency range
+fband = [SYS.analysis_info.f_low SYS.analysis_info.f_high];
+[b,a] = cheby1(5,1,fband/SYS.signal_info.Fs);
+T = filter(b,a,Talker);
+R = filter(b,a,Rec_Sigs);
+
 %% Deconvolve responses
 invFilt = load(cell2mat(Tools.getAllFiles(SYS.signal_info.InverseFilter_filepath)));invFilt=invFilt.invY;
-irT = Tools.extractIR(Talker,invFilt);
-irR = Tools.extractIR(Rec_Sigs,invFilt);
+irT = Tools.extractIR(T,invFilt);
+irR = Tools.extractIR(R,invFilt);
 
 %% Calculate and save Speech Intelligibility values to the results folder
 if ~exist([ResultsPath Output_file_path_ext],'dir'); mkdir([ResultsPath Output_file_path_ext]); end
