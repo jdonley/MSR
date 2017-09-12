@@ -79,7 +79,7 @@ spkLocCent = mean(spkLocs,1);
 micLocCent = mean(micLocs,1);
 
 d = sum(abs(spkLocCent(1:2) - micLocCent(1:2)).^2).^.5;
-hop = round(d/c*Fs);
+hop = round(d/c*Fs)+2; %todo: remove the plus 2, it was for debugging
 ol = (N-hop)/N;
 
 %% Microphone dipole filtering
