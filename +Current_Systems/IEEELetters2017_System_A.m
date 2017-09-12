@@ -11,7 +11,7 @@ function SR_SYSTEM = IEEELetters2017_System_A()
 %%
 array_type = '2line';
 dipoledist = 343/(2*pi*2000);
-spkr_radius = 1.5;% - dipoledist/2;
+spkr_radius = 1.5 - dipoledist/2;
 N_spkrs = 24 * 2; % Times 2 for dipole
 
 geometry = 'rectangular';
@@ -200,8 +200,7 @@ spkrLocs = Main_Setup(2).Loudspeaker_Locations(1:M,:);
 Room_Setup(2).ReceiverPositions = ...
     [spkrLocs, ...
     zeros(Room_Setup(2).NoReceivers,1)] ...
-    + Room_Setup(2).Reproduction_Centre([2 1 3]) ...
-    + [dipoledist/2 0 0];
+    + Room_Setup(2).Reproduction_Centre([2 1 3]) ;
 
 Room_Setup(2) = Room_Setup(2).setReceiverDirectivity('cardioid');
 Room_Setup(2).ReceiverOrientations = zeros(M,2);

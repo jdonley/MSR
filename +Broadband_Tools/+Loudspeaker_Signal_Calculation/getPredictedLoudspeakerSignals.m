@@ -72,6 +72,9 @@ micLocs = mSYS.Room_Setup.ReceiverPositions ...        % Cartesian
 [spkLocs(:,1),spkLocs(:,2)] = ...
     pol2cart(spkLocsPol(:,1),spkLocsPol(:,2));
 
+%%%% temporary
+spkLocs = spkLocs(1:end/2,:);
+%%%
 spkLocCent = mean(spkLocs,1);
 micLocCent = mean(micLocs,1);
 
@@ -139,8 +142,7 @@ if strcmpi(lSYS.Main_Setup.Speaker_Array_Type,'2line')
 %          flip(Loudspeaker_SignalsDP(1:end-(numel(hs)-1),:),2)] / 2;
     Loudspeaker_Signals = ...
         [Loudspeaker_Signals, ...
-         db2mag(-120)+0*flip(Loudspeaker_SignalsDP(1:end-(numel(hs)-1),:),2)] ;
-    error('TODO: Spatiall align loudspeaker signals with the cardioid microphone signals')
+         db2mag(-240)+0*flip(Loudspeaker_SignalsDP(1:end-(numel(hs)-1),:),2)] ;
 end
 
 
