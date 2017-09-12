@@ -128,7 +128,7 @@ Loudspeaker_Signals = sigPredicted(1:size(MicSigs,1),:);
 
 %% Loudspeaker dipole filtering
 if strcmpi(lSYS.Main_Setup.Speaker_Array_Type,'2line')
-    % TODO: Time-delay loudspeaker signals for dipole setup
+    
     spkDists = spkLocs(1:end/2,:) - spkLocs(end:-1:end/2+1,:);
     ds = round(mean(sum(spkDists'.^2).^.5),10);
     fracDelaySpkr = ds / SYS.signal_info.c * SYS.signal_info.Fs;
