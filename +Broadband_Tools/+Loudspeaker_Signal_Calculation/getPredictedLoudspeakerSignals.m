@@ -86,13 +86,13 @@ ol = (N-hop)/N;
 if strcmpi(SYS.signal_info.method,'boundarycancel') ...
         && strcmpi(lSYS.Main_Setup.Speaker_Array_Type(1),'2')
     
-    micDists = micLocs(1:end/2,:) - micLocs(end:-1:end/2+1,:);
-    dm = round(mean(sum(micDists'.^2).^.5),10);
-    fracDelayMic = dm / SYS.signal_info.c * SYS.signal_info.Fs;
-    hm = Tools.fracDelayLagrange( fracDelayMic, 2 );
-    
-    MicSigsDP = Tools.fconv( ...
-        MicSigs(:,Q/2+1:Q), hm.' );
+%     micDists = micLocs(1:end/2,:) - micLocs(end:-1:end/2+1,:);
+%     dm = round(mean(sum(micDists'.^2).^.5),10);
+%     fracDelayMic = dm / SYS.signal_info.c * SYS.signal_info.Fs;
+%     hm = Tools.fracDelayLagrange( fracDelayMic, 2 );
+%     
+%     MicSigsDP = Tools.fconv( ...
+%         MicSigs(:,Q/2+1:Q), hm.' );
     
 %     MicSigs = (MicSigs(:,1:Q/2) + ...
 %         flip(MicSigsDP(1:end-(numel(hm)-1),:),2) ) / 2;
@@ -145,6 +145,6 @@ if strcmpi(lSYS.Main_Setup.Speaker_Array_Type(1),'2')
          db2mag(-240)+0*flip(Loudspeaker_SignalsDP(1:end-(numel(hs)-1),:),2)] ;
 end
 
-%  Loudspeaker_Signals(:,(1:25)~=13) = db2mag(-240); %  TODO: remove this line, it is for debugging
+  Loudspeaker_Signals = Loudspeaker_Signals([2:end end],:)/2; %  TODO: remove this line, it is for debugging
 
 end
