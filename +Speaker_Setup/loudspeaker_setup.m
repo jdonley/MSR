@@ -24,7 +24,7 @@ classdef loudspeaker_setup
         Speaker_Array_Centre = 180;         % Angle of the centre of the loudspeaker arc
         Speaker_Array_Length = 0;           % Length of array (inclusive of end points)
         Speaker_Spacing = 0.01;             % The spacing between each consecutive loudspeaker
-        Speaker_Array_Type = 'circle';      % 'circle' or 'line' or 'coprime' % TODO: use 'point' name for array types with one loudspeaker
+        Speaker_Array_Type = 'circle';      % 'circle' or 'line' or 'plane' or 'coprime' % TODO: use 'point' name for array types with one loudspeaker
         ExtendedField = false;
         Loudspeaker_Dimensions;
         Loudspeaker_Type = 'Genelec 8010A'; % 'Genelec 8010A' or 'Genelec 8020C' or 'Meyer MM-4XP' or 'Parametric'
@@ -361,7 +361,6 @@ classdef loudspeaker_setup
                 space = obj.Speaker_Spacing;
                 centre = obj.Speaker_Array_Centre;
                 L = obj.Loudspeaker_Count;
-                len = (wid+space)*L - space;
                 x = repmat(obj.Radius, 1, L);
                 
                 if L == 1
@@ -371,19 +370,13 @@ classdef loudspeaker_setup
                     obj.Loudspeaker_Locations = [a2first spkr_rho];
                 else
                     
-                    if ~mod(L,2)
-                        %                         y = ((wid+space)/2):(wid+space):len/2;
-                        y = (1/2:L/2)*(wid+space);
-                        y = [flip(-y), y];
-                    else
-                        y = (1:(L-1)/2)*(wid+space);
-                        y = [flip(-y), 0, y];
-                    end
+                    len = (wid+space)*(L-1);
+                    y = -len/2:(wid+space):len/2;
                     
-                    [spkr_theta, spkr_rho]=cart2pol(x,y);
-                    spkr_theta = spkr_theta + centre/180*pi;
+                    [spkr_az, spkr_rho]=cart2pol(x,y);
+                    spkr_az = spkr_az + centre/180*pi;
                     
-                    obj.Loudspeaker_Locations = [spkr_theta(:), spkr_rho(:)];
+                    obj.Loudspeaker_Locations = [spkr_az(:), spkr_rho(:)];
                     
                     obj.Angle_FirstSpeaker = obj.Loudspeaker_Locations(1,1) / pi * 180;
                     obj.Speaker_Arc_Angle = obj.Loudspeaker_Locations(end,1) / pi * 180 - obj.Angle_FirstSpeaker;
@@ -404,26 +397,26 @@ classdef loudspeaker_setup
                     error('Not an even number of loudspeakers. ''2line'' array type requires an even number.');
                 end
                 L = Ltot/2;
-                len = (wid+space)*L - space;
+                
                 x = [repmat(obj.Radius+dist_/2, 1, L), ...
                     repmat(obj.Radius-dist_/2, 1, L)];
                 
                 if L == 1
                     a2first = obj.Angle_FirstSpeaker/180*pi;
                     a2center = centre/180*pi;
-                    spkr_rho = x(1) / cos(a2first - a2center);
+                    spkr_rho = obj.Radius / cos(a2first - a2center);
                     obj.Loudspeaker_Locations = [a2first spkr_rho];
                 else
                     
-                    y = ((wid+space)/2):(wid+space):len/2;
-                    y = [flip(-y), y];
+                    len = (wid+space)*(L-1);
+                    y = -len/2:(wid+space):len/2;
                     
                     y = [y, flip(y)];
                     
-                    [spkr_theta, spkr_rho]=cart2pol(x,y);
-                    spkr_theta = spkr_theta + centre/180*pi;
+                    [spkr_az, spkr_rho]=cart2pol(x,y);
+                    spkr_az = spkr_az + centre/180*pi;
                     
-                    obj.Loudspeaker_Locations = [spkr_theta(:), spkr_rho(:)];
+                    obj.Loudspeaker_Locations = [spkr_az(:), spkr_rho(:)];
                     
                     [AngFir,~] = cart2pol(mean(x([1 end])),y(1));
                     [AngLas,~] = cart2pol(mean(x(end/2 + [1 -1])),y(end/2));
@@ -434,7 +427,7 @@ classdef loudspeaker_setup
                     obj.Speaker_Array_Length = sum(abs(y([1 end/2]))); % inclusive of end points
                 end
                 
-            elseif strcmpi(obj.Speaker_Array_Type, 'plane')
+            elseif contains(lower(obj.Speaker_Array_Type), 'plane')
                 wid = obj.Loudspeaker_Dimensions(1);
                 space = obj.Speaker_Spacing;
                 centre = obj.Speaker_Array_Centre;
@@ -443,36 +436,40 @@ classdef loudspeaker_setup
                 if rem(L,1) ~= 0 % TODO: implement any rectangular sized plane of loudspeakers and not just square ones
                     error('Only a square plane is currently supported');
                 end
-                len = (wid+space)*L - space;
-                x = repmat(obj.Radius, 1, L);
                 
                 if L == 1
                     a2first = obj.Angle_FirstSpeaker/180*pi;
                     a2center = centre/180*pi;
-                    spkr_rho = x(1) / cos(a2first - a2center);
+                    spkr_rho = obj.Radius / cos(a2first - a2center);
                     obj.Loudspeaker_Locations = [a2first spkr_rho];
                 else
                     
-                    if ~mod(L,2)
-                        % y = ((wid+space)/2):(wid+space):len/2;
-                        y = (1/2:L/2)*(wid+space);
-                        y = [flip(-y), y];
-                    else
-                        y = (1:(L-1)/2)*(wid+space);
-                        y = [flip(-y), 0, y];
-                    end
+                    len = (wid+space)*(L-1);
+                    x = repmat(obj.Radius, L, L);
+                    y = -len/2:(wid+space):len/2;
+                    y = repmat(y,L,1);
+                    z = y.';            
                     
-                    [spkr_theta, spkr_rho]=cart2pol(x,y);
-                    spkr_theta = spkr_theta + centre/180*pi;
+                    if  strcmpi(obj.Speaker_Array_Type(1), '2')
+                        dist_=obj.DipoleDistance;
+                        x = [repmat(obj.Radius+dist_/2, L, L), ...
+                            repmat(obj.Radius-dist_/2, L, L)];
+                        y = [y, flip(y,2)];
+                        z = [z, flip(z,1)];
+                    end   
                     
-                    obj.Loudspeaker_Locations = [spkr_theta(:), spkr_rho(:)];
+                    [spkr_az, spkr_el, spkr_rho] = cart2sph(x,y,z);
+                    spkr_az = spkr_az + centre/180*pi;
+                    
+                    obj.Loudspeaker_Locations = [spkr_az(:), spkr_el(:), spkr_rho(:)];
                     
                     obj.Angle_FirstSpeaker = obj.Loudspeaker_Locations(1,1) / pi * 180;
                     obj.Speaker_Arc_Angle = obj.Loudspeaker_Locations(end,1) / pi * 180 - obj.Angle_FirstSpeaker;
                     
                     LLends = obj.Loudspeaker_Locations([1 end],:);
-                    [LLx,LLy] = pol2cart(LLends(:,1),LLends(:,2));
+                    [LLx,LLy,LLz] = sph2cart(LLends(:,1),LLends(:,2),LLends(:,3));
                     obj.Speaker_Array_Length = sum(diff([LLx, LLy]).^2).^0.5; % inclusive of end points
+                    % For a plane, currently length is equivalent to height
                 end
                 
             elseif strcmpi(obj.Speaker_Array_Type, 'coprime')
@@ -503,10 +500,10 @@ classdef loudspeaker_setup
                     y = [y(:);y_];
                 end
                 
-                [spkr_theta, spkr_rho]=cart2pol(x,y);
-                spkr_theta = spkr_theta + centre/180*pi;
+                [spkr_az, spkr_rho]=cart2pol(x,y);
+                spkr_az = spkr_az + centre/180*pi;
                 
-                obj.Loudspeaker_Locations = [spkr_theta(:), spkr_rho(:)];
+                obj.Loudspeaker_Locations = [spkr_az(:), spkr_rho(:)];
                 
                 obj.Angle_FirstSpeaker = obj.Loudspeaker_Locations(1,1) / pi * 180;
                 obj.Speaker_Arc_Angle = obj.Loudspeaker_Locations(end,1) / pi * 180 - obj.Angle_FirstSpeaker;
@@ -526,11 +523,12 @@ classdef loudspeaker_setup
             else
                 Q0 = obj.Loudspeaker_Count;
                 
-                if strcmp(obj.Speaker_Array_Type, 'circle')
+                if strcmpi(obj.Speaker_Array_Type, 'circle')
                     obj.Loudspeaker_Directions = obj.Loudspeaker_Locations(:,1) - pi;
                     
-                elseif strcmp(obj.Speaker_Array_Type, 'line') ...
-                        || strcmp(obj.Speaker_Array_Type, 'coprime')
+                elseif contains(obj.Speaker_Array_Type, 'line') ...
+                        || contains(obj.Speaker_Array_Type, 'plane') ...
+                        || contains(obj.Speaker_Array_Type, 'coprime')
                     obj.Loudspeaker_Directions = ones(Q0,1) * (obj.Speaker_Array_Centre - 180) / 180 * pi;
                     
                 end

@@ -14,6 +14,10 @@ dipoledist = 343/(2*pi*2000);
 spkr_radius = 1.5 - dipoledist/2;
 N_spkrs = 24 * 2; % Times 2 for dipole
 
+array_type = 'plane';
+spkr_radius = 1.5;
+N_spkrs = 25; % Times 2 for dipole
+
 geometry = 'rectangular';
 % geometry = 'circle';
 
@@ -90,7 +94,8 @@ field_layout = { ...
 
 if strcmpi(array_type, 'circle')
     spkr_spacing = []; %Auto-calculate spacing
-elseif contains(lower(array_type), 'line')
+elseif contains(lower(array_type), 'line') ...
+        || contains(lower(array_type), 'plane')
     spkr_spacing = 0.001; %1mm spacing between adjacent loudspeakers
 end
 
