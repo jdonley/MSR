@@ -84,7 +84,7 @@ ol = (N-hop)/N;
 
 %% Microphone dipole filtering
 if strcmpi(SYS.signal_info.method,'boundarycancel') ...
-        && strcmpi(lSYS.Main_Setup.Speaker_Array_Type,'2line')
+        && strcmpi(lSYS.Main_Setup.Speaker_Array_Type(1),'2')
     
     micDists = micLocs(1:end/2,:) - micLocs(end:-1:end/2+1,:);
     dm = round(mean(sum(micDists'.^2).^.5),10);
@@ -127,7 +127,7 @@ end
 Loudspeaker_Signals = sigPredicted(1:size(MicSigs,1),:);
 
 %% Loudspeaker dipole filtering
-if strcmpi(lSYS.Main_Setup.Speaker_Array_Type,'2line')
+if strcmpi(lSYS.Main_Setup.Speaker_Array_Type(1),'2')
     
     spkDists = spkLocs(1:end/2,:) - spkLocs(end:-1:end/2+1,:);
     ds = round(mean(sum(spkDists'.^2).^.5),10);
@@ -145,6 +145,6 @@ if strcmpi(lSYS.Main_Setup.Speaker_Array_Type,'2line')
          db2mag(-240)+0*flip(Loudspeaker_SignalsDP(1:end-(numel(hs)-1),:),2)] ;
 end
 
-% Loudspeaker_Signals = Loudspeaker_Signals([2:end end],:); %  TODO: remove this line, it is for debugging
+ Loudspeaker_Signals(:,[1:11 14:end]) = db2mag(-240); %  TODO: remove this line, it is for debugging
 
 end

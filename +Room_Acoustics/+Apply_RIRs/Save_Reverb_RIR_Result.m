@@ -30,8 +30,8 @@ results_type = 'RIR';
 
 %% Deconvolve responses
 invFilt = load(cell2mat(Tools.getAllFiles(SYS.signal_info.InverseFilter_filepath)));invFilt=invFilt.invY;
-irT = Tools.extractIR(T,invFilt);
-irR = Tools.extractIR(R,invFilt);
+irT = Tools.extractIR(Talker,invFilt);
+irR = Tools.extractIR(Rec_Sigs,invFilt);
 
 %% Calculate and save Speech Intelligibility values to the results folder
 if ~exist([ResultsPath Output_file_path_ext],'dir'); mkdir([ResultsPath Output_file_path_ext]); end

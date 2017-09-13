@@ -254,7 +254,7 @@ classdef loudspeaker_setup
             
             if  Q0 > 1
                 phi = obj.Speaker_Arc_Angle / 180 * pi;
-                if strcmpi(obj.Speaker_Array_Type, '2line')
+                if strcmpi(obj.Speaker_Array_Type(1), '2')
                     Q0_ = Q0/2;
                 else
                     Q0_ = Q0;
@@ -320,7 +320,7 @@ classdef loudspeaker_setup
             
             obj.Loudspeaker_Weights = obj.Loudspeaker_Weights' ;
             
-            if strcmpi(obj.Speaker_Array_Type, '2line') %this is a dipole setup (infinitesimal spacing)
+            if strcmpi(obj.Speaker_Array_Type(1), '2') %this is a dipole setup (infinitesimal spacing)
                 % Here we perform a delay and sum beamforming opperation to
                 % create better dipole directivity for the '2line' case
                 d = obj.DipoleDistance;
@@ -432,6 +432,47 @@ classdef loudspeaker_setup
                     obj.Speaker_Arc_Angle = AngLas/pi*180 + centre - obj.Angle_FirstSpeaker;
                     
                     obj.Speaker_Array_Length = sum(abs(y([1 end/2]))); % inclusive of end points
+                end
+                
+            elseif strcmpi(obj.Speaker_Array_Type, 'plane')
+                wid = obj.Loudspeaker_Dimensions(1);
+                space = obj.Speaker_Spacing;
+                centre = obj.Speaker_Array_Centre;
+                LL = obj.Loudspeaker_Count;
+                L = sqrt(LL);
+                if rem(L,1) ~= 0 % TODO: implement any rectangular sized plane of loudspeakers and not just square ones
+                    error('Only a square plane is currently supported');
+                end
+                len = (wid+space)*L - space;
+                x = repmat(obj.Radius, 1, L);
+                
+                if L == 1
+                    a2first = obj.Angle_FirstSpeaker/180*pi;
+                    a2center = centre/180*pi;
+                    spkr_rho = x(1) / cos(a2first - a2center);
+                    obj.Loudspeaker_Locations = [a2first spkr_rho];
+                else
+                    
+                    if ~mod(L,2)
+                        % y = ((wid+space)/2):(wid+space):len/2;
+                        y = (1/2:L/2)*(wid+space);
+                        y = [flip(-y), y];
+                    else
+                        y = (1:(L-1)/2)*(wid+space);
+                        y = [flip(-y), 0, y];
+                    end
+                    
+                    [spkr_theta, spkr_rho]=cart2pol(x,y);
+                    spkr_theta = spkr_theta + centre/180*pi;
+                    
+                    obj.Loudspeaker_Locations = [spkr_theta(:), spkr_rho(:)];
+                    
+                    obj.Angle_FirstSpeaker = obj.Loudspeaker_Locations(1,1) / pi * 180;
+                    obj.Speaker_Arc_Angle = obj.Loudspeaker_Locations(end,1) / pi * 180 - obj.Angle_FirstSpeaker;
+                    
+                    LLends = obj.Loudspeaker_Locations([1 end],:);
+                    [LLx,LLy] = pol2cart(LLends(:,1),LLends(:,2));
+                    obj.Speaker_Array_Length = sum(diff([LLx, LLy]).^2).^0.5; % inclusive of end points
                 end
                 
             elseif strcmpi(obj.Speaker_Array_Type, 'coprime')
