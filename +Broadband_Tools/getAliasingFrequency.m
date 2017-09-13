@@ -44,7 +44,9 @@ if strcmpi('line',setup.Speaker_Array_Type) ...
         || strcmpi('plane',setup.Speaker_Array_Type)
     %% Planar Array %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Take line from planar array and assume aliasing frequency is the same
-    
+    if strcmpi('plane',setup.Speaker_Array_Type)
+       L = sqrt(L); 
+    end
     
     %% Linear Array %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     C = O + setup.res*Rl*[...                               % Center point of loudspeaker array
@@ -70,8 +72,8 @@ if strcmpi('line',setup.Speaker_Array_Type) ...
         else alph_=pm*pi/2;
         end
         PAv=[cos(alph_) -sin(alph_) 0;...                   % Tangent
-            sin(alph_)  cos(alph_) 0;...
-            0           0      1] * PQv;                        
+             sin(alph_)  cos(alph_) 0;...
+             0           0          1] * PQv;                        
         PBv = Bv-Pv;                                        % Intersection to Bright zone vector
         gam_found(end+1) = atan2(norm(cross(PAv,PBv)), dot(PAv,PBv));   % One of two maximum allowable angles for the grating lobe
         % MATHEMATICALLY EQUIVALENT --> acos(dot(v1, v2) / (norm(v1) * norm(v2)))        

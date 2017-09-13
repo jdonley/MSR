@@ -431,8 +431,12 @@ classdef loudspeaker_setup
                 wid = obj.Loudspeaker_Dimensions(1);
                 space = obj.Speaker_Spacing;
                 centre = obj.Speaker_Array_Centre;
-                LL = obj.Loudspeaker_Count;
-                L = sqrt(LL);
+                LL = obj.Loudspeaker_Count;                
+                if  strcmpi(obj.Speaker_Array_Type(1), '2')
+                    L = sqrt(LL/2);
+                else
+                    L = sqrt(LL);
+                end
                 if rem(L,1) ~= 0 % TODO: implement any rectangular sized plane of loudspeakers and not just square ones
                     error('Only a square plane is currently supported');
                 end

@@ -14,9 +14,9 @@ dipoledist = 343/(2*pi*2000);
 spkr_radius = 1.5 - dipoledist/2;
 N_spkrs = 24 * 2; % Times 2 for dipole
 
-array_type = 'plane';
-spkr_radius = 1.5;
-N_spkrs = 25; % Times 2 for dipole
+array_type = '2plane';
+spkr_radius = 1.5 - dipoledist/2;
+N_spkrs = 25 * 2; % Times 2 for dipole
 
 geometry = 'rectangular';
 % geometry = 'circle';
@@ -196,19 +196,23 @@ Masker_Setup = [];
 Room_Setup(2) = Room_Setup;
 Room_Setup(2).SystemType = 'Receive';
 
-M = Main_Setup(2).Loudspeaker_Count/2; % Number per zone
+M = Main_Setup(2).Loudspeaker_Count;
+if strcmpi(array_type(1),'2')
+    M = M/2;
+end
 Room_Setup(2).NoReceivers = M;
 
 spkrLocs = Main_Setup(2).Loudspeaker_Locations(1:M,:);
-[spkrLocs(:,1),spkrLocs(:,2)]=pol2cart(spkrLocs(:,1),spkrLocs(:,2));
+[spkrLocs(:,1),spkrLocs(:,2),spkrLocs(:,3)] = ...
+    sph2cart(spkrLocs(:,1),spkrLocs(:,2),spkrLocs(:,3));
 
 Room_Setup(2).ReceiverPositions = ...
     [spkrLocs, ...
-    zeros(Room_Setup(2).NoReceivers,1)] ...
+    zeros(Room_Setup(2).NoReceivers,3-size(spkrLocs,2))] ...
     + Room_Setup(2).Reproduction_Centre([2 1 3]) ;
 
 Room_Setup(2) = Room_Setup(2).setReceiverDirectivity('cardioid');
-Room_Setup(2).ReceiverOrientations = zeros(M,2);
+Room_Setup(2).ReceiverOrientations = zeros(M,2); % [az ,el]
 
 
 
