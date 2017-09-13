@@ -145,6 +145,6 @@ if strcmpi(lSYS.Main_Setup.Speaker_Array_Type(1),'2')
          db2mag(-240)+0*flip(Loudspeaker_SignalsDP(1:end-(numel(hs)-1),:),2)] ;
 end
 
- Loudspeaker_Signals(:,(1:25)~=13) = db2mag(-240); %  TODO: remove this line, it is for debugging
+%  Loudspeaker_Signals(:,(1:25)~=13) = db2mag(-240); %  TODO: remove this line, it is for debugging
 
 end
