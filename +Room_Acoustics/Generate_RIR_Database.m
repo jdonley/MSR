@@ -142,8 +142,8 @@ for s = DBsetups
     %clear
     %
     %     hold on;
-    scat1 = scatter(rec_b(:,1),rec_b(:,2),'.g'); hold on
-    scat2 = scatter(rec_q(:,1),rec_q(:,2),'.y');
+    scat1 = scatter3(rec_b(:,1),rec_b(:,2),rec_b(:,3),'.g'); hold on
+    scat2 = scatter3(rec_q(:,1),rec_q(:,2),rec_q(:,3),'.y');
     if isprop(scat1,'MarkMarkerEdgeAlpha') 
         scat1.MarkMarkerEdgeAlpha = 0.2;
     end
@@ -151,17 +151,19 @@ for s = DBsetups
         scat2.MarkMarkerEdgeAlpha = 0.2;
     end
     
-    scatter(Rec_Bright_Pos(:,1),Rec_Bright_Pos(:,2),'ob'); hold on;
-    scatter(Rec_Quiet_Pos(:,1),Rec_Quiet_Pos(:,2),'^r'); hold on;
+    scatter3(Rec_Bright_Pos(:,1),Rec_Bright_Pos(:,2),Rec_Bright_Pos(:,3),'ob'); hold on;
+    scatter3(Rec_Quiet_Pos(:,1),Rec_Quiet_Pos(:,2),Rec_Quiet_Pos(:,3),'^r'); hold on;
     
-    src = [];
-    [src(:,1), src(:,2)] = ...
-        pol2cart( Setup.Loudspeaker_Locations(:,1), ...
-        Setup.Loudspeaker_Locations(:,2));
-    src = [src ...
-        zeros(size(src,1),size(Room.Room_Size,2)-2)] ...
-        + repmat(Room.Reproduction_Centre([2 1 3]), size(src,1),1);
-    scatter(src(:,1),src(:,2),'sk');hold off;
+    src = Setup.Loudspeaker_Locations;
+    src = ...
+        [src(:,1), ... % [azimuth]
+        zeros(size(src,1),size(Room.Room_Size,2)-size(src,2)), ...
+        src(:,2:end)]; % [radius] or [elevation, radius]
+    
+    [src(:,1), src(:,2), src(:,3)] = ...
+        sph2cart( src(:,1), src(:,2), src(:,3));
+    src = src + repmat(Room.Reproduction_Centre([2 1 3]), size(src,1),1);
+    scatter3(src(:,1),src(:,2),src(:,3),'sk');hold off;
     axis equal;
     drawnow;
     

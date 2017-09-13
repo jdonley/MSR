@@ -88,16 +88,19 @@ c = signal_info.c;    % Speed of sound (m/s)
 Fs = signal_info.Fs; % Sample frequency (samples/s)
 
 %Add all sources (loudspeaker locations)
-src = [];
-[src(:,1), src(:,2)] = pol2cart( ...
-    loudspeaker_setup.Loudspeaker_Locations(:,1), ...
-    loudspeaker_setup.Loudspeaker_Locations(:,2));
-src = [src ...
-    zeros(size(src,1),size(room.Room_Size,2)-2)] ...
-    + repmat(room.Reproduction_Centre([2 1 3]), size(src,1),1);
+src = loudspeaker_setup.Loudspeaker_Locations;
+src = ...
+    [src(:,1), ... % [azimuth]
+    zeros(size(src,1),size(room.Room_Size,2)-size(src,2)), ...
+    src(:,2:end)]; % [radius] or [elevation, radius]
+
+[src(:,1), src(:,2), src(:,3)] = ...
+    sph2cart( src(:,1), src(:,2), src(:,3));
+src = src + repmat(room.Reproduction_Centre([2 1 3]), size(src,1),1);
 
 
 %Add all receviers (multizone sample point locations)
+% TODO: Edit the following so random receivers are also found in the 3rd dimension
 if isempty(rec_positions) || ~isempty(room.ReceiverPositions)
     
     mask_b = loudspeaker_setup.Multizone_Soundfield.Bright_Zone.Soundfield_d_mask;
@@ -118,6 +121,7 @@ if isempty(rec_positions) || ~isempty(room.ReceiverPositions)
     rec_q = rec_q(mask_q(:) ~= 0,:);
 end
 
+% TODO: Edit the following so random receivers are also found in the 3rd dimension
 if isempty(rec_positions)
     RmBounds = room.Room_Size([2 1 3]);
     % Only use positions that are within the room
