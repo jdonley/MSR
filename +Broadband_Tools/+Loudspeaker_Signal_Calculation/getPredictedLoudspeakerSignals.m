@@ -69,12 +69,10 @@ armethod = SYS.signal_info.AR_method;
 spkLocsPol = lSYS.Main_Setup.Loudspeaker_Locations;    % Polar
 micLocs = mSYS.Room_Setup.ReceiverPositions ...        % Cartesian
     - mSYS.Room_Setup.Reproduction_Centre([2 1 3]);
-[spkLocs(:,1),spkLocs(:,2)] = ...
-    pol2cart(spkLocsPol(:,1),spkLocsPol(:,2));
+[spkLocs(:,1),spkLocs(:,2),spkLocs(:,3)] = ...
+    sph2cart(spkLocsPol(:,1),spkLocsPol(:,2),spkLocsPol(:,3));
 
-%%%% temporary
-spkLocs = spkLocs(1:end/2,:);
-%%%
+
 spkLocCent = mean(spkLocs,1);
 micLocCent = mean(micLocs,1);
 
@@ -145,6 +143,6 @@ if strcmpi(lSYS.Main_Setup.Speaker_Array_Type(1),'2')
          db2mag(-240)+0*flip(Loudspeaker_SignalsDP(1:end-(numel(hs)-1),:),2)] ;
 end
 
-%   Loudspeaker_Signals = Loudspeaker_Signals([2:end end],:)/2; %  TODO: remove this line, it is for debugging
+Loudspeaker_Signals = Loudspeaker_Signals / sqrt(Q); %  TODO: remove this line, it is for debugging
 
 end

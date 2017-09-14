@@ -42,7 +42,7 @@ Room_Setup(1) = Room_Setup(1).setWall_Absorb_Coeff( ...
     [0.2, [1, 1, 1, 1, 1]*1.0]);
 % Room_Setup = Room_Setup.setWall_Absorb_Coeff(1.0); % Anechoic (for testing) (comment out otherwise)
 
-% Room_Setup.Reflection_Order = 1; % Order of image sources to compute
+Room_Setup.Reflection_Order = 1; % Order of image sources to compute
 
 Room_Setup(1).NoReceivers = 1; % Number per zone
 % If positions are not specified then the positions will be randomised
