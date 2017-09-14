@@ -313,7 +313,7 @@ analysis_info.Result_Type = {'Predicted Signal'; ...
 analysis_info.SignalNames = {'Active Wall Off'; ...
                              'Active Wall On'};
 analysis_info.Nfft = 32 * 1e-3 * signal_info.Fs;%1024;% Number of fft components
-analysis_info.f_low = 150; % Hz
+analysis_info.f_low = 250; % Hz
 analysis_info.f_high = 2000; % Hz
 % analysis_info.f_high = Falias; % Hz
 
