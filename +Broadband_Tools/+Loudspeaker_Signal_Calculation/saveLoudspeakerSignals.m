@@ -18,7 +18,14 @@ if ~exist(path,'dir'); mkdir(path); end
 % end
 
 fullpath_multiCh = [path name num2str(spkr_count) 'Ch' ext];
-audiowrite(fullpath_multiCh, spkr_signals, fs, 'BitsPerSample',64);
+
+% MATLABs audiowrite fails on high channel counts (>255) so we use
+% VOICEBOX's writewav() and readwav() functions
+% audiowrite(fullpath_multiCh, spkr_signals, fs, 'BitsPerSample',64);
+writewavOpts = ['V' ...% 64 bit floating point
+                'g' ...% save scaling value to the wave file to restore scale upon readwav()
+                'z'];  % No PCM offset correction
+writewav(spkr_signals,fs,fullpath_multiCh,writewavOpts);
 
 if ~isempty(original)
     audiowrite([path ...
