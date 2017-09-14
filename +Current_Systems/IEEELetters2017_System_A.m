@@ -14,9 +14,9 @@ dipoledist = 343/(2*pi*2000);
 spkr_radius = 1.5 - dipoledist/2;
 N_spkrs = 24 * 2; % Times 2 for dipole
 
-array_type = '2plane';
-spkr_radius = 1.5 - dipoledist/2;
-N_spkrs = 25 * 2; % Times 2 for dipole
+array_type = 'plane';
+spkr_radius = 1.5;% - dipoledist/2;
+N_spkrs = 24^2;% * 2; % Times 2 for dipole
 
 geometry = 'rectangular';
 % geometry = 'circle';
