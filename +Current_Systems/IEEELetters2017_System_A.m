@@ -39,7 +39,7 @@ Room_Setup(1) = Room_Setup(1).setReproductionCentre( ...
     Room_Setup(1).Room_Size/2 ); % Centre of room [y, x, z]
 
 Room_Setup(1) = Room_Setup(1).setWall_Absorb_Coeff( ...
-    [0.05, [1, 1, 1, 1, 1]*1.0]);
+    [0.2, [1, 1, 1, 1, 1]*1.0]);
 % Room_Setup = Room_Setup.setWall_Absorb_Coeff(1.0); % Anechoic (for testing) (comment out otherwise)
 
 Room_Setup.Reflection_Order = 1; % Order of image sources to compute
