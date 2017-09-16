@@ -9,10 +9,10 @@ function SR_SYSTEM = IEEELetters2017_System_A()
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%
-array_type = '2line';
-dipoledist = 343/(2*pi*2000);
-spkr_radius = 1.5 - dipoledist/2;
-N_spkrs = 24 * 2; % Times 2 for dipole
+% array_type = '2line';
+% dipoledist = 343/(2*pi*2000);
+% spkr_radius = 1.5 - dipoledist/2;
+% N_spkrs = 24 * 2; % Times 2 for dipole
 
 array_type = 'plane';
 spkr_radius = 1.5;% - dipoledist/2;
@@ -254,7 +254,7 @@ signal_info.methods_list_masker = [0]; %Indices from the "methods_list" of the m
 % ( e.g. [2,3;4,0;6,7] is two hybrids, the first is 2&4&6, the second is 3&7, indices < 1 are ignored)
 signal_info.reference = false; % False or True to record reference signal
 signal_info.reference_channel = 1; %Some arbitrary reference signal channel
-signal_info.rir_duration = 0.5; % Room Impulse Response length in seconds
+signal_info.rir_duration = 0.25; % Room Impulse Response length in seconds
 signal_info.input_filename = [];
 % signal_info.speech_filepath = '+Miscellaneous\+Speech_Files\';
 signal_info.speech_filepath = '+Miscellaneous\+TestAudio_Files\';
