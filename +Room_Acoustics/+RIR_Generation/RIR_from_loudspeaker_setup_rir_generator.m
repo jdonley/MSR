@@ -168,15 +168,15 @@ end
 %%
 %Evalute the Room Impulse Responses
 for anecho = 1:(1+generateAnechoicRIRs)
-    if generateAnechoicRIRs
+    if generateAnechoicRIRs && anecho == 2
         beta = beta*0;
     end
     Nsrc = size(src,1);
     Nrec = size(Rec_Bright_Pos,1);
     Ntot = Nsrc*Nrec;
     
-    RIR_Bright = zeros([Ntot, n]);
-    RIR_Quiet  = zeros([Ntot, n]);
+    RIR_Bright_ = zeros([Ntot, n]);
+    RIR_Quiet_  = zeros([Ntot, n]);
     
     room_size = room.Room_Size([2 1 3]); % Needs to be [x,y,z]
     current_pool = gcp; %Start new pool
@@ -186,14 +186,14 @@ for anecho = 1:(1+generateAnechoicRIRs)
     percCompl = parfor_progress( Ntot );
     parfor rs = 1:Ntot
         [r,s] = ind2sub([Nrec Nsrc],rs);
-        RIR_Bright(rs,:) = rir_generator( ...
+        RIR_Bright_(rs,:) = rir_generator( ...
             c, Fs, ...
             Rec_Bright_Pos(r,:), ...
             src(s,:), ...
             room_size, ...
             beta, n , mtype, order, dim, orientation, hp_filter);
         
-        RIR_Quiet(rs,:) = rir_generator( ...
+        RIR_Quiet_(rs,:) = rir_generator( ...
             c, Fs, ...
             Rec_Quiet_Pos(r,:), ...
             src(s,:), ...
@@ -207,8 +207,10 @@ for anecho = 1:(1+generateAnechoicRIRs)
     end
     
     % Reshape due to 1D parfor
-    RIR_Bright(:,:,:,anecho) = permute( reshape(RIR_Bright,[Nrec Nsrc n]), [1 3 2]);
-    RIR_Quiet(:,:,:,anecho) = permute( reshape(RIR_Quiet ,[Nrec Nsrc n]), [1 3 2]);
+    RIR_Bright = zeros([Nrec n Nsrc (1+generateAnechoicRIRs)]); % initialise
+    RIR_Bright(:,:,:,anecho) = permute( reshape(RIR_Bright_,[Nrec Nsrc n]), [1 3 2]);
+    RIR_Quiet = zeros([Nrec n Nsrc (1+generateAnechoicRIRs)]); % initialise
+    RIR_Quiet(:,:,:,anecho) = permute( reshape(RIR_Quiet_ ,[Nrec Nsrc n]), [1 3 2]);
     
     percCompl=parfor_progress(0);
     Tools.showTimeToCompletion( percCompl/100, [], [], startTime );
