@@ -154,51 +154,65 @@ elseif all(isnan(Rec_Quiet_Pos(:)))
     Rec_Quiet_Pos = nan*Rec_Bright_Pos;
 end
 
+%% For boundary cancellation methods we will also synthesis an anechoic response
+
+if any(contains(lower(signal_info.methods_list), 'boundarycancel' )) ... %if boundary cancel method exists in system
+        && strcmpi(room.SystemType,'transmit') ...                       %and the room is set up to produce audio
+        && loudspeaker_setup.Loudspeaker_Count == 1                      %and there is only one source of audio
+    generateAnechoicRIRs = true;
+else
+    generateAnechoicRIRs = false;
+end
+
 
 %%
 %Evalute the Room Impulse Responses
-Nsrc = size(src,1);
-Nrec = size(Rec_Bright_Pos,1);
-Ntot = Nsrc*Nrec;
-
-RIR_Bright = zeros([Ntot, n]);
-RIR_Quiet  = zeros([Ntot, n]);
-
-room_size = room.Room_Size([2 1 3]); % Needs to be [x,y,z]
-current_pool = gcp; %Start new pool
-fprintf('\n====== Building RIR Database ======\n');
-fprintf('\t Completion: '); startTime = tic;
-Tools.showTimeToCompletion;
-percCompl = parfor_progress( Ntot );
-parfor rs = 1:Ntot
-    [r,s] = ind2sub([Nrec Nsrc],rs);
-    RIR_Bright(rs,:) = rir_generator( ...
-        c, Fs, ...
-        Rec_Bright_Pos(r,:), ...
-        src(s,:), ...
-        room_size, ...
-        beta, n , mtype, order, dim, orientation, hp_filter);
+for anecho = 1:(1+generateAnechoicRIRs)
+    if generateAnechoicRIRs
+        beta = beta*0;
+    end
+    Nsrc = size(src,1);
+    Nrec = size(Rec_Bright_Pos,1);
+    Ntot = Nsrc*Nrec;
     
-    RIR_Quiet(rs,:) = rir_generator( ...
-        c, Fs, ...
-        Rec_Quiet_Pos(r,:), ...
-        src(s,:), ...
-        room_size, ...
-        beta, n , mtype, order, dim, orientation, hp_filter);
+    RIR_Bright = zeros([Ntot, n]);
+    RIR_Quiet  = zeros([Ntot, n]);
     
-    %%%
-    percCompl = parfor_progress;
+    room_size = room.Room_Size([2 1 3]); % Needs to be [x,y,z]
+    current_pool = gcp; %Start new pool
+    fprintf('\n====== Building RIR Database ======\n');
+    fprintf('\t Completion: '); startTime = tic;
+    Tools.showTimeToCompletion;
+    percCompl = parfor_progress( Ntot );
+    parfor rs = 1:Ntot
+        [r,s] = ind2sub([Nrec Nsrc],rs);
+        RIR_Bright(rs,:) = rir_generator( ...
+            c, Fs, ...
+            Rec_Bright_Pos(r,:), ...
+            src(s,:), ...
+            room_size, ...
+            beta, n , mtype, order, dim, orientation, hp_filter);
+        
+        RIR_Quiet(rs,:) = rir_generator( ...
+            c, Fs, ...
+            Rec_Quiet_Pos(r,:), ...
+            src(s,:), ...
+            room_size, ...
+            beta, n , mtype, order, dim, orientation, hp_filter);
+        
+        %%%
+        percCompl = parfor_progress;
+        Tools.showTimeToCompletion( percCompl/100, [], [], startTime );
+        %%%
+    end
+    
+    % Reshape due to 1D parfor
+    RIR_Bright(:,:,:,anecho) = permute( reshape(RIR_Bright,[Nrec Nsrc n]), [1 3 2]);
+    RIR_Quiet(:,:,:,anecho) = permute( reshape(RIR_Quiet ,[Nrec Nsrc n]), [1 3 2]);
+    
+    percCompl=parfor_progress(0);
     Tools.showTimeToCompletion( percCompl/100, [], [], startTime );
-    %%%
 end
-
-% Reshape due to 1D parfor
-RIR_Bright = permute( reshape(RIR_Bright,[Nrec Nsrc n]), [1 3 2]);
-RIR_Quiet  = permute( reshape(RIR_Quiet ,[Nrec Nsrc n]), [1 3 2]);
-
-percCompl=parfor_progress(0);
-Tools.showTimeToCompletion( percCompl/100, [], [], startTime );
-
 %%
 tEnd = toc;
 fprintf('\nRIR execution time: %dmin(s) %fsec(s)\n\n', floor(tEnd/60), rem(tEnd,60)); %Time taken to execute this script
