@@ -202,7 +202,8 @@ for m = 1:M
         [~, fileName{s_1,file}, ~] = fileparts(files{s_1}{file});
         
         
-        if isempty(strfind(fileName{s_1,file},'Original')) % Make sure the file being read isn't an original file
+        if isempty(strfind(fileName{s_1,file},'Original')) ...     %Make sure the file being read isn't an original file
+                && isempty(strfind(fileName{s_1,file},'Anechoic')) %and isn't a special Anechoic reference recording
             
             % Get the file number and file name
             [Ztypeflip,Stypeflip] = strtok( flip(fileName{s_1,file}), system_info.sc );
@@ -219,16 +220,26 @@ for m = 1:M
                     || strcmpi([num2str(room_setup.NoReceivers) 'ch'], ZoneType)
                 Rec_Bright = [];
                 for s = signal_info.methods_list_clean.'
+                    Rec_BrightA_ = [];
                     if ~isempty(files{s})
                         Rec_Bright_{s} = load(files{s}{file});
                     else
-                        Rec_Bright_{s_1} = load(files{s_1}{file}); break;
+                        Rec_Bright_{s_1} = load(files{s_1}{file}); 
+                        if any(contains(lower(files{s_1}),'anechoic'))
+                            Rec_BrightA_ = load(files{s_1}{ ...
+                                contains(lower(files{s_1}),'anechoic')});
+                        end
+                        break;
                     end
                 end
                 if s_1==2, Rec_Bright_{s_1}.Rec_Sigs_B = Rec_Bright_{s_1}.Rec_Sigs_B.'; end %TODO: Fix the recording so the dimensions are in the correct place.
                 if isfield(Rec_Bright_{s_1},'mic_signals')
                     Rec_Bright_{s_1}.Rec_Sigs_B = ...
                         Rec_Bright_{s_1}.mic_signals.';
+                end
+                if isfield(Rec_BrightA_,'mic_sigs_anecho')
+                    Rec_Bright_{s_1}.Rec_Sigs_B_Anecho = ...
+                        Rec_BrightA_.mic_sigs_anecho.';                    
                 end
                 sLB = size( Rec_Bright_{s_1}.Rec_Sigs_B,2); %signal Length Bright
                 for s=s_1:S
