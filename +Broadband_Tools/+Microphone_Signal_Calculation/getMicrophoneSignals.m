@@ -1,4 +1,4 @@
-function [ Mic_Signals, Original ] = getMicrophoneSignals( Input_Signal, SYS )
+function [ Mic_Signals, Mic_Signals_Anechoic, Original ] = getMicrophoneSignals( Input_Signal, SYS )
 % Summary of this function goes here
 % 
 % Syntax:	[ Mic_Signals, Original_ ] = getMicrophoneSignals( Input_Signal, SYS )
@@ -33,6 +33,14 @@ DB = Room_Acoustics.loadRIRDatabaseFromSetup(SYS);
 Mic_Signals = Tools.fconv( ...
     repmat(Input_Signal,1,SYS.Room_Setup.NoReceivers), ...
     DB.RIRs.Bright_RIRs.');
+
+if isfield(DB.RIRs,'Bright_RIRs_Anechoic') 
+    Mic_Signals_Anechoic = Tools.fconv( ...
+        repmat(Input_Signal,1,SYS.Room_Setup.NoReceivers), ...
+        DB.RIRs.Bright_RIRs_Anechoic.');
+else
+    Mic_Signals_Anechoic = [];
+end
 
 Original = Input_Signal;
 

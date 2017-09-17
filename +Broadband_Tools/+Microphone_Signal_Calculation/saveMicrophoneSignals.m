@@ -1,4 +1,4 @@
-function saveMicrophoneSignals( path, name, mic_signals, mic_count, original, orig_name, orig_ext, fs )
+function saveMicrophoneSignals( path, name, mic_signals, mic_sigs_anecho, mic_count, original, orig_name, orig_ext, fs )
 % Summary of this function goes here
 % 
 % Syntax:	saveMicrophoneSignals( path, name, mic_signals, mic_count, original, orig_name, orig_ext, fs )
@@ -36,6 +36,11 @@ if ~exist(path,'dir'); mkdir(path); end
 
 fullpath_multiCh = [path name num2str(mic_count) 'Ch'];
 save(fullpath_multiCh, 'mic_signals', 'fs');
+
+if ~isempty(mic_sigs_anecho)
+    fullpath_multiCh = [path name num2str(mic_count) 'Ch' '_Anechoic'];
+    save(fullpath_multiCh, 'mic_sigs_anecho', 'fs');
+end
 
 if ~isempty(original)
     audiowrite([path ...
