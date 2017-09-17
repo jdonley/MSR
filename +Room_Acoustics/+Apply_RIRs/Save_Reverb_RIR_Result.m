@@ -22,12 +22,15 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 results_type = 'RIR';
 
+%% Get the cancellation signal only
+Cancel_Sig = Rec_Sigs - Talker;
+
 %% Get Reverberant part only
 Talker_Reverb = Talker - TalkerAnechoic;
 Rec_Sigs_Reverb = Rec_Sigs - TalkerAnechoic;
 
 %% Filter to analysis frequency range
-% fband = [SYS.analysis_info.f_low SYS.analysis_info.f_high];
+fband = [SYS.analysis_info.f_low SYS.analysis_info.f_high];
 % [b,a] = cheby1(5,1,fband/SYS.signal_info.Fs);
 % 
 % Talker = filter(b,a,Talker);
@@ -39,6 +42,8 @@ Rec_Sigs_Reverb = Rec_Sigs - TalkerAnechoic;
 
 %% Deconvolve responses
 invFilt = load(cell2mat(Tools.getAllFiles(SYS.signal_info.InverseFilter_filepath)));invFilt=invFilt.invY;
+
+irC = Tools.extractIR(Cancel_Sig,invFilt);
 
 irT = Tools.extractIR(Talker,invFilt);
 irR = Tools.extractIR(Rec_Sigs,invFilt);
