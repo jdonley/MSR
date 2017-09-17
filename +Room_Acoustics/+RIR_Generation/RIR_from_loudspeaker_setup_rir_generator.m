@@ -167,18 +167,22 @@ end
 
 %%
 %Evalute the Room Impulse Responses
+Nsrc = size(src,1);
+Nrec = size(Rec_Bright_Pos,1);
+Ntot = Nsrc*Nrec;
+room_size = room.Room_Size([2 1 3]); % Needs to be [x,y,z]
+
+RIR_Bright = zeros([Nrec n Nsrc (1+generateAnechoicRIRs)]); % initialise
+RIR_Quiet = zeros([Nrec n Nsrc (1+generateAnechoicRIRs)]); % initialise
+
 for anecho = 1:(1+generateAnechoicRIRs)
     if generateAnechoicRIRs && anecho == 2
         beta = beta*0;
     end
-    Nsrc = size(src,1);
-    Nrec = size(Rec_Bright_Pos,1);
-    Ntot = Nsrc*Nrec;
     
     RIR_Bright_ = zeros([Ntot, n]);
     RIR_Quiet_  = zeros([Ntot, n]);
     
-    room_size = room.Room_Size([2 1 3]); % Needs to be [x,y,z]
     current_pool = gcp; %Start new pool
     fprintf('\n====== Building RIR Database ======\n');
     fprintf('\t Completion: '); startTime = tic;
@@ -207,9 +211,7 @@ for anecho = 1:(1+generateAnechoicRIRs)
     end
     
     % Reshape due to 1D parfor
-    RIR_Bright = zeros([Nrec n Nsrc (1+generateAnechoicRIRs)]); % initialise
     RIR_Bright(:,:,:,anecho) = permute( reshape(RIR_Bright_,[Nrec Nsrc n]), [1 3 2]);
-    RIR_Quiet = zeros([Nrec n Nsrc (1+generateAnechoicRIRs)]); % initialise
     RIR_Quiet(:,:,:,anecho) = permute( reshape(RIR_Quiet_ ,[Nrec Nsrc n]), [1 3 2]);
     
     percCompl=parfor_progress(0);
