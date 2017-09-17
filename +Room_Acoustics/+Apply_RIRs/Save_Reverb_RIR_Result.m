@@ -1,7 +1,7 @@
- function Save_Reverb_RIR_Result(Talker, Rec_Sigs, ResultsPath, Output_file_path_ext, FileName, SYS)
+ function Save_Reverb_RIR_Result(Talker, TalkerAnechoic, Rec_Sigs, ResultsPath, Output_file_path_ext, FileName, SYS)
 %SAVE_REVERB_RIR_RESULT Summary of this function goes here
 % 
-% Syntax:	SAVE_REVERB_RIR_RESULT(Rec_Sigs_B, Rec_Sigs_Q, Fs, Nfft, ResultsPath, Output_file_path_ext, FileName, SYS)
+% Syntax:	Save_Reverb_RIR_Result(Talker, TalkerAnechoic, Rec_Sigs, ResultsPath, Output_file_path_ext, FileName, SYS)
 % 
 % Inputs: 
 % 	input1 - Description
@@ -22,16 +22,29 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 results_type = 'RIR';
 
+%% Get Reverberant part only
+Talker_Reverb = Talker - TalkerAnechoic;
+Rec_Sigs_Reverb = Rec_Sigs - TalkerAnechoic;
+
 %% Filter to analysis frequency range
-fband = [SYS.analysis_info.f_low SYS.analysis_info.f_high];
-[b,a] = cheby1(5,1,fband/SYS.signal_info.Fs);
-Talker = filter(b,a,Talker);
-Rec_Sigs = filter(b,a,Rec_Sigs);
+% fband = [SYS.analysis_info.f_low SYS.analysis_info.f_high];
+% [b,a] = cheby1(5,1,fband/SYS.signal_info.Fs);
+% 
+% Talker = filter(b,a,Talker);
+% Rec_Sigs = filter(b,a,Rec_Sigs);
+% 
+% Talker_Reverb = filter(b,a,Talker_Reverb);
+% Rec_Sigs_Reverb = filter(b,a,Rec_Sigs_Reverb);
+
 
 %% Deconvolve responses
 invFilt = load(cell2mat(Tools.getAllFiles(SYS.signal_info.InverseFilter_filepath)));invFilt=invFilt.invY;
+
 irT = Tools.extractIR(Talker,invFilt);
 irR = Tools.extractIR(Rec_Sigs,invFilt);
+
+irTrvrb = Tools.extractIR(Talker_Reverb,invFilt);
+irRrvrb = Tools.extractIR(Rec_Sigs_Reverb,invFilt);
 
 %% Calculate and save Speech Intelligibility values to the results folder
 if ~exist([ResultsPath Output_file_path_ext],'dir'); mkdir([ResultsPath Output_file_path_ext]); end

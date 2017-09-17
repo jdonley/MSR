@@ -219,16 +219,16 @@ for m = 1:M
             if strcmp('Bright',ZoneType) ...
                     || strcmpi([num2str(room_setup.NoReceivers) 'ch'], ZoneType)
                 Rec_Bright = [];
+                Rec_BrightA_ = [];
                 for s = signal_info.methods_list_clean.'
-                    Rec_BrightA_ = [];
                     if ~isempty(files{s})
                         Rec_Bright_{s} = load(files{s}{file});
-                    else
-                        Rec_Bright_{s_1} = load(files{s_1}{file}); 
-                        if any(contains(lower(files{s_1}),'anechoic'))
-                            Rec_BrightA_ = load(files{s_1}{ ...
-                                contains(lower(files{s_1}),'anechoic')});
+                        if any(contains(lower(files{s}),'anechoic'))
+                            Rec_BrightA_ = load(files{s}{ ...
+                                contains(lower(files{s}),'anechoic')});
                         end
+                    else
+                        Rec_Bright_{s_1} = load(files{s_1}{file});
                         break;
                     end
                 end
@@ -391,7 +391,9 @@ for m = 1:M
                 
                 if any(cell2mat(strfind(upper(Measures),'RIR')))
                     % Room Impulse Response
-                    Room_Acoustics.Apply_RIRs.Save_Reverb_RIR_Result( Rec_Bright_{1}.Rec_Sigs_B(:,1:sLB), Rec_Bright, ResultsPath, [], SignalName, SYS );
+                    Room_Acoustics.Apply_RIRs.Save_Reverb_RIR_Result( ...
+                        Rec_Bright_{1}.Rec_Sigs_B, Rec_Bright_{1}.Rec_Sigs_B_Anecho, Rec_Bright, ...
+                        ResultsPath, [], SignalName, SYS );
                 end
                 % END calc and save results
                 
