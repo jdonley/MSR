@@ -31,15 +31,15 @@ Rec_Sigs_Reverb = Rec_Sigs - TalkerAnechoic;
 
 %% Filter to analysis frequency range
  fband = [SYS.analysis_info.f_low SYS.analysis_info.f_high];
-% [b,a] = cheby1(5,1,fband/(SYS.signal_info.Fs/2));
-% 
-% Cancel_Sig = filter(b,a,Cancel_Sig);
-% 
-% Talker = filter(b,a,Talker);
-% Rec_Sigs = filter(b,a,Rec_Sigs);
-% 
-% Talker_Reverb = filter(b,a,Talker_Reverb);
-% Rec_Sigs_Reverb = filter(b,a,Rec_Sigs_Reverb);
+[b,a] = cheby1(5,1,fband/(SYS.signal_info.Fs/2));
+
+Cancel_Sig = filter(b,a,Cancel_Sig);
+
+Talker = filter(b,a,Talker);
+Rec_Sigs = filter(b,a,Rec_Sigs);
+
+Talker_Reverb = filter(b,a,Talker_Reverb);
+Rec_Sigs_Reverb = filter(b,a,Rec_Sigs_Reverb);
 
 
 %% Deconvolve responses
@@ -63,10 +63,12 @@ plot(ff/1e3,pow2db([p1,p2]));
 set(gca,'xscale','log');grid on;
 xlim(fband/1e3);
 figure(2);
-plot([1 10^5],[90 90 ])
-plot((mod((angle(fft(Talker_Reverb))) - (angle(fft(Cancel_Sig))),2*pi))/pi*180-180)
+plot(linspace(0,Fs,numel(Talker_Reverb))/1e3,...
+    (mod((angle(fft(Talker_Reverb))) - (angle(fft(Cancel_Sig))),2*pi))/pi*180-180);
 set(gca,'xscale','log');grid on;
+xlim(fband/1e3);
 hold on
+plot([0.1 8],[90 90]); hold off;
 %%%%
 
 %% Calculate and save Speech Intelligibility values to the results folder
