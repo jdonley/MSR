@@ -31,13 +31,15 @@ Rec_Sigs_Reverb = Rec_Sigs - TalkerAnechoic;
 
 %% Filter to analysis frequency range
 fband = [SYS.analysis_info.f_low SYS.analysis_info.f_high];
-% [b,a] = cheby1(5,1,fband/SYS.signal_info.Fs);
-% 
-% Talker = filter(b,a,Talker);
-% Rec_Sigs = filter(b,a,Rec_Sigs);
-% 
-% Talker_Reverb = filter(b,a,Talker_Reverb);
-% Rec_Sigs_Reverb = filter(b,a,Rec_Sigs_Reverb);
+[b,a] = cheby1(5,1,fband/(SYS.signal_info.Fs/2));
+
+Cancel_Sig = filter(b,a,Cancel_Sig);
+
+Talker = filter(b,a,Talker);
+Rec_Sigs = filter(b,a,Rec_Sigs);
+
+Talker_Reverb = filter(b,a,Talker_Reverb);
+Rec_Sigs_Reverb = filter(b,a,Rec_Sigs_Reverb);
 
 
 %% Deconvolve responses
