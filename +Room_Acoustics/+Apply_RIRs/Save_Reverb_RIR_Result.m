@@ -51,6 +51,16 @@ irR = Tools.extractIR(Rec_Sigs,invFilt);
 irTrvrb = Tools.extractIR(Talker_Reverb,invFilt);
 irRrvrb = Tools.extractIR(Rec_Sigs_Reverb,invFilt);
 
+
+%%%%
+Fs = SYS.signal_info.Fs;
+[p1,ff]=pwelch( (irTrvrb),hamming(1024,'p'),512,1024,Fs,'power');
+p2 = pwelch( (irC),hamming(1024,'p'),512,1024,Fs,'power');
+plot(ff/1e3,pow2db([p1,p2]));
+set(gca,'xscale','log');grid on;
+xlim([250 2000]/1e3);
+%%%%
+
 %% Calculate and save Speech Intelligibility values to the results folder
 if ~exist([ResultsPath Output_file_path_ext],'dir'); mkdir([ResultsPath Output_file_path_ext]); end
 
