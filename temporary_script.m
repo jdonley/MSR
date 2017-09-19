@@ -66,7 +66,7 @@ xlim([0.1 10]); %ylim([-60 0]);
 grid on; grid minor; set(gca,'xscale','log');
 
 subplot(2,1,2);
-plot(ff,PhaseDifference,'.');
+plot(ff,PhaseDifference,'-');
 xlim([0.1 10]); ylim([-180 180]); 
 grid on; grid minor; set(gca,'xscale','log');
 
