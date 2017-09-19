@@ -18,9 +18,9 @@ hA = rir_generator(c, fs, r, s, L, betaA, n, mtype, order, dim, orientation, hp_
 beta1 = (1 - [0.00*1 [1 1 1 1 1]*1]).^2;                 % Reverberation time (s)
 h1 = rir_generator(c, fs, r, s, L, beta1, n, mtype, order, dim, orientation, hp_filter);
 
-ri = [0.25 1.5 1.5];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
-si = [2.75 1.5 1.5];              % Source position [x y z] (m)
-hi = rir_generator(c, fs, ri, si, L, betaA, n, mtype, order, dim, orientation, hp_filter);
+% ri = [0.25 1.5 1.5];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
+% si = [2.75 1.5 1.5];              % Source position [x y z] (m)
+% hi = rir_generator(c, fs, ri, si, L, betaA, n, mtype, order, dim, orientation, hp_filter);
 
 hf = h1(:)-hA(:);
 
@@ -41,25 +41,33 @@ end
 hc = Tools.fconv(htx.',hrx.');
 hc = sum(hc(1:numel(hf),:),2);
 
-figure(1);
-% plot(hA); hold on;
-plot(hf); hold on
-% plot(hi); hold on;
-plot(hc); hold on;
-hold off
+% figure(1);
+% % plot(hA); hold on;
+% plot(hf); hold on
+% % plot(hi); hold on;
+% plot(hc); hold on;
+% hold off
 
 figure(2);
 HF = fft(hf);
 HC = fft(hc);
 
+ff = linspace(0,fs/2,n/2+1)/1e3;ff(end)=[];
 
-PhaseDifference = mod(unwrap(angle(HF)) - unwrap(angle(HC)),2*pi)/pi*180;
+MagnitudeC = abs(HC);
+MagnitudeC(end/2+1:end)=[];
+
+PhaseDifference = mod(unwrap(angle(HF)) - unwrap(angle(HC)+pi),2*pi)/pi*180-180;
 PhaseDifference(end/2+1:end)=[];
 
-plot(linspace(0,fs/2,n/2)/1e3,PhaseDifference,'.');
-ylim([0 360]); xlim([0.1 10])
+subplot(2,1,1);
+plot(ff, mag2db(  MagnitudeC.*ff.'  ));
+xlim([0.1 10]); %ylim([-60 0]);
 grid on; grid minor; set(gca,'xscale','log');
 
-figure(3);
-plot(mag2db(abs(HC)))
-set(gca,'xscale','log');grid on;
+subplot(2,1,2);
+plot(ff,PhaseDifference,'.');
+xlim([0.1 10]); ylim([-180 180]); 
+grid on; grid minor; set(gca,'xscale','log');
+
+
