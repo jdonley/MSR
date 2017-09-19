@@ -59,3 +59,7 @@ PhaseDifference(end/2+1:end)=[];
 plot(linspace(0,fs/2,n/2)/1e3,PhaseDifference,'.');
 ylim([0 360]); xlim([0.1 10])
 grid on; grid minor; set(gca,'xscale','log');
+
+figure(3);
+plot(mag2db(abs(HC)))
+set(gca,'xscale','log');grid on;
