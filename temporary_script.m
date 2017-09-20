@@ -15,8 +15,10 @@ betaA = (1 - [1 [1 1 1 1 1]*1]).^2;                 % Reverberation time (s)
 beta1 = (1 - [0.00*1 [1 1 1 1 1]*1]).^2;                 % Reverberation time (s)
 
 rtxN = 24;
-[yy,zz] = meshgrid(linspace(0,3,rtxN));
-rtx = [zeros(rtxN*rtxN,1), yy(:), zz(:)];
+[yy,zz] = meshgrid(linspace(0,3,rtxN)); % Planar Array
+% yy = linspace(0,3,rtxN); zz = yy*0+1.5; % Linear Array
+
+rtx = [zeros(numel(yy),1), yy(:), zz(:)];
 srx = rtx;
 
 MM=[];PP=[];
@@ -25,9 +27,10 @@ ss=0;
 while true %for ss = 1:10
     ss = ss+1;
 % r = [1.0 1.5 1.5];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
-r = rand(1,3)*3;    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
 % s = [1.5 1.5 1.5];              % Source position [x y z] (m)
+r = rand(1,3)*3;    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
 s = rand(1,3)*3;    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
+% s = [rand(1,2)*3 1.5]; r = [rand(1,2)*3 1.5]; % When using linear array
 
 hA = rir_generator(c, fs, r, s, L, betaA, n, mtype, order, dim, orientation, hp_filter);
 h1 = rir_generator(c, fs, r, s, L, beta1, n, mtype, order, dim, orientation, hp_filter);
@@ -62,10 +65,10 @@ ff = linspace(0,fs/2,n/2+1)/1e3;ff(end)=[];
 MagnitudeC = abs(HC);
 MagnitudeC(end/2+1:end)=[];
 
-PhaseDifference = mod(unwrap(angle(HF)) - unwrap(angle(HC)+pi),2*pi)/pi*180-180;
+PhaseDifference = mod(unwrap(angle(HF)) - unwrap(angle(HC)) + pi,2*pi)/pi*180-180;
 PhaseDifference(end/2+1:end)=[];
 
-MM(:,ss) = MagnitudeC; %.*ff.';
+MM(:,ss) = MagnitudeC; %.*ff.'; Planar compensation %.*sqrt(ff).' % Linear compensation
 PP(:,ss) = PhaseDifference;
 % MM = mean([MM , MagnitudeC.*ff.' ],2);
 % PP = mean([PP , PhaseDifference  ],2);
