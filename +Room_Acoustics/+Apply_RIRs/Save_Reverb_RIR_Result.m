@@ -56,8 +56,8 @@ irRrvrb = Tools.extractIR(Rec_Sigs_Reverb,invFilt);
 
 %%%%
 Fs = SYS.signal_info.Fs;
-[p1,ff]=pwelch( (irTrvrb),hamming(1024,'p'),512,1024,Fs,'power');
-p2 = pwelch( (irC),hamming(1024,'p'),512,1024,Fs,'power');
+[p1,ff]=pwelch( (imag(hilbert(irTrvrb))),hamming(1024,'p'),512,1024,Fs,'power');
+p2 = pwelch( (imag(hilbert(irTrvrb)) + irC*2.899),hamming(1024,'p'),512,1024,Fs,'power');
 figure(1);
 plot(ff/1e3,pow2db([p1,p2]));
 set(gca,'xscale','log');grid on;
