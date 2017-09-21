@@ -1,3 +1,13 @@
+
+
+ff = linspace(0,8000,512).';
+[num,den]=iirlpnorm(32,14,ff([14:129])'/(fs/2),ff([14 129])'/(fs/2),ff([14:129])'/(fs/2));
+
+freqz(num,den);
+set(gca,'xscale','log');
+
+
+%%
 clear; clc;
 
 c = 343;                    % Sound velocity (m/s)
