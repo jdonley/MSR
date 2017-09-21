@@ -1,27 +1,30 @@
 
-x = [-2 -1 0 1 2];
-y = [-1 -0.8 0 0.8 1];
-plot(x,y); ylim([-1.1 1.1]); grid on;
-
-xx = [-2:0.01:2];
-% yint = interp1(x,y,xx,'cubic');
-yint = lagrangepoly(x,y,xx);
-hold on;
-plot(xx,yint); hold off
+% x = [-2 -1 0 1 2];
+% y = [-1 -0.8 0 0.8 1];
+% plot(x,y); ylim([-1.1 1.1]); grid on;
+% 
+% xx = [-2:0.01:2];
+% % yint = interp1(x,y,xx,'cubic');
+% yint = lagrangepoly(x,y,xx);
+% hold on;
+% plot(xx,yint); hold off
 
 %%
 % ff = 0:8000;
 fs = 16000;
+dbPerOct = 3.0; %dB
+f_band = [10 4000];
 
-f_band = [100 2000];
+
+Noct = 1;
+offsetdB = 0.377;
+
+
 fmid = 10^mean(log10(f_band));
+f_edges = [1 f_band(1) fmid f_band(2) fs/2];
 
-f_edges = [10 f_band(1) fmid f_band(2) fs/2];
-
-Noct = 4;
 f_intpts = (f_band'*2.^(Noct/2*[-1 0 1]))';
 
-dbPerOct = 3.0; %dB
 a = db2mag( ...
     dbPerOct/log10(2) * log10(f_edges/fmid) );
 a([1 end]) = a([2 end-1]);
@@ -30,33 +33,46 @@ a_ = db2mag( ...
     dbPerOct/log10(2) * log10(f_intpts/fmid) );
 a_([1 end]) = a_(2,:);
 
-offsetdB = 1.505;
+
 a_(f_intpts == f_band) = db2mag(mag2db(a_(f_intpts == f_band)) + [1 -1]'*offsetdB);
 
-% a_int = db2mag( ...
-%     lagrangepoly(log10(f_intpts(:)),mag2db(a_), log10(f_intpts(1):f_intpts(end)))  );
-iFrqs=[];
-for cf = 1:2
-    interpFrqs = f_intpts(1,cf):f_intpts(end,cf);
-    a_int{cf} = db2mag( ...
+f_i_rnd = round(f_intpts);
+a_before = a(1)*ones(1,numel(f_edges(1):f_i_rnd(1,1)));
+a_int = a_before;
+for cf = 1:numel(f_band)
+    interpFrqs = f_i_rnd(1,cf)+1:f_i_rnd(end,cf);
+    
+    a_interp = db2mag( ...
         lagrangepoly( ...
-            log10(f_intpts(:,cf)), ...
-            mag2db(a_(:,cf)), ...
-            log10(interpFrqs))  );
-        iFrqs = [iFrqs interpFrqs];
+        log10(f_intpts(:,cf)), ...
+        mag2db(a_(:,cf)), ...
+        log10(interpFrqs))  );
+    
+    if cf < numel(f_band)
+        a_after = db2mag( ...
+            dbPerOct/log10(2) * log10( ...
+            (f_i_rnd(end,cf)+1:f_i_rnd(1,cf+1)) /fmid) );
+    elseif f_i_rnd(end,cf) < f_edges(end)
+        a_after = a(end)*ones(1,numel(f_i_rnd(end,end)+1:f_edges(end)));
+    else
+        a_after=[];
+    end
+    
+    a_int = [a_int a_interp a_after];
 end
 
+f = f_edges(1):f_edges(end);
+
 plot(f_edges/1e3,mag2db(a)); hold on;
-plot((f_intpts(1):f_intpts(3))/1e3,mag2db(a_int)); hold on;
+plot(f/1e3,mag2db(a_int)); hold on;
 grid on; grid minor;
 set(gca,'xscale','log');
-xlim([0.01 10]); hold on;
+xlim([0.01 10]); hold off;
 
 %%
-[num,den]=iirlpnorm(32,14,ff([14:129])'/(fs/2),ff([14 129])'/(fs/2),ff([14:129])'/(fs/2));
+[num,den]=iirlpnorm(8,8,f/(fs/2),f/(fs/2),a_int);
 
-freqz(num,den);
-set(gca,'xscale','log');
+fvtool(num,den);
 
 
 %%
