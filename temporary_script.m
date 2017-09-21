@@ -1,10 +1,11 @@
 
-x = [-2:0.5:2];
-y = -1*(x<=-1) + x.*(x>-1&x<=1) + 1*(x>1);
+x = [-2 -1 0 1 2];
+y = [-1 -0.8 0 0.8 1];
 plot(x,y); ylim([-1.1 1.1]); grid on;
 
 xx = [-2:0.01:2];
-yint = spline(x(x~=-1 & x~=1),y(x~=-1 & x~=1),xx);
+% yint = interp1(x,y,xx,'cubic');
+yint = lagrangepoly(x,y,xx);
 hold on;
 plot(xx,yint); hold off
 
