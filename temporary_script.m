@@ -1,7 +1,37 @@
-ff = 0:8000;
 
+x = [-2:0.4:2];
+y = -1*(x<=-1);
+plot(x,y); ylim([-1.1 1.1]); grid on;
 
+xx = [-2:0.01:2];
+yint = spline(x(x~=-1 & x~=1),y(x~=-1 & x~=1),xx);
+hold on;
+plot(xx,yint); hold off
 
+%%
+% ff = 0:8000;
+fs = 16000;
+
+f_band = [100 2000];
+fmid = 10^mean(log10(f_band));
+
+f_edges = [10 f_band(1) fmid f_band(2) fs/2];
+
+dbPerOct = 3; %dB
+a_ = db2mag( ...
+    dbPerOct/log10(2) * log10(f_edges/fmid) );
+a_([1 end]) = a_([2 end-1]);
+
+a_int = db2mag( ...
+    spline(log10(f_edges([1 3 end])),mag2db(a_),log10(10:8000))  );
+
+plot(f_edges/1e3,mag2db(a_)); hold on;
+plot((10:8000)/1e3,mag2db(a_int)); hold on;
+grid on; grid minor;
+set(gca,'xscale','log');
+xlim([0.01 10]); hold off;
+
+%%
 [num,den]=iirlpnorm(32,14,ff([14:129])'/(fs/2),ff([14 129])'/(fs/2),ff([14:129])'/(fs/2));
 
 freqz(num,den);
