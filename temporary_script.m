@@ -63,7 +63,7 @@
 fs = 16000;
 f_band = [100 2000];
 fmid = 10^mean(log10(f_band));
-fmid = 1000;
+fmid = f_band(end);
 res = 100;
 F = (0:res:fs/2)/(fs/2);
 A = ((0:res:fs/2))/fmid;
@@ -120,15 +120,15 @@ rtxN = 24;
 rtx = [zeros(numel(yy),1), yy(:), zz(:)];
 srx = rtx;
 
-MC=[];PP=[];
+MC=[];MF=[];M=[];PP=[];
 tic;
 ss=0;
 while true %for ss = 1:10
     ss = ss+1;
-r = [1.0 1.5 1.5];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
-s = [1.5 1.5 1.5];              % Source position [x y z] (m)
-% r = rand(1,3)*3;    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
-% s = rand(1,3)*3;    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
+% r = [1.0 1.5 1.5];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
+% s = [1.5 1.5 1.5];              % Source position [x y z] (m)
+r = rand(1,3)*3;    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
+s = rand(1,3)*3;    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
 % s = [rand(1,2)*3 1.5]; r = [rand(1,2)*3 1.5]; % When using linear array
 
 hA = rir_generator(c, fs, r, s, L, betaA, n, mtype, order, dim, orientation, hp_filter);
@@ -147,18 +147,21 @@ htx = Tools.fconv(htx.',repmat(imp.',size(htx,1),1).').';
 
 hc = Tools.fconv(htx.',hrx.');
 hc = sum(hc(1:numel(hf),:),2);
-[hc,adjV(ss)] = Broadband_Tools.power_norm(hf,hc,fs,[250 1000]);
+[~,adjV(ss)] = Broadband_Tools.power_norm(hf,hc,fs,[250 1000]);
 
+% [b,a] = cheby1(6,1,[250 1500]/(fs/2));
+% hf_band = filter(b,a,hf);
+% hc_band = filter(b,a,hc);
 % figure(1);
-% % plot(hA); hold on;
-% plot(hf); hold on
-% % plot(hi); hold on;
-% plot(hc); hold on;
+% plot(hf_band); hold on
+% plot(hc_band); hold on;
+% plot(hf_band - hc_band); hold on;
 % hold off
+h = hf-hc;
 
-figure(2);
 HF = fft(hf);
 HC = fft(hc);
+H = fft(h);
 
 ff = linspace(0,fs/2,n/2+1)/1e3;ff(end)=[];
 
@@ -166,32 +169,44 @@ MagnitudeC = abs(HC);
 MagnitudeC(end/2+1:end)=[];
 MagnitudeF = abs(HF);
 MagnitudeF(end/2+1:end)=[];
+Magnitude = abs(H);
+Magnitude(end/2+1:end)=[];
 
 PhaseDifference = mod(unwrap(angle(HF)) - unwrap(angle(HC)) + pi,2*pi)/pi*180-180;
 PhaseDifference(end/2+1:end)=[];
 
 MC(:,ss) = MagnitudeC;
 MF(:,ss) = MagnitudeF;
+M(:,ss) = Magnitude;
 PP(:,ss) = PhaseDifference;
 % MM = mean([MM , MagnitudeC.*ff.' ],2);
 % PP = mean([PP , PhaseDifference  ],2);
 
+% figure(2);
+% subplot(2,1,1);
+% plot(ff, mag2db(  MC  ),':k'); hold on;
+% plot(ff, mag2db(  mean(MC,2)  ),'-b','linew',1.5); hold on;
+% plot(ff, mag2db(  MF  ),':m'); hold on;
+% plot(ff, mag2db(  mean(MF,2)  ),'-g','linew',1.5); hold off;
+% xlim([0.1 10]); %ylim([-60 0]);
+% grid on; grid minor; set(gca,'xscale','log');
+% xlabel('Frequency (kHz)');ylabel('Magnitude (dB)');
+% 
+% subplot(2,1,2);
+% plot(ff, PP ,':k'); hold on;
+% plot(ff, mean(PP,2) ,'-','co',.8*[1 0 0],'linew',1.5); hold off;
+% xlim([0.1 10]); ylim([-180 180]); yticks([-180:45:180]);
+% grid on; grid minor; set(gca,'xscale','log');
+% xlabel('Frequency (kHz)');ylabel('Phase (\circ)');
 
-subplot(2,1,1);
-plot(ff, mag2db(  MC  ),':k'); hold on;
-plot(ff, mag2db(  mean(MC,2)  ),'-b','linew',1.5); hold on;
-plot(ff, mag2db(  MF  ),':m'); hold on;
-plot(ff, mag2db(  mean(MF,2)  ),'-g','linew',1.5); hold off;
+figure(2);
+plot(ff, mag2db(  MF  ),':k'); hold on;
+plot(ff, mag2db(  mean(MF,2)  ),'-b','linew',1.5); hold on;
+plot(ff, mag2db(  M  ),':m'); hold on;
+plot(ff, mag2db(  mean(M,2)  ),'-g','linew',1.5); hold off;
 xlim([0.1 10]); %ylim([-60 0]);
 grid on; grid minor; set(gca,'xscale','log');
 xlabel('Frequency (kHz)');ylabel('Magnitude (dB)');
-
-subplot(2,1,2);
-plot(ff, PP ,':k'); hold on;
-plot(ff, mean(PP,2) ,'-','co',.8*[1 0 0],'linew',1.5); hold off;
-xlim([0.1 10]); ylim([-180 180]); yticks([-180:45:180]);
-grid on; grid minor; set(gca,'xscale','log');
-xlabel('Frequency (kHz)');ylabel('Phase (\circ)');
 
 drawnow;
 fprintf('%d\n',ss);
