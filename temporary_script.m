@@ -61,27 +61,24 @@ set(gca,'xscale','log');
 xlim([0.01 10]); hold off;
 
 %%
-% F = [linspace(0,.475,50) linspace(.525,1,50)];
-% H = [zeros(1,50) exp(-1j*pi*13*F(51:100))];
-% f = fdesign.arbmagnphase('Nb,Na,F,H',12,10,F,H);
-% W = [ones(1,50) 100*ones(1,50)];
-% Hd = design(f,'iirls','Weights',W);
-% isstable(Hd)
-F = (0:100:fs/2)/(fs/2);
+res = 100;
+F = (0:res:fs/2)/(fs/2);
 H = F .* exp(1j*pi/2);
-f = fdesign.arbmagnphase('Nb,Na,F,H',4,1,F,H);
-W = [ 0*ones(1,numel(0:100:f_band(1)-1)) ...
-      100*ones(1,numel(f_band(1):100:f_band(2) )) ...
-      0*ones(1,numel(f_band(2)+1:100:fs/2)) ];
+f = fdesign.arbmagnphase('Nb,Na,F,H',12,1,F,H);
+W = [ 0*ones(1,numel(0:res:f_band(1)-1)) ...
+      10*ones(1,numel(f_band(1):res:f_band(2) )) ...
+      0*ones(1,numel(f_band(2)+1:res:fs/2)) ];
 Hd = design(f,'iirls','Weights',W);
+
 isstable(Hd)
+Hd.impzlength
+
+imp = Hd.impulse;
+imp = imp.Data;
 
 fvtool(Hd,'polezero')
 
-hfvt = fvtool(Hd, 'Color','w');
-legend(hfvt,'IIR Least-Squares','Location', 'NorthWest')
-hfvt(2) = fvtool(Hd,'Analysis','phase','Color','white');
-legend(hfvt(2),'IIR Least-Squares','Location', 'NorthEast')
+hfvt = fvtool(Hd,'Analysis','phase', 'Color','w');
 
 %%
 % [num,den]=iirlpnorm(8,8,f/(fs/2),f/(fs/2),a_int);
