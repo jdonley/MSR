@@ -62,9 +62,12 @@
 %%
 fs = 16000;
 f_band = [100 2000];
+fmid = 10^mean(log10(f_band));
+fmid = 1000;
 res = 100;
 F = (0:res:fs/2)/(fs/2);
-H = F .* exp(1j*pi/2);
+A = ((0:res:fs/2))/fmid;
+H = A .* exp(1j*pi/2);
 f = fdesign.arbmagnphase('Nb,Na,F,H',4,1,F,H);
 W = [ 0*ones(1,numel(0:res:f_band(1)-1)) ...
       10*ones(1,numel(f_band(1):res:f_band(2) )) ...
@@ -77,8 +80,8 @@ Hd.impzlength
 imp = Hd.impulse;
 imp = imp.Data;
 
-fvtool(Hd,'polezero')
-fvtool(Hd,'impulse')
+% fvtool(Hd,'polezero')
+% fvtool(Hd,'impulse')
 
 hfvt = fvtool(Hd,'Analysis','freq', 'Fs',16000, 'PhaseUnits','Degrees','Color','w');
 ax = findall(hfvt.Children,'Type','Axes');
@@ -117,15 +120,15 @@ rtxN = 24;
 rtx = [zeros(numel(yy),1), yy(:), zz(:)];
 srx = rtx;
 
-MM=[];PP=[];
+MC=[];PP=[];
 tic;
 ss=0;
 while true %for ss = 1:10
     ss = ss+1;
-% r = [1.0 1.5 1.5];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
-% s = [1.5 1.5 1.5];              % Source position [x y z] (m)
-r = rand(1,3)*3;    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
-s = rand(1,3)*3;    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
+r = [1.0 1.5 1.5];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
+s = [1.5 1.5 1.5];              % Source position [x y z] (m)
+% r = rand(1,3)*3;    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
+% s = rand(1,3)*3;    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
 % s = [rand(1,2)*3 1.5]; r = [rand(1,2)*3 1.5]; % When using linear array
 
 hA = rir_generator(c, fs, r, s, L, betaA, n, mtype, order, dim, orientation, hp_filter);
@@ -144,7 +147,7 @@ htx = Tools.fconv(htx.',repmat(imp.',size(htx,1),1).').';
 
 hc = Tools.fconv(htx.',hrx.');
 hc = sum(hc(1:numel(hf),:),2);
-hc = Broadband_Tools.power_norm(hf,hc,fs,[250 1000]);
+[hc,adjV(ss)] = Broadband_Tools.power_norm(hf,hc,fs,[250 1000]);
 
 % figure(1);
 % % plot(hA); hold on;
@@ -161,19 +164,24 @@ ff = linspace(0,fs/2,n/2+1)/1e3;ff(end)=[];
 
 MagnitudeC = abs(HC);
 MagnitudeC(end/2+1:end)=[];
+MagnitudeF = abs(HF);
+MagnitudeF(end/2+1:end)=[];
 
 PhaseDifference = mod(unwrap(angle(HF)) - unwrap(angle(HC)) + pi,2*pi)/pi*180-180;
 PhaseDifference(end/2+1:end)=[];
 
-MM(:,ss) = MagnitudeC; %.*ff.'; Planar compensation %.*sqrt(ff).' % Linear compensation
+MC(:,ss) = MagnitudeC;
+MF(:,ss) = MagnitudeF;
 PP(:,ss) = PhaseDifference;
 % MM = mean([MM , MagnitudeC.*ff.' ],2);
 % PP = mean([PP , PhaseDifference  ],2);
 
 
 subplot(2,1,1);
-plot(ff, mag2db(  MM  ),':k'); hold on;
-plot(ff, mag2db(  mean(MM,2)  ),'-b','linew',1.5); hold off;
+plot(ff, mag2db(  MC  ),':k'); hold on;
+plot(ff, mag2db(  mean(MC,2)  ),'-b','linew',1.5); hold on;
+plot(ff, mag2db(  MF  ),':m'); hold on;
+plot(ff, mag2db(  mean(MF,2)  ),'-g','linew',1.5); hold off;
 xlim([0.1 10]); %ylim([-60 0]);
 grid on; grid minor; set(gca,'xscale','log');
 xlabel('Frequency (kHz)');ylabel('Magnitude (dB)');
