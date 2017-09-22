@@ -1,23 +1,24 @@
+F = [linspace(0,.475,50) linspace(.525,1,50)];
+H = [zeros(1,50) exp(-1j*pi*13*F(51:100))];
+f = fdesign.arbmagnphase('Nb,Na,F,H',12,10,F,H);
+W = [ones(1,50) 100*ones(1,50)];
+Hd = design(f,'iirls','Weights',W);
+isstable(Hd)
 
-% x = [-2 -1 0 1 2];
-% y = [-1 -0.8 0 0.8 1];
-% plot(x,y); ylim([-1.1 1.1]); grid on;
-% 
-% xx = [-2:0.01:2];
-% % yint = interp1(x,y,xx,'cubic');
-% yint = lagrangepoly(x,y,xx);
-% hold on;
-% plot(xx,yint); hold off
+hfvt = fvtool(Hd, 'Color','w');
+legend(hfvt,'IIR Least-Squares','Location', 'NorthWest')
+hfvt(2) = fvtool(Hd,'Analysis','phase','Color','white');
+legend(hfvt(2),'IIR Least-Squares','Location', 'NorthEast')
 
 %%
 % ff = 0:8000;
 fs = 16000;
 dbPerOct = 3.0; %dB
-f_band = [10 4000];
+f_band = [50 4000];
 
 
-Noct = 1;
-offsetdB = 0.377;
+Noct = 2;
+offsetdB = 0.377*Noct;
 
 
 fmid = 10^mean(log10(f_band));
@@ -70,7 +71,8 @@ set(gca,'xscale','log');
 xlim([0.01 10]); hold off;
 
 %%
-[num,den]=iirlpnorm(8,8,f/(fs/2),f/(fs/2),a_int);
+% [num,den]=iirlpnorm(8,8,f/(fs/2),f/(fs/2),a_int);
+[num,den]=iirlpnorm(8,8,f/(fs/2),f/(fs/2),f/(fs/2));
 
 fvtool(num,den);
 
