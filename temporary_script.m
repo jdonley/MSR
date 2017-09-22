@@ -1,70 +1,71 @@
 
 
 %%
-% ff = 0:8000;
-fs = 16000;
-dbPerOct = 3.0; %dB
-f_band = [100 2000];
-
-
-Noct = 2;
-offsetdB = 0.377*Noct;
-
-
-fmid = 10^mean(log10(f_band));
-f_edges = [1 f_band(1) fmid f_band(2) fs/2];
-
-f_intpts = (f_band'*2.^(Noct/2*[-1 0 1]))';
-
-a = db2mag( ...
-    dbPerOct/log10(2) * log10(f_edges/fmid) );
-a([1 end]) = a([2 end-1]);
-
-a_ = db2mag( ...
-    dbPerOct/log10(2) * log10(f_intpts/fmid) );
-a_([1 end]) = a_(2,:);
-
-
-a_(f_intpts == f_band) = db2mag(mag2db(a_(f_intpts == f_band)) + [1 -1]'*offsetdB);
-
-f_i_rnd = round(f_intpts);
-a_before = a(1)*ones(1,numel(f_edges(1):f_i_rnd(1,1)));
-a_int = a_before;
-for cf = 1:numel(f_band)
-    interpFrqs = f_i_rnd(1,cf)+1:f_i_rnd(end,cf);
-    
-    a_interp = db2mag( ...
-        lagrangepoly( ...
-        log10(f_intpts(:,cf)), ...
-        mag2db(a_(:,cf)), ...
-        log10(interpFrqs))  );
-    
-    if cf < numel(f_band)
-        a_after = db2mag( ...
-            dbPerOct/log10(2) * log10( ...
-            (f_i_rnd(end,cf)+1:f_i_rnd(1,cf+1)) /fmid) );
-    elseif f_i_rnd(end,cf) < f_edges(end)
-        a_after = a(end)*ones(1,numel(f_i_rnd(end,end)+1:f_edges(end)));
-    else
-        a_after=[];
-    end
-    
-    a_int = [a_int a_interp a_after];
-end
-
-f = f_edges(1):f_edges(end);
-
-plot(f_edges/1e3,mag2db(a)); hold on;
-plot(f/1e3,mag2db(a_int)); hold on;
-grid on; grid minor;
-set(gca,'xscale','log');
-xlim([0.01 10]); hold off;
+% fs = 16000;
+% dbPerOct = 3.0; %dB
+% f_band = [100 2000];
+% 
+% 
+% Noct = 2;
+% offsetdB = 0.377*Noct;
+% 
+% 
+% fmid = 10^mean(log10(f_band));
+% f_edges = [1 f_band(1) fmid f_band(2) fs/2];
+% 
+% f_intpts = (f_band'*2.^(Noct/2*[-1 0 1]))';
+% 
+% a = db2mag( ...
+%     dbPerOct/log10(2) * log10(f_edges/fmid) );
+% a([1 end]) = a([2 end-1]);
+% 
+% a_ = db2mag( ...
+%     dbPerOct/log10(2) * log10(f_intpts/fmid) );
+% a_([1 end]) = a_(2,:);
+% 
+% 
+% a_(f_intpts == f_band) = db2mag(mag2db(a_(f_intpts == f_band)) + [1 -1]'*offsetdB);
+% 
+% f_i_rnd = round(f_intpts);
+% a_before = a(1)*ones(1,numel(f_edges(1):f_i_rnd(1,1)));
+% a_int = a_before;
+% for cf = 1:numel(f_band)
+%     interpFrqs = f_i_rnd(1,cf)+1:f_i_rnd(end,cf);
+%     
+%     a_interp = db2mag( ...
+%         lagrangepoly( ...
+%         log10(f_intpts(:,cf)), ...
+%         mag2db(a_(:,cf)), ...
+%         log10(interpFrqs))  );
+%     
+%     if cf < numel(f_band)
+%         a_after = db2mag( ...
+%             dbPerOct/log10(2) * log10( ...
+%             (f_i_rnd(end,cf)+1:f_i_rnd(1,cf+1)) /fmid) );
+%     elseif f_i_rnd(end,cf) < f_edges(end)
+%         a_after = a(end)*ones(1,numel(f_i_rnd(end,end)+1:f_edges(end)));
+%     else
+%         a_after=[];
+%     end
+%     
+%     a_int = [a_int a_interp a_after];
+% end
+% 
+% f = f_edges(1):f_edges(end);
+% 
+% plot(f_edges/1e3,mag2db(a)); hold on;
+% plot(f/1e3,mag2db(a_int)); hold on;
+% grid on; grid minor;
+% set(gca,'xscale','log');
+% xlim([0.01 10]); hold off;
 
 %%
+fs = 16000;
+f_band = [100 2000];
 res = 100;
 F = (0:res:fs/2)/(fs/2);
 H = F .* exp(1j*pi/2);
-f = fdesign.arbmagnphase('Nb,Na,F,H',12,1,F,H);
+f = fdesign.arbmagnphase('Nb,Na,F,H',4,1,F,H);
 W = [ 0*ones(1,numel(0:res:f_band(1)-1)) ...
       10*ones(1,numel(f_band(1):res:f_band(2) )) ...
       0*ones(1,numel(f_band(2)+1:res:fs/2)) ];
@@ -77,18 +78,23 @@ imp = Hd.impulse;
 imp = imp.Data;
 
 fvtool(Hd,'polezero')
+fvtool(Hd,'impulse')
 
-hfvt = fvtool(Hd,'Analysis','phase', 'Color','w');
+hfvt = fvtool(Hd,'Analysis','freq', 'Fs',16000, 'PhaseUnits','Degrees','Color','w');
+ax = findall(hfvt.Children,'Type','Axes');
+ax.XScale = 'log';
 
 %%
 % [num,den]=iirlpnorm(8,8,f/(fs/2),f/(fs/2),a_int);
-[num,den]=iirlpnorm(8,8,f/(fs/2),f/(fs/2),f/(fs/2));
-
-fvtool(num,den);
+% [num,den]=iirlpnorm(8,8,f/(fs/2),f/(fs/2),f/(fs/2));
+% 
+% fvtool(num,den);
 
 
 %%
-clear; clc;
+% clear; clc;
+close all;
+
 
 c = 343;                    % Sound velocity (m/s)
 fs = 16000;                 % Sample frequency (samples/s)
@@ -134,6 +140,7 @@ for i = 1:size(rtx,1)
 end
 
 % htx = imag(hilbert(htx));
+htx = Tools.fconv(htx.',repmat(imp.',size(htx,1),1).').';
 
 hc = Tools.fconv(htx.',hrx.');
 hc = sum(hc(1:numel(hf),:),2);
