@@ -83,9 +83,9 @@ imp = imp.Data;
 % fvtool(Hd,'polezero')
 % fvtool(Hd,'impulse')
 
-hfvt = fvtool(Hd,'Analysis','freq', 'Fs',16000, 'PhaseUnits','Degrees','Color','w');
-ax = findall(hfvt.Children,'Type','Axes');
-ax.XScale = 'log';
+% hfvt = fvtool(Hd,'Analysis','freq', 'Fs',16000, 'PhaseUnits','Degrees','Color','w');
+% ax = findall(hfvt.Children,'Type','Axes');
+% ax.XScale = 'log';
 
 %%
 % [num,den]=iirlpnorm(8,8,f/(fs/2),f/(fs/2),a_int);
@@ -104,14 +104,18 @@ fs = 16000;                 % Sample frequency (samples/s)
 L = [3 3 3];                % Room dimensions [x y z] (m)
 n = 0.2*fs;                   % Number of samples
 mtype = 'omnidirectional';  % Type of microphone
-order = 1;                 % -1 equals maximum reflection order!
+order = 2;                 % -1 equals maximum reflection order!
 dim = 3;                    % Room dimension
 orientation = 0;            % Microphone orientation (rad)
 hp_filter = 0;              % Enable high-pass filter
 rng shuffle;
 
-betaA = (1 - [1 [1 1 1 1 1]*1]).^2;                 % Reverberation time (s)
-beta1 = (1 - [0.00*1 [1 1 1 1 1]*1]).^2;                 % Reverberation time (s)
+%%%
+betaA = (1 - [1.0   [1 1 1 1 1]*1.0]).^2;                 % Reverberation time (s)
+%%%
+beta1 = (1 - [0.0*1 [1 0 0 1 1]*1.0]).^2;                 % Reverberation time (s)
+betaW = (1 - [1.0   [1 0 0 1 1]*1.0]).^2;                 % Reverberation time (s)
+%%%
 
 rtxN = 24;
 [yy,zz] = meshgrid(linspace(0,3,rtxN)); % Planar Array
@@ -136,7 +140,7 @@ h1 = rir_generator(c, fs, r, s, L, beta1, n, mtype, order, dim, orientation, hp_
 hf = h1(:)-hA(:);
 
 stx = s;              % Source position [x y z] (m)
-htx = rir_generator(c, fs, rtx, stx, L, betaA, n, mtype, order, dim, orientation, hp_filter);
+htx = rir_generator(c, fs, rtx, stx, L, betaW, n, mtype, order, dim, orientation, hp_filter);
 rrx = r;    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
 for i = 1:size(rtx,1)
     hrx(i,:) = rir_generator(c, fs, rrx, srx(i,:), L, betaA, n, mtype, order, dim, orientation, hp_filter);
@@ -147,7 +151,7 @@ htx = Tools.fconv(htx.',repmat(imp.',size(htx,1),1).').';
 
 hc = Tools.fconv(htx.',hrx.');
 hc = sum(hc(1:numel(hf),:),2);
-[~,adjV(ss)] = Broadband_Tools.power_norm(hf,hc,fs,[250 1000]);
+% [~,adjV(ss)] = Broadband_Tools.power_norm(hf,hc,fs,[250 1000]);
 
 % [b,a] = cheby1(6,1,[250 1500]/(fs/2));
 % hf_band = filter(b,a,hf);
@@ -155,8 +159,10 @@ hc = sum(hc(1:numel(hf),:),2);
 % figure(1);
 % plot(hf_band); hold on
 % plot(hc_band); hold on;
-% plot(hf_band - hc_band); hold on;
+% % plot(hf_band - hc_band); hold on;
 % hold off
+
+
 h = hf-hc;
 
 HF = fft(hf);
