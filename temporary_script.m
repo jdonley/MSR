@@ -102,9 +102,10 @@ close all;
 c = 343;                    % Sound velocity (m/s)
 fs = 16000;                 % Sample frequency (samples/s)
 L = [3 3 3];                % Room dimensions [x y z] (m)
-n = 0.2*fs;                   % Number of samples
+n = 0.2*fs;                 % Number of samples
 mtype = 'omnidirectional';  % Type of microphone
-order = 2;                 % -1 equals maximum reflection order!
+mtypeW= 'cardioid';         % Type of microphone
+order = 1;                  % -1 equals maximum reflection order
 dim = 3;                    % Room dimension
 orientation = 0;            % Microphone orientation (rad)
 hp_filter = 0;              % Enable high-pass filter
@@ -113,8 +114,8 @@ rng shuffle;
 %%%
 betaA = (1 - [1.0   [1 1 1 1 1]*1.0]).^2;                 % Reverberation time (s)
 %%%
-beta1 = (1 - [0.0*1 [1 0 0 1 1]*1.0]).^2;                 % Reverberation time (s)
-betaW = (1 - [1.0   [1 0 0 1 1]*1.0]).^2;                 % Reverberation time (s)
+beta1 = (1 - [0.0*1 [1 1 1 1 1]*1.0]).^2;                 % Reverberation time (s)
+betaW = (1 - [1.0   [1 1 1 1 1]*1.0]).^2;                 % Reverberation time (s)
 %%%
 
 rtxN = 24;
@@ -130,7 +131,7 @@ ss=0;
 while true %for ss = 1:10
     ss = ss+1;
 % r = [1.0 1.5 1.5];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
-% s = [1.5 1.5 1.5];              % Source position [x y z] (m)
+% s = [1.5 1.5 1.5];    % Source position [x y z] (m)
 r = rand(1,3)*3;    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
 s = rand(1,3)*3;    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
 % s = [rand(1,2)*3 1.5]; r = [rand(1,2)*3 1.5]; % When using linear array
@@ -140,7 +141,7 @@ h1 = rir_generator(c, fs, r, s, L, beta1, n, mtype, order, dim, orientation, hp_
 hf = h1(:)-hA(:);
 
 stx = s;              % Source position [x y z] (m)
-htx = rir_generator(c, fs, rtx, stx, L, betaW, n, mtype, order, dim, orientation, hp_filter);
+htx = rir_generator(c, fs, rtx, stx, L, beta1, n, mtypeW, order, dim, orientation, hp_filter);
 rrx = r;    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
 for i = 1:size(rtx,1)
     hrx(i,:) = rir_generator(c, fs, rrx, srx(i,:), L, betaA, n, mtype, order, dim, orientation, hp_filter);
@@ -206,10 +207,11 @@ PP(:,ss) = PhaseDifference;
 % xlabel('Frequency (kHz)');ylabel('Phase (\circ)');
 
 figure(2);
-plot(ff, mag2db(  MF  ),':k'); hold on;
-plot(ff, mag2db(  mean(MF,2)  ),'-b','linew',1.5); hold on;
-plot(ff, mag2db(  M  ),':m'); hold on;
-plot(ff, mag2db(  mean(M,2)  ),'-g','linew',1.5); hold off;
+meanMF = mean(MF,2);
+plot(ff, mag2db(  MF        - meanMF  ),':k'); hold on;
+plot(ff, mag2db(  mean(MF,2)- meanMF  ),'-b','linew',1.5); hold on;
+plot(ff, mag2db(  M         - meanMF  ),':m'); hold on;
+plot(ff, mag2db(  mean(M,2) - meanMF  ),'-r','linew',1.5); hold off;
 xlim([0.1 10]); %ylim([-60 0]);
 grid on; grid minor; set(gca,'xscale','log');
 xlabel('Frequency (kHz)');ylabel('Magnitude (dB)');
