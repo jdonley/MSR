@@ -140,7 +140,7 @@ while true %for ss = 1:10
     s = rand(1,3)*3;    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
     % s = [rand(1,2)*3 1.5]; r = [rand(1,2)*3 1.5]; % When using linear array
     
-    for img = 1:6
+    for img = 1%:6
         
         % hA = rir_generator(c, fs, r, s, L, betaA, n, mtype, order, dim, orientation, hp_filter);
         % h1 = rir_generator(c, fs, r.*[ 1 1 1], s, L, beta1, n, mtype, order, dim, orientation, hp_filter);
@@ -226,7 +226,7 @@ while true %for ss = 1:10
     % plot(ff, mag2db(  M         ) - meanMF  ,':m'); hold on;
     plot(ff, mag2db(  mean(MF(:,:,1),2) ) - meanMF(:,:,1)  ,'-k','linew',1.5); hold on;
     set(gca,'ColorOrderIndex',1);
-    for img = 1:6
+    for img = 1%:6
         plot(ff, mag2db(  mean( M(:,:,img),2) ) - meanMF(:,:,img)  ,'-','linew',1.5); hold on;
     end
     hold off;
