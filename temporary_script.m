@@ -115,7 +115,7 @@ rng shuffle;
 betaA = (1 - [1.0   [1 1 1 1 1]*1.0]).^2;                 % Reverberation time (s)
 % betaI = (1 - [1.0   [1 1 1 1 1]*1.0]).^2;                 % Reverberation time (s)
 %%%
-beta1 = (1 - [1.0   [0 1 1 1 1]*1.0]).^2;                 % Reverberation time (s)
+beta1 = (1 - [1.0   [0 0 0 0 0]*1.0]).^2;                 % Reverberation time (s)
 % betaW = (1 - [1.0 [1 0 1 1 1]*1.0]).^2;                 % Reverberation time (s)
 %%%
 
