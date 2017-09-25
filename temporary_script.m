@@ -113,9 +113,10 @@ rng shuffle;
 
 %%%
 betaA = (1 - [1.0   [1 1 1 1 1]*1.0]).^2;                 % Reverberation time (s)
+betaI = (1 - [1.0   [1 0 1 1 1]*1.0]).^2;                 % Reverberation time (s)
 %%%
-beta1 = (1 - [0.0*1 [1 1 1 1 1]*1.0]).^2;                 % Reverberation time (s)
-betaW = (1 - [1.0   [1 1 1 1 1]*1.0]).^2;                 % Reverberation time (s)
+beta1 = (1 - [1.0   [1 0 1 1 1]*1.0]).^2;                 % Reverberation time (s)
+% betaW = (1 - [1.0 [1 0 1 1 1]*1.0]).^2;                 % Reverberation time (s)
 %%%
 
 rtxN = 24;
@@ -136,9 +137,11 @@ r = rand(1,3)*3;    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
 s = rand(1,3)*3;    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
 % s = [rand(1,2)*3 1.5]; r = [rand(1,2)*3 1.5]; % When using linear array
 
-hA = rir_generator(c, fs, r, s, L, betaA, n, mtype, order, dim, orientation, hp_filter);
-h1 = rir_generator(c, fs, r, s, L, beta1, n, mtype, order, dim, orientation, hp_filter);
-hf = h1(:)-hA(:);
+hI = rir_generator(c, fs, r, s, L, betaI, n, mtype, order, dim, orientation, hp_filter);
+% hA = rir_generator(c, fs, r, s, L, betaA, n, mtype, order, dim, orientation, hp_filter);
+h1 = rir_generator(c, fs, r, s.*[ 1 1 1], L, beta1, n, mtype, order, dim, orientation, hp_filter);
+h2 = rir_generator(c, fs, r, s.*[-1 1 1], L, beta1, n, mtype, order, dim, orientation, hp_filter);
+hf = h1(:)+h2(:)-hI(:);
 
 stx = s;              % Source position [x y z] (m)
 htx = rir_generator(c, fs, rtx, stx, L, beta1, n, mtypeW, order, dim, orientation, hp_filter);
@@ -154,10 +157,12 @@ hc = Tools.fconv(htx.',hrx.');
 hc = sum(hc(1:numel(hf),:),2);
 % [~,adjV(ss)] = Broadband_Tools.power_norm(hf,hc,fs,[250 1000]);
 
-% [b,a] = cheby1(6,1,[250 1500]/(fs/2));
+% [b,a] = cheby1(6,1,[250 1000]/(fs/2));
+% % hI_band = filter(b,a,hI);
 % hf_band = filter(b,a,hf);
 % hc_band = filter(b,a,hc);
 % figure(1);
+% % plot(hI_band); hold on
 % plot(hf_band); hold on
 % plot(hc_band); hold on;
 % % plot(hf_band - hc_band); hold on;
@@ -207,11 +212,11 @@ PP(:,ss) = PhaseDifference;
 % xlabel('Frequency (kHz)');ylabel('Phase (\circ)');
 
 figure(2);
-meanMF = mean(MF,2);
-plot(ff, mag2db(  MF        - meanMF  ),':k'); hold on;
-plot(ff, mag2db(  mean(MF,2)- meanMF  ),'-b','linew',1.5); hold on;
-plot(ff, mag2db(  M         - meanMF  ),':m'); hold on;
-plot(ff, mag2db(  mean(M,2) - meanMF  ),'-r','linew',1.5); hold off;
+meanMF = mag2db(mean(MF,2));
+plot(ff, mag2db(  MF        ) - meanMF  ,':k'); hold on;
+plot(ff, mag2db(  mean(MF,2)) - meanMF  ,'-b','linew',1.5); hold on;
+plot(ff, mag2db(  M         ) - meanMF  ,':m'); hold on;
+plot(ff, mag2db(  mean(M,2) ) - meanMF  ,'-r','linew',1.5); hold off;
 xlim([0.1 10]); %ylim([-60 0]);
 grid on; grid minor; set(gca,'xscale','log');
 xlabel('Frequency (kHz)');ylabel('Magnitude (dB)');
