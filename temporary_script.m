@@ -63,10 +63,9 @@
 fs = 16000;
 f_band = [100 2000];
 fmid = 10^mean(log10(f_band));
-fmid = f_band(end);
 res = 100;
 F = (0:res:fs/2)/(fs/2);
-A = ((0:res:fs/2))/fmid;
+A = ((0:res:fs/2));
 H = A .* exp(1j*pi/2);
 f = fdesign.arbmagnphase('Nb,Na,F,H',4,1,F,H);
 W = [ 0*ones(1,numel(0:res:f_band(1)-1)) ...
@@ -114,7 +113,7 @@ rng shuffle;
 %%%
 betaW     = (1 - [1.0   [1 1 1 1 1]*1.0]).^2;                 % Reverberation time (s)
 %%%
-beta(1,:) = (1 - [1.0   [1 1 1 1 1]*1.0]).^2;                 % Reverberation time (s)
+beta(1,:) = (1 - [1.0   [1 0 1 1 1]*1.0]).^2;                 % Reverberation time (s)
 
 beta(2,:) = (1 - [1.0   [0 1 1 1 1]*1.0]).^2;                 % Reverberation time (s)
 beta(3,:) = (1 - [1.0   [0 0 1 1 1]*1.0]).^2;                 % Reverberation time (s)
@@ -123,7 +122,7 @@ beta(5,:) = (1 - [1.0   [0 0 0 0 1]*1.0]).^2;                 % Reverberation ti
 beta(6,:) = (1 - [1.0   [0 0 0 0 0]*1.0]).^2;                 % Reverberation time (s)
 %%%
 
-rtxN = 48;
+rtxN = 64;
 [yy,zz] = meshgrid(linspace(0,3,rtxN)); % Planar Array
 % yy = linspace(0,3,rtxN); zz = yy*0+1.5; % Linear Array
 
@@ -135,9 +134,8 @@ tic;
 ss=0;
 while ss<1 %for ss = 1:10
     ss = ss+1;
-    r = [1.0 1.5 1.5];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
-    s = [1.5 1.5 1.5];    % Source position [x y z] (m)
-    s2 = [1.5 4.5 1.5];    % Source position [x y z] (m)
+    r  = [1.0 1.5 1.5];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
+    s  = [1.5 1.5 1.5];    % Source position [x y z] (m)
 %     r = rand(1,3)*3;    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
 %     s = rand(1,3)*3;    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
     % s = [rand(1,2)*3 1.5]; r = [rand(1,2)*3 1.5]; % When using linear array
@@ -147,14 +145,12 @@ while ss<1 %for ss = 1:10
         % hA = rir_generator(c, fs, r, s, L, betaA, n, mtype, order, dim, orientation, hp_filter);
         % h1 = rir_generator(c, fs, r.*[ 1 1 1], s, L, beta1, n, mtype, order, dim, orientation, hp_filter);
         h1 = rir_generator(c, fs, r.*[-1 1 1], s, L, beta(img,:), n, mtype, order, dim, orientation, hp_filter);
-        h2 = rir_generator(c, fs, r.*[-1 1 1], s2, L, beta(img,:), n, mtype, order, dim, orientation, hp_filter);
         
         % hf = h1(:)+h2(:)-hI(:);
-        hf = h1(:) + h2(:);
+        hf = h1(:);
         
         stx = s;              % Source position [x y z] (m)
         htx = rir_generator(c, fs, rtx, stx, L, beta(img,:), n, mtype, order, dim, orientation, hp_filter);
-        htx = htx+rir_generator(c, fs, rtx, s2, L, beta(img,:), n, mtype, order, dim, orientation, hp_filter);
         rrx = r;    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
         hrx=[];
         for i = 1:size(rtx,1)
@@ -163,8 +159,8 @@ while ss<1 %for ss = 1:10
         
         hrx = Tools.fconv(hrx.',repmat(imp.',size(hrx,1),1).').';
         
-        hc = Tools.fconv(htx.',hrx.') / 2;
-        hc = sum(hc(1:numel(hf),:),2)  * sqrt(2*rtxN) /2/pi ;
+        hc = Tools.fconv(htx.',hrx.');
+        hc = sum(hc(1:numel(hf),:),2) / rtxN^2 / pi;
         % [~,adjV(ss)] = Broadband_Tools.power_norm(hf,hc,fs,[250 1000]);
         
         [b,a] = cheby1(6,0.1,[250 1500]/(fs/2));
