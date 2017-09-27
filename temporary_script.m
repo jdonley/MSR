@@ -113,7 +113,7 @@ rng shuffle;
 %%%
 betaW     = (1 - [1.0   [1 1 1 1 1]*1.0]).^2;                 % Reverberation time (s)
 %%%
-beta(1,:) = (1 - [1.0   [1 0 1 1 1]*1.0]).^2;                 % Reverberation time (s)
+beta(1,:) = (1 - [1.0   [1 1 1 1 1]*1.0]).^2;                 % Reverberation time (s)
 
 beta(2,:) = (1 - [1.0   [0 1 1 1 1]*1.0]).^2;                 % Reverberation time (s)
 beta(3,:) = (1 - [1.0   [0 0 1 1 1]*1.0]).^2;                 % Reverberation time (s)
@@ -132,15 +132,15 @@ srx = rtx;
 MC=[];MF=[];M=[];MI=[];PP=[];
 tic;
 ss=0;
-while ss<1 %for ss = 1:10
+while true %ss<1 %for ss = 1:10
     ss = ss+1;
-    r  = [1.0 1.5 1.5];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
-    s  = [1.5 1.5 1.5];    % Source position [x y z] (m)
-%     r = rand(1,3)*3;    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
-%     s = rand(1,3)*3;    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
+%     r  = [1.0 1.5 1.5];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
+%     s  = [1.5 1.5 1.5];    % Source position [x y z] (m)
+    r = rand(1,3)*2.5 + 0.5;    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
+    s = rand(1,3)*2.5 + 0.5;    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
     % s = [rand(1,2)*3 1.5]; r = [rand(1,2)*3 1.5]; % When using linear array
     
-    for img = 1%:6
+    for img = 1:6
         
         % hA = rir_generator(c, fs, r, s, L, betaA, n, mtype, order, dim, orientation, hp_filter);
         % h1 = rir_generator(c, fs, r.*[ 1 1 1], s, L, beta1, n, mtype, order, dim, orientation, hp_filter);
@@ -161,18 +161,17 @@ while ss<1 %for ss = 1:10
         
         hc = Tools.fconv(htx.',hrx.');
         hc = sum(hc(1:numel(hf),:),2) / rtxN^2 / pi;
-        % [~,adjV(ss)] = Broadband_Tools.power_norm(hf,hc,fs,[250 1000]);
         
-        [b,a] = cheby1(6,0.1,[250 1500]/(fs/2));
-        % hI_band = filter(b,a,hI);
-        hf_band = filter(b,a,hf);
-        hc_band = filter(b,a,hc);
-        figure(1);
-        % plot(hI_band); hold on
-        plot(hf_band); hold on
-        plot(hc_band); hold on;
-        % plot(hf_band - hc_band); hold on;
-        hold off
+%         [b,a] = cheby1(6,0.1,[250 1500]/(fs/2));
+%         % hI_band = filter(b,a,hI);
+%         hf_band = filter(b,a,hf);
+%         hc_band = filter(b,a,hc);
+%         figure(1);
+%         % plot(hI_band); hold on
+%         plot(hf_band); hold on
+%         plot(hc_band); hold on;
+%         % plot(hf_band - hc_band); hold on;
+%         hold off
         
         
         h = hf-hc;
@@ -225,7 +224,7 @@ while ss<1 %for ss = 1:10
     % plot(ff, mag2db(  M         ) - meanMF  ,':m'); hold on;
     plot(ff, mag2db(  mean(MF(:,:,1),2) ) - meanMF(:,:,1)  ,'-k','linew',1.5); hold on;
     set(gca,'ColorOrderIndex',1);
-    for img = 1%:6
+    for img = 1:6
         plot(ff, mag2db(  mean( M(:,:,img),2) ) - meanMF(:,:,img)  ,'-','linew',1.5); hold on;
     end
     hold off;
