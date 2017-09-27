@@ -116,10 +116,10 @@ betaW     = (1 - [1.0   [1 1 1 1 1]*1.0]).^2;                 % Reverberation ti
 beta(1,:) = (1 - [1.0   [1 1 1 1 1]*1.0]).^2;                 % Reverberation time (s)
 
 beta(2,:) = (1 - [1.0   [0 1 1 1 1]*1.0]).^2;                 % Reverberation time (s)
-beta(3,:) = (1 - [1.0   [0 0 1 1 1]*1.0]).^2;                 % Reverberation time (s)
-beta(4,:) = (1 - [1.0   [0 0 0 1 1]*1.0]).^2;                 % Reverberation time (s)
-beta(5,:) = (1 - [1.0   [0 0 0 0 1]*1.0]).^2;                 % Reverberation time (s)
-beta(6,:) = (1 - [1.0   [0 0 0 0 0]*1.0]).^2;                 % Reverberation time (s)
+beta(3,:) = (1 - [1.0   [1 0 1 1 1]*1.0]).^2;                 % Reverberation time (s)
+beta(4,:) = (1 - [1.0   [1 1 0 1 1]*1.0]).^2;                 % Reverberation time (s)
+beta(5,:) = (1 - [1.0   [1 1 1 0 1]*1.0]).^2;                 % Reverberation time (s)
+beta(6,:) = (1 - [1.0   [1 1 1 1 0]*1.0]).^2;                 % Reverberation time (s)
 %%%
 
 rtxN = 64;
@@ -136,8 +136,8 @@ while true %ss<1 %for ss = 1:10
     ss = ss+1;
 %     r  = [1.0 1.5 1.5];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
 %     s  = [1.5 1.5 1.5];    % Source position [x y z] (m)
-    r = rand(1,3)*2.5 + 0.5;    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
-    s = rand(1,3)*2.5 + 0.5;    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
+    r = rand(1,3).*[2.5 3 3] + [0.5 0 0];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
+    s = rand(1,3).*[2.5 3 3] + [0.5 0 0];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
     % s = [rand(1,2)*3 1.5]; r = [rand(1,2)*3 1.5]; % When using linear array
     
     for img = 1:6
@@ -145,12 +145,13 @@ while true %ss<1 %for ss = 1:10
         % hA = rir_generator(c, fs, r, s, L, betaA, n, mtype, order, dim, orientation, hp_filter);
         % h1 = rir_generator(c, fs, r.*[ 1 1 1], s, L, beta1, n, mtype, order, dim, orientation, hp_filter);
         h1 = rir_generator(c, fs, r.*[-1 1 1], s, L, beta(img,:), n, mtype, order, dim, orientation, hp_filter);
+        h1_1 = rir_generator(c, fs, r.*[-1 1 1], s, L, beta(1,:), n, mtype, order, dim, orientation, hp_filter);
         
         % hf = h1(:)+h2(:)-hI(:);
-        hf = h1(:);
+        hf = h1(:) - h1_1(:);
         
         stx = s;              % Source position [x y z] (m)
-        htx = rir_generator(c, fs, rtx, stx, L, beta(img,:), n, mtype, order, dim, orientation, hp_filter);
+        htx = rir_generator(c, fs, rtx, stx, L, beta(img,:), n, mtype, order, dim, orientation, hp_filter);        
         rrx = r;    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
         hrx=[];
         for i = 1:size(rtx,1)

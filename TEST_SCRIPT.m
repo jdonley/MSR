@@ -1,4 +1,22 @@
-% 
+ss=0;
+while ss<190 %ss<1 %for ss = 1:10
+    ss = ss+1;
+%     r  = [1.0 1.5 1.5];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
+%     s  = [1.5 1.5 1.5];    % Source position [x y z] (m)
+    r = rand(1,3).*[2.0 3 3] + [1.0 0 0];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
+    s = rand(1,3).*[2.0 3 3] + [1.0 0 0];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
+%     r = rand(1,3)*2.5 + 0.5;    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
+%     s = rand(1,3)*2.5 + 0.5;    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
+    % s = [rand(1,2)*3 1.5]; r = [rand(1,2)*3 1.5]; % When using linear array
+    figure(1);
+    scatter3(r(1),r(2),r(3),'or'); hold on;
+    scatter3(s(1),s(2),s(3),'sb'); hold on;
+    xlim([0 3]);ylim([0 3]);zlim([0 3]);view(-15,30);
+%     drawnow;
+%     fprintf('%d\n',ss);
+end
+
+%% 
 % clear; tic;
 % SYS = Current_Systems.IEEELetters2017_System_A;
 % 
