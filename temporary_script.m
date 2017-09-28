@@ -174,7 +174,7 @@ while true %ss<1 %for ss = 1:10
         plot(hc_band); hold on;
         % plot(hf_band - hc_band); hold on;
         hold off
-        
+        h()
         
         h = hf-hc;
         
