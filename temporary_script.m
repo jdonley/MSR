@@ -129,21 +129,37 @@ rtxN = 64;
 rtx = [zeros(numel(yy),1), yy(:), zz(:)];
 srx = rtx;
 
-res = 1;
+res = 10;
 [XX,YY] = meshgrid(linspace(0,3,3*res));
 
 
 MC=[];MF=[];M=[];MI=[];PP=[];
-hh=[];
+hh1=zeros((3*res)^2,n);
+hh2=hh1;
 tic;
 ss=0;
-while ss < numel(XX) %ss<1 %for ss = 1:10
-    ss = ss+1;
-    
+% while ss < numel(XX) %ss<1 %for ss = 1:10
+%     ss = ss+1;
+
+
+[b,a] = cheby1(6,0.1,[250 1500]/(fs/2));
+
+s  = [1.5 2.5 1.5];    % Source position [x y z] (m)
+stx = s;              % Source position [x y z] (m)
+htx = rir_generator(c, fs, rtx, stx, L, beta(img,:), n, mtype, order, dim, orientation, hp_filter);
+htx = htx - rir_generator(c, fs, rtx, stx, L, beta(1,:), n, mtype, order, dim, orientation, hp_filter);
+
+current_pool = gcp; %Start new pool
+    fprintf('\n====== Building RIR Database ======\n');
+    fprintf('\t Completion: '); startTime = tic;
+    Tools.showTimeToCompletion;
+    percCompl = parfor_progress( (3*res)^2 );
+parfor ss = 1:(3*res)^2
     [x_,y_] = ind2sub(size(XX),ss);
+    
     x = XX(x_,y_); y = YY(x_,y_);
     r  = [ x   y  1.5];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
-    s  = [1.5 2.5 1.5];    % Source position [x y z] (m)
+%     s  = [1.5 2.5 1.5];    % Source position [x y z] (m)
 %     r = rand(1,3).*[1.5 3 3] + [1.5 0 0];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
 %     s = rand(1,3).*[1.5 3 3] + [1.5 0 0];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
     % s = [rand(1,2)*3 1.5]; r = [rand(1,2)*3 1.5]; % When using linear array
@@ -158,9 +174,9 @@ while ss < numel(XX) %ss<1 %for ss = 1:10
         % hf = h1(:)+h2(:)-hI(:);
         hf = h1(:);
         
-        stx = s;              % Source position [x y z] (m)
-        htx = rir_generator(c, fs, rtx, stx, L, beta(img,:), n, mtype, order, dim, orientation, hp_filter);       
-        htx = htx - rir_generator(c, fs, rtx, stx, L, beta(1,:), n, mtype, order, dim, orientation, hp_filter);        
+%         stx = s;              % Source position [x y z] (m)
+%         htx = rir_generator(c, fs, rtx, stx, L, beta(img,:), n, mtype, order, dim, orientation, hp_filter);       
+%         htx = htx - rir_generator(c, fs, rtx, stx, L, beta(1,:), n, mtype, order, dim, orientation, hp_filter);        
         rrx = r;    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
         hrx=[];
         for i = 1:size(rtx,1)
@@ -172,7 +188,7 @@ while ss < numel(XX) %ss<1 %for ss = 1:10
         hc = Tools.fconv(htx.',hrx.');
         hc = sum(hc(1:numel(hf),:),2) / rtxN^2 / pi;
         
-        [b,a] = cheby1(6,0.1,[250 1500]/(fs/2));
+        
         % hI_band = filter(b,a,hI);
         hf_band = filter(b,a,hf);
         hc_band = filter(b,a,hc);
@@ -182,8 +198,8 @@ while ss < numel(XX) %ss<1 %for ss = 1:10
 %         plot(hc_band); hold on;
 %         % plot(hf_band - hc_band); hold on;
 %         hold off
-hh(x_,y_,:,1) = hf_band;
-hh(x_,y_,:,2) = hc_band;
+hh1(ss,:) = hf_band;
+hh2(ss,:) = hc_band;
         
 %         h = hf-hc;
 %         
@@ -252,13 +268,24 @@ hh(x_,y_,:,2) = hc_band;
 %         'Location','northwest');
 %     
 
-figure(111); scatter(x,y,'ok'); hold on;
-xlim([0 3]); ylim([0 3]);
+% figure(111); scatter(x,y,'ok'); hold on;
+% xlim([0 3]); ylim([0 3]);
 
-fprintf('%d\n',ss);
-drawnow;
+% drawnow;
+
+        %%%
+        percCompl = parfor_progress;
+        Tools.showTimeToCompletion( percCompl/100, [], [], startTime );
+        %%%
+
 end
-toc
+percCompl=parfor_progress(0);
+tEnd = toc;
+fprintf('\nRIR execution time: %dmin(s) %fsec(s)\n\n', floor(tEnd/60), rem(tEnd,60)); %Time taken to execute this script
+
+%%
+hh(:,:,:,1) = reshape(hh1,3*res,3*res,[]);
+hh(:,:,:,2) = reshape(hh2,3*res,3*res,[]);
 
 [~,IC] = max(abs(hh(ceil(size(XX,1)/2),ceil(size(XX,2)/2),:,1))); % spatial-centre time-index
 FIELDERROR = diff(hh(:,:,IC,:),[],4);
