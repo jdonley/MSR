@@ -129,12 +129,20 @@ rtxN = 64;
 rtx = [zeros(numel(yy),1), yy(:), zz(:)];
 srx = rtx;
 
+res = 1;
+[XX,YY] = meshgrid(linspace(0,3,3*res));
+
+
 MC=[];MF=[];M=[];MI=[];PP=[];
+hh=[];
 tic;
 ss=0;
-while true %ss<1 %for ss = 1:10
+while ss < numel(XX) %ss<1 %for ss = 1:10
     ss = ss+1;
-    r  = [1.5 0.5 1.5];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
+    
+    [x_,y_] = ind2sub(size(XX),ss);
+    x = XX(x_,y_); y = YY(x_,y_);
+    r  = [ x   y  1.5];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
     s  = [1.5 2.5 1.5];    % Source position [x y z] (m)
 %     r = rand(1,3).*[1.5 3 3] + [1.5 0 0];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
 %     s = rand(1,3).*[1.5 3 3] + [1.5 0 0];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
@@ -168,39 +176,40 @@ while true %ss<1 %for ss = 1:10
         % hI_band = filter(b,a,hI);
         hf_band = filter(b,a,hf);
         hc_band = filter(b,a,hc);
-        figure(1);
-        % plot(hI_band); hold on
-        plot(hf_band); hold on
-        plot(hc_band); hold on;
-        % plot(hf_band - hc_band); hold on;
-        hold off
-        h()
+%         figure(1);
+%         % plot(hI_band); hold on
+%         plot(hf_band); hold on
+%         plot(hc_band); hold on;
+%         % plot(hf_band - hc_band); hold on;
+%         hold off
+hh(x_,y_,:,1) = hf_band;
+hh(x_,y_,:,2) = hc_band;
         
-        h = hf-hc;
-        
-        HF = fft(hf);
-        HC = fft(hc);
-        H = fft(h);
-%         HI = fft(hI);
-        
-        ff = linspace(0,fs/2,n/2+1)/1e3;ff(end)=[];
-        
-        MagnitudeC = abs(HC);
-        MagnitudeC(end/2+1:end)=[];
-        MagnitudeF = abs(HF);
-        MagnitudeF(end/2+1:end)=[];
-        Magnitude = abs(H);
-        Magnitude(end/2+1:end)=[];
-        
-        PhaseDifference = mod(unwrap(angle(HF)) - unwrap(angle(HC)) + pi,2*pi)/pi*180-180;
-        PhaseDifference(end/2+1:end)=[];
-        
-        MC(:,ss,img) = MagnitudeC;
-        MF(:,ss,img) = MagnitudeF;
-        M(:,ss,img) = Magnitude;
-        PP(:,ss,img) = PhaseDifference;
-        % MM = mean([MM , MagnitudeC.*ff.' ],2);
-        % PP = mean([PP , PhaseDifference  ],2);
+%         h = hf-hc;
+%         
+%         HF = fft(hf);
+%         HC = fft(hc);
+%         H = fft(h);
+% %         HI = fft(hI);
+%         
+%         ff = linspace(0,fs/2,n/2+1)/1e3;ff(end)=[];
+%         
+%         MagnitudeC = abs(HC);
+%         MagnitudeC(end/2+1:end)=[];
+%         MagnitudeF = abs(HF);
+%         MagnitudeF(end/2+1:end)=[];
+%         Magnitude = abs(H);
+%         Magnitude(end/2+1:end)=[];
+%         
+%         PhaseDifference = mod(unwrap(angle(HF)) - unwrap(angle(HC)) + pi,2*pi)/pi*180-180;
+%         PhaseDifference(end/2+1:end)=[];
+%         
+%         MC(:,ss,img) = MagnitudeC;
+%         MF(:,ss,img) = MagnitudeF;
+%         M(:,ss,img) = Magnitude;
+%         PP(:,ss,img) = PhaseDifference;
+%         % MM = mean([MM , MagnitudeC.*ff.' ],2);
+%         % PP = mean([PP , PhaseDifference  ],2);
         
     end
     % figure(2);
@@ -220,30 +229,37 @@ while true %ss<1 %for ss = 1:10
     % grid on; grid minor; set(gca,'xscale','log');
     % xlabel('Frequency (kHz)');ylabel('Phase (\circ)');
     
-    figure(2);
-    meanMF = mag2db(mean(MF,2));
-    % plot(ff, mag2db(  MF        ) - meanMF  ,':k'); hold on;
-    % plot(ff, mag2db(  M         ) - meanMF  ,':m'); hold on;
-    plot(ff, mag2db(  mean(MF(:,:,1),2) ) - meanMF(:,:,1)  ,'-k','linew',1.5); hold on;
-    set(gca,'ColorOrderIndex',1);
-    for img = 3%1:6
-        plot(ff, mag2db(  mean( M(:,:,img),2) ) - meanMF(:,:,img)  ,'-','linew',1.5); hold on;
-    end
-    hold off;
-    xlim([0.1 10]); ylim([-30 20]);
-    grid on; grid minor; set(gca,'xscale','log');
-    xlabel('Frequency (kHz)');ylabel('Magnitude (dB)');
-    legend({'Active Wall Off'; ...
-        'Active Wall On & 1 Reflection'; ...
-        'Active Wall On & 2 Reflections'; ...
-        'Active Wall On & 3 Reflections'; ...
-        'Active Wall On & 4 Reflections'; ...
-        'Active Wall On & 5 Reflections'; ...
-        'Active Wall On & 6 Reflections'}, ...
-        'Location','northwest');
-    
-    drawnow;
-    fprintf('%d\n',ss);
+%     figure(2);
+%     meanMF = mag2db(mean(MF,2));
+%     % plot(ff, mag2db(  MF        ) - meanMF  ,':k'); hold on;
+%     % plot(ff, mag2db(  M         ) - meanMF  ,':m'); hold on;
+%     plot(ff, mag2db(  mean(MF(:,:,1),2) ) - meanMF(:,:,1)  ,'-k','linew',1.5); hold on;
+%     set(gca,'ColorOrderIndex',1);
+%     for img = 3%1:6
+%         plot(ff, mag2db(  mean( M(:,:,img),2) ) - meanMF(:,:,img)  ,'-','linew',1.5); hold on;
+%     end
+%     hold off;
+%     xlim([0.1 10]); ylim([-30 20]);
+%     grid on; grid minor; set(gca,'xscale','log');
+%     xlabel('Frequency (kHz)');ylabel('Magnitude (dB)');
+%     legend({'Active Wall Off'; ...
+%         'Active Wall On & 1 Reflection'; ...
+%         'Active Wall On & 2 Reflections'; ...
+%         'Active Wall On & 3 Reflections'; ...
+%         'Active Wall On & 4 Reflections'; ...
+%         'Active Wall On & 5 Reflections'; ...
+%         'Active Wall On & 6 Reflections'}, ...
+%         'Location','northwest');
+%     
+
+figure(111); scatter(x,y,'ok'); hold on;
+xlim([0 3]); ylim([0 3]);
+
+fprintf('%d\n',ss);
+drawnow;
 end
 toc
 
+[~,IC] = max(abs(hh(ceil(size(XX,1)/2),ceil(size(XX,2)/2),:,1))); % spatial-centre time-index
+FIELDERROR = diff(hh(:,:,IC,:),[],4);
+imagesc(FIELDERROR);
