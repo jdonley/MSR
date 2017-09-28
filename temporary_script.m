@@ -129,7 +129,7 @@ rtxN = 64;
 rtx = [zeros(numel(yy),1), yy(:), zz(:)];
 srx = rtx;
 
-res = 10;
+res = 20;
 [XX,YY] = meshgrid(linspace(0,3,3*res));
 
 
@@ -164,7 +164,7 @@ parfor ss = 1:(3*res)^2
 %     s = rand(1,3).*[1.5 3 3] + [1.5 0 0];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
     % s = [rand(1,2)*3 1.5]; r = [rand(1,2)*3 1.5]; % When using linear array
     
-    for img = 3%1:6
+    for img = 2%1:6
         
         % hA = rir_generator(c, fs, r, s, L, betaA, n, mtype, order, dim, orientation, hp_filter);
         % h1 = rir_generator(c, fs, r.*[ 1 1 1], s, L, beta1, n, mtype, order, dim, orientation, hp_filter);
@@ -290,3 +290,30 @@ hh(:,:,:,2) = reshape(hh2,3*res,3*res,[]);
 [~,IC] = max(abs(hh(ceil(size(XX,1)/2),ceil(size(XX,2)/2),:,1))); % spatial-centre time-index
 FIELDERROR = diff(hh(:,:,IC,:),[],4);
 imagesc(FIELDERROR);
+
+%%
+v = VideoWriter('IRcancelwall.avi','Uncompressed AVI');
+open(v);
+maxV = max( abs( hh(:) ) );
+for i = 100:600
+FIELDERROR = hh(:,:,i,1);
+image(abs(FIELDERROR) / maxV *255 );
+drawnow; disp(i);colormap gray;
+set(gcf,'Renderer','zbuffer');
+writeVideo(v,getframe);
+end
+for i = 100:600
+FIELDERROR = hh(:,:,i,2);
+image(abs(FIELDERROR) / maxV *255 );
+drawnow; disp(i);colormap gray;
+set(gcf,'Renderer','zbuffer');
+writeVideo(v,getframe);
+end
+for i = 100:600
+FIELDERROR = diff(hh(:,:,i,:),[],4);
+image(abs(FIELDERROR) / maxV *255 );
+drawnow; disp(i);colormap gray;
+set(gcf,'Renderer','zbuffer');
+writeVideo(v,getframe);
+end
+close(v);
