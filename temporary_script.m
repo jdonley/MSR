@@ -1,4 +1,5 @@
 
+ clear; 
 
 %%
 % fs = 16000;
@@ -94,7 +95,7 @@ imp = imp.Data;
 
 
 %%
-% clear; clc;
+ % clc;
 % close all;
 
 
@@ -129,6 +130,7 @@ rtxN = 64;
 rtx = [zeros(numel(yy),1), yy(:), zz(:)];
 srx = rtx;
 
+imgSingle = 2;
 res = 20;
 [XX,YY] = meshgrid(linspace(0,3,3*res));
 
@@ -141,7 +143,7 @@ ss=0;
 % while ss < numel(XX) %ss<1 %for ss = 1:10
 %     ss = ss+1;
 
-
+img = imgSingle;
 [b,a] = cheby1(6,0.1,[250 1500]/(fs/2));
 
 s  = [1.5 2.5 1.5];    % Source position [x y z] (m)
@@ -164,7 +166,7 @@ parfor ss = 1:(3*res)^2
 %     s = rand(1,3).*[1.5 3 3] + [1.5 0 0];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
     % s = [rand(1,2)*3 1.5]; r = [rand(1,2)*3 1.5]; % When using linear array
     
-    for img = 2%1:6
+    for img = imgSingle%1:6
         
         % hA = rir_generator(c, fs, r, s, L, betaA, n, mtype, order, dim, orientation, hp_filter);
         % h1 = rir_generator(c, fs, r.*[ 1 1 1], s, L, beta1, n, mtype, order, dim, orientation, hp_filter);
