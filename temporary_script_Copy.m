@@ -130,7 +130,7 @@ rtxN = 61;
 rtx = [zeros(numel(yy),1), yy(:), zz(:)];
 srx = rtx;
 
-imgSingle = 3;
+imgSingle = 2;
 res = 20;
 [XX,YY] = meshgrid(linspace(0,3,3*res));
 
@@ -152,7 +152,7 @@ DiffracWin = Wx .* Wy;
 img = imgSingle;
 [b,a] = cheby1(6,0.1,[250 1500]/(fs/2));
 
-s  = [1.5 1.5 1.5];    % Source position [x y z] (m)
+s  = [1.5 2.5 1.5];    % Source position [x y z] (m)
 stx = s;              % Source position [x y z] (m)
 htx = rir_generator(c, fs, rtx, stx, L, beta(img,:), n, mtype, order, dim, orientation, hp_filter);
 htx = htx - rir_generator(c, fs, rtx, stx, L, beta(1,:), n, mtype, order, dim, orientation, hp_filter);
@@ -162,8 +162,8 @@ for ss = 1%:(3*res)^2
 %     [x_,y_] = ind2sub(size(XX),ss);
 %     
 %     x = XX(x_,y_); y = YY(x_,y_);
-x=1.0; 
-y=1.5;
+x=1.6780; 
+y=1.0678;
     r  = [ x   y  1.5];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
 %     s  = [1.5 2.5 1.5];    % Source position [x y z] (m)
 %     r = rand(1,3).*[1.5 3 3] + [1.5 0 0];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
@@ -200,9 +200,9 @@ y=1.5;
         hc_band = filter(b,a,hc);
         figure(1);
         % plot(hI_band); hold on
-%         plot(hf_band); hold on
-%         plot(hc_band); hold on;
-        plot(hf_band - hc_band); hold on;
+        plot(hf_band); hold on
+        plot(hc_band); hold on;
+%         plot(hf_band - hc_band); hold on;
         hold off
 % hh1(ss,:) = hf_band;
 % hh2(ss,:) = hc_band;

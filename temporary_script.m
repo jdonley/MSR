@@ -127,6 +127,12 @@ rtxN = 64;
 [yy,zz] = meshgrid(linspace(0,3,rtxN)); % Planar Array
 % yy = linspace(0,3,rtxN); zz = yy*0+1.5; % Linear Array
 
+%%% taper window to limit diffraction
+winPerc = 30;
+[Wx,Wy] = meshgrid( tukeywin(rtxN,winPerc/100) );
+DiffracWin = Wx .* Wy;
+%%%
+
 rtx = [zeros(numel(yy),1), yy(:), zz(:)];
 srx = rtx;
 
@@ -188,6 +194,7 @@ parfor ss = 1:(3*res)^2
         hrx = Tools.fconv(hrx.',repmat(imp.',size(hrx,1),1).').';
         
         hc = Tools.fconv(htx.',hrx.');
+        hc = hc .* repmat(DiffracWin(:).',size(hc,1),1);
         hc = sum(hc(1:numel(hf),:),2) / rtxN^2 / pi;
         
         
@@ -294,30 +301,31 @@ FIELDERROR = diff(hh(:,:,IC,:),[],4);
 imagesc(FIELDERROR);
 
 %%
-v = VideoWriter('IRcancelwall_.avi','Uncompressed AVI');
+v = VideoWriter('IRcancelwall.avi','Uncompressed AVI');
 open(v);
 maxV = max( abs( hh(:) ) );
+C = repmat(linspace(0,1,256)',1,3);
 for i = 100:600
 FIELDERROR = hh(:,:,i,1);
-image(mag2db(abs(FIELDERROR) / maxV) *255 );
+image((FIELDERROR / maxV /1 + 1 ) * size(C,1)/2);
 set(gcf,'Position',[100 100 500 500])
-disp(i);colormap gray; axis equal; drawnow;
+disp(i);colormap(C); axis equal; drawnow;
 set(gcf,'Renderer','zbuffer');
 writeVideo(v,getframe);
 end
 for i = 100:600
 FIELDERROR = hh(:,:,i,2);
-image(abs(FIELDERROR) / maxV *255 );
+image((FIELDERROR / maxV /1 + 1 ) * size(C,1)/2);
 set(gcf,'Position',[100 100 500 500])
-disp(i);colormap gray; axis equal; drawnow;
+disp(i);colormap(C); axis equal; drawnow;
 set(gcf,'Renderer','zbuffer');
 writeVideo(v,getframe);
 end
 for i = 100:600
 FIELDERROR = diff(hh(:,:,i,:),[],4);
-image(abs(FIELDERROR) / maxV *255 );
+image((FIELDERROR / maxV /1 + 1 ) * size(C,1)/2);
 set(gcf,'Position',[100 100 500 500])
-disp(i);colormap gray; axis equal; drawnow;
+disp(i);colormap(C); axis equal; drawnow;
 set(gcf,'Renderer','zbuffer');
 writeVideo(v,getframe);
 end
