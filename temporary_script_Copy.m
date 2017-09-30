@@ -130,7 +130,7 @@ rtxN = 61;
 rtx = [zeros(numel(yy),1), yy(:), zz(:)];
 srx = rtx;
 
-imgSingle = 2;
+imgSingle = 3;
 res = 20;
 [XX,YY] = meshgrid(linspace(0,3,3*res));
 
@@ -144,7 +144,7 @@ ss=0;
 %     ss = ss+1;
 
 %%% taper window to limit diffraction
-winPerc = 10;
+winPerc = 60;
 [Wx,Wy] = meshgrid( tukeywin(rtxN,winPerc/100) );
 DiffracWin = Wx .* Wy;
 %%%
@@ -157,13 +157,16 @@ stx = s;              % Source position [x y z] (m)
 htx = rir_generator(c, fs, rtx, stx, L, beta(img,:), n, mtype, order, dim, orientation, hp_filter);
 htx = htx - rir_generator(c, fs, rtx, stx, L, beta(1,:), n, mtype, order, dim, orientation, hp_filter);
 
+% htx = rir_generator(c, fs, rtx, stx, L, [1 beta(img,2:end)], n, mtype, order, dim, orientation, hp_filter);
+% htx = htx - rir_generator(c, fs, rtx, stx, L, beta(img,:), n, mtype, order, dim, orientation, hp_filter);
+
 
 for ss = 1%:(3*res)^2
 %     [x_,y_] = ind2sub(size(XX),ss);
 %     
 %     x = XX(x_,y_); y = YY(x_,y_);
-x=1.6780; 
-y=1.0678;
+x=1.5; 
+y=1.5;
     r  = [ x   y  1.5];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
 %     s  = [1.5 2.5 1.5];    % Source position [x y z] (m)
 %     r = rand(1,3).*[1.5 3 3] + [1.5 0 0];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
@@ -174,8 +177,13 @@ y=1.0678;
         
         % hA = rir_generator(c, fs, r, s, L, betaA, n, mtype, order, dim, orientation, hp_filter);
         % h1 = rir_generator(c, fs, r.*[ 1 1 1], s, L, beta1, n, mtype, order, dim, orientation, hp_filter);
+        
         h1 = rir_generator(c, fs, r.*[-1 1 1], s, L, beta(img,:), n, mtype, order, dim, orientation, hp_filter);
         h1 = h1 - rir_generator(c, fs, r.*[-1 1 1], s, L, beta(1,:), n, mtype, order, dim, orientation, hp_filter);
+        
+%         h1 = rir_generator(c, fs, r, s, L, [1 beta(img,2:end)], n, mtype, order, dim, orientation, hp_filter);
+%         h1 = h1 - ...
+%              rir_generator(c, fs, r, s, L, beta(img,:), n, mtype, order, dim, orientation, hp_filter);
         
         % hf = h1(:)+h2(:)-hI(:);
         hf = h1(:);
@@ -192,13 +200,13 @@ y=1.0678;
         hrx = Tools.fconv(hrx.',repmat(imp.',size(hrx,1),1).').';
         
         hc = Tools.fconv(htx.',hrx.');
-%         hc = hc .* repmat(DiffracWin(:).',size(hc,1),1);
+        hc = hc .* repmat(DiffracWin(:).',size(hc,1),1);
         hc = sum(hc(1:numel(hf),:),2) / rtxN^2 / pi;
         
         % hI_band = filter(b,a,hI);
         hf_band = filter(b,a,hf);
         hc_band = filter(b,a,hc);
-        figure(1);
+        figure(1); grid on;
         % plot(hI_band); hold on
         plot(hf_band); hold on
         plot(hc_band); hold on;

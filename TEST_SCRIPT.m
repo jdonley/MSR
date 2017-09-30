@@ -1,20 +1,46 @@
-ss=0;
-while ss<190 %ss<1 %for ss = 1:10
-    ss = ss+1;
-%     r  = [1.0 1.5 1.5];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
-%     s  = [1.5 1.5 1.5];    % Source position [x y z] (m)
-    r = rand(1,3).*[2.0 3 3] + [1.0 0 0];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
-    s = rand(1,3).*[2.0 3 3] + [1.0 0 0];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
-%     r = rand(1,3)*2.5 + 0.5;    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
-%     s = rand(1,3)*2.5 + 0.5;    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
-    % s = [rand(1,2)*3 1.5]; r = [rand(1,2)*3 1.5]; % When using linear array
-    figure(1);
-    scatter3(r(1),r(2),r(3),'or'); hold on;
-    scatter3(s(1),s(2),s(3),'sb'); hold on;
-    xlim([0 3]);ylim([0 3]);zlim([0 3]);view(-15,30);
-%     drawnow;
-%     fprintf('%d\n',ss);
-end
+clear;
+
+c = 343;                    % Sound velocity (m/s)
+fs = 16000;                 % Sample frequency (samples/s)
+L = [3 3 3];                % Room dimensions [x y z] (m)
+n = 0.1*fs;                 % Number of samples
+mtype = 'omnidirectional';  % Type of microphone
+mtypeW= 'cardioid';         % Type of microphone
+order = 1;                  % -1 equals maximum reflection order
+dim = 3;                    % Room dimension
+orientation = 0;            % Microphone orientation (rad)
+hp_filter = 0;              % Enable high-pass filter
+
+
+betaAnec = (1 - [1.0   [1 1 1 1 1]*1.0]).^2;                 % Reverberation time (s)
+
+betaW_on = (1 - [1.0   [1 0 1 1 1]*1.0]).^2;                 % Reverberation time (s)
+betaW_off = (1 - [0.0   [1 0 1 1 1]*1.0]).^2;                 % Reverberation time (s)
+
+
+s = [1.5 0.5 1.5];
+r = [1.5 1.5 1.5];
+
+
+
+h = rir_generator(c, fs, r, s, L, betaW_off, n, mtype, order, dim, orientation, hp_filter);
+h = h - ...
+    rir_generator(c, fs, r, s, L, betaW_on , n, mtype, order, dim, orientation, hp_filter);
+
+
+% plot(h(:,2),'linew',1.5); hold on;
+
+plot( h ,'-','linew',1.5); hold on;
+
+
+
+h1 = rir_generator(c, fs, r.*[-1 1 1], s, L, betaW_on, n, mtype, order, dim, orientation, hp_filter);
+h1 = h1 - ...
+     rir_generator(c, fs, r.*[-1 1 1], s, L, betaAnec, n, mtype, order, dim, orientation, hp_filter);
+
+plot( h1 ,':','linew',1.5);
+
+hold off;
 
 %% 
 % clear; tic;
