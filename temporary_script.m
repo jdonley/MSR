@@ -294,27 +294,30 @@ FIELDERROR = diff(hh(:,:,IC,:),[],4);
 imagesc(FIELDERROR);
 
 %%
-v = VideoWriter('IRcancelwall.avi','Uncompressed AVI');
+v = VideoWriter('IRcancelwall_.avi','Uncompressed AVI');
 open(v);
 maxV = max( abs( hh(:) ) );
 for i = 100:600
 FIELDERROR = hh(:,:,i,1);
-image(abs(FIELDERROR) / maxV *255 );
-drawnow; disp(i);colormap gray;
+image(mag2db(abs(FIELDERROR) / maxV) *255 );
+set(gcf,'Position',[100 100 500 500])
+disp(i);colormap gray; axis equal; drawnow;
 set(gcf,'Renderer','zbuffer');
 writeVideo(v,getframe);
 end
 for i = 100:600
 FIELDERROR = hh(:,:,i,2);
 image(abs(FIELDERROR) / maxV *255 );
-drawnow; disp(i);colormap gray;
+set(gcf,'Position',[100 100 500 500])
+disp(i);colormap gray; axis equal; drawnow;
 set(gcf,'Renderer','zbuffer');
 writeVideo(v,getframe);
 end
 for i = 100:600
 FIELDERROR = diff(hh(:,:,i,:),[],4);
 image(abs(FIELDERROR) / maxV *255 );
-drawnow; disp(i);colormap gray;
+set(gcf,'Position',[100 100 500 500])
+disp(i);colormap gray; axis equal; drawnow;
 set(gcf,'Renderer','zbuffer');
 writeVideo(v,getframe);
 end

@@ -123,7 +123,7 @@ beta(5,:) = (1 - [1.0   [1 1 1 0 1]*1.0]).^2;                 % Reverberation ti
 beta(6,:) = (1 - [1.0   [1 1 1 1 0]*1.0]).^2;                 % Reverberation time (s)
 %%%
 
-rtxN = 64;
+rtxN = 61;
 [yy,zz] = meshgrid(linspace(0,3,rtxN)); % Planar Array
 % yy = linspace(0,3,rtxN); zz = yy*0+1.5; % Linear Array
 
@@ -143,10 +143,16 @@ ss=0;
 % while ss < numel(XX) %ss<1 %for ss = 1:10
 %     ss = ss+1;
 
+%%% taper window to limit diffraction
+winPerc = 10;
+[Wx,Wy] = meshgrid( tukeywin(rtxN,winPerc/100) );
+DiffracWin = Wx .* Wy;
+%%%
+
 img = imgSingle;
 [b,a] = cheby1(6,0.1,[250 1500]/(fs/2));
 
-s  = [1.5 2.5 1.5];    % Source position [x y z] (m)
+s  = [1.5 1.5 1.5];    % Source position [x y z] (m)
 stx = s;              % Source position [x y z] (m)
 htx = rir_generator(c, fs, rtx, stx, L, beta(img,:), n, mtype, order, dim, orientation, hp_filter);
 htx = htx - rir_generator(c, fs, rtx, stx, L, beta(1,:), n, mtype, order, dim, orientation, hp_filter);
@@ -156,8 +162,8 @@ for ss = 1%:(3*res)^2
 %     [x_,y_] = ind2sub(size(XX),ss);
 %     
 %     x = XX(x_,y_); y = YY(x_,y_);
-x=2.5; 
-y=2.5;
+x=1.0; 
+y=1.5;
     r  = [ x   y  1.5];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
 %     s  = [1.5 2.5 1.5];    % Source position [x y z] (m)
 %     r = rand(1,3).*[1.5 3 3] + [1.5 0 0];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
@@ -186,17 +192,17 @@ y=2.5;
         hrx = Tools.fconv(hrx.',repmat(imp.',size(hrx,1),1).').';
         
         hc = Tools.fconv(htx.',hrx.');
+%         hc = hc .* repmat(DiffracWin(:).',size(hc,1),1);
         hc = sum(hc(1:numel(hf),:),2) / rtxN^2 / pi;
-        
         
         % hI_band = filter(b,a,hI);
         hf_band = filter(b,a,hf);
         hc_band = filter(b,a,hc);
         figure(1);
         % plot(hI_band); hold on
-        plot(hf_band); hold on
-        plot(hc_band); hold on;
-        % plot(hf_band - hc_band); hold on;
+%         plot(hf_band); hold on
+%         plot(hc_band); hold on;
+        plot(hf_band - hc_band); hold on;
         hold off
 % hh1(ss,:) = hf_band;
 % hh2(ss,:) = hc_band;
