@@ -182,7 +182,7 @@ y=1.5;
 %         h1 = rir_generator(c, fs, r.*[-1 1 1], s, L, beta(img,:), n, mtype, order, dim, orientation, hp_filter);
 %         h1 = h1 - rir_generator(c, fs, r.*[-1 1 1], s, L, beta(1,:), n, mtype, order, dim, orientation, hp_filter);
         
-        h1 = rir_generator(c, fs, r, s, L, [1 beta(1,2:end)], n, mtype, order, dim, orientation, hp_filter);
+        h1 = rir_generator(c, fs, r, s, L, [1 beta(img,2:end)], n, mtype, order, dim, orientation, hp_filter);
         h2 = rir_generator(c, fs, r, s, L, [0 beta(img,2:end)], n, mtype, order, dim, orientation, hp_filter);
         h1_ = h1-h2;
         
