@@ -105,7 +105,7 @@ L = [3 3 3];                % Room dimensions [x y z] (m)
 n = 0.1*fs;                 % Number of samples
 mtype = 'omnidirectional';  % Type of microphone
 mtypeW= 'cardioid';         % Type of microphone
-order = 1;                  % -1 equals maximum reflection order
+order = 2;                  % -1 equals maximum reflection order
 dim = 3;                    % Room dimension
 orientation = 0;            % Microphone orientation (rad)
 hp_filter = 0;              % Enable high-pass filter
@@ -117,7 +117,7 @@ betaW     = (1 - [1.0   [1 1 1 1 1]*1.0]).^2;                 % Reverberation ti
 beta(1,:) = (1 - [1.0   [1 1 1 1 1]*1.0]).^2;                 % Reverberation time (s)
 
 beta(2,:) = (1 - [1.0   [0 1 1 1 1]*1.0]).^2;                 % Reverberation time (s)
-beta(3,:) = (1 - [1.0   [1 0 1 1 1]*1.0]).^2;                 % Reverberation time (s)
+beta(3,:) = (1 - [1.0   [0 0 0 0 0]*1.0]).^2;                 % Reverberation time (s)
 beta(4,:) = (1 - [1.0   [1 1 0 1 1]*1.0]).^2;                 % Reverberation time (s)
 beta(5,:) = (1 - [1.0   [1 1 1 0 1]*1.0]).^2;                 % Reverberation time (s)
 beta(6,:) = (1 - [1.0   [1 1 1 1 0]*1.0]).^2;                 % Reverberation time (s)
@@ -130,7 +130,7 @@ rtxN = 61;
 rtx = [zeros(numel(yy),1), yy(:), zz(:)];
 srx = rtx;
 
-imgSingle = 3;
+imgSingle =3;
 res = 20;
 [XX,YY] = meshgrid(linspace(0,3,3*res));
 
@@ -144,21 +144,22 @@ ss=0;
 %     ss = ss+1;
 
 %%% taper window to limit diffraction
-winPerc = 60;
-[Wx,Wy] = meshgrid( tukeywin(rtxN,winPerc/100) );
-DiffracWin = Wx .* Wy;
+% winPerc = 10;
+% [Wx,Wy] = meshgrid( tukeywin(rtxN,winPerc/100) );
+% DiffracWin = Wx .* Wy;
 %%%
 
 img = imgSingle;
 [b,a] = cheby1(6,0.1,[250 1500]/(fs/2));
 
-s  = [1.5 2.5 1.5];    % Source position [x y z] (m)
+s  = [1.5 2.0 1.5];    % Source position [x y z] (m)
 stx = s;              % Source position [x y z] (m)
-htx = rir_generator(c, fs, rtx, stx, L, beta(img,:), n, mtype, order, dim, orientation, hp_filter);
-htx = htx - rir_generator(c, fs, rtx, stx, L, beta(1,:), n, mtype, order, dim, orientation, hp_filter);
+% htx = rir_generator(c, fs, rtx, stx, L, beta(img,:), n, mtype, order, dim, orientation, hp_filter);
+% htx = htx - rir_generator(c, fs, rtx, stx, L, beta(1,:), n, mtype, order, dim, orientation, hp_filter);
 
-% htx = rir_generator(c, fs, rtx, stx, L, [1 beta(img,2:end)], n, mtype, order, dim, orientation, hp_filter);
-% htx = htx - rir_generator(c, fs, rtx, stx, L, beta(img,:), n, mtype, order, dim, orientation, hp_filter);
+htx = rir_generator(c, fs, rtx, stx, L, [1 beta(img,2:end)], n, mtype, order, dim, orientation, hp_filter);
+htx = htx - ...
+      rir_generator(c, fs, rtx, stx, L, [0 beta(img,2:end)], n, mtype, order, dim, orientation, hp_filter);
 
 
 for ss = 1%:(3*res)^2
@@ -178,12 +179,12 @@ y=1.5;
         % hA = rir_generator(c, fs, r, s, L, betaA, n, mtype, order, dim, orientation, hp_filter);
         % h1 = rir_generator(c, fs, r.*[ 1 1 1], s, L, beta1, n, mtype, order, dim, orientation, hp_filter);
         
-        h1 = rir_generator(c, fs, r.*[-1 1 1], s, L, beta(img,:), n, mtype, order, dim, orientation, hp_filter);
-        h1 = h1 - rir_generator(c, fs, r.*[-1 1 1], s, L, beta(1,:), n, mtype, order, dim, orientation, hp_filter);
+%         h1 = rir_generator(c, fs, r.*[-1 1 1], s, L, beta(img,:), n, mtype, order, dim, orientation, hp_filter);
+%         h1 = h1 - rir_generator(c, fs, r.*[-1 1 1], s, L, beta(1,:), n, mtype, order, dim, orientation, hp_filter);
         
-%         h1 = rir_generator(c, fs, r, s, L, [1 beta(img,2:end)], n, mtype, order, dim, orientation, hp_filter);
-%         h1 = h1 - ...
-%              rir_generator(c, fs, r, s, L, beta(img,:), n, mtype, order, dim, orientation, hp_filter);
+        h1 = rir_generator(c, fs, r, s, L, [1 beta(img,2:end)], n, mtype, order, dim, orientation, hp_filter);
+        h1 = h1 - ...
+             rir_generator(c, fs, r, s, L, [0 beta(img,2:end)], n, mtype, order, dim, orientation, hp_filter);
         
         % hf = h1(:)+h2(:)-hI(:);
         hf = h1(:);
@@ -200,18 +201,19 @@ y=1.5;
         hrx = Tools.fconv(hrx.',repmat(imp.',size(hrx,1),1).').';
         
         hc = Tools.fconv(htx.',hrx.');
-        hc = hc .* repmat(DiffracWin(:).',size(hc,1),1);
+%         hc = hc .* repmat(DiffracWin(:).',size(hc,1),1);
         hc = sum(hc(1:numel(hf),:),2) / rtxN^2 / pi;
         
         % hI_band = filter(b,a,hI);
         hf_band = filter(b,a,hf);
         hc_band = filter(b,a,hc);
-        figure(1); grid on;
+        figure(1); 
         % plot(hI_band); hold on
         plot(hf_band); hold on
         plot(hc_band); hold on;
 %         plot(hf_band - hc_band); hold on;
-        hold off
+        hold off;grid on;
+        0;
 % hh1(ss,:) = hf_band;
 % hh2(ss,:) = hc_band;
         
