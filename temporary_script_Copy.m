@@ -130,7 +130,7 @@ rtxN = 61;
 rtx = [zeros(numel(yy),1), yy(:), zz(:)];
 srx = rtx;
 
-imgSingle = 2;
+imgSingle = 3;
 res = 20;
 [XX,YY] = meshgrid(linspace(0,3,3*res));
 
@@ -160,7 +160,7 @@ while true%ss < numel(XX) %ss<1 %for ss = 1:10
 %     x = XX(x_,y_); y = YY(x_,y_);
 % x=1.0; 
 % y=1.5;
-    r  = [ 1.0   1.0   1.5];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
+    r  = [ 1.0   2.0   1.5];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
     s  = [ 1.5   1.5   1.5];    % Source position [x y z] (m)
 %     r = rand(1,3).*[2.5 3 3] + [0.5 0 0];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
 %     s = rand(1,3).*[2.5 3 3] + [0.5 0 0];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
