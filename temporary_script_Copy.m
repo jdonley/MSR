@@ -105,7 +105,7 @@ L = [3 3 3];                % Room dimensions [x y z] (m)
 n = 0.1*fs;                 % Number of samples
 mtype = 'omnidirectional';  % Type of microphone
 mtypeW= 'cardioid';         % Type of microphone
-order = 3;                  % -1 equals maximum reflection order
+order = 2;                  % -1 equals maximum reflection order
 dim = 3;                    % Room dimension
 orientation = 0;            % Microphone orientation (rad)
 hp_filter = 0;              % Enable high-pass filter
@@ -152,7 +152,7 @@ hh1=zeros((3*res)^2,n);
 hh2=hh1;
 tic;
 ss=0;
-while ss < numel(XX) %ss<1 %for ss = 1:10
+while true%ss < numel(XX) %ss<1 %for ss = 1:10
     ss = ss+1;
 % for ss = 1%:(3*res)^2
 %     [x_,y_] = ind2sub(size(XX),ss);
@@ -160,14 +160,14 @@ while ss < numel(XX) %ss<1 %for ss = 1:10
 %     x = XX(x_,y_); y = YY(x_,y_);
 % x=1.0; 
 % y=1.5;
-    r  = [ 1.0   1.5  1.5];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
-    s  = [1.5 2.5 1.5];    % Source position [x y z] (m)
-%     r = rand(1,3).*[1.5 3 3] + [1.5 0 0];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
-%     s = rand(1,3).*[1.5 3 3] + [1.5 0 0];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
+%     r  = [ 1.0   1.5  1.5];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
+%     s  = [1.5 2.5 1.5];    % Source position [x y z] (m)
+    r = rand(1,3).*[2.5 3 3] + [0.5 0 0];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
+    s = rand(1,3).*[2.5 3 3] + [0.5 0 0];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
     % s = [rand(1,2)*3 1.5]; r = [rand(1,2)*3 1.5]; % When using linear array
     
 
-    for img = imgSingle%1:6
+    for img = 1:6
         
         %%% Mic transfer functions
         stx = s;              % Source position [x y z] (m)
@@ -213,55 +213,55 @@ while ss < numel(XX) %ss<1 %for ss = 1:10
         hc = hc - hcL;
         %%% 
         
-        % hI_band = filter(b,a,hI);
-        hf_band = filter(b,a,hf);
-%         h1_band = filter(b,a,(hcLF - hcLFdirect));
-%         h2_band = filter(b,a,hctest_reflect);
-        hc_band = filter(b,a,hc);
-        hcL_band = filter(b,a,hcL);
-        
-        
-        figure(1); 
-        % plot(hI_band); hold on
-        plot(hf_band); hold on
-%         plot(hf,'k'); hold on
-%         plot(h2,'r'); hold on
-        plot(hc_band); hold on;
-        plot(hcL_band); hold on;
-%         plot(h1_band); hold on;
-%         plot(h2_band); hold on;
-%         plot(hf_band - hc_band); hold on;
-        hold off;grid on;
-        0;
+%         % hI_band = filter(b,a,hI);
+%         hf_band = filter(b,a,hf);
+% %         h1_band = filter(b,a,(hcLF - hcLFdirect));
+% %         h2_band = filter(b,a,hctest_reflect);
+%         hc_band = filter(b,a,hc);
+%         hcL_band = filter(b,a,hcL);
+%         
+%         
+%         figure(1); 
+%         % plot(hI_band); hold on
+%         plot(hf_band); hold on
+% %         plot(hf,'k'); hold on
+% %         plot(h2,'r'); hold on
+%         plot(hc_band); hold on;
+%         plot(hcL_band); hold on;
+% %         plot(h1_band); hold on;
+% %         plot(h2_band); hold on;
+% %         plot(hf_band - hc_band); hold on;
+%         hold off;grid on;
+%         0;
         
 % hh1(ss,:) = hf_band;
 % hh2(ss,:) = hc_band;
         
-%         h = hf-hc;
-%         
-%         HF = fft(hf);
-%         HC = fft(hc);
-%         H = fft(h);
-% %         HI = fft(hI);
-%         
-%         ff = linspace(0,fs/2,n/2+1)/1e3;ff(end)=[];
-%         
-%         MagnitudeC = abs(HC);
-%         MagnitudeC(end/2+1:end)=[];
-%         MagnitudeF = abs(HF);
-%         MagnitudeF(end/2+1:end)=[];
-%         Magnitude = abs(H);
-%         Magnitude(end/2+1:end)=[];
-%         
-%         PhaseDifference = mod(unwrap(angle(HF)) - unwrap(angle(HC)) + pi,2*pi)/pi*180-180;
-%         PhaseDifference(end/2+1:end)=[];
-%         
-%         MC(:,ss,img) = MagnitudeC;
-%         MF(:,ss,img) = MagnitudeF;
-%         M(:,ss,img) = Magnitude;
-%         PP(:,ss,img) = PhaseDifference;
-%         % MM = mean([MM , MagnitudeC.*ff.' ],2);
-%         % PP = mean([PP , PhaseDifference  ],2);
+        h = hf-hc;
+        
+        HF = fft(hf);
+        HC = fft(hc);
+        H = fft(h);
+%         HI = fft(hI);
+        
+        ff = linspace(0,fs/2,n/2+1)/1e3;ff(end)=[];
+        
+        MagnitudeC = abs(HC);
+        MagnitudeC(end/2+1:end)=[];
+        MagnitudeF = abs(HF);
+        MagnitudeF(end/2+1:end)=[];
+        Magnitude = abs(H);
+        Magnitude(end/2+1:end)=[];
+        
+        PhaseDifference = mod(unwrap(angle(HF)) - unwrap(angle(HC)) + pi,2*pi)/pi*180-180;
+        PhaseDifference(end/2+1:end)=[];
+        
+        MC(:,ss,img) = MagnitudeC;
+        MF(:,ss,img) = MagnitudeF;
+        M(:,ss,img) = Magnitude;
+        PP(:,ss,img) = PhaseDifference;
+        % MM = mean([MM , MagnitudeC.*ff.' ],2);
+        % PP = mean([PP , PhaseDifference  ],2);
         
     end
     % figure(2);
@@ -281,35 +281,35 @@ while ss < numel(XX) %ss<1 %for ss = 1:10
     % grid on; grid minor; set(gca,'xscale','log');
     % xlabel('Frequency (kHz)');ylabel('Phase (\circ)');
     
-%     figure(2);
-%     meanMF = mag2db(mean(MF,2));
-%     % plot(ff, mag2db(  MF        ) - meanMF  ,':k'); hold on;
-%     % plot(ff, mag2db(  M         ) - meanMF  ,':m'); hold on;
-%     plot(ff, mag2db(  mean(MF(:,:,1),2) ) - meanMF(:,:,1)  ,'-k','linew',1.5); hold on;
-%     set(gca,'ColorOrderIndex',1);
-%     for img = 3%1:6
-%         plot(ff, mag2db(  mean( M(:,:,img),2) ) - meanMF(:,:,img)  ,'-','linew',1.5); hold on;
-%     end
-%     hold off;
-%     xlim([0.1 10]); ylim([-30 20]);
-%     grid on; grid minor; set(gca,'xscale','log');
-%     xlabel('Frequency (kHz)');ylabel('Magnitude (dB)');
-%     legend({'Active Wall Off'; ...
-%         'Active Wall On & 1 Reflection'; ...
-%         'Active Wall On & 2 Reflections'; ...
-%         'Active Wall On & 3 Reflections'; ...
-%         'Active Wall On & 4 Reflections'; ...
-%         'Active Wall On & 5 Reflections'; ...
-%         'Active Wall On & 6 Reflections'}, ...
-%         'Location','northwest');
-%     
+    figure(2);
+    meanMF = mag2db(mean(MF,2));
+    % plot(ff, mag2db(  MF        ) - meanMF  ,':k'); hold on;
+    % plot(ff, mag2db(  M         ) - meanMF  ,':m'); hold on;
+    plot(ff, mag2db(  mean(MF(:,:,1),2) ) - meanMF(:,:,1)  ,'-k','linew',1.5); hold on;
+    set(gca,'ColorOrderIndex',1);
+    for img = 1:6
+        plot(ff, mag2db(  mean( M(:,:,img),2) ) - meanMF(:,:,img)  ,'-','linew',1.5); hold on;
+    end
+    hold off;
+    xlim([0.1 10]); ylim([-30 20]);
+    grid on; grid minor; set(gca,'xscale','log');
+    xlabel('Frequency (kHz)');ylabel('Magnitude (dB)');
+    legend({'Active Wall Off'; ...
+        'Active Wall On & 1 Reflection'; ...
+        'Active Wall On & 2 Reflections'; ...
+        'Active Wall On & 3 Reflections'; ...
+        'Active Wall On & 4 Reflections'; ...
+        'Active Wall On & 5 Reflections'; ...
+        'Active Wall On & 6 Reflections'}, ...
+        'Location','northwest');
+    
 
 % figure(111); scatter(x,y,'ok'); hold on;
 % xlim([0 3]); ylim([0 3]);
 
-% drawnow;
+drawnow;
 
-
+disp(ss);
 
 end
 toc;
