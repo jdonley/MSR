@@ -130,18 +130,10 @@ rtxN = 61;
 rtx = [zeros(numel(yy),1), yy(:), zz(:)];
 srx = rtx;
 
-imgSingle = 3;
+imgSingle = 1;
 res = 20;
 [XX,YY] = meshgrid(linspace(0,3,3*res));
 
-
-MC=[];MF=[];M=[];MI=[];PP=[];
-hh1=zeros((3*res)^2,n);
-hh2=hh1;
-tic;
-ss=0;
-% while ss < numel(XX) %ss<1 %for ss = 1:10
-%     ss = ss+1;
 
 %%% taper window to limit diffraction
 winPerc = 30;
@@ -152,86 +144,94 @@ DiffracWin = Wx .* Wy;
 img = imgSingle;
 [b,a] = cheby1(6,0.1,[250 1500]/(fs/2));
 
-s  = [1.0 1.5 1.5];    % Source position [x y z] (m)
-stx = s;              % Source position [x y z] (m)
-% htx = rir_generator(c, fs, rtx, stx, L, beta(img,:), n, mtype, order, dim, orientation, hp_filter);
-% htx = htx - rir_generator(c, fs, rtx, stx, L, beta(1,:), n, mtype, order, dim, orientation, hp_filter);
 
-htx = rir_generator(c, fs, rtx, stx, L, [0 beta(img,2:end)], n, mtype, order-1, dim, orientation, hp_filter);
 
-htxtest = htx - rir_generator(c, fs, rtx, stx, L, [0 beta(img,2:end)], n, mtype, order-2, dim, orientation, hp_filter) ;
 
-for ss = 1%:(3*res)^2
+MC=[];MF=[];M=[];MI=[];PP=[];
+hh1=zeros((3*res)^2,n);
+hh2=hh1;
+tic;
+ss=0;
+while ss < numel(XX) %ss<1 %for ss = 1:10
+    ss = ss+1;
+% for ss = 1%:(3*res)^2
 %     [x_,y_] = ind2sub(size(XX),ss);
 %     
 %     x = XX(x_,y_); y = YY(x_,y_);
-x=1.5; 
-y=1.5;
-    r  = [ x   y  1.5];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
-%     s  = [1.5 2.5 1.5];    % Source position [x y z] (m)
+% x=1.0; 
+% y=1.5;
+    r  = [ 1.5   1.5  1.5];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
+    s  = [1.5 2.5 1.5];    % Source position [x y z] (m)
 %     r = rand(1,3).*[1.5 3 3] + [1.5 0 0];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
 %     s = rand(1,3).*[1.5 3 3] + [1.5 0 0];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
     % s = [rand(1,2)*3 1.5]; r = [rand(1,2)*3 1.5]; % When using linear array
     
+
     for img = imgSingle%1:6
         
-        % hA = rir_generator(c, fs, r, s, L, betaA, n, mtype, order, dim, orientation, hp_filter);
-        % h1 = rir_generator(c, fs, r.*[ 1 1 1], s, L, beta1, n, mtype, order, dim, orientation, hp_filter);
-        
-%         h1 = rir_generator(c, fs, r.*[-1 1 1], s, L, beta(img,:), n, mtype, order, dim, orientation, hp_filter);
-%         h1 = h1 - rir_generator(c, fs, r.*[-1 1 1], s, L, beta(1,:), n, mtype, order, dim, orientation, hp_filter);
-        
+        %%% Mic transfer functions
+        stx = s;              % Source position [x y z] (m)
+        htx = rir_generator(c, fs, rtx, stx, L, [0 beta(img,2:end)], n, mtype, order-1, dim, orientation, hp_filter);
+        htxLF = htx - ... % Last reflection
+            rir_generator(c, fs, rtx, stx, L, [0 beta(img,2:end)], n, mtype, order-2, dim, orientation, hp_filter) ;
+        %%%
+
+        %%% Ground truth reflections
         h1 = rir_generator(c, fs, r, s, L, [1 beta(img,2:end)], n, mtype, order, dim, orientation, hp_filter);
         h2 = rir_generator(c, fs, r, s, L, [0 beta(img,2:end)], n, mtype, order, dim, orientation, hp_filter);
         h1_ = h1-h2;
-        
-        % hf = h1(:)+h2(:)-hI(:);
         hf = h1_(:);
+        %%%
+
         
-%         stx = s;              % Source position [x y z] (m)
-%         htx = rir_generator(c, fs, rtx, stx, L, beta(img,:), n, mtype, order, dim, orientation, hp_filter);       
-%         htx = htx - rir_generator(c, fs, rtx, stx, L, beta(1,:), n, mtype, order, dim, orientation, hp_filter);        
+        %%% Loudspeaker transfer functions
         rrx = r;    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
-        hrx=[]; hrxtest=[];
+        hrx=[]; hrxLF=[];
         for i = 1:size(rtx,1)
             hrx(i,:) = rir_generator(c, fs, rrx, srx(i,:), L, beta(img,:), n, mtype, order-1, dim, orientation, hp_filter);
-            hrxtest(i,:) = rir_generator(c, fs, rrx, srx(i,:), L, beta(img,:), n, mtype, order-2, dim, orientation, hp_filter);
+            hrxLF(i,:) = rir_generator(c, fs, rrx, srx(i,:), L, beta(img,:), n, mtype, order-2, dim, orientation, hp_filter);
         end
         
+        %%% Apply WFS/SDM pre-filter
         hrx = Tools.fconv(hrx.',repmat(imp.',size(hrx,1),1).').';
-        hrxtest = Tools.fconv(hrxtest.',repmat(imp.',size(hrxtest,1),1).').';
+        hrxLF = Tools.fconv(hrxLF.',repmat(imp.',size(hrxLF,1),1).').';
+        %%%
         
+        %%% Cancellation signal minus last refelction
         hc = Tools.fconv(htx.',hrx.');
         hc = hc .* repmat(DiffracWin(:).',size(hc,1),1);
         hc = sum(hc(1:numel(hf),:),2) / rtxN^2 / pi;
         
-        hctest_noreflect = Tools.fconv(htxtest.',hrxtest.');
-        hctest_noreflect = hctest_noreflect .* repmat(DiffracWin(:).',size(hctest_noreflect,1),1);
-        hctest_noreflect = sum(hctest_noreflect(1:numel(hf),:),2) / rtxN^2 / pi;
+        hcLFdirect = Tools.fconv(htxLF.',hrxLF.');
+        hcLFdirect = hcLFdirect .* repmat(DiffracWin(:).',size(hcLFdirect,1),1);
+        hcLFdirect = sum(hcLFdirect(1:numel(hf),:),2) / rtxN^2 / pi;
         
-        hctest_reflect = Tools.fconv(htxtest.',hrx.');
-        hctest_reflect = hctest_reflect .* repmat(DiffracWin(:).',size(hctest_reflect,1),1);
-        hctest_reflect = sum(hctest_reflect(1:numel(hf),:),2) / rtxN^2 / pi;
+        hcLF = Tools.fconv(htxLF.',hrx.');
+        hcLF = hcLF .* repmat(DiffracWin(:).',size(hcLF,1),1);
+        hcLF = sum(hcLF(1:numel(hf),:),2) / rtxN^2 / pi;
         
-        hc = hc - (hctest_reflect - hctest_noreflect);
-        
+        hc = hc - (hcLF - hcLFdirect);
+        %%% 
         
         % hI_band = filter(b,a,hI);
         hf_band = filter(b,a,hf);
-        h1_band = filter(b,a,(hctest_reflect - hctest_noreflect));
+%         h1_band = filter(b,a,(hcLF - hcLFdirect));
 %         h2_band = filter(b,a,hctest_reflect);
         hc_band = filter(b,a,hc);
+        
+        
         figure(1); 
         % plot(hI_band); hold on
         plot(hf_band); hold on
 %         plot(hf,'k'); hold on
 %         plot(h2,'r'); hold on
         plot(hc_band); hold on;
-        plot(h1_band); hold on;
+%         plot(h1_band); hold on;
 %         plot(h2_band); hold on;
 %         plot(hf_band - hc_band); hold on;
         hold off;grid on;
         0;
+        
 % hh1(ss,:) = hf_band;
 % hh2(ss,:) = hc_band;
         
