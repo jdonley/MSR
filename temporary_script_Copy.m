@@ -130,13 +130,13 @@ rtxN = 61;
 rtx = [zeros(numel(yy),1), yy(:), zz(:)];
 srx = rtx;
 
-imgSingle = 3;
+imgSingle = 2;
 res = 20;
 [XX,YY] = meshgrid(linspace(0,3,3*res));
 
 
 %%% taper window to limit diffraction
-winPerc = 30;
+winPerc = 20;
 [Wx,Wy] = meshgrid( tukeywin(rtxN,winPerc/100) );
 DiffracWin = Wx .* Wy;
 %%%
@@ -160,7 +160,7 @@ while true%ss < numel(XX) %ss<1 %for ss = 1:10
 %     x = XX(x_,y_); y = YY(x_,y_);
 % x=1.0; 
 % y=1.5;
-    r  = [ 1.5   1.0   1.5];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
+    r  = [ 1.0   1.0   1.5];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
     s  = [ 1.5   1.5   1.5];    % Source position [x y z] (m)
 %     r = rand(1,3).*[2.5 3 3] + [0.5 0 0];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
 %     s = rand(1,3).*[2.5 3 3] + [0.5 0 0];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
@@ -201,11 +201,15 @@ while true%ss < numel(XX) %ss<1 %for ss = 1:10
         hc = Tools.fconv(htx.',hrx.');        
         hcLRdirect = Tools.fconv(htxLR.',hrxLR.');
         hcLR = Tools.fconv(htxLR.',hrx.');
-        
         hcL = (hcLR - hcLRdirect);
-        hc = hc - hcL;
+        
         hc = hc .* repmat(DiffracWin(:).',size(hc,1),1);
         hc = sum(hc(1:numel(hf),:),2) / rtxN^2 / pi;
+        hcL = hcL .* repmat(DiffracWin(:).',size(hcL,1),1);
+        hcL = sum(hcL(1:numel(hf),:),2) / rtxN^2 / pi;
+        
+        
+        hc = hc - hcL;
         %%% 
         
         % hI_band = filter(b,a,hI);
