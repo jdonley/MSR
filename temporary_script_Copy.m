@@ -130,7 +130,7 @@ rtxN = 61;
 rtx = [zeros(numel(yy),1), yy(:), zz(:)];
 srx = rtx;
 
-imgSingle = 2;
+imgSingle = 3;
 res = 20;
 [XX,YY] = meshgrid(linspace(0,3,3*res));
 
@@ -160,10 +160,10 @@ while true%ss < numel(XX) %ss<1 %for ss = 1:10
 %     x = XX(x_,y_); y = YY(x_,y_);
 % x=1.0; 
 % y=1.5;
-%     r  = [ 1.0   1.5  1.5];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
-%     s  = [1.5 2.5 1.5];    % Source position [x y z] (m)
-    r = rand(1,3).*[2.5 3 3] + [0.5 0 0];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
-    s = rand(1,3).*[2.5 3 3] + [0.5 0 0];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
+    r  = [ 1.5   1.0   1.5];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
+    s  = [ 1.5   1.5   1.5];    % Source position [x y z] (m)
+%     r = rand(1,3).*[2.5 3 3] + [0.5 0 0];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
+%     s = rand(1,3).*[2.5 3 3] + [0.5 0 0];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
     % s = [rand(1,2)*3 1.5]; r = [rand(1,2)*3 1.5]; % When using linear array
     
 
@@ -198,19 +198,14 @@ while true%ss < numel(XX) %ss<1 %for ss = 1:10
         %%%
         
         %%% Cancellation signal minus last refelction
-        hc = Tools.fconv(htx.',hrx.');
-        hc = hc .* repmat(DiffracWin(:).',size(hc,1),1);
-        hc = sum(hc(1:numel(hf),:),2) / rtxN^2 / pi;
-        
+        hc = Tools.fconv(htx.',hrx.');        
         hcLRdirect = Tools.fconv(htxLR.',hrxLR.');
-        hcLRdirect = hcLRdirect .* repmat(DiffracWin(:).',size(hcLRdirect,1),1);
-        hcLRdirect = sum(hcLRdirect(1:numel(hf),:),2) / rtxN^2 / pi;
-        
         hcLR = Tools.fconv(htxLR.',hrx.');
-        hcLR = hcLR .* repmat(DiffracWin(:).',size(hcLR,1),1);
-        hcLR = sum(hcLR(1:numel(hf),:),2) / rtxN^2 / pi;
+        
         hcL = (hcLR - hcLRdirect);
         hc = hc - hcL;
+        hc = hc .* repmat(DiffracWin(:).',size(hc,1),1);
+        hc = sum(hc(1:numel(hf),:),2) / rtxN^2 / pi;
         %%% 
         
         % hI_band = filter(b,a,hI);
