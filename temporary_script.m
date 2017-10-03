@@ -105,7 +105,7 @@ L = [3 3 3];                % Room dimensions [x y z] (m)
 n = 0.1*fs;                 % Number of samples
 mtype = 'omnidirectional';  % Type of microphone
 mtypeW= 'cardioid';         % Type of microphone
-order = 1;                  % -1 equals maximum reflection order
+order = 2;                  % -1 equals maximum reflection order
 dim = 3;                    % Room dimension
 orientation = 0;            % Microphone orientation (rad)
 hp_filter = 0;              % Enable high-pass filter
@@ -123,12 +123,12 @@ beta(5,:) = (1 - [1.0   [1 1 1 0 1]*1.0]).^2;                 % Reverberation ti
 beta(6,:) = (1 - [1.0   [1 1 1 1 0]*1.0]).^2;                 % Reverberation time (s)
 %%%
 
-rtxN = 64;
+rtxN = 61;
 [yy,zz] = meshgrid(linspace(0,3,rtxN)); % Planar Array
 % yy = linspace(0,3,rtxN); zz = yy*0+1.5; % Linear Array
 
 %%% taper window to limit diffraction
-winPerc = 30;
+winPerc = 20;
 [Wx,Wy] = meshgrid( tukeywin(rtxN,winPerc/100) );
 DiffracWin = Wx .* Wy;
 %%%
@@ -136,7 +136,7 @@ DiffracWin = Wx .* Wy;
 rtx = [zeros(numel(yy),1), yy(:), zz(:)];
 srx = rtx;
 
-imgSingle = 2;
+imgSingle = 3;
 res = 20;
 [XX,YY] = meshgrid(linspace(0,3,3*res));
 
@@ -153,9 +153,13 @@ img = imgSingle;
 [b,a] = cheby1(6,0.1,[250 1500]/(fs/2));
 
 s  = [1.5 2.5 1.5];    % Source position [x y z] (m)
+
+%%% Mic transfer functions
 stx = s;              % Source position [x y z] (m)
-htx = rir_generator(c, fs, rtx, stx, L, beta(img,:), n, mtype, order, dim, orientation, hp_filter);
-htx = htx - rir_generator(c, fs, rtx, stx, L, beta(1,:), n, mtype, order, dim, orientation, hp_filter);
+htx = rir_generator(c, fs, rtx, stx, L, [0 beta(img,2:end)], n, mtype, order-1, dim, orientation, hp_filter);
+htxLR = htx - ... % Last reflection
+    rir_generator(c, fs, rtx, stx, L, [0 beta(img,2:end)], n, mtype, order-2, dim, orientation, hp_filter) ;
+%%%
 
 current_pool = gcp; %Start new pool
     fprintf('\n====== Building RIR Database ======\n');
@@ -174,28 +178,40 @@ parfor ss = 1:(3*res)^2
     
     for img = imgSingle%1:6
         
-        % hA = rir_generator(c, fs, r, s, L, betaA, n, mtype, order, dim, orientation, hp_filter);
-        % h1 = rir_generator(c, fs, r.*[ 1 1 1], s, L, beta1, n, mtype, order, dim, orientation, hp_filter);
-        h1 = rir_generator(c, fs, r.*[-1 1 1], s, L, beta(img,:), n, mtype, order, dim, orientation, hp_filter);
-        h1 = h1 - rir_generator(c, fs, r.*[-1 1 1], s, L, beta(1,:), n, mtype, order, dim, orientation, hp_filter);
-        
-        % hf = h1(:)+h2(:)-hI(:);
-        hf = h1(:);
-        
-%         stx = s;              % Source position [x y z] (m)
-%         htx = rir_generator(c, fs, rtx, stx, L, beta(img,:), n, mtype, order, dim, orientation, hp_filter);       
-%         htx = htx - rir_generator(c, fs, rtx, stx, L, beta(1,:), n, mtype, order, dim, orientation, hp_filter);        
+        %%% Ground truth reflections
+        h1 = rir_generator(c, fs, r, s, L, [1 beta(img,2:end)], n, mtype, order, dim, orientation, hp_filter);
+        h2 = rir_generator(c, fs, r, s, L, [0 beta(img,2:end)], n, mtype, order, dim, orientation, hp_filter);
+        h1_ = h1-h2;
+        hf = h1_(:);
+        %%%
+
+        %%% Loudspeaker transfer functions
         rrx = r;    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
-        hrx=[];
+        hrx=[]; hrxLR=[];
         for i = 1:size(rtx,1)
-            hrx(i,:) = rir_generator(c, fs, rrx, srx(i,:), L, betaW, n, mtype, order, dim, orientation, hp_filter);
+            hrx(i,:) = rir_generator(c, fs, rrx, srx(i,:), L, beta(img,:), n, mtype, order-1, dim, orientation, hp_filter);
+            hrxLR(i,:) = rir_generator(c, fs, rrx, srx(i,:), L, beta(img,:), n, mtype, order-2, dim, orientation, hp_filter);
         end
         
+        %%% Apply WFS/SDM pre-filter
         hrx = Tools.fconv(hrx.',repmat(imp.',size(hrx,1),1).').';
+        hrxLR = Tools.fconv(hrxLR.',repmat(imp.',size(hrxLR,1),1).').';
+        %%%
         
-        hc = Tools.fconv(htx.',hrx.');
+        %%% Cancellation signal minus last refelction
+        hc = Tools.fconv(htx.',hrx.');        
+        hcLRdirect = Tools.fconv(htxLR.',hrxLR.');
+        hcLR = Tools.fconv(htxLR.',hrx.');
+        hcL = (hcLR - hcLRdirect);
+        
         hc = hc .* repmat(DiffracWin(:).',size(hc,1),1);
         hc = sum(hc(1:numel(hf),:),2) / rtxN^2 / pi;
+        hcL = hcL .* repmat(DiffracWin(:).',size(hcL,1),1);
+        hcL = sum(hcL(1:numel(hf),:),2) / rtxN^2 / pi;
+        
+        
+        hc = hc - hcL;
+        %%% 
         
         
         % hI_band = filter(b,a,hI);
