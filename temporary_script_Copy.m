@@ -167,7 +167,7 @@ while true%ss < numel(XX) %ss<1 %for ss = 1:10
     % s = [rand(1,2)*3 1.5]; r = [rand(1,2)*3 1.5]; % When using linear array
     
 
-    for img = 1:6
+    for img = imgSingle%1:6
         
         %%% Mic transfer functions
         stx = s;              % Source position [x y z] (m)
@@ -213,26 +213,26 @@ while true%ss < numel(XX) %ss<1 %for ss = 1:10
         hc = hc - hcL;
         %%% 
         
-%         % hI_band = filter(b,a,hI);
-%         hf_band = filter(b,a,hf);
-% %         h1_band = filter(b,a,(hcLF - hcLFdirect));
-% %         h2_band = filter(b,a,hctest_reflect);
-%         hc_band = filter(b,a,hc);
-%         hcL_band = filter(b,a,hcL);
-%         
-%         
-%         figure(1); 
-%         % plot(hI_band); hold on
-%         plot(hf_band); hold on
-% %         plot(hf,'k'); hold on
-% %         plot(h2,'r'); hold on
-%         plot(hc_band); hold on;
-%         plot(hcL_band); hold on;
-% %         plot(h1_band); hold on;
-% %         plot(h2_band); hold on;
-% %         plot(hf_band - hc_band); hold on;
-%         hold off;grid on;
-%         0;
+        % hI_band = filter(b,a,hI);
+        hf_band = filter(b,a,hf);
+%         h1_band = filter(b,a,(hcLF - hcLFdirect));
+%         h2_band = filter(b,a,hctest_reflect);
+        hc_band = filter(b,a,hc);
+        hcL_band = filter(b,a,hcL);
+        
+        
+        figure(1); 
+        % plot(hI_band); hold on
+        plot(hf_band); hold on
+%         plot(hf,'k'); hold on
+%         plot(h2,'r'); hold on
+        plot(hc_band); hold on;
+        plot(hcL_band); hold on;
+%         plot(h1_band); hold on;
+%         plot(h2_band); hold on;
+%         plot(hf_band - hc_band); hold on;
+        hold off;grid on;
+        0;
         
 % hh1(ss,:) = hf_band;
 % hh2(ss,:) = hc_band;
@@ -287,7 +287,7 @@ while true%ss < numel(XX) %ss<1 %for ss = 1:10
     % plot(ff, mag2db(  M         ) - meanMF  ,':m'); hold on;
     plot(ff, mag2db(  mean(MF(:,:,1),2) ) - meanMF(:,:,1)  ,'-k','linew',1.5); hold on;
     set(gca,'ColorOrderIndex',1);
-    for img = 1:6
+    for img = imgSingle%1:6
         plot(ff, mag2db(  mean( M(:,:,img),2) ) - meanMF(:,:,img)  ,'-','linew',1.5); hold on;
     end
     hold off;
