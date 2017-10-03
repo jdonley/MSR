@@ -130,7 +130,7 @@ rtxN = 61;
 rtx = [zeros(numel(yy),1), yy(:), zz(:)];
 srx = rtx;
 
-imgSingle = 2;
+imgSingle = 3;
 res = 20;
 [XX,YY] = meshgrid(linspace(0,3,3*res));
 
@@ -157,10 +157,9 @@ stx = s;              % Source position [x y z] (m)
 % htx = rir_generator(c, fs, rtx, stx, L, beta(img,:), n, mtype, order, dim, orientation, hp_filter);
 % htx = htx - rir_generator(c, fs, rtx, stx, L, beta(1,:), n, mtype, order, dim, orientation, hp_filter);
 
-htx = rir_generator(c, fs, rtx, stx, L, [1 beta(img,2:end)], n, mtype, order-1, dim, orientation, hp_filter);
-% htx = htx - ...
-%       rir_generator(c, fs, rtx, stx, L, [0 beta(img,2:end)], n, mtype, order-1, dim, orientation, hp_filter);
+htx = rir_generator(c, fs, rtx, stx, L, [0 beta(img,2:end)], n, mtype, order-1, dim, orientation, hp_filter);
 
+htxtest = htx - rir_generator(c, fs, rtx, stx, L, [0 beta(img,2:end)], n, mtype, order-2, dim, orientation, hp_filter) ;
 
 for ss = 1%:(3*res)^2
 %     [x_,y_] = ind2sub(size(XX),ss);
@@ -193,27 +192,43 @@ y=1.5;
 %         htx = rir_generator(c, fs, rtx, stx, L, beta(img,:), n, mtype, order, dim, orientation, hp_filter);       
 %         htx = htx - rir_generator(c, fs, rtx, stx, L, beta(1,:), n, mtype, order, dim, orientation, hp_filter);        
         rrx = r;    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
-        hrx=[];
+        hrx=[]; hrxtest=[];
         for i = 1:size(rtx,1)
             hrx(i,:) = rir_generator(c, fs, rrx, srx(i,:), L, beta(img,:), n, mtype, order-1, dim, orientation, hp_filter);
+            hrxtest(i,:) = rir_generator(c, fs, rrx, srx(i,:), L, beta(img,:), n, mtype, order-2, dim, orientation, hp_filter);
         end
         
         hrx = Tools.fconv(hrx.',repmat(imp.',size(hrx,1),1).').';
+        hrxtest = Tools.fconv(hrxtest.',repmat(imp.',size(hrxtest,1),1).').';
         
         hc = Tools.fconv(htx.',hrx.');
         hc = hc .* repmat(DiffracWin(:).',size(hc,1),1);
         hc = sum(hc(1:numel(hf),:),2) / rtxN^2 / pi;
         
+        hctest_noreflect = Tools.fconv(htxtest.',hrxtest.');
+        hctest_noreflect = hctest_noreflect .* repmat(DiffracWin(:).',size(hctest_noreflect,1),1);
+        hctest_noreflect = sum(hctest_noreflect(1:numel(hf),:),2) / rtxN^2 / pi;
+        
+        hctest_reflect = Tools.fconv(htxtest.',hrx.');
+        hctest_reflect = hctest_reflect .* repmat(DiffracWin(:).',size(hctest_reflect,1),1);
+        hctest_reflect = sum(hctest_reflect(1:numel(hf),:),2) / rtxN^2 / pi;
+        
+        hc = hc - (hctest_reflect - hctest_noreflect);
+        
+        
         % hI_band = filter(b,a,hI);
         hf_band = filter(b,a,hf);
-        h1_band = filter(b,a,h1);
+        h1_band = filter(b,a,(hctest_reflect - hctest_noreflect));
+%         h2_band = filter(b,a,hctest_reflect);
         hc_band = filter(b,a,hc);
         figure(1); 
         % plot(hI_band); hold on
         plot(hf_band); hold on
-        plot(hf,'k'); hold on
-        plot(h2,'r'); hold on
+%         plot(hf,'k'); hold on
+%         plot(h2,'r'); hold on
         plot(hc_band); hold on;
+        plot(h1_band); hold on;
+%         plot(h2_band); hold on;
 %         plot(hf_band - hc_band); hold on;
         hold off;grid on;
         0;
