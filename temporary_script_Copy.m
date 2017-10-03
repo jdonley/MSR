@@ -105,7 +105,7 @@ L = [3 3 3];                % Room dimensions [x y z] (m)
 n = 0.1*fs;                 % Number of samples
 mtype = 'omnidirectional';  % Type of microphone
 mtypeW= 'cardioid';         % Type of microphone
-order = 2;                  % -1 equals maximum reflection order
+order = 3;                  % -1 equals maximum reflection order
 dim = 3;                    % Room dimension
 orientation = 0;            % Microphone orientation (rad)
 hp_filter = 0;              % Enable high-pass filter
@@ -130,7 +130,7 @@ rtxN = 61;
 rtx = [zeros(numel(yy),1), yy(:), zz(:)];
 srx = rtx;
 
-imgSingle = 1;
+imgSingle = 2;
 res = 20;
 [XX,YY] = meshgrid(linspace(0,3,3*res));
 
@@ -160,7 +160,7 @@ while ss < numel(XX) %ss<1 %for ss = 1:10
 %     x = XX(x_,y_); y = YY(x_,y_);
 % x=1.0; 
 % y=1.5;
-    r  = [ 1.5   1.5  1.5];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
+    r  = [ 1.0   1.5  1.5];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
     s  = [1.5 2.5 1.5];    % Source position [x y z] (m)
 %     r = rand(1,3).*[1.5 3 3] + [1.5 0 0];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
 %     s = rand(1,3).*[1.5 3 3] + [1.5 0 0];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
@@ -172,7 +172,7 @@ while ss < numel(XX) %ss<1 %for ss = 1:10
         %%% Mic transfer functions
         stx = s;              % Source position [x y z] (m)
         htx = rir_generator(c, fs, rtx, stx, L, [0 beta(img,2:end)], n, mtype, order-1, dim, orientation, hp_filter);
-        htxLF = htx - ... % Last reflection
+        htxLR = htx - ... % Last reflection
             rir_generator(c, fs, rtx, stx, L, [0 beta(img,2:end)], n, mtype, order-2, dim, orientation, hp_filter) ;
         %%%
 
@@ -186,15 +186,15 @@ while ss < numel(XX) %ss<1 %for ss = 1:10
         
         %%% Loudspeaker transfer functions
         rrx = r;    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
-        hrx=[]; hrxLF=[];
+        hrx=[]; hrxLR=[];
         for i = 1:size(rtx,1)
             hrx(i,:) = rir_generator(c, fs, rrx, srx(i,:), L, beta(img,:), n, mtype, order-1, dim, orientation, hp_filter);
-            hrxLF(i,:) = rir_generator(c, fs, rrx, srx(i,:), L, beta(img,:), n, mtype, order-2, dim, orientation, hp_filter);
+            hrxLR(i,:) = rir_generator(c, fs, rrx, srx(i,:), L, beta(img,:), n, mtype, order-2, dim, orientation, hp_filter);
         end
         
         %%% Apply WFS/SDM pre-filter
         hrx = Tools.fconv(hrx.',repmat(imp.',size(hrx,1),1).').';
-        hrxLF = Tools.fconv(hrxLF.',repmat(imp.',size(hrxLF,1),1).').';
+        hrxLR = Tools.fconv(hrxLR.',repmat(imp.',size(hrxLR,1),1).').';
         %%%
         
         %%% Cancellation signal minus last refelction
@@ -202,15 +202,15 @@ while ss < numel(XX) %ss<1 %for ss = 1:10
         hc = hc .* repmat(DiffracWin(:).',size(hc,1),1);
         hc = sum(hc(1:numel(hf),:),2) / rtxN^2 / pi;
         
-        hcLFdirect = Tools.fconv(htxLF.',hrxLF.');
-        hcLFdirect = hcLFdirect .* repmat(DiffracWin(:).',size(hcLFdirect,1),1);
-        hcLFdirect = sum(hcLFdirect(1:numel(hf),:),2) / rtxN^2 / pi;
+        hcLRdirect = Tools.fconv(htxLR.',hrxLR.');
+        hcLRdirect = hcLRdirect .* repmat(DiffracWin(:).',size(hcLRdirect,1),1);
+        hcLRdirect = sum(hcLRdirect(1:numel(hf),:),2) / rtxN^2 / pi;
         
-        hcLF = Tools.fconv(htxLF.',hrx.');
-        hcLF = hcLF .* repmat(DiffracWin(:).',size(hcLF,1),1);
-        hcLF = sum(hcLF(1:numel(hf),:),2) / rtxN^2 / pi;
-        
-        hc = hc - (hcLF - hcLFdirect);
+        hcLR = Tools.fconv(htxLR.',hrx.');
+        hcLR = hcLR .* repmat(DiffracWin(:).',size(hcLR,1),1);
+        hcLR = sum(hcLR(1:numel(hf),:),2) / rtxN^2 / pi;
+        hcL = (hcLR - hcLRdirect);
+        hc = hc - hcL;
         %%% 
         
         % hI_band = filter(b,a,hI);
@@ -218,6 +218,7 @@ while ss < numel(XX) %ss<1 %for ss = 1:10
 %         h1_band = filter(b,a,(hcLF - hcLFdirect));
 %         h2_band = filter(b,a,hctest_reflect);
         hc_band = filter(b,a,hc);
+        hcL_band = filter(b,a,hcL);
         
         
         figure(1); 
@@ -226,6 +227,7 @@ while ss < numel(XX) %ss<1 %for ss = 1:10
 %         plot(hf,'k'); hold on
 %         plot(h2,'r'); hold on
         plot(hc_band); hold on;
+        plot(hcL_band); hold on;
 %         plot(h1_band); hold on;
 %         plot(h2_band); hold on;
 %         plot(hf_band - hc_band); hold on;
