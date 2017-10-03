@@ -123,14 +123,14 @@ beta(5,:) = (1 - [1.0   [1 1 1 0 1]*1.0]).^2;                 % Reverberation ti
 beta(6,:) = (1 - [1.0   [1 1 1 1 0]*1.0]).^2;                 % Reverberation time (s)
 %%%
 
-rtxN = 25;
+rtxN = 61;
 [yy,zz] = meshgrid(linspace(0,3,rtxN)); % Planar Array
 % yy = linspace(0,3,rtxN); zz = yy*0+1.5; % Linear Array
 
 rtx = [zeros(numel(yy),1), yy(:), zz(:)];
 srx = rtx;
 
-imgSingle =2;
+imgSingle = 2;
 res = 20;
 [XX,YY] = meshgrid(linspace(0,3,3*res));
 
@@ -157,9 +157,9 @@ stx = s;              % Source position [x y z] (m)
 % htx = rir_generator(c, fs, rtx, stx, L, beta(img,:), n, mtype, order, dim, orientation, hp_filter);
 % htx = htx - rir_generator(c, fs, rtx, stx, L, beta(1,:), n, mtype, order, dim, orientation, hp_filter);
 
-htx = rir_generator(c, fs, rtx, stx, L, [0 beta(img,2:end)], n, mtype, order-1, dim, orientation, hp_filter);
+htx = rir_generator(c, fs, rtx, stx, L, [1 beta(img,2:end)], n, mtype, order-1, dim, orientation, hp_filter);
 % htx = htx - ...
-%       rir_generator(c, fs, rtx, stx, L, [0 beta(img-1,2:end)], n, mtype, order, dim, orientation, hp_filter);
+%       rir_generator(c, fs, rtx, stx, L, [0 beta(img,2:end)], n, mtype, order-1, dim, orientation, hp_filter);
 
 
 for ss = 1%:(3*res)^2
@@ -195,7 +195,7 @@ y=1.5;
         rrx = r;    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
         hrx=[];
         for i = 1:size(rtx,1)
-            hrx(i,:) = rir_generator(c, fs, rrx, srx(i,:), L, betaW, n, mtype, order, dim, orientation, hp_filter);
+            hrx(i,:) = rir_generator(c, fs, rrx, srx(i,:), L, beta(img,:), n, mtype, order-1, dim, orientation, hp_filter);
         end
         
         hrx = Tools.fconv(hrx.',repmat(imp.',size(hrx,1),1).').';
@@ -211,7 +211,7 @@ y=1.5;
         figure(1); 
         % plot(hI_band); hold on
         plot(hf_band); hold on
-        plot(h1,'k'); hold on
+        plot(hf,'k'); hold on
         plot(h2,'r'); hold on
         plot(hc_band); hold on;
 %         plot(hf_band - hc_band); hold on;
