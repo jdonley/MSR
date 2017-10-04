@@ -124,7 +124,11 @@ beta(6,:) = (1 - [1.0   [1 1 1 1 0]*1.0]).^2;                 % Reverberation ti
 %%%
 
 rtxN = 61;
-[yy,zz] = meshgrid(linspace(0,3,rtxN)); % Planar Array
+% linePos = linspace(0,3,rtxN);
+startL = 0;
+endL = 3;
+linePos = (startL + endL/rtxN/2) : endL/rtxN : endL*(1 - 1/rtxN/2);
+[yy,zz] = meshgrid( linePos ); % Planar Array
 % yy = linspace(0,3,rtxN); zz = yy*0+1.5; % Linear Array
 
 rtx = [zeros(numel(yy),1), yy(:), zz(:)];
@@ -161,7 +165,7 @@ while true%ss < numel(XX) %ss<1 %for ss = 1:10
 % x=1.0; 
 % y=1.5;
     r  = [ 1.0   1.5   1.5];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
-    s  = [ 1.5   2.5   1.5];    % Source position [x y z] (m)
+    s  = [ 1.5   1.5   1.5];    % Source position [x y z] (m)
 %     r = rand(1,3).*[2.5 3 3] + [0.5 0 0];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
 %     s = rand(1,3).*[2.5 3 3] + [0.5 0 0];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
     % s = [rand(1,2)*3 1.5]; r = [rand(1,2)*3 1.5]; % When using linear array
