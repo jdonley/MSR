@@ -164,8 +164,8 @@ while true%ss < numel(XX) %ss<1 %for ss = 1:10
 %     x = XX(x_,y_); y = YY(x_,y_);
 % x=1.0; 
 % y=1.5;
-    r  = [ 1.5   1.0   1.5];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
-    s  = [ 1.5   0.5   1.5];    % Source position [x y z] (m)
+    r  = [ 0.5   0.1   1.5];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
+    s  = [ 0.5   2.9   1.5];    % Source position [x y z] (m)
 %     r = rand(1,3).*[2.5 3 3] + [0.5 0 0];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
 %     s = rand(1,3).*[2.5 3 3] + [0.5 0 0];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
     % s = [rand(1,2)*3 1.5]; r = [rand(1,2)*3 1.5]; % When using linear array
@@ -175,9 +175,9 @@ while true%ss < numel(XX) %ss<1 %for ss = 1:10
         
         %%% Mic transfer functions
         stx = s;              % Source position [x y z] (m)
-        htx = rir_generator(c, fs, rtx, stx, L, [0 beta(img,2:end)], n, mtype, order-1, dim, orientation, hp_filter);
+        htx = rir_generator(c, fs, rtx, stx, L, beta(img,:), n, mtype, order-1, dim, orientation, hp_filter);
         htxLR = htx - ... % Last reflection
-            rir_generator(c, fs, rtx, stx, L, [0 beta(img,2:end)], n, mtype, order-2, dim, orientation, hp_filter) ;
+            rir_generator(c, fs, rtx, stx, L, beta(img,:), n, mtype, order-2, dim, orientation, hp_filter) ;
         %%%
 
         %%% Ground truth reflections
@@ -207,9 +207,9 @@ while true%ss < numel(XX) %ss<1 %for ss = 1:10
         hcLR = Tools.fconv(htxLR.',hrx.');
         hcL = (hcLR - hcLRdirect);
         
-        hc = hc .* repmat(DiffracWin(:).',size(hc,1),1);
+%         hc = hc .* repmat(DiffracWin(:).',size(hc,1),1);
         hc = sum(hc(1:numel(hf),:),2) / rtxN^2 / pi;
-        hcL = hcL .* repmat(DiffracWin(:).',size(hcL,1),1);
+%         hcL = hcL .* repmat(DiffracWin(:).',size(hcL,1),1);
         hcL = sum(hcL(1:numel(hf),:),2) / rtxN^2 / pi;
         
         
