@@ -135,7 +135,7 @@ linePos = (startL + endL/rtxN/2) : endL/rtxN : endL*(1 - 1/rtxN/2);
 rtx = [zeros(numel(yy),1), yy(:), zz(:)];
 srx = rtx;
 
-imgSingle = 1;
+imgs = 1:6;
 res = 20;
 [XX,YY] = meshgrid(linspace(0,3,3*res));
 
@@ -146,7 +146,7 @@ winPerc = 20;
 DiffracWin = Wx .* Wy;
 %%%
 
-img = imgSingle;
+
 [b,a] = cheby1(6,0.1,[250 1500]/(fs/2));
 
 
@@ -165,14 +165,14 @@ while true%ss < numel(XX) %ss<1 %for ss = 1:10
 %     x = XX(x_,y_); y = YY(x_,y_);
 % x=1.0; 
 % y=1.5;
-    r  = [ 0.5   0.1   1.5];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
-    s  = [ 0.5   2.9   1.5];    % Source position [x y z] (m)
-%     r = rand(1,3).*[2.5 3 3] + [0.5 0 0];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
-%     s = rand(1,3).*[2.5 3 3] + [0.5 0 0];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
+%     r  = [ 1.5   1.5   1.5];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
+%     s  = [ 1.5   2.5   1.5];    % Source position [x y z] (m)
+    r = rand(1,3).*[2.5 3 3] + [0.5 0 0];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
+    s = rand(1,3).*[2.5 3 3] + [0.5 0 0];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
     % s = [rand(1,2)*3 1.5]; r = [rand(1,2)*3 1.5]; % When using linear array
     
 
-    for img = imgSingle%1:6
+    for img = imgs%1:6
         
         %%% Mic transfer functions
         stx = s;              % Source position [x y z] (m)
@@ -203,8 +203,8 @@ while true%ss < numel(XX) %ss<1 %for ss = 1:10
             ./ (srx(:,1) - rrx(1)) );
         alph = 0.5; % cardioid
         A = alph + (1-alph)*cos(th);        
-        htx = htx .* A.^2;
-        htxLR = htxLR .* A.^2;        
+        htx = htx .* A;
+        htxLR = htxLR .* A;        
         %%%
         
         %%% Apply WFS/SDM pre-filter
@@ -227,26 +227,27 @@ while true%ss < numel(XX) %ss<1 %for ss = 1:10
         hc = hc - hcL;
         %%% 
         
-        % hI_band = filter(b,a,hI);
-        hf_band = filter(b,a,hf);
-%         h1_band = filter(b,a,(hcLF - hcLFdirect));
-%         h2_band = filter(b,a,hctest_reflect);
-        hc_band = filter(b,a,hc);
-        hcL_band = filter(b,a,hcL);
-        
-        
-        figure(1); 
-        % plot(hI_band); hold on
-        plot(hf_band); hold on
-%         plot(hf,'k'); hold on
-%         plot(h2,'r'); hold on
-        plot(hc_band); hold on;
-        plot(hcL_band); hold on;
-%         plot(h1_band); hold on;
-%         plot(h2_band); hold on;
+%         % hI_band = filter(b,a,hI);
+%         hf_band = filter(b,a,hf);
+% %         h1_band = filter(b,a,(hcLF - hcLFdirect));
+% %         h2_band = filter(b,a,hctest_reflect);
+%         hc_band = filter(b,a,hc);
+%         hcL_band = filter(b,a,hcL);
+%         
+%         
+%         figure(1); 
+%         % plot(hI_band); hold on
+%         plot(hf_band); hold on
+% %         plot(hf,'k'); hold on
+% %         plot(h2,'r'); hold on
+%         plot(hc_band); hold on;
+%         plot(hcL_band); hold on;
+% %         plot(h1_band); hold on;
+% %         plot(h2_band); hold on;
 %         plot(hf_band - hc_band); hold on;
-        hold off;grid on;
-        0;
+%         hold off;grid on;
+%         pow2db(sum((hf_band).^2)) - pow2db(sum((hf_band-hc_band).^2))
+%         0;
         
 % hh1(ss,:) = hf_band;
 % hh2(ss,:) = hc_band;
@@ -301,7 +302,7 @@ while true%ss < numel(XX) %ss<1 %for ss = 1:10
     % plot(ff, mag2db(  M         ) - meanMF  ,':m'); hold on;
     plot(ff, mag2db(  mean(MF(:,:,1),2) ) - meanMF(:,:,1)  ,'-k','linew',1.5); hold on;
     set(gca,'ColorOrderIndex',1);
-    for img = imgSingle%1:6
+    for img = imgs%1:6
         plot(ff, mag2db(  mean( M(:,:,img),2) ) - meanMF(:,:,img)  ,'-','linew',1.5); hold on;
     end
     hold off;
@@ -309,12 +310,12 @@ while true%ss < numel(XX) %ss<1 %for ss = 1:10
     grid on; grid minor; set(gca,'xscale','log');
     xlabel('Frequency (kHz)');ylabel('Magnitude (dB)');
     legend({'Active Wall Off'; ...
-        'Active Wall On & 1 Reflection'; ...
-        'Active Wall On & 2 Reflections'; ...
-        'Active Wall On & 3 Reflections'; ...
-        'Active Wall On & 4 Reflections'; ...
-        'Active Wall On & 5 Reflections'; ...
-        'Active Wall On & 6 Reflections'}, ...
+        'Active Wall On & 1st Wall Reflective'; ...
+        'Active Wall On & 2nd Wall Reflective'; ...
+        'Active Wall On & 3rd Wall Reflective'; ...
+        'Active Wall On & 4th Wall Reflective'; ...
+        'Active Wall On & 5th Wall Reflective'; ...
+        'Active Wall On & 6th Wall Reflective'}, ...
         'Location','northwest');
     
 
