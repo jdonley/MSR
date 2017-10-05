@@ -218,9 +218,9 @@ while true%ss < numel(XX) %ss<1 %for ss = 1:10
         hcLR = Tools.fconv(htxLR.',hrx.');
         hcL = (hcLR - hcLRdirect);
         
-%         hc = hc .* repmat(DiffracWin(:).',size(hc,1),1);
+        hc = hc .* repmat(DiffracWin(:).',size(hc,1),1);
         hc = sum(hc(1:numel(hf),:),2) / rtxN^2 / pi;
-%         hcL = hcL .* repmat(DiffracWin(:).',size(hcL,1),1);
+        hcL = hcL .* repmat(DiffracWin(:).',size(hcL,1),1);
         hcL = sum(hcL(1:numel(hf),:),2) / rtxN^2 / pi;
         
         

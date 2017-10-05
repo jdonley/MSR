@@ -156,16 +156,16 @@ s  = [1.5 2.5 1.5];    % Source position [x y z] (m)
 
 %%% Mic transfer functions
 stx = s;              % Source position [x y z] (m)
-htx = rir_generator(c, fs, rtx, stx, L, [0 beta(img,2:end)], n, mtype, order-1, dim, orientation, hp_filter);
+htx = rir_generator(c, fs, rtx, stx, L, [0 beta(img,2:end)], n, mtypeW, order-1, dim, orientation, hp_filter);
 htxLR = htx - ... % Last reflection
-    rir_generator(c, fs, rtx, stx, L, [0 beta(img,2:end)], n, mtype, order-2, dim, orientation, hp_filter) ;
+    rir_generator(c, fs, rtx, stx, L, [0 beta(img,2:end)], n, mtypeW, order-2, dim, orientation, hp_filter) ;
 %%%
 
 current_pool = gcp; %Start new pool
-    fprintf('\n====== Building RIR Database ======\n');
-    fprintf('\t Completion: '); startTime = tic;
-    Tools.showTimeToCompletion;
-    percCompl = parfor_progress( (3*res)^2 );
+fprintf('\n====== Building RIR Database ======\n');
+fprintf('\t Completion: '); startTime = tic;
+Tools.showTimeToCompletion;
+percCompl = parfor_progress( (3*res)^2 );
 parfor ss = 1:(3*res)^2
     [x_,y_] = ind2sub(size(XX),ss);
     
@@ -193,15 +193,23 @@ parfor ss = 1:(3*res)^2
             hrxLR(i,:) = rir_generator(c, fs, rrx, srx(i,:), L, beta(img,:), n, mtype, order-2, dim, orientation, hp_filter);
         end
         
+        %%% Determine carioid pattern multiplier
+        th = atan( ...
+            sqrt( (srx(:,2) - rrx(2)).^2 + (srx(:,3) - rrx(3)).^2 ) ...
+            ./ (srx(:,1) - rrx(1)) );
+        alph = 0.5; % cardioid
+        A = alph + (1-alph)*cos(th.');      
+        %%%
+        
         %%% Apply WFS/SDM pre-filter
         hrx = Tools.fconv(hrx.',repmat(imp.',size(hrx,1),1).').';
         hrxLR = Tools.fconv(hrxLR.',repmat(imp.',size(hrxLR,1),1).').';
         %%%
         
         %%% Cancellation signal minus last refelction
-        hc = Tools.fconv(htx.',hrx.');        
-        hcLRdirect = Tools.fconv(htxLR.',hrxLR.');
-        hcLR = Tools.fconv(htxLR.',hrx.');
+        hc = Tools.fconv(htx.' .* A  ,hrx.');        
+        hcLRdirect = Tools.fconv(htxLR.' .* A  ,hrxLR.');
+        hcLR = Tools.fconv(htxLR.' .* A  ,hrx.');
         hcL = (hcLR - hcLRdirect);
         
 %         hc = hc .* repmat(DiffracWin(:).',size(hc,1),1);
@@ -319,9 +327,10 @@ imagesc(FIELDERROR);
 %%
 v = VideoWriter('IRcancelwall.avi','Uncompressed AVI');
 open(v);
-maxV = max( abs( hh(:) ) );
+hhRender = hh(:,2:end,:,:);
+maxV = max( abs( hhRender(:) ) ) * 0.5;
 C = repmat(linspace(0,1,256)',1,3);
-for i = 100:600
+for i = 1:600
 FIELDERROR = hh(:,:,i,1);
 image((FIELDERROR / maxV /1 + 1 ) * size(C,1)/2);
 set(gcf,'Position',[100 100 500 500])
@@ -329,7 +338,7 @@ disp(i);colormap(C); axis equal; drawnow;
 set(gcf,'Renderer','zbuffer');
 writeVideo(v,getframe);
 end
-for i = 100:600
+for i = 1:600
 FIELDERROR = hh(:,:,i,2);
 image((FIELDERROR / maxV /1 + 1 ) * size(C,1)/2);
 set(gcf,'Position',[100 100 500 500])
@@ -337,7 +346,7 @@ disp(i);colormap(C); axis equal; drawnow;
 set(gcf,'Renderer','zbuffer');
 writeVideo(v,getframe);
 end
-for i = 100:600
+for i = 1:600
 FIELDERROR = diff(hh(:,:,i,:),[],4);
 image((FIELDERROR / maxV /1 + 1 ) * size(C,1)/2);
 set(gcf,'Position',[100 100 500 500])
