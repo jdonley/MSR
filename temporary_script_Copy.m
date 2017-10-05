@@ -134,7 +134,7 @@ linePos = (startL + endL/rtxN/2) : endL/rtxN : endL*(1 - 1/rtxN/2);
 rtx = [zeros(numel(yy),1), yy(:), zz(:)];
 srx = rtx;
 
-imgSingle = 3;
+imgSingle = 1;
 res = 20;
 [XX,YY] = meshgrid(linspace(0,3,3*res));
 
@@ -165,7 +165,7 @@ while true%ss < numel(XX) %ss<1 %for ss = 1:10
 % x=1.0; 
 % y=1.5;
     r  = [ 0.5   0.1   1.5];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
-    s  = [ 0.5   2.9   1.5];    % Source position [x y z] (m)
+    s  = [ 0.5   2.0   1.5];    % Source position [x y z] (m)
 %     r = rand(1,3).*[2.5 3 3] + [0.5 0 0];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
 %     s = rand(1,3).*[2.5 3 3] + [0.5 0 0];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
     % s = [rand(1,2)*3 1.5]; r = [rand(1,2)*3 1.5]; % When using linear array
