@@ -165,8 +165,8 @@ while true%ss < numel(XX) %ss<1 %for ss = 1:10
 %     x = XX(x_,y_); y = YY(x_,y_);
 % x=1.0; 
 % y=1.5;
-    r  = [ 1.0   0.5   1.5];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
-    s  = [ 1.0   2.5   1.5];    % Source position [x y z] (m)
+    r  = [ 0.5   0.1   1.5];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
+    s  = [ 0.5   2.9   1.5];    % Source position [x y z] (m)
 %     r = rand(1,3).*[2.5 3 3] + [0.5 0 0];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
 %     s = rand(1,3).*[2.5 3 3] + [0.5 0 0];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
     % s = [rand(1,2)*3 1.5]; r = [rand(1,2)*3 1.5]; % When using linear array
@@ -188,7 +188,7 @@ while true%ss < numel(XX) %ss<1 %for ss = 1:10
         hf = h1_(:);
         %%%
 
-        
+
         %%% Loudspeaker transfer functions
         rrx = r;    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
         hrx=[]; hrxLR=[];
@@ -196,6 +196,16 @@ while true%ss < numel(XX) %ss<1 %for ss = 1:10
             hrx(i,:) = rir_generator(c, fs, rrx, srx(i,:), L, beta(img,:), n, mtype, order-1, dim, orientation, hp_filter);
             hrxLR(i,:) = rir_generator(c, fs, rrx, srx(i,:), L, beta(img,:), n, mtype, order-2, dim, orientation, hp_filter);
         end
+        
+        %%% Determine carioid pattern multiplier
+        th = atan( ...
+            sqrt( (srx(:,2) - rrx(2)).^2 + (srx(:,3) - rrx(3)).^2 ) ...
+            ./ (srx(:,1) - rrx(1)) );
+        alph = 0.5; % cardioid
+        A = alph + (1-alph)*cos(th);        
+        htx = htx .* A.^2;
+        htxLR = htxLR .* A.^2;        
+        %%%
         
         %%% Apply WFS/SDM pre-filter
         hrx = Tools.fconv(hrx.',repmat(imp.',size(hrx,1),1).').';
