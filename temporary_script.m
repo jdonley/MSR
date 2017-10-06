@@ -332,33 +332,60 @@ hhRender = hh(:,2:end,:,:);
 maxV = max( abs( hhRender(:) ) ) * 0.5;
 C = repmat(linspace(0,1,256)',1,3);
 figure(1);
-title('Reflections');
 for i = 1:600
 FIELDERROR = hh(:,:,i,1);
 image((FIELDERROR / maxV /1 + 1 ) * size(C,1)/2);
-set(gca, 'XDir', 'reverse');
+title('Reflections');
+ax = gca; ax.Box = 'off'; ax.Color(4) = 0;
+ax.YDir = 'normal'; ax.TickDir = 'both';
+axis([1 size(hh,1)+1 1 size(hh,2)+1]);
+ax.YTick = linspace(1,size(hh,1)+1,4);
+ax.YTickLabel = linspace(0,3,4);
+ax.XTick = linspace(1,size(hh,2)+1,4);
+ax.XTickLabel = linspace(0,3,4);
+ax.XLabel.String = 'Width (m)';
+ax.YLabel.String = 'Length (m)';
 set(gcf,'Position',[100 100 500 500])
-disp(i);colormap(C); axis equal; drawnow;
+disp(i);colormap(C);
+drawnow;
 set(gcf,'Renderer','zbuffer');
 writeVideo(v,getframe);
 end
-title('Cancellation Signal');
 for i = 1:600
 FIELDERROR = hh(:,:,i,2);
 image((FIELDERROR / maxV /1 + 1 ) * size(C,1)/2);
-set(gca, 'XDir', 'reverse');
+title('Cancellation Signal');
+ax = gca; ax.Box = 'off'; ax.Color(4) = 0;
+ax.YDir = 'normal'; ax.TickDir = 'both';
+axis([1 size(hh,1)+1 1 size(hh,2)+1]);
+ax.YTick = linspace(1,size(hh,1)+1,4);
+ax.YTickLabel = linspace(0,3,4);
+ax.XTick = linspace(1,size(hh,2)+1,4);
+ax.XTickLabel = linspace(0,3,4);
+ax.XLabel.String = 'Width (m)';
+ax.YLabel.String = 'Length (m)';
 set(gcf,'Position',[100 100 500 500])
-disp(i);colormap(C); axis equal; drawnow;
+disp(i);colormap(C);
+drawnow;
 set(gcf,'Renderer','zbuffer');
 writeVideo(v,getframe);
 end
-title('Suppressed Reflections');
 for i = 1:600
 FIELDERROR = diff(hh(:,:,i,:),[],4);
 image((FIELDERROR / maxV /1 + 1 ) * size(C,1)/2);
-set(gca, 'XDir', 'reverse');
+title('Suppressed Reflections');
+ax = gca; ax.Box = 'off'; ax.Color(4) = 0;
+ax.YDir = 'normal'; ax.TickDir = 'both';
+axis([1 size(hh,1)+1 1 size(hh,2)+1]);
+ax.YTick = linspace(1,size(hh,1)+1,4);
+ax.YTickLabel = linspace(0,3,4);
+ax.XTick = linspace(1,size(hh,2)+1,4);
+ax.XTickLabel = linspace(0,3,4);
+ax.XLabel.String = 'Width (m)';
+ax.YLabel.String = 'Length (m)';
 set(gcf,'Position',[100 100 500 500])
-disp(i);colormap(C); axis equal; drawnow;
+disp(i);colormap(C);
+drawnow;
 set(gcf,'Renderer','zbuffer');
 writeVideo(v,getframe);
 end
