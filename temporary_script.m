@@ -74,8 +74,9 @@ W = [ 0*ones(1,numel(0:res:f_band(1)-1)) ...
     0*ones(1,numel(f_band(2)+1:res:fs/2)) ];
 Hd = design(f,'iirls','Weights',W);
 
-isstable(Hd)
-Hd.impzlength
+if isstable(Hd), HdSt='true';else,HdSt='false';end
+fprintf('WFS/SDM IIR(LS) pre-filter is stable: %s\n',HdSt);
+fprintf('WFS/SDM IIR(LS) pre-filter length: %d\n',Hd.impzlength);
 
 imp = Hd.impulse;
 imp = imp.Data;
