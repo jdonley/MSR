@@ -118,10 +118,10 @@ betaW     = (1 - [1.0   [1 1 1 1 1]*1.0]).^2;                 % Reverberation ti
 beta(1,:) = (1 - [1.0   [1 1 1 1 1]*1.0]).^2;                 % Reverberation time (s)
 
 beta(2,:) = (1 - [1.0   [0 1 1 1 1]*1.0]).^2;                 % Reverberation time (s)
-beta(3,:) = (1 - [1.0   [1 0 1 1 1]*1.0]).^2;                 % Reverberation time (s)
-beta(4,:) = (1 - [1.0   [1 1 0 1 1]*1.0]).^2;                 % Reverberation time (s)
-beta(5,:) = (1 - [1.0   [1 1 1 0 1]*1.0]).^2;                 % Reverberation time (s)
-beta(6,:) = (1 - [1.0   [1 1 1 1 0]*1.0]).^2;                 % Reverberation time (s)
+beta(3,:) = (1 - [1.0   [0 0 1 1 1]*1.0]).^2;                 % Reverberation time (s)
+beta(4,:) = (1 - [1.0   [0 0 0 1 1]*1.0]).^2;                 % Reverberation time (s)
+beta(5,:) = (1 - [1.0   [0 0 0 0 1]*1.0]).^2;                 % Reverberation time (s)
+beta(6,:) = (1 - [1.0   [0 0 0 0 0]*1.0]).^2;                 % Reverberation time (s)
 %%%
 
 rtxN = 61;
@@ -137,8 +137,8 @@ DiffracWin = Wx .* Wy;
 rtx = [zeros(numel(yy),1), yy(:), zz(:)];
 srx = rtx;
 
-imgSingle = 3;
-res = 20;
+imgSingle = 6;
+res = 30;
 [XX,YY] = meshgrid(linspace(0,3,3*res));
 
 
@@ -331,23 +331,29 @@ open(v);
 hhRender = hh(:,2:end,:,:);
 maxV = max( abs( hhRender(:) ) ) * 0.5;
 C = repmat(linspace(0,1,256)',1,3);
-figure(1);
+fH = figure(1); fH.Color = 'k';
+
 for i = 1:600
 FIELDERROR = hh(:,:,i,1);
 image((FIELDERROR / maxV /1 + 1 ) * size(C,1)/2);
 title('Reflections');
-ax = gca; ax.Box = 'off'; ax.Color(4) = 0;
+ax = gca; ax.Color(4) = 0;
 ax.YDir = 'normal'; ax.TickDir = 'both';
-axis([1 size(hh,1)+1 1 size(hh,2)+1]);
-ax.YTick = linspace(1,size(hh,1)+1,4);
+axis([1 size(hh,1) 1 size(hh,2)]);
+ax.YTick = linspace(1,size(hh,1),4);
 ax.YTickLabel = linspace(0,3,4);
-ax.XTick = linspace(1,size(hh,2)+1,4);
+ax.XTick = linspace(1,size(hh,2),4);
 ax.XTickLabel = linspace(0,3,4);
 ax.XLabel.String = 'Width (m)';
 ax.YLabel.String = 'Length (m)';
 set(gcf,'Position',[100 100 500 500])
-disp(i);colormap(C);
-drawnow;
+colormap(C);
+ax.XLabel.Color = 1 - ax.XLabel.Color;
+ax.YLabel.Color = 1 - ax.YLabel.Color;
+ax.XAxis.Color  = 1 - ax.XAxis.Color;
+ax.YAxis.Color  = 1 - ax.YAxis.Color;
+ax.Title.Color  = 1 - ax.Title.Color;
+disp(i); drawnow;
 set(gcf,'Renderer','zbuffer');
 writeVideo(v,getframe(gcf));
 end
@@ -355,18 +361,23 @@ for i = 1:600
 FIELDERROR = hh(:,:,i,2);
 image((FIELDERROR / maxV /1 + 1 ) * size(C,1)/2);
 title('Cancellation Signal');
-ax = gca; ax.Box = 'off'; ax.Color(4) = 0;
+ax = gca; ax.Color(4) = 0;
 ax.YDir = 'normal'; ax.TickDir = 'both';
-axis([1 size(hh,1)+1 1 size(hh,2)+1]);
-ax.YTick = linspace(1,size(hh,1)+1,4);
+axis([1 size(hh,1) 1 size(hh,2)]);
+ax.YTick = linspace(1,size(hh,1),4);
 ax.YTickLabel = linspace(0,3,4);
-ax.XTick = linspace(1,size(hh,2)+1,4);
+ax.XTick = linspace(1,size(hh,2),4);
 ax.XTickLabel = linspace(0,3,4);
 ax.XLabel.String = 'Width (m)';
 ax.YLabel.String = 'Length (m)';
 set(gcf,'Position',[100 100 500 500])
-disp(i);colormap(C);
-drawnow;
+colormap(C);
+ax.XLabel.Color = 1 - ax.XLabel.Color;
+ax.YLabel.Color = 1 - ax.YLabel.Color;
+ax.XAxis.Color  = 1 - ax.XAxis.Color;
+ax.YAxis.Color  = 1 - ax.YAxis.Color;
+ax.Title.Color  = 1 - ax.Title.Color;
+disp(i); drawnow;
 set(gcf,'Renderer','zbuffer');
 writeVideo(v,getframe(gcf));
 end
@@ -374,18 +385,23 @@ for i = 1:600
 FIELDERROR = diff(hh(:,:,i,:),[],4);
 image((FIELDERROR / maxV /1 + 1 ) * size(C,1)/2);
 title('Suppressed Reflections');
-ax = gca; ax.Box = 'off'; ax.Color(4) = 0;
+ax = gca; ax.Color(4) = 0;
 ax.YDir = 'normal'; ax.TickDir = 'both';
-axis([1 size(hh,1)+1 1 size(hh,2)+1]);
-ax.YTick = linspace(1,size(hh,1)+1,4);
+axis([1 size(hh,1) 1 size(hh,2)]);
+ax.YTick = linspace(1,size(hh,1),4);
 ax.YTickLabel = linspace(0,3,4);
-ax.XTick = linspace(1,size(hh,2)+1,4);
+ax.XTick = linspace(1,size(hh,2),4);
 ax.XTickLabel = linspace(0,3,4);
 ax.XLabel.String = 'Width (m)';
 ax.YLabel.String = 'Length (m)';
 set(gcf,'Position',[100 100 500 500])
-disp(i);colormap(C);
-drawnow;
+colormap(C);
+ax.XLabel.Color = 1 - ax.XLabel.Color;
+ax.YLabel.Color = 1 - ax.YLabel.Color;
+ax.XAxis.Color  = 1 - ax.XAxis.Color;
+ax.YAxis.Color  = 1 - ax.YAxis.Color;
+ax.Title.Color  = 1 - ax.Title.Color;
+disp(i); drawnow;
 set(gcf,'Renderer','zbuffer');
 writeVideo(v,getframe(gcf));
 end
