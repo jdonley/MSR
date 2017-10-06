@@ -349,7 +349,7 @@ set(gcf,'Position',[100 100 500 500])
 disp(i);colormap(C);
 drawnow;
 set(gcf,'Renderer','zbuffer');
-writeVideo(v,getframe);
+writeVideo(v,getframe(gcf));
 end
 for i = 1:600
 FIELDERROR = hh(:,:,i,2);
@@ -368,7 +368,7 @@ set(gcf,'Position',[100 100 500 500])
 disp(i);colormap(C);
 drawnow;
 set(gcf,'Renderer','zbuffer');
-writeVideo(v,getframe);
+writeVideo(v,getframe(gcf));
 end
 for i = 1:600
 FIELDERROR = diff(hh(:,:,i,:),[],4);
@@ -387,6 +387,6 @@ set(gcf,'Position',[100 100 500 500])
 disp(i);colormap(C);
 drawnow;
 set(gcf,'Renderer','zbuffer');
-writeVideo(v,getframe);
+writeVideo(v,getframe(gcf));
 end
 close(v);
