@@ -331,25 +331,32 @@ open(v);
 hhRender = hh(:,2:end,:,:);
 maxV = max( abs( hhRender(:) ) ) * 0.5;
 C = repmat(linspace(0,1,256)',1,3);
+figure(1);
+title('Reflections');
 for i = 1:600
 FIELDERROR = hh(:,:,i,1);
 image((FIELDERROR / maxV /1 + 1 ) * size(C,1)/2);
+set(gca, 'XDir', 'reverse');
 set(gcf,'Position',[100 100 500 500])
 disp(i);colormap(C); axis equal; drawnow;
 set(gcf,'Renderer','zbuffer');
 writeVideo(v,getframe);
 end
+title('Cancellation Signal');
 for i = 1:600
 FIELDERROR = hh(:,:,i,2);
 image((FIELDERROR / maxV /1 + 1 ) * size(C,1)/2);
+set(gca, 'XDir', 'reverse');
 set(gcf,'Position',[100 100 500 500])
 disp(i);colormap(C); axis equal; drawnow;
 set(gcf,'Renderer','zbuffer');
 writeVideo(v,getframe);
 end
+title('Suppressed Reflections');
 for i = 1:600
 FIELDERROR = diff(hh(:,:,i,:),[],4);
 image((FIELDERROR / maxV /1 + 1 ) * size(C,1)/2);
+set(gca, 'XDir', 'reverse');
 set(gcf,'Position',[100 100 500 500])
 disp(i);colormap(C); axis equal; drawnow;
 set(gcf,'Renderer','zbuffer');
