@@ -67,19 +67,24 @@ fmid = 10^mean(log10(f_band));
 res = 100;
 F = (0:res:fs/2)/(fs/2);
 A = ((0:res:fs/2));
-H = A .* exp(1j*pi/2);
-f = fdesign.arbmagnphase('Nb,Na,F,H',4,1,F,H);
+P = [0 ones(1,length(A)-1)*pi/2];
+H = A .* exp(1j*P);
+nb = 5;
+na = 1;
+f = fdesign.arbmagnphase('Nb,Na,F,H',nb,na,F,H);
 W = [ 0*ones(1,numel(0:res:f_band(1)-1)) ...
     10*ones(1,numel(f_band(1):res:f_band(2) )) ...
     0*ones(1,numel(f_band(2)+1:res:fs/2)) ];
 Hd = design(f,'iirls','Weights',W);
 
-if isstable(Hd), HdSt='true';else,HdSt='false';end
-fprintf('WFS/SDM IIR(LS) pre-filter is stable: %s\n',HdSt);
-fprintf('WFS/SDM IIR(LS) pre-filter length: %d\n',Hd.impzlength);
-
 imp = Hd.impulse;
 imp = imp.Data;
+
+if isstable(imp), ImpSt='true';else,ImpSt='false';end
+fprintf('WFS/SDM IIR(LS) pre-filter is stable: %s\n',ImpSt);
+fprintf('WFS/SDM IIR(LS) pre-filter length: %d\n',numel(imp));
+
+
 
 % fvtool(Hd,'polezero')
 % fvtool(Hd,'impulse')
@@ -87,6 +92,34 @@ imp = imp.Data;
 % hfvt = fvtool(Hd,'Analysis','freq', 'Fs',16000, 'PhaseUnits','Degrees','Color','w');
 % ax = findall(hfvt.Children,'Type','Axes');
 % ax.XScale = 'log';
+
+%%% 
+nfft = max(nextpow2(numel(H)),1024);
+ff = linspace(F(1),F(end),nfft);
+aa = interp1(F,A,ff);
+pp = interp1(F,P,ff);
+HH = aa.*exp(1i*pp);
+WW = interp1(F,W,ff);
+
+OM = exp(-1i*(0:nb)' * ff*pi);
+Dva =  (OM(2:na+1,:).') .* HH.';
+Dvb = -(OM(1:nb+1,:).');
+D=[Dva Dvb].*(WW.'*ones(1,na+nb+1));
+
+    R=real(D'*D);
+    Vd=real(D'*(-HH.*WW).');
+
+th=R\Vd;
+a = [1 th(1:na).'];
+b = th(na+1:na+nb+1).';
+
+imp2 = impz(b,a);
+
+if isstable(imp2), ImpSt='true';else,ImpSt='false';end
+fprintf('WFS/SDM IIR(LS) pre-filter is stable: %s\n',ImpSt);
+fprintf('WFS/SDM IIR(LS) pre-filter length: %d\n',numel(imp2));
+
+0;
 
 %%
 % [num,den]=iirlpnorm(8,8,f/(fs/2),f/(fs/2),a_int);
