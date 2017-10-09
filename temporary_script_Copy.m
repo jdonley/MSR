@@ -69,7 +69,7 @@ F = (0:res:fs/2)/(fs/2);
 A = ((0:res:fs/2));
 P = [0 ones(1,length(A)-1)*pi/2];
 H = A .* exp(1j*P);
-nb = 5;
+nb = 4;
 na = 1;
 f = fdesign.arbmagnphase('Nb,Na,F,H',nb,na,F,H);
 W = [ 0*ones(1,numel(0:res:f_band(1)-1)) ...
@@ -80,7 +80,7 @@ Hd = design(f,'iirls','Weights',W);
 imp = Hd.impulse;
 imp = imp.Data;
 
-if isstable(imp), ImpSt='true';else,ImpSt='false';end
+if isstable(Hd), ImpSt='true';else,ImpSt='false';end
 fprintf('WFS/SDM IIR(LS) pre-filter is stable: %s\n',ImpSt);
 fprintf('WFS/SDM IIR(LS) pre-filter length: %d\n',numel(imp));
 
@@ -110,15 +110,18 @@ D=[Dva Dvb].*(WW.'*ones(1,na+nb+1));
     Vd=real(D'*(-HH.*WW).');
 
 th=R\Vd;
-a = [1 th(1:na).'];
 b = th(na+1:na+nb+1).';
+a = [1 th(1:na).'];
 
 imp2 = impz(b,a);
 
-if isstable(imp2), ImpSt='true';else,ImpSt='false';end
+if isstable(b,a), ImpSt='true';else,ImpSt='false';end
 fprintf('WFS/SDM IIR(LS) pre-filter is stable: %s\n',ImpSt);
 fprintf('WFS/SDM IIR(LS) pre-filter length: %d\n',numel(imp2));
 
+
+PRE_b = b;
+PRE_a = a;
 0;
 
 %%
@@ -241,8 +244,10 @@ while ss < 200 %ss<1 %for ss = 1:10
         %%%
         
         %%% Apply WFS/SDM pre-filter
-        hrx = Tools.fconv(hrx.',repmat(imp.',size(hrx,1),1).').';
-        hrxLR = Tools.fconv(hrxLR.',repmat(imp.',size(hrxLR,1),1).').';
+%         hrx = Tools.fconv(hrx.',repmat(imp.',size(hrx,1),1).').';
+%         hrxLR = Tools.fconv(hrxLR.',repmat(imp.',size(hrxLR,1),1).').';
+        hrx   = filter(PRE_b,PRE_a,hrx.'  ).';
+        hrxLR = filter(PRE_b,PRE_a,hrxLR.').';
         %%%
         
         %%% Cancellation signal minus last refelction
