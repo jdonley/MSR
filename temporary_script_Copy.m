@@ -64,29 +64,27 @@
 fs = 16000;
 f_band = [200 2000];
 % fmid = 10^mean(log10(f_band));
-res = 10;
+res = 8;
 F = (0:res:fs/2)/(fs/2);
 A = ((0:res:fs/2));
 P = [0 ones(1,length(A)-1)*pi/2];
-P = pi/2;
-P = [linspace(0,P,nnz(F<f_band(1)/(fs/2))) ...
-    P*ones(1,nnz(F>=f_band(1)/(fs/2) & F<=f_band(2)/(fs/2) )) ...
-    linspace(P,P+nnz(F>f_band(2)/(fs/2))*mean(diff(linspace(0,P,nnz(F<f_band(1)/(fs/2)))))/2,nnz(F>f_band(2)/(fs/2)))];
+
 H = A .* exp(1j*P);
-nb = 4;
+nb = 14;
 na = 1;
 f = fdesign.arbmagnphase('Nb,Na,F,H',nb,na,F,H);
-W = [ 0*ones(1,numel(0:res:f_band(1)-1)) ...
-    1*ones(1,numel(f_band(1):res:f_band(2) )) ...
-    0*ones(1,numel(f_band(2)+1:res:fs/2)) ];
+W = [1*ones(1,numel(0:res:f_band(1)-1)) ...
+     1*ones(1,numel(f_band(1):res:f_band(2) )) ...
+     0*ones(1,numel(f_band(2)+1:res:fs/2)) ];
+
 Hd = design(f,'iirls','Weights',W);
 
-imp = Hd.impulse;
-imp = imp.Data;
+imp_ = Hd.impulse;
+imp_ = imp_.Data;
 
 if isstable(Hd), ImpSt='true';else,ImpSt='false';end
 fprintf('WFS/SDM IIR(LS) pre-filter is stable: %s\n',ImpSt);
-fprintf('WFS/SDM IIR(LS) pre-filter length: %d\n',numel(imp));
+fprintf('WFS/SDM IIR(LS) pre-filter length: %d\n',numel(imp_));
 
 
 
@@ -112,18 +110,19 @@ Dva =  (OM(2:na+1,:).') .* HH.';
 Dvb = -(OM(1:nb+1,:).');
 D=[Dva Dvb].*(WW.'*ones(1,na+nb+1));
 
-    R=real(D'*D);
-    Vd=real(D'*(-HH.*WW).');
+R=real(D'*D);
+Vd=real(D'*(-HH.*WW).');
 
 th=R\Vd;
 b = th(na+1:na+nb+1).';
 a = [1 th(1:na).'];
 
-imp2 = impz(b,a);
+imp = impz(b,a);
+imp(mag2db(abs(imp))<-50) = [];
 
 if isstable(b,a), ImpSt='true';else,ImpSt='false';end
 fprintf('WFS/SDM IIR(LS) pre-filter is stable: %s\n',ImpSt);
-fprintf('WFS/SDM IIR(LS) pre-filter length: %d\n',numel(imp2));
+fprintf('WFS/SDM IIR(LS) pre-filter length: %d\n',numel(imp));
 
 
 PRE_b = b;
@@ -135,7 +134,7 @@ y(end/2)=1;
 
 % yy = Tools.fconv(y.',imp);
 yy2 = filter(b,a,y).';
-yy3 = Tools.fconv(y.',imp2);
+yy3 = Tools.fconv(y.',imp);
 
 % plot(linspace(0,fs,numel(y))/1e3,unwrap(mod(unwrap(angle(fft(y))) - unwrap(angle(fft(yy(1:numel(y)).'))+pi),2*pi)-pi)/pi*180); hold on
 plot(linspace(0,fs,numel(y))/1e3,unwrap(mod(unwrap(angle(fft(y))) - unwrap(angle(fft(yy2(1:numel(y)).'))+pi),2*pi)-pi)/pi*180); hold on
@@ -145,7 +144,8 @@ plot(f_band/1e3,[-91 -91],'k','linew',0.5)
 plot(f_band/1e3,[-89 -89],'k','linew',0.5)
 hold off;
 set(gca,'xscale','log');
-% ylim(-[95 85]); xlim([50 4000]/1e3)
+ylim(-[91 89]); 
+% xlim([50 4000]/1e3)
 grid on
 
 %%
@@ -268,10 +268,10 @@ while ss < 200 %ss<1 %for ss = 1:10
         %%%
         
         %%% Apply WFS/SDM pre-filter
-%         hrx = Tools.fconv(hrx.',repmat(imp.',size(hrx,1),1).').';
-%         hrxLR = Tools.fconv(hrxLR.',repmat(imp.',size(hrxLR,1),1).').';
-        hrx   = filter(PRE_b,PRE_a,hrx.'  ).';
-        hrxLR = filter(PRE_b,PRE_a,hrxLR.').';
+        hrx = Tools.fconv(hrx.',repmat(imp.',size(hrx,1),1).').';
+        hrxLR = Tools.fconv(hrxLR.',repmat(imp.',size(hrxLR,1),1).').';
+%         hrx   = filter(PRE_b,PRE_a,hrx.'  ).';
+%         hrxLR = filter(PRE_b,PRE_a,hrxLR.').';
         %%%
         
         %%% Cancellation signal minus last refelction
