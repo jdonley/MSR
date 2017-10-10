@@ -100,6 +100,7 @@ aa = interp1(F,A,ff);
 pp = interp1(F,P,ff);
 HH = aa.*exp(1i*pp);
 WW = interp1(F,W,ff);
+% WW(WW~=0) = tukeywin(nnz(WW),0.1);
 
 OM = exp(-1i*(0:nb)' * ff*pi);
 Dva =  (OM(2:na+1,:).') .* HH.';
