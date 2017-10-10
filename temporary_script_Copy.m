@@ -64,13 +64,13 @@
 fs = 16000;
 f_band = [200 2000];
 % fmid = 10^mean(log10(f_band));
-res = 8;
+res = 20;
 F = (0:res:fs/2)/(fs/2);
 A = ((0:res:fs/2));
 P = [0 ones(1,length(A)-1)*pi/2];
 
 H = A .* exp(1j*P);
-nb = 14;
+nb = 6;
 na = 1;
 f = fdesign.arbmagnphase('Nb,Na,F,H',nb,na,F,H);
 W = [1*ones(1,numel(0:res:f_band(1)-1)) ...
@@ -118,7 +118,7 @@ b = th(na+1:na+nb+1).';
 a = [1 th(1:na).'];
 
 imp = impz(b,a);
-imp(mag2db(abs(imp))<-50) = [];
+imp(mag2db(abs(imp/max(imp)))<-60) = [];
 
 if isstable(b,a), ImpSt='true';else,ImpSt='false';end
 fprintf('WFS/SDM IIR(LS) pre-filter is stable: %s\n',ImpSt);
@@ -144,8 +144,8 @@ plot(f_band/1e3,[-91 -91],'k','linew',0.5)
 plot(f_band/1e3,[-89 -89],'k','linew',0.5)
 hold off;
 set(gca,'xscale','log');
-ylim(-[91 89]); 
-% xlim([50 4000]/1e3)
+ylim(-[95 85]); 
+xlim([50 4000]/1e3)
 grid on
 
 %%
