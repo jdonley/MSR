@@ -164,8 +164,8 @@ htxLR = htx - ... % Last reflection
 
 current_pool = gcp; %Start new pool
 fprintf('\n====== Building RIR Database ======\n');
-fprintf('\t Completion: '); startTime = tic;
-Tools.showTimeToCompletion;
+fprintf('\t Completion: '); 
+Tools.showTimeToCompletion; startTime = tic;
 percCompl = parfor_progress( (3*res)^2 );
 parfor ss = 1:(3*res)^2
     [x_,y_] = ind2sub(size(XX),ss);

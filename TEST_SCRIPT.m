@@ -1,45 +1,57 @@
-clear;
+fprintf('\t Completion: ');
+Tools.showTimeToCompletion; startTime=tic;
+len=1e6;
+p = parfor_progress( len );
+for i = 1:len
+pause(1);
+p = parfor_progress;
+Tools.showTimeToCompletion( p/100, [], [], startTime );
+end
+p = parfor_progress(0);
 
-c = 343;                    % Sound velocity (m/s)
-fs = 16000;                 % Sample frequency (samples/s)
-L = [3 3 3];                % Room dimensions [x y z] (m)
-n = 0.1*fs;                 % Number of samples
-mtype = 'omnidirectional';  % Type of microphone
-mtypeW= 'cardioid';         % Type of microphone
-order = 2;                  % -1 equals maximum reflection order
-dim = 3;                    % Room dimension
-orientation = 0;            % Microphone orientation (rad)
-hp_filter = 0;              % Enable high-pass filter
-
-
-betaAnec = (1 - [1.0   [1 1 1 1 1]*1.0]).^2;                 % Reverberation time (s)
-
-betaW_on = (1 - [1.0   [1 0 1 1 1]*1.0]).^2;                 % Reverberation time (s)
-
-
-s = [1.5 2.5 1.5];
-r = [1.5 1.5 1.5];
-
-
-
-h = rir_generator(c, fs, r, s, L, [1 betaW_on(2:end)], n, mtype, order, dim, orientation, hp_filter);
-h = h - ...
-    rir_generator(c, fs, r, s, L, betaW_on , n, mtype, order, dim, orientation, hp_filter);
-
-
-% plot(h(:,2),'linew',1.5); hold on;
-
-plot( h ,'-','linew',1.5); hold on;
-
-
-
-h1 = rir_generator(c, fs, r.*[-1 1 1], s, L, betaW_on, n, mtype, order-1, dim, orientation, hp_filter);
-h1 = h1 - ...
-     rir_generator(c, fs, r.*[-1 1 1], s, L, betaAnec, n, mtype, order-1, dim, orientation, hp_filter);
-
-plot( h1 ,':','linew',1.5);
-
-hold off;
+%%
+% clear;
+% 
+% c = 343;                    % Sound velocity (m/s)
+% fs = 16000;                 % Sample frequency (samples/s)
+% L = [3 3 3];                % Room dimensions [x y z] (m)
+% n = 0.1*fs;                 % Number of samples
+% mtype = 'omnidirectional';  % Type of microphone
+% mtypeW= 'cardioid';         % Type of microphone
+% order = 2;                  % -1 equals maximum reflection order
+% dim = 3;                    % Room dimension
+% orientation = 0;            % Microphone orientation (rad)
+% hp_filter = 0;              % Enable high-pass filter
+% 
+% 
+% betaAnec = (1 - [1.0   [1 1 1 1 1]*1.0]).^2;                 % Reverberation time (s)
+% 
+% betaW_on = (1 - [1.0   [1 0 1 1 1]*1.0]).^2;                 % Reverberation time (s)
+% 
+% 
+% s = [1.5 2.5 1.5];
+% r = [1.5 1.5 1.5];
+% 
+% 
+% 
+% h = rir_generator(c, fs, r, s, L, [1 betaW_on(2:end)], n, mtype, order, dim, orientation, hp_filter);
+% h = h - ...
+%     rir_generator(c, fs, r, s, L, betaW_on , n, mtype, order, dim, orientation, hp_filter);
+% 
+% 
+% % plot(h(:,2),'linew',1.5); hold on;
+% 
+% plot( h ,'-','linew',1.5); hold on;
+% 
+% 
+% 
+% h1 = rir_generator(c, fs, r.*[-1 1 1], s, L, betaW_on, n, mtype, order-1, dim, orientation, hp_filter);
+% h1 = h1 - ...
+%      rir_generator(c, fs, r.*[-1 1 1], s, L, betaAnec, n, mtype, order-1, dim, orientation, hp_filter);
+% 
+% plot( h1 ,':','linew',1.5);
+% 
+% hold off;
 
 %% 
 % clear; tic;
