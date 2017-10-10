@@ -110,15 +110,15 @@ Dva =  (OM(2:na+1,:).') .* HH.';
 Dvb = -(OM(1:nb+1,:).');
 D=[Dva Dvb].*(WW.'*ones(1,na+nb+1));
 
-R=real(D'*D);
-Vd=real(D'*(-HH.*WW).');
+R  = real(D'*D);
+Vd = real(D'*(-HH.*WW).');
 
-th=R\Vd;
+th = R\Vd;
 b = th(na+1:na+nb+1).';
 a = [1 th(1:na).'];
 
 imp = impz(b,a);
-imp(mag2db(abs(imp/max(imp)))<-60) = [];
+% imp(mag2db(abs(imp/max(imp)))<-60) = [];
 
 if isstable(b,a), ImpSt='true';else,ImpSt='false';end
 fprintf('WFS/SDM IIR(LS) pre-filter is stable: %s\n',ImpSt);
@@ -144,8 +144,8 @@ plot(f_band/1e3,[-91 -91],'k','linew',0.5)
 plot(f_band/1e3,[-89 -89],'k','linew',0.5)
 hold off;
 set(gca,'xscale','log');
-ylim(-[95 85]); 
-xlim([50 4000]/1e3)
+% ylim(-[95 85]); 
+% xlim([50 4000]/1e3)
 grid on
 
 %%
