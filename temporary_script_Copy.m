@@ -62,18 +62,22 @@
 
 %%
 fs = 16000;
-f_band = [100 2000];
-fmid = 10^mean(log10(f_band));
-res = 100;
+f_band = [200 2000];
+% fmid = 10^mean(log10(f_band));
+res = 10;
 F = (0:res:fs/2)/(fs/2);
 A = ((0:res:fs/2));
 P = [0 ones(1,length(A)-1)*pi/2];
+P = pi/2;
+P = [linspace(0,P,nnz(F<f_band(1)/(fs/2))) ...
+    P*ones(1,nnz(F>=f_band(1)/(fs/2) & F<=f_band(2)/(fs/2) )) ...
+    linspace(P,P+nnz(F>f_band(2)/(fs/2))*mean(diff(linspace(0,P,nnz(F<f_band(1)/(fs/2)))))/2,nnz(F>f_band(2)/(fs/2)))];
 H = A .* exp(1j*P);
 nb = 4;
 na = 1;
 f = fdesign.arbmagnphase('Nb,Na,F,H',nb,na,F,H);
 W = [ 0*ones(1,numel(0:res:f_band(1)-1)) ...
-    10*ones(1,numel(f_band(1):res:f_band(2) )) ...
+    1*ones(1,numel(f_band(1):res:f_band(2) )) ...
     0*ones(1,numel(f_band(2)+1:res:fs/2)) ];
 Hd = design(f,'iirls','Weights',W);
 
@@ -102,6 +106,7 @@ HH = aa.*exp(1i*pp);
 WW = interp1(F,W,ff);
 % WW(WW~=0) = tukeywin(nnz(WW),0.1);
 
+WW = sqrt(WW);
 OM = exp(-1i*(0:nb)' * ff*pi);
 Dva =  (OM(2:na+1,:).') .* HH.';
 Dvb = -(OM(1:nb+1,:).');
@@ -124,6 +129,24 @@ fprintf('WFS/SDM IIR(LS) pre-filter length: %d\n',numel(imp2));
 PRE_b = b;
 PRE_a = a;
 0;
+
+y = zeros(1,16000);
+y(end/2)=1;
+
+% yy = Tools.fconv(y.',imp);
+yy2 = filter(b,a,y).';
+yy3 = Tools.fconv(y.',imp2);
+
+% plot(linspace(0,fs,numel(y))/1e3,unwrap(mod(unwrap(angle(fft(y))) - unwrap(angle(fft(yy(1:numel(y)).'))+pi),2*pi)-pi)/pi*180); hold on
+plot(linspace(0,fs,numel(y))/1e3,unwrap(mod(unwrap(angle(fft(y))) - unwrap(angle(fft(yy2(1:numel(y)).'))+pi),2*pi)-pi)/pi*180); hold on
+plot(linspace(0,fs,numel(y))/1e3,unwrap(mod(unwrap(angle(fft(y))) - unwrap(angle(fft(yy3(1:numel(y)).'))+pi),2*pi)-pi)/pi*180); hold on
+plot(f_band/1e3,[-90 -90],'k','linew',1.5)
+plot(f_band/1e3,[-91 -91],'k','linew',0.5)
+plot(f_band/1e3,[-89 -89],'k','linew',0.5)
+hold off;
+set(gca,'xscale','log');
+% ylim(-[95 85]); xlim([50 4000]/1e3)
+grid on
 
 %%
 % [num,den]=iirlpnorm(8,8,f/(fs/2),f/(fs/2),a_int);
