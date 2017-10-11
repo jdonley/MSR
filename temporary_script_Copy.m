@@ -136,9 +136,24 @@ y(end/2)=1;
 yy2 = filter(b,a,y).';
 yy3 = Tools.fconv(y.',imp);
 
-% plot(linspace(0,fs,numel(y))/1e3,unwrap(mod(unwrap(angle(fft(y))) - unwrap(angle(fft(yy(1:numel(y)).'))+pi),2*pi)-pi)/pi*180); hold on
-plot(linspace(0,fs,numel(y))/1e3,unwrap(mod(unwrap(angle(fft(y))) - unwrap(angle(fft(yy2(1:numel(y)).'))+pi),2*pi)-pi)/pi*180); hold on
-plot(linspace(0,fs,numel(y))/1e3,unwrap(mod(unwrap(angle(fft(y))) - unwrap(angle(fft(yy3(1:numel(y)).'))+pi),2*pi)-pi)/pi*180); hold on
+Y   = fft(y);
+YY2 = fft(yy2(1:numel(y)).');
+YY3 = fft(yy3(1:numel(y)).');
+Y(end/2:end) = [];
+YY2(end/2:end) = [];
+YY3(end/2:end) = [];
+
+IMP = fft(imp);
+IMP(end/2+1:end) = [];
+frqs = linspace(0,fs,numel(IMP))/1e3;
+
+yyaxis left;
+plot(frqs,mag2db(abs(IMP))); 
+yyaxis right;
+plot(frqs,unwrap(angle(IMP))); 
+% plot(frqs,unwrap(mod(unwrap(angle(Y)) - unwrap(angle(YY2)+pi),2*pi)-pi)/pi*180); hold on
+% plot(frqs,unwrap(mod(unwrap(angle(Y)) - unwrap(angle(YY3)+pi),2*pi)-pi)/pi*180); hold on
+
 plot(f_band/1e3,[-90 -90],'k','linew',1.5)
 plot(f_band/1e3,[-91 -91],'k','linew',0.5)
 plot(f_band/1e3,[-89 -89],'k','linew',0.5)
