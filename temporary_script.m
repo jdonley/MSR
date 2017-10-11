@@ -174,7 +174,7 @@ rtx = [zeros(numel(yy),1), yy(:), zz(:)];
 srx = rtx;
 
 imgSingle = 6;
-res = 30;
+res = 20;
 [XX,YY] = meshgrid(linspace(0,3,3*res));
 
 
