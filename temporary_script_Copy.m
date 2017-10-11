@@ -73,9 +73,10 @@ H = A .* exp(1j*P);
 nb = 6;
 na = 1;
 f = fdesign.arbmagnphase('Nb,Na,F,H',nb,na,F,H);
-W = [1*ones(1,numel(0:res:f_band(1)-1)) ...
+W = [linspace(0.1,1,numel(0:res:f_band(1)-1)) ... 0.1*ones(1,numel(0:res:f_band(1)-1)) ...
      1*ones(1,numel(f_band(1):res:f_band(2) )) ...
-     0*ones(1,numel(f_band(2)+1:res:fs/2)) ];
+     linspace(1,0.1,numel(f_band(2)+1:res:fs/2)) ... 0.1*ones(1,numel(f_band(2)+1:res:fs/2)) ...
+     ];
 
 Hd = design(f,'iirls','Weights',W);
 
@@ -129,39 +130,55 @@ PRE_b = b;
 PRE_a = a;
 0;
 
-y = zeros(1,16000);
-y(end/2)=1;
+% y = zeros(1,16000);
+% y(end/2)=1;
 
 % yy = Tools.fconv(y.',imp);
-yy2 = filter(b,a,y).';
-yy3 = Tools.fconv(y.',imp);
+% yy2 = filter(b,a,y).';
+% yy3 = Tools.fconv(y.',imp);
+% 
+% Y   = fft(y);
+% YY2 = fft(yy2(1:numel(y)).');
+% YY3 = fft(yy3(1:numel(y)).');
+% Y(end/2:end) = [];
+% YY2(end/2:end) = [];
+% YY3(end/2:end) = [];
 
-Y   = fft(y);
-YY2 = fft(yy2(1:numel(y)).');
-YY3 = fft(yy3(1:numel(y)).');
-Y(end/2:end) = [];
-YY2(end/2:end) = [];
-YY3(end/2:end) = [];
-
-IMP = fft(imp);
+IMP = fft(imp,1024);
 IMP(end/2+1:end) = [];
-frqs = linspace(0,fs,numel(IMP))/1e3;
+frqs = linspace(0,fs/2,numel(IMP))/1e3;
 
+close all;
+fH = figure(1);
+fH.Color = 'w';
 yyaxis left;
-plot(frqs,mag2db(abs(IMP))); 
+ax = gca;
+magColor = [0.0 0.3 0.7];
+plot(frqs,mag2db(abs(IMP)),'color',magColor,'linew',1.5); hold on;
+plot(ff*fs/2/1e3,WW*50,'color','k','linew',1.5); hold on;
+hold off;
+ax.YAxis(1).Color = magColor;
+ax.YAxis(1).MinorTick = 'on';
+ax.YAxis(1).TickDirection = 'both';
+ylim([0 100]); 
+
 yyaxis right;
-plot(frqs,unwrap(angle(IMP))); 
+ax = gca;
+phaseColor = [0.8 0.1 0.1];
+plot(frqs,unwrap(angle(IMP))/pi*180,'color',phaseColor,'linew',1.5); hold on
 % plot(frqs,unwrap(mod(unwrap(angle(Y)) - unwrap(angle(YY2)+pi),2*pi)-pi)/pi*180); hold on
 % plot(frqs,unwrap(mod(unwrap(angle(Y)) - unwrap(angle(YY3)+pi),2*pi)-pi)/pi*180); hold on
-
-plot(f_band/1e3,[-90 -90],'k','linew',1.5)
-plot(f_band/1e3,[-91 -91],'k','linew',0.5)
-plot(f_band/1e3,[-89 -89],'k','linew',0.5)
+% plot(f_band/1e3,[90 90],'-k','linew',1.5);  hold on
+plot(f_band/1e3,[91 91],'--k','linew',0.5);  hold on
+plot(f_band/1e3,[89 89],'--k','linew',0.5);  hold on
 hold off;
-set(gca,'xscale','log');
-% ylim(-[95 85]); 
-% xlim([50 4000]/1e3)
-grid on
+ax.YAxis(end).Color = phaseColor;
+ax.YAxis(end).MinorTick = 'on';
+ax.YAxis(end).TickDirection = 'both';
+ax.XScale = 'log';
+ax.XAxis.TickDirection = 'both';
+ylim([60 120]); 
+xlim([10 10000]/1e3)
 
 %%
 % [num,den]=iirlpnorm(8,8,f/(fs/2),f/(fs/2),a_int);
