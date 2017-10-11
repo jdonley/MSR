@@ -160,6 +160,7 @@ magColor = [0.0 0.3 0.7];
 plot(frqs,mag2db(abs(IMP)),'color',magColor,'linew',1.5); hold on;
 plot(ff*fs/2/1e3,WW.^2 * 99+0.5,'color','k','linew',1.5); hold on;
 hold off;
+ax.YAxis(1)
 ax.YAxis(1).Color = magColor;
 ax.YAxis(1).MinorTick = 'on';
 ax.YAxis(1).TickDirection = 'both';
@@ -172,8 +173,8 @@ plot(frqs,unwrap(angle(IMP))/pi*180,'color',phaseColor,'linew',1.5); hold on
 % plot(frqs,unwrap(mod(unwrap(angle(Y)) - unwrap(angle(YY2)+pi),2*pi)-pi)/pi*180); hold on
 % plot(frqs,unwrap(mod(unwrap(angle(Y)) - unwrap(angle(YY3)+pi),2*pi)-pi)/pi*180); hold on
 % plot(f_band/1e3,[90 90],'-k','linew',1.5);  hold on
-plot(f_band/1e3,[91 91],'--k','linew',0.5);  hold on
-plot(f_band/1e3,[89 89],'--k','linew',0.5);  hold on
+plot(f_band/1e3,[91 91],':k','linew',0.5);  hold on
+plot(f_band/1e3,[89 89],':k','linew',0.5);  hold on
 hold off;
 ax.YAxis(end).Color = phaseColor;
 ax.YAxis(end).MinorTick = 'on';
