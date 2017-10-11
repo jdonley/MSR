@@ -112,19 +112,30 @@ WW = sqrt(WW);
 OM = exp(-1i*(0:nb)' * ff*pi);
 Dva =  (OM(2:na+1,:).') .* HH.';
 Dvb = -(OM(1:nb+1,:).');
-D=[Dva Dvb].*(WW.'*ones(1,na+nb+1));
+% D=[Dva Dvb].*(WW.'*ones(1,na+nb+1));
+% 
+% R  = real(D'*D);
+% Vd = real(D'*(-HH.*WW).');
+% 
+% th = R\Vd;
+% 
+% D_ = diag(WW)*[Dvb Dva];
+% HH_ = diag(WW)*(-HH).';
+% th = real(D_'*D_) \ real(D_' * HH_);
 
-R  = real(D'*D);
-Vd = real(D'*(-HH.*WW).');
+c = 343;
+kk = 2*pi*(ff*fs/2)/c;
 
-th = R\Vd;
+OM = exp(-1i*(0:nb)' * ff*pi);
+Dvb = -(OM(1:nb+1,:).');
+Dva =  (OM(2:na+1,:).') .* HH.';
 
-D_ = diag(WW)*[Dva Dvb];
-HH_ = diag(WW)*(-HH).';
-th = real(D_'*D_) \ real(D_' * HH_);
+D=[Dvb Dva];
+W = diag(WW);
+th = real( D' * W * D ) \ real( D' * W * (-HH).' );
 
-b = th(na+1:na+nb+1).';
-a = [1 th(1:na).'];
+b = th(1:nb+1).';
+a = [1 th(nb+2:end).'];
 
 imp = impz(b,a);
 % imp(mag2db(abs(imp/max(imp)))<-60) = [];
