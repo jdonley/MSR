@@ -75,13 +75,13 @@ H = A .* exp(1j*P);
 nb = 6;
 na = 1;
 f = fdesign.arbmagnphase('Nb,Na,F,H',nb,na,F,H);
-W = [1 ... DC component
+w = [1 ... DC component
      0*ones(1,numel(res:res:f_band(1)-1)) ...
      1*ones(1,numel(f_band(1):res:f_band(2) )) ...
      0*ones(1,numel(f_band(2)+1:res:fs/2)) ...
      ];
 
-Hd = design(f,'iirls','Weights',W);
+Hd = design(f,'iirls','Weights',w);
 
 imp_ = Hd.impulse;
 imp_ = imp_.Data;
@@ -105,7 +105,7 @@ ff = linspace(F(1),F(end),nfft);
 aa = interp1(F,A,ff);
 pp = interp1(F,P,ff);
 HH = aa.*exp(1i*pp);
-WW = interp1(F,W,ff);
+WW = interp1(F,w,ff);
 % WW(WW~=0) = tukeywin(nnz(WW),0.1);
 
 WW = sqrt(WW);
@@ -118,6 +118,11 @@ R  = real(D'*D);
 Vd = real(D'*(-HH.*WW).');
 
 th = R\Vd;
+
+D_ = diag(WW)*[Dva Dvb];
+HH_ = diag(WW)*(-HH).';
+th = real(D_'*D_) \ real(D_' * HH_);
+
 b = th(na+1:na+nb+1).';
 a = [1 th(1:na).'];
 
