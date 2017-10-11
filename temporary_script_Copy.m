@@ -66,16 +66,19 @@ f_band = [200 2000];
 % fmid = 10^mean(log10(f_band));
 res = 20;
 F = (0:res:fs/2)/(fs/2);
-A = ((0:res:fs/2));
-P = [0 ones(1,length(A)-1)*pi/2];
+A = [0 ... DC component
+    res:res:fs/2];
+P = [0 ... DC component
+    ones(1,length(A)-1)*pi/2];
 
 H = A .* exp(1j*P);
 nb = 6;
 na = 1;
 f = fdesign.arbmagnphase('Nb,Na,F,H',nb,na,F,H);
-W = [linspace(0.1,1,numel(0:res:f_band(1)-1)) ... 0.1*ones(1,numel(0:res:f_band(1)-1)) ...
+W = [1 ... DC component
+     0*ones(1,numel(res:res:f_band(1)-1)) ...
      1*ones(1,numel(f_band(1):res:f_band(2) )) ...
-     linspace(1,0.1,numel(f_band(2)+1:res:fs/2)) ... 0.1*ones(1,numel(f_band(2)+1:res:fs/2)) ...
+     0*ones(1,numel(f_band(2)+1:res:fs/2)) ...
      ];
 
 Hd = design(f,'iirls','Weights',W);
@@ -155,7 +158,7 @@ yyaxis left;
 ax = gca;
 magColor = [0.0 0.3 0.7];
 plot(frqs,mag2db(abs(IMP)),'color',magColor,'linew',1.5); hold on;
-plot(ff*fs/2/1e3,WW*50,'color','k','linew',1.5); hold on;
+plot(ff*fs/2/1e3,WW.^2 * 99+0.5,'color','k','linew',1.5); hold on;
 hold off;
 ax.YAxis(1).Color = magColor;
 ax.YAxis(1).MinorTick = 'on';
@@ -178,7 +181,7 @@ ax.YAxis(end).TickDirection = 'both';
 ax.XScale = 'log';
 ax.XAxis.TickDirection = 'both';
 ylim([60 120]); 
-xlim([10 10000]/1e3)
+xlim([100 10000]/1e3)
 
 %%
 % [num,den]=iirlpnorm(8,8,f/(fs/2),f/(fs/2),a_int);
@@ -216,13 +219,15 @@ beta(5,:) = (1 - [1.0   [0 0 0 0 1]*1.0]).^2;                 % Reverberation ti
 beta(6,:) = (1 - [1.0   [0 0 0 0 0]*1.0]).^2;                 % Reverberation time (s)
 %%%
 
-rtxN = 61;
+rtxN = 60;
 % linePos = linspace(0,3,rtxN);
 startL = 0;
 endL = 3;
 linePos = (startL + endL/rtxN/2) : endL/rtxN : endL*(1 - 1/rtxN/2);
 [yy,zz] = meshgrid( linePos ); % Planar Array
 % yy = linspace(0,3,rtxN); zz = yy*0+1.5; % Linear Array
+
+d = mean(mean([diff(zz,[],1) diff(yy,[],2).'] ));
 
 rtx = [zeros(numel(yy),1), yy(:), zz(:)];
 srx = rtx;
