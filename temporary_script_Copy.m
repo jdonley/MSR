@@ -160,7 +160,8 @@ magColor = [0.0 0.3 0.7];
 plot(frqs,mag2db(abs(IMP)),'color',magColor,'linew',1.5); hold on;
 plot(ff*fs/2/1e3,WW.^2 * 99+0.5,'color','k','linew',1.5); hold on;
 hold off;
-ax.YAxis(1)
+ax.YAxis(1).Label.String = 'Magnitude (dB)  or  LS Weight (\%)';
+ax.YAxis(1).Label.Interpreter = 'latex';
 ax.YAxis(1).Color = magColor;
 ax.YAxis(1).MinorTick = 'on';
 ax.YAxis(1).TickDirection = 'both';
@@ -176,12 +177,16 @@ plot(frqs,unwrap(angle(IMP))/pi*180,'color',phaseColor,'linew',1.5); hold on
 plot(f_band/1e3,[91 91],':k','linew',0.5);  hold on
 plot(f_band/1e3,[89 89],':k','linew',0.5);  hold on
 hold off;
+ax.YAxis(end).Label.String = 'Phase (${}^\circ$)';
+ax.YAxis(end).Label.Interpreter = 'latex';
 ax.YAxis(end).Color = phaseColor;
 ax.YAxis(end).MinorTick = 'on';
 ax.YAxis(end).TickDirection = 'both';
 ax.XScale = 'log';
 ax.XAxis.TickDirection = 'both';
-ylim([60 120]); 
+ax.XAxis(1).Label.String = 'Frequency (kHz)';
+ax.XAxis(1).Label.Interpreter = 'latex';
+ylim([45 135]); 
 xlim([100 10000]/1e3)
 
 %%
