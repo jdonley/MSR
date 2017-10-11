@@ -427,7 +427,7 @@ while ss < 200 %ss<1 %for ss = 1:10
         plot(ff, mag2db(  mean( M(:,:,img),2) ) - meanMF(:,:,img)  ,'-','linew',1.5); hold on;
     end
     hold off;
-    xlim([0.1 10]); ylim([-30 20]);
+    xlim([0.01 10]); ylim([-30 20]);
     grid on; grid minor; set(gca,'xscale','log');
     xlabel('Frequency (kHz)');ylabel('Magnitude (dB)');
     legend({'Active Wall Off'; ...
