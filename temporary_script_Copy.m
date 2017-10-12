@@ -80,7 +80,7 @@ f_band = [200 3000];
 F = [0 ...
     logspace(log10(10),log10(8000),1023)/(fs/2)];  F(end)=1;
 w = [1 ... DC component
-     0*ones(1,numel( F(F<f_band(1)/(fs/2)) ) - 1) ...
+     1*ones(1,numel( F(F<f_band(1)/(fs/2)) ) - 1) ...
      1*ones(1,numel(F(F>=f_band(1)/(fs/2) & F<=f_band(2)/(fs/2)))) ...
      0*ones(1,numel(F(F>f_band(2)/(fs/2)))) ...
      ];
@@ -161,6 +161,7 @@ a = [1 th(nb+2:end).'];
 a = polystab(a);
 
 imp = impz(b,a);
+imp = (ifft([HH conj(HH(end:-1:2))]));
 % imp(mag2db(abs(imp/max(imp)))<-60) = [];
 
 if isstable(b,a), ImpSt='true';else,ImpSt='false';end
@@ -228,7 +229,7 @@ ax.XAxis.TickDirection = 'both';
 ax.XAxis(1).Label.String = 'Frequency (kHz)';
 ax.XAxis(1).Label.Interpreter = 'latex';
 ylim([-180 180]); 
-xlim([0.01 10])
+xlim([0.1 10])
 
 %%
 % [num,den]=iirlpnorm(8,8,f/(fs/2),f/(fs/2),a_int);
