@@ -61,6 +61,13 @@
 % xlim([0.01 10]); hold off;
 
 %%
+[bc,ac]=cheby1(3,1,f_band(2)/(fs/2));
+impc = impz(bc,ac);
+IMPC = fft(impc,1024*2);
+IMPC(end/2+1:end) = [];
+Ac = -unwrap(angle(IMPC));
+
+
 fs = 16000;
 f_band = [200 2000];
 % fmid = 10^mean(log10(f_band));
@@ -71,11 +78,11 @@ F = [0 ...
     logspace(log10(10),log10(8000),1023)/(fs/2)];  F(end)=1;
 A = F*fs/2;%[0 ... DC component
     %res:res:fs/2];
-P = [0 ... DC component
-    ones(1,length(A)-1)*pi/2];
+P = Ac.'*pi/2;%[0 ... DC component
+    %ones(1,numel(A)-1)*pi/2];
 
 H = A .* exp(1j*P);
-nb = 7;
+nb = 16;
 na = 1;
 f = fdesign.arbmagnphase('Nb,Na,F,H',nb,na,F,H);
 w = [1 ... DC component
@@ -105,10 +112,10 @@ fprintf('WFS/SDM IIR(LS) pre-filter length: %d\n',numel(imp_));
 %%% 
 nfft = max(nextpow2(numel(H)),1024);
 ff = linspace(F(1),F(end),nfft);
-aa = A;%interp1(F,A,ff);
-pp = P;%interp1(F,P,ff);
-HH = H;%aa.*exp(1i*pp);
-WW = w;%interp1(F,w,ff);
+aa = interp1(F,A,ff);
+pp = interp1(F,P,ff);
+HH = aa.*exp(1i*pp);
+WW = interp1(F,w,ff);
 % WW(WW~=0) = tukeywin(nnz(WW),0.1);
 
 WW = sqrt(WW);
@@ -137,6 +144,8 @@ th = real( D' * W * D ) \ real( D' * W * (-HH).' );
 b = th(1:nb+1).';
 a = [1 th(nb+2:end).'];
 
+a = polystab(a);
+
 imp = impz(b,a);
 % imp(mag2db(abs(imp/max(imp)))<-60) = [];
 
@@ -148,6 +157,8 @@ fprintf('WFS/SDM IIR(LS) pre-filter length: %d\n',numel(imp));
 PRE_b = b;
 PRE_a = a;
 0;
+
+% imp = Tools.fconv(imp,impc);
 
 % y = zeros(1,16000);
 % y(end/2)=1;
@@ -165,7 +176,7 @@ PRE_a = a;
 
 IMP = fft(imp,1024);
 IMP(end/2+1:end) = [];
-frqs = [0 logspace(log10(10),log10(fs/2),numel(IMP)-1)/1e3];
+frqs = linspace(0,fs/2,numel(IMP))/1e3;
 
 close all;
 fH = figure(1);
@@ -174,19 +185,19 @@ yyaxis left;
 ax = gca;
 magColor = [0.0 0.3 0.7];
 plot(frqs,mag2db(abs(IMP)),'color',magColor,'linew',1.5); hold on;
-plot(F*fs/2/1e3,WW.^2 * 99+0.5,'color','k','linew',1.5); hold on;
+plot(ff*fs/2/1e3,WW.^2 * 99+0.5+20,'color','k','linew',1.5); hold on;
 hold off;
 ax.YAxis(1).Label.String = 'Magnitude (dB)  or  LS Weight (\%)';
 ax.YAxis(1).Label.Interpreter = 'latex';
 ax.YAxis(1).Color = magColor;
 ax.YAxis(1).MinorTick = 'on';
 ax.YAxis(1).TickDirection = 'both';
-ylim([0 100]); 
+ylim([20 120]); 
 
 yyaxis right;
 ax = gca;
 phaseColor = [0.8 0.1 0.1];
-plot(frqs,unwrap(angle(IMP))/pi*180,'color',phaseColor,'linew',1.5); hold on
+plot(frqs,(mod(unwrap(angle(IMP))+pi,2*pi)-pi)/pi*180,'color',phaseColor,'linew',1.5); hold on
 % plot(frqs,unwrap(mod(unwrap(angle(Y)) - unwrap(angle(YY2)+pi),2*pi)-pi)/pi*180); hold on
 % plot(frqs,unwrap(mod(unwrap(angle(Y)) - unwrap(angle(YY3)+pi),2*pi)-pi)/pi*180); hold on
 % plot(f_band/1e3,[90 90],'-k','linew',1.5);  hold on
@@ -202,8 +213,8 @@ ax.XScale = 'log';
 ax.XAxis.TickDirection = 'both';
 ax.XAxis(1).Label.String = 'Frequency (kHz)';
 ax.XAxis(1).Label.Interpreter = 'latex';
-ylim([0 180]); 
-xlim([100 10000]/1e3)
+ylim([-180 180]); 
+xlim([0.01 10])
 
 %%
 % [num,den]=iirlpnorm(8,8,f/(fs/2),f/(fs/2),a_int);
