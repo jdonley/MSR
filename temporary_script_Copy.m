@@ -61,11 +61,21 @@
 % xlim([0.01 10]); hold off;
 
 %%
+c = 343;
+rtxN = 60;
+startL = 0;
+endL = 3;
+linePos = (startL + endL/rtxN/2) : endL/rtxN : endL*(1 - 1/rtxN/2);
+[yy,zz] = meshgrid( linePos ); % Planar Array
+d = mean(mean([diff(zz,[],1) diff(yy,[],2).'] ));
 
+f_lo = c / (2*endL);
+f_hi = c / (2*d);
 
 
 fs = 16000;
 f_band = [200 3000];
+f_band = round([f_lo f_hi]);
 % fmid = 10^mean(log10(f_band));
 
 % [bc,ac]=cheby1(6,1,f_band(2)/(fs/2));
@@ -80,7 +90,7 @@ f_band = [200 3000];
 F = [0 ...
     logspace(log10(10),log10(8000),1023)/(fs/2)];  F(end)=1;
 w = [1 ... DC component
-     1*ones(1,numel( F(F<f_band(1)/(fs/2)) ) - 1) ...
+     0*ones(1,numel( F(F<f_band(1)/(fs/2)) ) - 1) ...
      1*ones(1,numel(F(F>=f_band(1)/(fs/2) & F<=f_band(2)/(fs/2)))) ...
      0*ones(1,numel(F(F>f_band(2)/(fs/2)))) ...
      ];
@@ -100,7 +110,7 @@ P = [0 ... DC component
 % P = wp; P(1) = 0;
 
 H = A .* exp(1j*P);
-nb = 12;
+nb = 14;
 na = 1;
 f = fdesign.arbmagnphase('Nb,Na,F,H',nb,na,F,H);
 
@@ -161,7 +171,7 @@ a = [1 th(nb+2:end).'];
 a = polystab(a);
 
 imp = impz(b,a);
-imp = (ifft([HH conj(HH(end:-1:2))]));
+% imp = (ifft([HH conj(HH(end:-1:2))]));
 % imp(mag2db(abs(imp/max(imp)))<-60) = [];
 
 if isstable(b,a), ImpSt='true';else,ImpSt='false';end
@@ -229,7 +239,7 @@ ax.XAxis.TickDirection = 'both';
 ax.XAxis(1).Label.String = 'Frequency (kHz)';
 ax.XAxis(1).Label.Interpreter = 'latex';
 ylim([-180 180]); 
-xlim([0.1 10])
+xlim([0.01 10])
 
 %%
 % [num,den]=iirlpnorm(8,8,f/(fs/2),f/(fs/2),a_int);
