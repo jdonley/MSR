@@ -73,12 +73,12 @@ f_lo = c / (2*endL);
 f_hi = c / (2*d);
 
 
-nb = 14;
+nb = 6;
 na = 1;
 
 fs = 16000;
-f_band = [200 3000];
-f_band = round([f_lo f_hi]);
+f_band = [100 2000];
+% f_band = round([f_lo f_hi]);
 % fmid = 10^mean(log10(f_band));
 
 % [bc,ac]=cheby1(6,1,f_band(2)/(fs/2));
@@ -202,6 +202,8 @@ PRE_a = a;
 
 IMP = fft(imp,1024);
 IMP(end/2+1:end) = [];
+% IMP_ = fft(imp_,1024);
+% IMP_(end/2+1:end) = [];
 frqs = linspace(0,fs/2,numel(IMP))/1e3;
 
 close all;
@@ -211,6 +213,7 @@ yyaxis left;
 ax = gca;
 magColor = [0.0 0.3 0.7];
 plot(frqs,mag2db(abs(IMP)),'.','color',magColor,'linew',1.5); hold on;
+% plot(frqs,mag2db(abs(IMP_)),'.','color',magColor/2,'linew',1.5); hold on;
 plot(ff*fs/2/1e3,WW.^2 * 99+0.5+20,'color','k','linew',1.5); hold on;
 hold off;
 ax.YAxis(1).Label.String = 'Magnitude (dB)  or  LS Weight (\%)';
@@ -224,6 +227,7 @@ yyaxis right;
 ax = gca;
 phaseColor = [0.8 0.1 0.1];
 plot(frqs,(mod(unwrap(angle(IMP))+pi,2*pi)-pi)/pi*180,'.','color',phaseColor,'linew',1.5); hold on
+% plot(frqs,(mod(unwrap(angle(IMP_))+pi,2*pi)-pi)/pi*180,'.','color',phaseColor/2,'linew',1.5); hold on
 % plot(frqs,unwrap(mod(unwrap(angle(Y)) - unwrap(angle(YY2)+pi),2*pi)-pi)/pi*180); hold on
 % plot(frqs,unwrap(mod(unwrap(angle(Y)) - unwrap(angle(YY3)+pi),2*pi)-pi)/pi*180); hold on
 % plot(f_band/1e3,[90 90],'-k','linew',1.5);  hold on
@@ -460,11 +464,25 @@ while ss < 200 %ss<1 %for ss = 1:10
     % plot(ff, mag2db(  M         ) - meanMF  ,':m'); hold on;
     plot(ff, mag2db(  mean(MF(:,:,img(1)),2) ) - meanMF(:,:,img(1))  ,'-k','linew',1.5); hold on;
     set(gca,'ColorOrderIndex',1);
-    for img = imgs%1:6
-        plot(ff, mag2db(  mean( M(:,:,img),2) ) - meanMF(:,:,img)  ,'-','linew',1.5); hold on;
+    for img = imgs%1:6 
+        
+        if ss > 1
+            CIs = Tools.confidence_intervals(db2mag(mag2db(  M(:,:,img) ).' - meanMF(:,:,img).'),95,true);
+            CIs = mag2db(exp(CIs));
+            CI = CIs + mag2db(  mean( M(:,:,img),2) ) - meanMF(:,:,img);
+            plot(ff, CI  ,'-','color',[0 0 1.0 0.2],'linew',1.5); hold on;
+            
+            CIs = Tools.confidence_intervals((mag2db(  M(:,:,img) ).' - meanMF(:,:,img).'),95);
+            CI = CIs + mag2db(  mean( M(:,:,img),2) ) - meanMF(:,:,img);
+            plot(ff, CI  ,'-','color',[1.0 0 0 0.2],'linew',1.5); hold on;
+        end
+        
+        plot(ff, mag2db(  mean( M(:,:,img),2) ) - meanMF(:,:,img)  ,'-b','linew',1.5); hold on;               
+
     end
+    
     hold off;
-    xlim([0.01 10]); ylim([-30 20]);
+    xlim([0.1 10]); ylim([-30 20]);
     grid on; grid minor; set(gca,'xscale','log');
     xlabel('Frequency (kHz)');ylabel('Magnitude (dB)');
     legend({'Active Wall Off'; ...
