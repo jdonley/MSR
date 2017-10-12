@@ -65,20 +65,23 @@ fs = 16000;
 f_band = [200 2000];
 % fmid = 10^mean(log10(f_band));
 res = 20;
-F = (0:res:fs/2)/(fs/2);
-A = [0 ... DC component
-    res:res:fs/2];
+F = [0 ...
+    (res:res:fs/2)/(fs/2)];
+F = [0 ...
+    logspace(log10(10),log10(8000),1023)/(fs/2)];  F(end)=1;
+A = F*fs/2;%[0 ... DC component
+    %res:res:fs/2];
 P = [0 ... DC component
     ones(1,length(A)-1)*pi/2];
 
 H = A .* exp(1j*P);
-nb = 6;
+nb = 7;
 na = 1;
 f = fdesign.arbmagnphase('Nb,Na,F,H',nb,na,F,H);
 w = [1 ... DC component
-     0*ones(1,numel(res:res:f_band(1)-1)) ...
-     1*ones(1,numel(f_band(1):res:f_band(2) )) ...
-     0*ones(1,numel(f_band(2)+1:res:fs/2)) ...
+     0*ones(1,numel( F(F<f_band(1)/(fs/2)) ) - 1) ...
+     1*ones(1,numel(F(F>=f_band(1)/(fs/2) & F<=f_band(2)/(fs/2)))) ...
+     0*ones(1,numel(F(F>f_band(2)/(fs/2)))) ...
      ];
 
 Hd = design(f,'iirls','Weights',w);
@@ -102,10 +105,10 @@ fprintf('WFS/SDM IIR(LS) pre-filter length: %d\n',numel(imp_));
 %%% 
 nfft = max(nextpow2(numel(H)),1024);
 ff = linspace(F(1),F(end),nfft);
-aa = interp1(F,A,ff);
-pp = interp1(F,P,ff);
-HH = aa.*exp(1i*pp);
-WW = interp1(F,w,ff);
+aa = A;%interp1(F,A,ff);
+pp = P;%interp1(F,P,ff);
+HH = H;%aa.*exp(1i*pp);
+WW = w;%interp1(F,w,ff);
 % WW(WW~=0) = tukeywin(nnz(WW),0.1);
 
 WW = sqrt(WW);
@@ -122,9 +125,6 @@ Dvb = -(OM(1:nb+1,:).');
 % D_ = diag(WW)*[Dvb Dva];
 % HH_ = diag(WW)*(-HH).';
 % th = real(D_'*D_) \ real(D_' * HH_);
-
-c = 343;
-kk = 2*pi*(ff*fs/2)/c;
 
 OM = exp(-1i*(0:nb)' * ff*pi);
 Dvb = -(OM(1:nb+1,:).');
@@ -165,7 +165,7 @@ PRE_a = a;
 
 IMP = fft(imp,1024);
 IMP(end/2+1:end) = [];
-frqs = linspace(0,fs/2,numel(IMP))/1e3;
+frqs = [0 logspace(log10(10),log10(fs/2),numel(IMP)-1)/1e3];
 
 close all;
 fH = figure(1);
@@ -174,7 +174,7 @@ yyaxis left;
 ax = gca;
 magColor = [0.0 0.3 0.7];
 plot(frqs,mag2db(abs(IMP)),'color',magColor,'linew',1.5); hold on;
-plot(ff*fs/2/1e3,WW.^2 * 99+0.5,'color','k','linew',1.5); hold on;
+plot(F*fs/2/1e3,WW.^2 * 99+0.5,'color','k','linew',1.5); hold on;
 hold off;
 ax.YAxis(1).Label.String = 'Magnitude (dB)  or  LS Weight (\%)';
 ax.YAxis(1).Label.Interpreter = 'latex';
@@ -202,7 +202,7 @@ ax.XScale = 'log';
 ax.XAxis.TickDirection = 'both';
 ax.XAxis(1).Label.String = 'Frequency (kHz)';
 ax.XAxis(1).Label.Interpreter = 'latex';
-ylim([45 135]); 
+ylim([0 180]); 
 xlim([100 10000]/1e3)
 
 %%

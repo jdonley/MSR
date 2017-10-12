@@ -62,27 +62,33 @@
 
 %%
 fs = 16000;
-f_band = [100 2000];
-fmid = 10^mean(log10(f_band));
-res = 100;
+f_band = [200 2000];
+% fmid = 10^mean(log10(f_band));
+res = 20;
 F = (0:res:fs/2)/(fs/2);
-A = ((0:res:fs/2));
-P = [0 ones(1,length(A)-1)*pi/2];
+A = [0 ... DC component
+    res:res:fs/2];
+P = [0 ... DC component
+    ones(1,length(A)-1)*pi/2];
+
 H = A .* exp(1j*P);
-nb = 4;
+nb = 6;
 na = 1;
 f = fdesign.arbmagnphase('Nb,Na,F,H',nb,na,F,H);
-W = [ 0*ones(1,numel(0:res:f_band(1)-1)) ...
-    10*ones(1,numel(f_band(1):res:f_band(2) )) ...
-    0*ones(1,numel(f_band(2)+1:res:fs/2)) ];
-Hd = design(f,'iirls','Weights',W);
+w = [1 ... DC component
+     0*ones(1,numel(res:res:f_band(1)-1)) ...
+     1*ones(1,numel(f_band(1):res:f_band(2) )) ...
+     0*ones(1,numel(f_band(2)+1:res:fs/2)) ...
+     ];
 
-imp = Hd.impulse;
-imp = imp.Data;
+Hd = design(f,'iirls','Weights',w);
+
+imp_ = Hd.impulse;
+imp_ = imp_.Data;
 
 if isstable(Hd), ImpSt='true';else,ImpSt='false';end
 fprintf('WFS/SDM IIR(LS) pre-filter is stable: %s\n',ImpSt);
-fprintf('WFS/SDM IIR(LS) pre-filter length: %d\n',numel(imp));
+fprintf('WFS/SDM IIR(LS) pre-filter length: %d\n',numel(imp_));
 
 
 
@@ -99,30 +105,105 @@ ff = linspace(F(1),F(end),nfft);
 aa = interp1(F,A,ff);
 pp = interp1(F,P,ff);
 HH = aa.*exp(1i*pp);
-WW = interp1(F,W,ff);
+WW = interp1(F,w,ff);
+% WW(WW~=0) = tukeywin(nnz(WW),0.1);
+
+WW = sqrt(WW);
+% OM = exp(-1i*(0:nb)' * ff*pi);
+% Dva =  (OM(2:na+1,:).') .* HH.';
+% Dvb = -(OM(1:nb+1,:).');
+% D=[Dva Dvb].*(WW.'*ones(1,na+nb+1));
+% 
+% R  = real(D'*D);
+% Vd = real(D'*(-HH.*WW).');
+% 
+% th = R\Vd;
+% 
+% D_ = diag(WW)*[Dvb Dva];
+% HH_ = diag(WW)*(-HH).';
+% th = real(D_'*D_) \ real(D_' * HH_);
+
+c = 343;
+kk = 2*pi*(ff*fs/2)/c;
 
 OM = exp(-1i*(0:nb)' * ff*pi);
-Dva =  (OM(2:na+1,:).') .* HH.';
 Dvb = -(OM(1:nb+1,:).');
-D=[Dva Dvb].*(WW.'*ones(1,na+nb+1));
+Dva =  (OM(2:na+1,:).') .* HH.';
 
-    R=real(D'*D);
-    Vd=real(D'*(-HH.*WW).');
+D=[Dvb Dva];
+W = diag(WW);
+th = real( D' * W * D ) \ real( D' * W * (-HH).' );
 
-th=R\Vd;
-b = th(na+1:na+nb+1).';
-a = [1 th(1:na).'];
+b = th(1:nb+1).';
+a = [1 th(nb+2:end).'];
 
-imp2 = impz(b,a);
+imp = impz(b,a);
+% imp(mag2db(abs(imp/max(imp)))<-60) = [];
 
 if isstable(b,a), ImpSt='true';else,ImpSt='false';end
 fprintf('WFS/SDM IIR(LS) pre-filter is stable: %s\n',ImpSt);
-fprintf('WFS/SDM IIR(LS) pre-filter length: %d\n',numel(imp2));
+fprintf('WFS/SDM IIR(LS) pre-filter length: %d\n',numel(imp));
 
 
-PRE_b = b;
-PRE_a = a;
-0;
+% PRE_b = b;
+% PRE_a = a;
+% 0;
+
+% y = zeros(1,16000);
+% y(end/2)=1;
+
+% yy = Tools.fconv(y.',imp);
+% yy2 = filter(b,a,y).';
+% yy3 = Tools.fconv(y.',imp);
+% 
+% Y   = fft(y);
+% YY2 = fft(yy2(1:numel(y)).');
+% YY3 = fft(yy3(1:numel(y)).');
+% Y(end/2:end) = [];
+% YY2(end/2:end) = [];
+% YY3(end/2:end) = [];
+
+% IMP = fft(imp,1024);
+% IMP(end/2+1:end) = [];
+% frqs = linspace(0,fs/2,numel(IMP))/1e3;
+
+% close all;
+% fH = figure(1);
+% fH.Color = 'w';
+% yyaxis left;
+% ax = gca;
+% magColor = [0.0 0.3 0.7];
+% plot(frqs,mag2db(abs(IMP)),'color',magColor,'linew',1.5); hold on;
+% plot(ff*fs/2/1e3,WW.^2 * 99+0.5,'color','k','linew',1.5); hold on;
+% hold off;
+% ax.YAxis(1).Label.String = 'Magnitude (dB)  or  LS Weight (\%)';
+% ax.YAxis(1).Label.Interpreter = 'latex';
+% ax.YAxis(1).Color = magColor;
+% ax.YAxis(1).MinorTick = 'on';
+% ax.YAxis(1).TickDirection = 'both';
+% ylim([0 100]); 
+% 
+% yyaxis right;
+% ax = gca;
+% phaseColor = [0.8 0.1 0.1];
+% plot(frqs,unwrap(angle(IMP))/pi*180,'color',phaseColor,'linew',1.5); hold on
+% % plot(frqs,unwrap(mod(unwrap(angle(Y)) - unwrap(angle(YY2)+pi),2*pi)-pi)/pi*180); hold on
+% % plot(frqs,unwrap(mod(unwrap(angle(Y)) - unwrap(angle(YY3)+pi),2*pi)-pi)/pi*180); hold on
+% % plot(f_band/1e3,[90 90],'-k','linew',1.5);  hold on
+% plot(f_band/1e3,[91 91],':k','linew',0.5);  hold on
+% plot(f_band/1e3,[89 89],':k','linew',0.5);  hold on
+% hold off;
+% ax.YAxis(end).Label.String = 'Phase (${}^\circ$)';
+% ax.YAxis(end).Label.Interpreter = 'latex';
+% ax.YAxis(end).Color = phaseColor;
+% ax.YAxis(end).MinorTick = 'on';
+% ax.YAxis(end).TickDirection = 'both';
+% ax.XScale = 'log';
+% ax.XAxis.TickDirection = 'both';
+% ax.XAxis(1).Label.String = 'Frequency (kHz)';
+% ax.XAxis(1).Label.Interpreter = 'latex';
+% ylim([45 135]); 
+% xlim([100 10000]/1e3)
 
 %%
 % [num,den]=iirlpnorm(8,8,f/(fs/2),f/(fs/2),a_int);
@@ -174,7 +255,7 @@ rtx = [zeros(numel(yy),1), yy(:), zz(:)];
 srx = rtx;
 
 imgSingle = 6;
-res = 20;
+res = 25;
 [XX,YY] = meshgrid(linspace(0,3,3*res));
 
 
@@ -239,10 +320,10 @@ parfor ss = 1:(3*res)^2
         %%%
         
         %%% Apply WFS/SDM pre-filter
-%         hrx = Tools.fconv(hrx.',repmat(imp.',size(hrx,1),1).').';
-%         hrxLR = Tools.fconv(hrxLR.',repmat(imp.',size(hrxLR,1),1).').';
-        hrx   = filter(PRE_b,PRE_a,hrx.'  ).';
-        hrxLR = filter(PRE_b,PRE_a,hrxLR.').';
+        hrx = Tools.fconv(hrx.',repmat(imp.',size(hrx,1),1).').';
+        hrxLR = Tools.fconv(hrxLR.',repmat(imp.',size(hrxLR,1),1).').';
+%         hrx   = filter(PRE_b,PRE_a,hrx.'  ).';
+%         hrxLR = filter(PRE_b,PRE_a,hrxLR.').';
         %%%
         
         %%% Cancellation signal minus last refelction
