@@ -61,35 +61,49 @@
 % xlim([0.01 10]); hold off;
 
 %%
-[bc,ac]=cheby1(3,1,f_band(2)/(fs/2));
-impc = impz(bc,ac);
-IMPC = fft(impc,1024*2);
-IMPC(end/2+1:end) = [];
-Ac = -unwrap(angle(IMPC));
+
 
 
 fs = 16000;
-f_band = [200 2000];
+f_band = [200 3000];
 % fmid = 10^mean(log10(f_band));
-res = 20;
-F = [0 ...
-    (res:res:fs/2)/(fs/2)];
+
+% [bc,ac]=cheby1(6,1,f_band(2)/(fs/2));
+% impc = impz(bc,ac);
+% IMPC = fft(impc,1024*2);
+% IMPC(end/2+1:end) = [];
+% Ac = -unwrap(angle(IMPC));
+
+% res = 20;
+% F = [0 ...
+%     (res:res:fs/2)/(fs/2)];
 F = [0 ...
     logspace(log10(10),log10(8000),1023)/(fs/2)];  F(end)=1;
-A = F*fs/2;%[0 ... DC component
-    %res:res:fs/2];
-P = Ac.'*pi/2;%[0 ... DC component
-    %ones(1,numel(A)-1)*pi/2];
-
-H = A .* exp(1j*P);
-nb = 16;
-na = 1;
-f = fdesign.arbmagnphase('Nb,Na,F,H',nb,na,F,H);
 w = [1 ... DC component
      0*ones(1,numel( F(F<f_band(1)/(fs/2)) ) - 1) ...
      1*ones(1,numel(F(F>=f_band(1)/(fs/2) & F<=f_band(2)/(fs/2)))) ...
      0*ones(1,numel(F(F>f_band(2)/(fs/2)))) ...
      ];
+A = F*fs/2;%[0 ... DC component
+    %res:res:fs/2];
+P = [0 ... DC component
+	...Ac(2:end).' + ...
+    ones(1,numel(A)-1)*pi/2];
+% ff = linspace(F(1),F(end),nfft);
+% Pbegin = P((ff<f_band(1)/(fs/2)) );
+% Pend = P((ff>f_band(2)/(fs/2)));
+% wp = [ ... DC component
+%      Pbegin(end)+Pbegin*0 ...
+%      P((ff>=f_band(1)/(fs/2) & ff<=f_band(2)/(fs/2))) ...
+%      Pend(1)+Pend*0 ...
+%      ];
+% P = wp; P(1) = 0;
+
+H = A .* exp(1j*P);
+nb = 12;
+na = 1;
+f = fdesign.arbmagnphase('Nb,Na,F,H',nb,na,F,H);
+
 
 Hd = design(f,'iirls','Weights',w);
 
@@ -184,7 +198,7 @@ fH.Color = 'w';
 yyaxis left;
 ax = gca;
 magColor = [0.0 0.3 0.7];
-plot(frqs,mag2db(abs(IMP)),'color',magColor,'linew',1.5); hold on;
+plot(frqs,mag2db(abs(IMP)),'.','color',magColor,'linew',1.5); hold on;
 plot(ff*fs/2/1e3,WW.^2 * 99+0.5+20,'color','k','linew',1.5); hold on;
 hold off;
 ax.YAxis(1).Label.String = 'Magnitude (dB)  or  LS Weight (\%)';
@@ -197,7 +211,7 @@ ylim([20 120]);
 yyaxis right;
 ax = gca;
 phaseColor = [0.8 0.1 0.1];
-plot(frqs,(mod(unwrap(angle(IMP))+pi,2*pi)-pi)/pi*180,'color',phaseColor,'linew',1.5); hold on
+plot(frqs,(mod(unwrap(angle(IMP))+pi,2*pi)-pi)/pi*180,'.','color',phaseColor,'linew',1.5); hold on
 % plot(frqs,unwrap(mod(unwrap(angle(Y)) - unwrap(angle(YY2)+pi),2*pi)-pi)/pi*180); hold on
 % plot(frqs,unwrap(mod(unwrap(angle(Y)) - unwrap(angle(YY3)+pi),2*pi)-pi)/pi*180); hold on
 % plot(f_band/1e3,[90 90],'-k','linew',1.5);  hold on
