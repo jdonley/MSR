@@ -73,6 +73,9 @@ f_lo = c / (2*endL);
 f_hi = c / (2*d);
 
 
+nb = 14;
+na = 1;
+
 fs = 16000;
 f_band = [200 3000];
 f_band = round([f_lo f_hi]);
@@ -110,8 +113,6 @@ P = [0 ... DC component
 % P = wp; P(1) = 0;
 
 H = A .* exp(1j*P);
-nb = 14;
-na = 1;
 f = fdesign.arbmagnphase('Nb,Na,F,H',nb,na,F,H);
 
 
@@ -277,20 +278,20 @@ beta(5,:) = (1 - [1.0   [0 0 0 0 1]*1.0]).^2;                 % Reverberation ti
 beta(6,:) = (1 - [1.0   [0 0 0 0 0]*1.0]).^2;                 % Reverberation time (s)
 %%%
 
-rtxN = 60;
-% linePos = linspace(0,3,rtxN);
-startL = 0;
-endL = 3;
-linePos = (startL + endL/rtxN/2) : endL/rtxN : endL*(1 - 1/rtxN/2);
-[yy,zz] = meshgrid( linePos ); % Planar Array
-% yy = linspace(0,3,rtxN); zz = yy*0+1.5; % Linear Array
-
-d = mean(mean([diff(zz,[],1) diff(yy,[],2).'] ));
+% rtxN = 60;
+% % linePos = linspace(0,3,rtxN);
+% startL = 0;
+% endL = 3;
+% linePos = (startL + endL/rtxN/2) : endL/rtxN : endL*(1 - 1/rtxN/2);
+% [yy,zz] = meshgrid( linePos ); % Planar Array
+% % yy = linspace(0,3,rtxN); zz = yy*0+1.5; % Linear Array
+% 
+% d = mean(mean([diff(zz,[],1) diff(yy,[],2).'] ));
 
 rtx = [zeros(numel(yy),1), yy(:), zz(:)];
 srx = rtx;
 
-imgs = 1:6;
+imgs = 6;
 res = 20;
 [XX,YY] = meshgrid(linspace(0,3,3*res));
 
@@ -302,7 +303,7 @@ DiffracWin = Wx .* Wy;
 %%%
 
 
-[b,a] = cheby1(6,0.1,[250 1500]/(fs/2));
+% [b,a] = cheby1(9,0.1,f_band/(fs/2));
 
 
 
@@ -457,7 +458,7 @@ while ss < 200 %ss<1 %for ss = 1:10
     meanMF = mag2db(mean(MF,2));
     % plot(ff, mag2db(  MF        ) - meanMF  ,':k'); hold on;
     % plot(ff, mag2db(  M         ) - meanMF  ,':m'); hold on;
-    plot(ff, mag2db(  mean(MF(:,:,1),2) ) - meanMF(:,:,1)  ,'-k','linew',1.5); hold on;
+    plot(ff, mag2db(  mean(MF(:,:,img(1)),2) ) - meanMF(:,:,img(1))  ,'-k','linew',1.5); hold on;
     set(gca,'ColorOrderIndex',1);
     for img = imgs%1:6
         plot(ff, mag2db(  mean( M(:,:,img),2) ) - meanMF(:,:,img)  ,'-','linew',1.5); hold on;
@@ -467,11 +468,11 @@ while ss < 200 %ss<1 %for ss = 1:10
     grid on; grid minor; set(gca,'xscale','log');
     xlabel('Frequency (kHz)');ylabel('Magnitude (dB)');
     legend({'Active Wall Off'; ...
-        'Active Wall On & 1 Reflection'; ...
-        'Active Wall On & 2 Reflections'; ...
-        'Active Wall On & 3 Reflections'; ...
-        'Active Wall On & 4 Reflections'; ...
-        'Active Wall On & 5 Reflections'; ...
+%         'Active Wall On & 1 Reflection'; ...
+%         'Active Wall On & 2 Reflections'; ...
+%         'Active Wall On & 3 Reflections'; ...
+%         'Active Wall On & 4 Reflections'; ...
+%         'Active Wall On & 5 Reflections'; ...
         'Active Wall On & 6 Reflections'}, ...
         'Location','northwest');
     
