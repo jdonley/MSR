@@ -73,11 +73,11 @@ f_lo = c / (2*endL);
 f_hi = c / (2*d);
 
 
-nb = 6;
+nb = 5;
 na = 1;
 
 fs = 16000;
-f_band = [100 2000];
+f_band = [200 1500];
 % f_band = round([f_lo f_hi]);
 % fmid = 10^mean(log10(f_band));
 
