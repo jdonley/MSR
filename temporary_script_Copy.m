@@ -62,7 +62,7 @@
 
 %%
 c = 343;
-rtxN = 60;
+rtxN = 25;
 startL = 0;
 endL = 3;
 linePos = (startL + endL/rtxN/2) : endL/rtxN : endL*(1 - 1/rtxN/2);
@@ -73,12 +73,13 @@ f_lo = c / (2*endL);
 f_hi = c / (2*d);
 
 
-nb = 5;
+nb = 14;
 na = 1;
 
 fs = 16000;
-f_band = [200 1500];
+f_band = [200 3400];
 % f_band = round([f_lo f_hi]);
+
 % fmid = 10^mean(log10(f_band));
 
 % [bc,ac]=cheby1(6,1,f_band(2)/(fs/2));
@@ -91,7 +92,7 @@ f_band = [200 1500];
 % F = [0 ...
 %     (res:res:fs/2)/(fs/2)];
 F = [0 ...
-    logspace(log10(10),log10(8000),1023)/(fs/2)];  F(end)=1;
+    logspace(log10(10),log10(fs/2),1023)/(fs/2)];  F(end)=1;
 w = [1 ... DC component
      0*ones(1,numel( F(F<f_band(1)/(fs/2)) ) - 1) ...
      1*ones(1,numel(F(F>=f_band(1)/(fs/2) & F<=f_band(2)/(fs/2)))) ...
@@ -244,7 +245,7 @@ ax.XAxis.TickDirection = 'both';
 ax.XAxis(1).Label.String = 'Frequency (kHz)';
 ax.XAxis(1).Label.Interpreter = 'latex';
 ylim([-180 180]); 
-xlim([0.01 10])
+xlim([0.01 round(fs/2/1e4)*1e1])
 
 %%
 % [num,den]=iirlpnorm(8,8,f/(fs/2),f/(fs/2),a_int);
@@ -258,8 +259,8 @@ xlim([0.01 10])
 % close all;
 
 
-c = 343;                    % Sound velocity (m/s)
-fs = 16000;                 % Sample frequency (samples/s)
+% c = 343;                    % Sound velocity (m/s)
+% fs = 16000;                 % Sample frequency (samples/s)
 L = [3 3 3];                % Room dimensions [x y z] (m)
 n = 0.1*fs;                 % Number of samples
 mtype = 'omnidirectional';  % Type of microphone
