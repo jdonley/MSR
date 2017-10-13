@@ -470,11 +470,7 @@ while ss < 200 %ss<1 %for ss = 1:10
             CIs = Tools.confidence_intervals(db2mag(mag2db(  M(:,:,img) ).' - meanMF(:,:,img).'),95,true);
             CIs = mag2db(exp(CIs));
             CI = CIs + mag2db(  mean( M(:,:,img),2) ) - meanMF(:,:,img);
-            plot(ff, CI  ,'-','color',[0 0 1.0 0.2],'linew',1.5); hold on;
-            
-            CIs = Tools.confidence_intervals((mag2db(  M(:,:,img) ).' - meanMF(:,:,img).'),95);
-            CI = CIs + mag2db(  mean( M(:,:,img),2) ) - meanMF(:,:,img);
-            plot(ff, CI  ,'-','color',[1.0 0 0 0.2],'linew',1.5); hold on;
+            plot(ff, CI  ,'-','color',[0 0 1.0 0.2],'linew',1.5); hold on;            
         end
         
         plot(ff, mag2db(  mean( M(:,:,img),2) ) - meanMF(:,:,img)  ,'-b','linew',1.5); hold on;               
