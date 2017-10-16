@@ -272,7 +272,7 @@ hp_filter = 0;              % Enable high-pass filter
 rng shuffle;
 
 %%%
-betaW     = (1 - [1.0   [1 1 1 1 1]*1.0]).^2;                 % Reverberation time (s)
+betaW     = (1 - [1.0   [1 1 1 1 1]*1.0]).^2;   %anechoic              % Reverberation time (s)
 %%%
 beta(1,:) = (1 - [1.0   [1 1 1 1 1]*1.0]).^2;                 % Reverberation time (s)
 
@@ -308,7 +308,7 @@ DiffracWin = Wx .* Wy;
 %%%
 
 
-% [b,a] = cheby1(9,0.1,f_band/(fs/2));
+% [b,a] = cheby1(6,1,[100 2000]/(fs/2));
 
 
 
@@ -326,11 +326,11 @@ while ss < 200 %ss<1 %for ss = 1:10
 %     x = XX(x_,y_); y = YY(x_,y_);
 % x=1.0; 
 % y=1.5;
-%     r  = [ 1.5   1.5   1.5];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
-%     s  = [ 1.5   2.5   1.5];    % Source position [x y z] (m)
     r = rand(1,3).*[2.5 3 3] + [0.5 0 0];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
     s = rand(1,3).*[2.5 3 3] + [0.5 0 0];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
     % s = [rand(1,2)*3 1.5]; r = [rand(1,2)*3 1.5]; % When using linear array
+%     r  = [ 0.5   1.5   1.5];    % Receiver positions [x_1 y_1 z_1 ; x_2 y_2 z_2] (m)
+%     s  = [ 1.5   1.5   1.5];    % Source position [x y z] (m)
     
 
     for img = imgs%1:6
@@ -345,7 +345,7 @@ while ss < 200 %ss<1 %for ss = 1:10
         %%% Ground truth reflections
         h1 = rir_generator(c, fs, r, s, L, [1 beta(img,2:end)], n, mtype, order, dim, orientation, hp_filter);
         h2 = rir_generator(c, fs, r, s, L, [0 beta(img,2:end)], n, mtype, order, dim, orientation, hp_filter);
-        h1_ = h2;
+        h1_ = h1-h2;
         hf = h1_(:);
         %%%
 
@@ -395,24 +395,24 @@ while ss < 200 %ss<1 %for ss = 1:10
         
 %         % hI_band = filter(b,a,hI);
 %         hf_band = filter(b,a,hf);
-% %         h1_band = filter(b,a,(hcLF - hcLFdirect));
+%         h1_band = filter(b,a,(h1 ));
 % %         h2_band = filter(b,a,hctest_reflect);
 %         hc_band = filter(b,a,hc);
 %         hcL_band = filter(b,a,hcL);
 %         
 %         
-%         figure(1); 
+%         figure(2); 
 %         % plot(hI_band); hold on
 %         plot(hf_band); hold on
 % %         plot(hf,'k'); hold on
 % %         plot(h2,'r'); hold on
 %         plot(hc_band); hold on;
-%         plot(hcL_band); hold on;
+% %         plot(hcL_band); hold on;
 % %         plot(h1_band); hold on;
 % %         plot(h2_band); hold on;
-%         plot(hf_band - hc_band); hold on;
+% %         plot(hf_band - hc_band); hold on;
 %         hold off;grid on;
-%         pow2db(sum((hf_band).^2)) - pow2db(sum((hf_band-hc_band).^2))
+% %         pow2db(sum((hf_band).^2)) - pow2db(sum((hf_band-hc_band).^2))
 %         0;
         
 % hh1(ss,:) = hf_band;
@@ -423,6 +423,7 @@ while ss < 200 %ss<1 %for ss = 1:10
         HF = fft(hf);
 %         HC = fft(hc);
         H = fft(h);
+%         H2 = fft(h2);
 %         HI = fft(hI);
         
         ff = linspace(0,fs/2,n/2+1)/1e3;ff(end)=[];
@@ -433,6 +434,8 @@ while ss < 200 %ss<1 %for ss = 1:10
         MagnitudeF(end/2+1:end)=[];
         Magnitude = abs(H);
         Magnitude(end/2+1:end)=[];
+%         Magnitude2 = abs(H2);
+%         Magnitude2(end/2+1:end)=[];
         
 %         PhaseDifference = mod(unwrap(angle(HF)) - unwrap(angle(HC)) + pi,2*pi)/pi*180-180;
 %         PhaseDifference(end/2+1:end)=[];
@@ -440,6 +443,7 @@ while ss < 200 %ss<1 %for ss = 1:10
 %         MC(:,ss,img) = MagnitudeC;
         MF(:,ss,img) = MagnitudeF;
         M(:,ss,img) = Magnitude;
+%         M2(:,ss,img) = Magnitude2;
 %         PP(:,ss,img) = PhaseDifference;
         % MM = mean([MM , MagnitudeC.*ff.' ],2);
         % PP = mean([PP , PhaseDifference  ],2);
@@ -474,16 +478,16 @@ while ss < 200 %ss<1 %for ss = 1:10
             CIs = Tools.confidence_intervals(db2mag(mag2db(  M(:,:,img) ).' - meanMF(:,:,img).'),95,true);
             CIs = mag2db(exp(CIs));
             CI = CIs + mag2db(  mean( M(:,:,img),2) ) - meanMF(:,:,img);
-            plot(ff, CI  ,'-','color',[0 0 1.0 0.2],'linew',1.5); hold on;    
+            plot(ff, CI  ,'-','color',[0 0 1.0 0.2],'linew',1.5); hold on;
+            
         end
         
         plot(ff, mag2db(  mean( M(:,:,img),2) ) - meanMF(:,:,img)  ,'-b','linew',1.5); hold on;
-        plot(ff,   meanMF(:,:,img)  ,'-k','linew',1.5); hold on;
-        plot(ff, mag2db(  mean( M(:,:,img),2) )   ,'-r','linew',1.5); hold on;
+%         plot(ff, mag2db(  mean( M2(:,:,img),2) ) - meanMF(:,:,img)  ,'-r','linew',1.5); hold on;
     end
     
     hold off;
-    xlim([0.1 10]); ylim([-60 1]);
+    xlim([0.1 10]); ylim([-20 10]);
     grid on; grid minor; set(gca,'xscale','log');
     xlabel('Frequency (kHz)');ylabel('Magnitude (dB)');
     legend({'Active Wall Off'; ...
