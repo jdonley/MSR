@@ -366,10 +366,10 @@ while ss < 200 %ss<1 %for ss = 1:10
 %         A = alph + (1-alph)*cos(th);  
 %         alph = realmax; % monopole
 %         alph = 2/1.0; % sub-cardioid
-%         alph = 1/1.0; % cardioid
+        alph = 1/1.0; % cardioid
 %         alph = 1/1.7; % super-cardioid
 %         alph = 1/3.0; % hyper-cardioid     
-        alph = 0/1.0; % dipole   
+%         alph = 0/1.0; % dipole   
         A =  (alph + cos(th)) ...
             /(abs(alph) + 1);
         %%% Apply directional pattern to microphones and loudspeakers
