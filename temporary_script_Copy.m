@@ -362,8 +362,16 @@ while ss < 200 %ss<1 %for ss = 1:10
         th = atan( ...
             sqrt( (srx(:,2) - rrx(2)).^2 + (srx(:,3) - rrx(3)).^2 ) ...
             ./ (srx(:,1) - rrx(1)) );
-        alph = 0.5; % cardioid
-        A = alph + (1-alph)*cos(th);  
+%         alph = 0.5; % cardioid
+%         A = alph + (1-alph)*cos(th);  
+%         alph = realmax; % monopole
+%         alph = 2/1.0; % sub-cardioid
+%         alph = 1/1.0; % cardioid
+%         alph = 1/1.7; % super-cardioid
+%         alph = 1/3.0; % hyper-cardioid     
+        alph = 0/1.0; % dipole   
+        A =  (alph + cos(th)) ...
+            /(abs(alph) + 1);
         %%% Apply directional pattern to microphones and loudspeakers
         htx = htx .* A;
         htxLR = htxLR .* A;          
