@@ -337,9 +337,9 @@ while ss < 200 %ss<1 %for ss = 1:10
         
         %%% Mic transfer functions
         stx = s;              % Source position [x y z] (m)
-        htx = rir_generator(c, fs, rtx, stx, L, beta(img,:), n, mtypeW, order-1, dim, orientation, hp_filter);
+        htx = rir_generator(c, fs, rtx, stx, L, beta(img,:), n, mtype, order-1, dim, orientation, hp_filter);
         htxLR = htx - ... % Last reflection
-            rir_generator(c, fs, rtx, stx, L, beta(img,:), n, mtypeW, order-2, dim, orientation, hp_filter) ;
+            rir_generator(c, fs, rtx, stx, L, beta(img,:), n, mtype, order-2, dim, orientation, hp_filter) ;
         %%%
 
         %%% Ground truth reflections
@@ -358,14 +358,17 @@ while ss < 200 %ss<1 %for ss = 1:10
             hrxLR(i,:) = rir_generator(c, fs, rrx, srx(i,:), L, beta(img,:), n, mtype, order-2, dim, orientation, hp_filter);
         end
         
-        %%% Determine carioid pattern multiplier
+        %%% Determine cardioid pattern multiplier
         th = atan( ...
             sqrt( (srx(:,2) - rrx(2)).^2 + (srx(:,3) - rrx(3)).^2 ) ...
             ./ (srx(:,1) - rrx(1)) );
         alph = 0.5; % cardioid
-        A = alph + (1-alph)*cos(th);        
+        A = alph + (1-alph)*cos(th);  
+        %%% Apply directional pattern to microphones and loudspeakers
         htx = htx .* A;
-        htxLR = htxLR .* A;        
+        htxLR = htxLR .* A;          
+        hrx = hrx .* A;
+        hrxLR = hrxLR .* A;      
         %%%
         
         %%% Apply WFS/SDM pre-filter
