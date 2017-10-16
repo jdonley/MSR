@@ -345,7 +345,7 @@ while ss < 200 %ss<1 %for ss = 1:10
         %%% Ground truth reflections
         h1 = rir_generator(c, fs, r, s, L, [1 beta(img,2:end)], n, mtype, order, dim, orientation, hp_filter);
         h2 = rir_generator(c, fs, r, s, L, [0 beta(img,2:end)], n, mtype, order, dim, orientation, hp_filter);
-        h1_ = h1-h2;
+        h1_ = h2;
         hf = h1_(:);
         %%%
 
@@ -378,7 +378,7 @@ while ss < 200 %ss<1 %for ss = 1:10
 %         hrxLR = filter(PRE_b,PRE_a,hrxLR.').';
         %%%
         
-        %%% Cancellation signal minus last refelction
+        %%% Cancellation signal minus last reflection
         hc = Tools.fconv(htx.',hrx.');        
         hcLRdirect = Tools.fconv(htxLR.',hrxLR.');
         hcLR = Tools.fconv(htxLR.',hrx.');
@@ -421,26 +421,26 @@ while ss < 200 %ss<1 %for ss = 1:10
         h = hf-hc;
         
         HF = fft(hf);
-        HC = fft(hc);
+%         HC = fft(hc);
         H = fft(h);
 %         HI = fft(hI);
         
         ff = linspace(0,fs/2,n/2+1)/1e3;ff(end)=[];
         
-        MagnitudeC = abs(HC);
-        MagnitudeC(end/2+1:end)=[];
+%         MagnitudeC = abs(HC);
+%         MagnitudeC(end/2+1:end)=[];
         MagnitudeF = abs(HF);
         MagnitudeF(end/2+1:end)=[];
         Magnitude = abs(H);
         Magnitude(end/2+1:end)=[];
         
-        PhaseDifference = mod(unwrap(angle(HF)) - unwrap(angle(HC)) + pi,2*pi)/pi*180-180;
-        PhaseDifference(end/2+1:end)=[];
+%         PhaseDifference = mod(unwrap(angle(HF)) - unwrap(angle(HC)) + pi,2*pi)/pi*180-180;
+%         PhaseDifference(end/2+1:end)=[];
         
-        MC(:,ss,img) = MagnitudeC;
+%         MC(:,ss,img) = MagnitudeC;
         MF(:,ss,img) = MagnitudeF;
         M(:,ss,img) = Magnitude;
-        PP(:,ss,img) = PhaseDifference;
+%         PP(:,ss,img) = PhaseDifference;
         % MM = mean([MM , MagnitudeC.*ff.' ],2);
         % PP = mean([PP , PhaseDifference  ],2);
         
@@ -474,15 +474,16 @@ while ss < 200 %ss<1 %for ss = 1:10
             CIs = Tools.confidence_intervals(db2mag(mag2db(  M(:,:,img) ).' - meanMF(:,:,img).'),95,true);
             CIs = mag2db(exp(CIs));
             CI = CIs + mag2db(  mean( M(:,:,img),2) ) - meanMF(:,:,img);
-            plot(ff, CI  ,'-','color',[0 0 1.0 0.2],'linew',1.5); hold on;            
+            plot(ff, CI  ,'-','color',[0 0 1.0 0.2],'linew',1.5); hold on;    
         end
         
-        plot(ff, mag2db(  mean( M(:,:,img),2) ) - meanMF(:,:,img)  ,'-b','linew',1.5); hold on;               
-
+        plot(ff, mag2db(  mean( M(:,:,img),2) ) - meanMF(:,:,img)  ,'-b','linew',1.5); hold on;
+        plot(ff,   meanMF(:,:,img)  ,'-k','linew',1.5); hold on;
+        plot(ff, mag2db(  mean( M(:,:,img),2) )   ,'-r','linew',1.5); hold on;
     end
     
     hold off;
-    xlim([0.1 10]); ylim([-30 20]);
+    xlim([0.1 10]); ylim([-60 1]);
     grid on; grid minor; set(gca,'xscale','log');
     xlabel('Frequency (kHz)');ylabel('Magnitude (dB)');
     legend({'Active Wall Off'; ...
@@ -491,7 +492,7 @@ while ss < 200 %ss<1 %for ss = 1:10
 %         'Active Wall On & 3 Reflections'; ...
 %         'Active Wall On & 4 Reflections'; ...
 %         'Active Wall On & 5 Reflections'; ...
-        'Active Wall On & 6 Reflections'}, ...
+        'Active Wall On'}, ...
         'Location','northwest');
     
 
