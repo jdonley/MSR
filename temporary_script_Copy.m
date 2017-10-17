@@ -499,7 +499,7 @@ while ss < 200 %ss<1 %for ss = 1:10
     
     hold off;
     xlim([0.1 20]); 
-    ylim([-20 20]);
+    ylim([-30 10]);
     grid on; grid minor; set(gca,'xscale','log');
     xlabel('Frequency (kHz)');ylabel('Magnitude (dB)');
     legend({'Active Wall Off'; ...
