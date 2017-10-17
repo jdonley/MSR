@@ -62,7 +62,7 @@
 
 %%
 c = 343;
-rtxN = 60;
+rtxN = 25;
 startL = 0;
 endL = 3;
 linePos = (startL + endL/rtxN/2) : endL/rtxN : endL*(1 - 1/rtxN/2);
@@ -384,8 +384,6 @@ while ss < 200 %ss<1 %for ss = 1:10
         %%% Apply WFS/SDM pre-filter
         hrx = Tools.fconv(hrx.',repmat(imp.',size(hrx,1),1).').';
         hrxLR = Tools.fconv(hrxLR.',repmat(imp.',size(hrxLR,1),1).').';
-%         hrx   = filter(PRE_b,PRE_a,hrx.'  ).';
-%         hrxLR = filter(PRE_b,PRE_a,hrxLR.').';
         %%%
         
         %%% Cancellation signal minus last reflection
@@ -395,8 +393,8 @@ while ss < 200 %ss<1 %for ss = 1:10
         hcL = (hcLR - hcLRdirect);
         
 %         hc = hc .* repmat(DiffracWin(:).',size(hc,1),1);
-        hc = sum(hc(1:numel(hf),:),2) / rtxN^2 / pi;
 %         hcL = hcL .* repmat(DiffracWin(:).',size(hcL,1),1);
+        hc = sum(hc(1:numel(hf),:),2) / rtxN^2 / pi;
         hcL = sum(hcL(1:numel(hf),:),2) / rtxN^2 / pi;
         
         
@@ -498,7 +496,7 @@ while ss < 200 %ss<1 %for ss = 1:10
     end
     
     hold off;
-    xlim([0.1 20]); 
+    xlim([0.1 10]); 
     ylim([-30 10]);
     grid on; grid minor; set(gca,'xscale','log');
     xlabel('Frequency (kHz)');ylabel('Magnitude (dB)');
