@@ -76,10 +76,11 @@ f_hi = c / (2*d);
 nb = 14;
 na = 1;
 
-fs = 16000;
-f_band = [200 3400];
+fs = 16000*3;
+f_band = [50 3400]*3;
+f_band = [50 18000];
 % f_band = round([f_lo f_hi]);
-
+f_filtlow = 10*3;
 % fmid = 10^mean(log10(f_band));
 
 % [bc,ac]=cheby1(6,1,f_band(2)/(fs/2));
@@ -92,7 +93,7 @@ f_band = [200 3400];
 % F = [0 ...
 %     (res:res:fs/2)/(fs/2)];
 F = [0 ...
-    logspace(log10(10),log10(fs/2),1023)/(fs/2)];  F(end)=1;
+    logspace(log10(f_filtlow),log10(fs/2),1023)/(fs/2)];  F(end)=1;
 w = [1 ... DC component
      0*ones(1,numel( F(F<f_band(1)/(fs/2)) ) - 1) ...
      1*ones(1,numel(F(F>=f_band(1)/(fs/2) & F<=f_band(2)/(fs/2)))) ...
@@ -254,7 +255,6 @@ xlim([0.01 round(fs/2/1e4)*1e1])
 % fvtool(num,den);
 
 
-
 %%
  % clc;
 % close all;
@@ -378,17 +378,6 @@ while ss < 200 %ss<1 %for ss = 1:10
         htxLR = htxLR .* A;          
         hrx = hrx .* A;
         hrxLR = hrxLR .* A;    
-        
-        impDi = real(hilbert(hilbert(hilbert(imp))));
-        htx = Tools.fconv(htx.',repmat(imp.',size(htx,1),1).').';
-        htxLR = Tools.fconv(htxLR.',repmat(imp.',size(htxLR,1),1).').';
-        hrx = Tools.fconv(hrx.',repmat(imp.',size(hrx,1),1).').';
-        hrxLR = Tools.fconv(hrxLR.',repmat(imp.',size(hrxLR,1),1).').';
-        
-%         hf = Tools.fconv(hf,imp);
-%         hf(numel(h1_)+1:end)=[];
-%         hf = Tools.fconv(hf,imp);
-%         hf(numel(h1_)+1:end)=[];
         %%%
         
         %%% Apply WFS/SDM pre-filter
@@ -415,10 +404,10 @@ while ss < 200 %ss<1 %for ss = 1:10
         
 %         % hI_band = filter(b,a,hI);
 %         hf_band = filter(b,a,hf);
-%         h1_band = filter(b,a,(h1 ));
+% %         h1_band = filter(b,a,(h1 ));
 % %         h2_band = filter(b,a,hctest_reflect);
 %         hc_band = filter(b,a,hc);
-%         hcL_band = filter(b,a,hcL);
+% %         hcL_band = filter(b,a,hcL);
 %         
 %         
 %         figure(2); 
@@ -503,12 +492,13 @@ while ss < 200 %ss<1 %for ss = 1:10
         end
         
         plot(ff, mag2db(  mean( M(:,:,img),2) ) - meanMF(:,:,img)  ,'-b','linew',1.5); hold on;
-%         plot(ff, mag2db(  mean( M2(:,:,img),2) ) - meanMF(:,:,img)  ,'-r','linew',1.5); hold on;
+%         plot(ff, mag2db(mean(MF(:,:,img),2))  ,'-k','linew',1.5); hold on;
+%         plot(ff, mag2db(mean(MC(:,:,img),2))  ,'-r','linew',1.5); hold on;
     end
     
     hold off;
-    xlim([0.1 10]); 
-    ylim([-20 10]);
+    xlim([0.1 20]); 
+    ylim([-20 20]);
     grid on; grid minor; set(gca,'xscale','log');
     xlabel('Frequency (kHz)');ylabel('Magnitude (dB)');
     legend({'Active Wall Off'; ...
