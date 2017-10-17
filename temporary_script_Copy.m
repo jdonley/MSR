@@ -254,6 +254,7 @@ xlim([0.01 round(fs/2/1e4)*1e1])
 % fvtool(num,den);
 
 
+
 %%
  % clc;
 % close all;
@@ -376,7 +377,18 @@ while ss < 200 %ss<1 %for ss = 1:10
         htx = htx .* A;
         htxLR = htxLR .* A;          
         hrx = hrx .* A;
-        hrxLR = hrxLR .* A;      
+        hrxLR = hrxLR .* A;    
+        
+        impDi = real(hilbert(hilbert(hilbert(imp))));
+        htx = Tools.fconv(htx.',repmat(imp.',size(htx,1),1).').';
+        htxLR = Tools.fconv(htxLR.',repmat(imp.',size(htxLR,1),1).').';
+        hrx = Tools.fconv(hrx.',repmat(imp.',size(hrx,1),1).').';
+        hrxLR = Tools.fconv(hrxLR.',repmat(imp.',size(hrxLR,1),1).').';
+        
+%         hf = Tools.fconv(hf,imp);
+%         hf(numel(h1_)+1:end)=[];
+%         hf = Tools.fconv(hf,imp);
+%         hf(numel(h1_)+1:end)=[];
         %%%
         
         %%% Apply WFS/SDM pre-filter
@@ -495,7 +507,8 @@ while ss < 200 %ss<1 %for ss = 1:10
     end
     
     hold off;
-    xlim([0.1 10]); ylim([-20 10]);
+    xlim([0.1 10]); 
+    ylim([-20 10]);
     grid on; grid minor; set(gca,'xscale','log');
     xlabel('Frequency (kHz)');ylabel('Magnitude (dB)');
     legend({'Active Wall Off'; ...
