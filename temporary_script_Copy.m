@@ -62,7 +62,7 @@
 
 %%
 c = 343;
-rtxN = 25;
+rtxN = 60;
 startL = 0;
 endL = 3;
 linePos = (startL + endL/rtxN/2) : endL/rtxN : endL*(1 - 1/rtxN/2);
@@ -76,11 +76,12 @@ f_hi = c / (2*d);
 nb = 14;
 na = 1;
 
-fs = 16000*3;
-f_band = [50 3400]*3;
-f_band = [50 18000];
+s_up_fact = 1;
+
+fs = 16000*s_up_fact;
+f_band = [25 3400]*s_up_fact;
 % f_band = round([f_lo f_hi]);
-f_filtlow = 10*3;
+f_filtlow = 10*s_up_fact;
 % fmid = 10^mean(log10(f_band));
 
 % [bc,ac]=cheby1(6,1,f_band(2)/(fs/2));
@@ -95,9 +96,9 @@ f_filtlow = 10*3;
 F = [0 ...
     logspace(log10(f_filtlow),log10(fs/2),1023)/(fs/2)];  F(end)=1;
 w = [1 ... DC component
-     0*ones(1,numel( F(F<f_band(1)/(fs/2)) ) - 1) ...
+     0*ones(1,numel(F(F< f_band(1)/(fs/2)) ) - 1) ...
      1*ones(1,numel(F(F>=f_band(1)/(fs/2) & F<=f_band(2)/(fs/2)))) ...
-     0*ones(1,numel(F(F>f_band(2)/(fs/2)))) ...
+     0*ones(1,numel(F(F> f_band(2)/(fs/2)))) ...
      ];
 A = F*fs/2;%[0 ... DC component
     %res:res:fs/2];
@@ -137,7 +138,7 @@ fprintf('WFS/SDM IIR(LS) pre-filter length: %d\n',numel(imp_));
 % ax.XScale = 'log';
 
 %%% 
-nfft = max(nextpow2(numel(H)),1024);
+nfft = max(nextpow2(numel(H)),4096);
 ff = linspace(F(1),F(end),nfft);
 aa = interp1(F,A,ff);
 pp = interp1(F,P,ff);
@@ -175,7 +176,7 @@ a = polystab(a);
 
 imp = impz(b,a);
 % imp = (ifft([HH conj(HH(end:-1:2))]));
-% imp(mag2db(abs(imp/max(imp)))<-60) = [];
+imp(mag2db(abs(imp/max(imp)))<-120) = [];
 
 if isstable(b,a), ImpSt='true';else,ImpSt='false';end
 fprintf('WFS/SDM IIR(LS) pre-filter is stable: %s\n',ImpSt);
@@ -202,7 +203,7 @@ PRE_a = a;
 % YY2(end/2:end) = [];
 % YY3(end/2:end) = [];
 
-IMP = fft(imp,1024);
+IMP = fft(imp,4096);
 IMP(end/2+1:end) = [];
 % IMP_ = fft(imp_,1024);
 % IMP_(end/2+1:end) = [];
