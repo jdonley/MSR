@@ -385,6 +385,10 @@ while ss < 200 %ss<1 %for ss = 1:10
         htxLR = htxLR .* A;          
         hrx = hrx .* A;
         hrxLR = hrxLR .* A;    
+%         htx = htx(1:end/2,:) + htx(end/2+1:end,:);
+%         htxLR = htxLR .* A;          
+%         hrx = hrx .* A;
+%         hrxLR = hrxLR .* A;    
         %%%
         
         %%% Apply WFS/SDM pre-filter
