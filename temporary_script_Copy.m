@@ -295,12 +295,12 @@ beta(6,:) = (1 - [1.0   [0 0 0 0 0]*1.0]).^2;                 % Reverberation ti
 % 
 % d = mean(mean([diff(zz,[],1) diff(yy,[],2).'] ));
 
-% rtx = [zeros(numel(yy),1), yy(:), zz(:)]; % monopole
-rtx = reshape( ...
-       [zeros(numel(yy),1)+0.025.*[-1 1], ...
-       [yy(:) yy(:)], ...
-       [zz(:) zz(:)]], ...
-       [], 3); % dipole
+rtx = [zeros(numel(yy),1), yy(:), zz(:)]; % monopole
+% rtx = reshape( ...
+%        [zeros(numel(yy),1)+0.025.*[-1 1], ...
+%        [yy(:) yy(:)], ...
+%        [zz(:) zz(:)]], ...
+%        [], 3); % dipole
 
 srx = rtx;
 
@@ -381,10 +381,10 @@ while ss < 200 %ss<1 %for ss = 1:10
         A =  (alph + cos(th)) ...
             /(abs(alph) + 1);
         %%% Apply directional pattern to microphones and loudspeakers
-        htx = htx .* A;
-        htxLR = htxLR .* A;          
-        hrx = hrx .* A;
-        hrxLR = hrxLR .* A;    
+%         htx = htx .* A;
+%         htxLR = htxLR .* A;          
+%         hrx = hrx .* A;
+%         hrxLR = hrxLR .* A;    
 %         htx = htx(1:end/2,:) + htx(end/2+1:end,:);
 %         htxLR = htxLR .* A;          
 %         hrx = hrx .* A;
