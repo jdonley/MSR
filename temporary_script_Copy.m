@@ -295,7 +295,13 @@ beta(6,:) = (1 - [1.0   [0 0 0 0 0]*1.0]).^2;                 % Reverberation ti
 % 
 % d = mean(mean([diff(zz,[],1) diff(yy,[],2).'] ));
 
-rtx = [zeros(numel(yy),1), yy(:), zz(:)];
+% rtx = [zeros(numel(yy),1), yy(:), zz(:)]; % monopole
+rtx = reshape( ...
+       [zeros(numel(yy),1)+0.025.*[-1 1], ...
+       [yy(:) yy(:)], ...
+       [zz(:) zz(:)]], ...
+       [], 3); % dipole
+
 srx = rtx;
 
 imgs = 6;
