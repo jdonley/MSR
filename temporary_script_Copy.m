@@ -175,7 +175,7 @@ a = [1 th(nb+2:end).'];
 a = polystab(a);
 
 imp = impz(b,a);
-% imp = (ifft([HH conj(HH(end:-1:2))]));
+impIDEAL = (ifft([HH conj(HH(end:-1:2))])).'; % But contains delay
 imp(mag2db(abs(imp/max(imp)))<-120) = [];
 
 if isstable(b,a), ImpSt='true';else,ImpSt='false';end
@@ -374,17 +374,18 @@ while ss < 200 %ss<1 %for ss = 1:10
 %         A = alph + (1-alph)*cos(th);  
 %         alph = realmax; % monopole
 %         alph = 2/1.0; % sub-cardioid
-        alph = 1/1.0; % cardioid
+%         alph = 1/1.0; % cardioid
 %         alph = 1/1.7; % super-cardioid
 %         alph = 1/3.0; % hyper-cardioid     
-%         alph = 0/1.0; % dipole   
+        alph = 0/1.0; % dipole   
         A =  (alph + cos(th)) ...
             /(abs(alph) + 1);
         %%% Apply directional pattern to microphones and loudspeakers
-%         htx = htx .* A;
-%         htxLR = htxLR .* A;          
+        htxDi = htx .* A;
+        htxLRDi = htxLR .* A;          
 %         hrx = hrx .* A;
-%         hrxLR = hrxLR .* A;    
+%         hrxLR = hrxLR .* A;  
+
 %         htx = htx(1:end/2,:) + htx(end/2+1:end,:);
 %         htxLR = htxLR .* A;          
 %         hrx = hrx .* A;
@@ -394,21 +395,49 @@ while ss < 200 %ss<1 %for ss = 1:10
         %%% Apply WFS/SDM pre-filter
         hrx = Tools.fconv(hrx.',repmat(imp.',size(hrx,1),1).').';
         hrxLR = Tools.fconv(hrxLR.',repmat(imp.',size(hrxLR,1),1).').';
+        
+        hrxIdeal = Tools.fconv(hrx.',repmat(impIDEAL.',size(hrx,1),1).').';
+        hrxLRIdeal = Tools.fconv(hrxLR.',repmat(impIDEAL.',size(hrxLR,1),1).').';
         %%%
         
         %%% Cancellation signal minus last reflection
+        %%% ONE (previously suggested pre-filter)
+        hcId = Tools.fconv(htx.',hrxIdeal.');        
+        hcLRdirectId = Tools.fconv(htxLR.',hrxLRIdeal.');
+        hcLRId = Tools.fconv(htxLR.',hrxIdeal.');
+        hcLId = (hcLRId - hcLRdirectId);
+        %         hc = hc .* repmat(DiffracWin(:).',size(hc,1),1);
+%         hcL = hcL .* repmat(DiffracWin(:).',size(hcL,1),1);
+        hcId = sum(hcId(1:numel(hf),:),2) / rtxN^2 / pi;
+        hcLId = sum(hcLId(1:numel(hf),:),2) / rtxN^2 / pi;
+        
+        %%% TWO
         hc = Tools.fconv(htx.',hrx.');        
         hcLRdirect = Tools.fconv(htxLR.',hrxLR.');
         hcLR = Tools.fconv(htxLR.',hrx.');
         hcL = (hcLR - hcLRdirect);
-        
-%         hc = hc .* repmat(DiffracWin(:).',size(hc,1),1);
+        %         hc = hc .* repmat(DiffracWin(:).',size(hc,1),1);
 %         hcL = hcL .* repmat(DiffracWin(:).',size(hcL,1),1);
         hc = sum(hc(1:numel(hf),:),2) / rtxN^2 / pi;
         hcL = sum(hcL(1:numel(hf),:),2) / rtxN^2 / pi;
         
+        %%% THREE
+        hcDi = Tools.fconv(htxDi.',hrx.');        
+        hcLRdirectDi = Tools.fconv(htxLRDi.',hrxLR.');
+        hcLRDi = Tools.fconv(htxLRDi.',hrx.');
+        hcLDi = (hcLRDi - hcLRdirectDi);
+    %         hc = hc .* repmat(DiffracWin(:).',size(hc,1),1);
+%         hcL = hcL .* repmat(DiffracWin(:).',size(hcL,1),1);
+        hcDi = sum(hcDi(1:numel(hf),:),2) / rtxN^2 / pi;
+        hcLDi = sum(hcLDi(1:numel(hf),:),2) / rtxN^2 / pi;    
         
+        
+
+        
+        
+        hcId = hcId - hcLId;
         hc = hc - hcL;
+        hcDi = hcDi - hcLDi;
         %%% 
         
 %         % hI_band = filter(b,a,hI);
@@ -436,11 +465,15 @@ while ss < 200 %ss<1 %for ss = 1:10
 % hh1(ss,:) = hf_band;
 % hh2(ss,:) = hc_band;
         
+        hId = hf-hcId;
         h = hf-hc;
+        hDi = hf-hcDi;
         
         HF = fft(hf);
 %         HC = fft(hc);
+        HId = fft(hId);
         H = fft(h);
+        HDi = fft(hDi);
 %         H2 = fft(h2);
 %         HI = fft(hI);
         
@@ -450,8 +483,12 @@ while ss < 200 %ss<1 %for ss = 1:10
 %         MagnitudeC(end/2+1:end)=[];
         MagnitudeF = abs(HF);
         MagnitudeF(end/2+1:end)=[];
+        MagnitudeId = abs(HId);
+        MagnitudeId(end/2+1:end)=[];
         Magnitude = abs(H);
         Magnitude(end/2+1:end)=[];
+        MagnitudeDi = abs(HDi);
+        MagnitudeDi(end/2+1:end)=[];
 %         Magnitude2 = abs(H2);
 %         Magnitude2(end/2+1:end)=[];
         
@@ -460,7 +497,9 @@ while ss < 200 %ss<1 %for ss = 1:10
         
 %         MC(:,ss,img) = MagnitudeC;
         MF(:,ss,img) = MagnitudeF;
+        MId(:,ss,img) = MagnitudeId;
         M(:,ss,img) = Magnitude;
+        MDi(:,ss,img) = MagnitudeDi;
 %         M2(:,ss,img) = Magnitude2;
 %         PP(:,ss,img) = PhaseDifference;
         % MM = mean([MM , MagnitudeC.*ff.' ],2);
@@ -493,16 +532,29 @@ while ss < 200 %ss<1 %for ss = 1:10
     for img = imgs%1:6 
         
         if ss > 1
+            CIs = Tools.confidence_intervals(db2mag(mag2db(  MId(:,:,img) ).' - meanMF(:,:,img).'),95,true);
+            CIs = mag2db(exp(CIs));
+            CI = CIs + mag2db(  mean( MId(:,:,img),2) ) - meanMF(:,:,img);
+            plot(ff, CI  ,'-','color',[1.0 0 0.0 0.2],'linew',1.5); hold on; 
+        end
+        plot(ff, mag2db(  mean( MId(:,:,img),2) ) - meanMF(:,:,img)  ,'-r','linew',1.5); hold on;
+        
+        if ss > 1
             CIs = Tools.confidence_intervals(db2mag(mag2db(  M(:,:,img) ).' - meanMF(:,:,img).'),95,true);
             CIs = mag2db(exp(CIs));
             CI = CIs + mag2db(  mean( M(:,:,img),2) ) - meanMF(:,:,img);
-            plot(ff, CI  ,'-','color',[0 0 1.0 0.2],'linew',1.5); hold on;
-            
+            plot(ff, CI  ,'-','color',[1.0 0 1.0 0.2],'linew',1.5); hold on; 
         end
+        plot(ff, mag2db(  mean( M(:,:,img),2) ) - meanMF(:,:,img)  ,'-m','linew',1.5); hold on;
         
-        plot(ff, mag2db(  mean( M(:,:,img),2) ) - meanMF(:,:,img)  ,'-b','linew',1.5); hold on;
-%         plot(ff, mag2db(mean(MF(:,:,img),2))  ,'-k','linew',1.5); hold on;
-%         plot(ff, mag2db(mean(MC(:,:,img),2))  ,'-r','linew',1.5); hold on;
+        if ss > 1
+            CIs = Tools.confidence_intervals(db2mag(mag2db(  MDi(:,:,img) ).' - meanMF(:,:,img).'),95,true);
+            CIs = mag2db(exp(CIs));
+            CI = CIs + mag2db(  mean( MDi(:,:,img),2) ) - meanMF(:,:,img);
+            plot(ff, CI  ,'-','color',[0 0 1.0 0.2],'linew',1.5); hold on; 
+        end
+        plot(ff, mag2db(  mean( MDi(:,:,img),2) ) - meanMF(:,:,img)  ,'-b','linew',1.5); hold on;
+        
     end
     
     hold off;
