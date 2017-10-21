@@ -96,7 +96,7 @@ f_filtlow = 10*s_up_fact;
 F = [0 ...
     logspace(log10(f_filtlow),log10(fs/2),1023)/(fs/2)];  F(end)=1;
 w = [1 ... DC component
-     0*ones(1,numel(F(F< f_band(1)/(fs/2)) ) - 1) ...
+     1*ones(1,numel(F(F< f_band(1)/(fs/2)) ) - 1) ...
      1*ones(1,numel(F(F>=f_band(1)/(fs/2) & F<=f_band(2)/(fs/2)))) ...
      0*ones(1,numel(F(F> f_band(2)/(fs/2)))) ...
      ];
@@ -217,14 +217,14 @@ ax = gca;
 magColor = [0.0 0.3 0.7];
 plot(frqs,mag2db(abs(IMP)),'.','color',magColor,'linew',1.5); hold on;
 % plot(frqs,mag2db(abs(IMP_)),'.','color',magColor/2,'linew',1.5); hold on;
-plot(ff*fs/2/1e3,WW.^2 * 99+0.5+20,'color','k','linew',1.5); hold on;
+plot(ff*fs/2/1e3,WW.^2 * 99+0.5,'color','k','linew',1.5); hold on;
 hold off;
 ax.YAxis(1).Label.String = 'Magnitude (dB)  or  LS Weight (\%)';
 ax.YAxis(1).Label.Interpreter = 'latex';
 ax.YAxis(1).Color = magColor;
 ax.YAxis(1).MinorTick = 'on';
 ax.YAxis(1).TickDirection = 'both';
-ylim([20 120]); 
+ylim([0 100]); 
 
 yyaxis right;
 ax = gca;
@@ -246,9 +246,21 @@ ax.XScale = 'log';
 ax.XAxis.TickDirection = 'both';
 ax.XAxis(1).Label.String = 'Frequency (kHz)';
 ax.XAxis(1).Label.Interpreter = 'latex';
-ylim([-180 180]); 
-xlim([0.01 round(fs/2/1e4)*1e1])
+ylim([60 120]); 
+xlim([0.1 round(fs/2/1e4)*1e1])
+grid on;
+fH.Units = 'centimeters';
+fH.Position(4) = 7;
 
+fH2 = figure(2);
+fH2.Color = 'w';
+stem(imp,'k');
+ax = gca;
+ax.YAxis.Label.String = 'Magnitude (dB)  or  LS Weight (\%)';
+ax.YAxis.Label.Interpreter = 'latex';
+ax.YAxis.MinorTick = 'on';
+ax.YAxis.TickDirection = 'both';
+grid on;
 %%
 % [num,den]=iirlpnorm(8,8,f/(fs/2),f/(fs/2),a_int);
 % [num,den]=iirlpnorm(8,8,f/(fs/2),f/(fs/2),f/(fs/2));
