@@ -176,7 +176,7 @@ a = polystab(a);
 
 imp = impz(b,a);
 impIDEAL = (ifft([HH conj(HH(end:-1:2))])).'; % But contains delay
-imp(mag2db(abs(imp/max(imp)))<-120) = [];
+% imp(mag2db(abs(imp/max(imp)))<-120) = [];
 
 if isstable(b,a), ImpSt='true';else,ImpSt='false';end
 fprintf('WFS/SDM IIR(LS) pre-filter is stable: %s\n',ImpSt);
@@ -219,7 +219,7 @@ plot(frqs,mag2db(abs(IMP)),'.','color',magColor,'linew',1.5); hold on;
 % plot(frqs,mag2db(abs(IMP_)),'.','color',magColor/2,'linew',1.5); hold on;
 plot(ff*fs/2/1e3,WW.^2 * 99+0.5,'color','k','linew',1.5); hold on;
 hold off;
-ax.YAxis(1).Label.String = 'Magnitude (dB)  or  LS Weight (\%)';
+ax.YAxis(1).Label.String = {'Magnitude (dB)';  'or  LS Weight (\%)'};
 ax.YAxis(1).Label.Interpreter = 'latex';
 ax.YAxis(1).Color = magColor;
 ax.YAxis(1).MinorTick = 'on';
@@ -248,19 +248,52 @@ ax.XAxis(1).Label.String = 'Frequency (kHz)';
 ax.XAxis(1).Label.Interpreter = 'latex';
 ylim([60 120]); 
 xlim([0.1 round(fs/2/1e4)*1e1])
-grid on;
+grid off; grid on; grid minor;
 fH.Units = 'centimeters';
-fH.Position(4) = 7;
+fH.Position(3:4) = [12 5];
+tightfig;
 
+%%%
 fH2 = figure(2);
 fH2.Color = 'w';
-stem(imp,'k');
+
+yyaxis right;
 ax = gca;
-ax.YAxis.Label.String = 'Magnitude (dB)  or  LS Weight (\%)';
-ax.YAxis.Label.Interpreter = 'latex';
-ax.YAxis.MinorTick = 'on';
-ax.YAxis.TickDirection = 'both';
-grid on;
+magColor = [0.8 0.1 0.1];
+stem((0:numel(imp)-1)/fs*1e3,...
+    mag2db(abs(imp)),...
+    ':','color', magColor);
+ylim( max(mag2db(abs(imp)))*[-1 1]*1.1 );
+ax = gca;
+ax.YAxis(end).Label.String = 'Magnitude (dB)';
+ax.YAxis(end).Label.Interpreter = 'latex';
+ax.YAxis(end).Color = magColor;
+ax.YAxis(end).MinorTick = 'on';
+ax.YAxis(end).TickDirection = 'both';
+
+yyaxis left;
+ax = gca;
+ampColor = [0.0 0.3 0.7];
+stem((0:numel(imp)-1)/fs*1e3,...
+    ((imp)),...
+    'color', ampColor);
+ylim( max(abs(imp))*[-1 1]*1.1 );
+ax = gca;
+ax.YAxis(1).Label.String = 'Amplitude';
+ax.YAxis(1).Label.Interpreter = 'latex';
+ax.YAxis(end).Color = ampColor;
+ax.YAxis(1).MinorTick = 'on';
+ax.YAxis(1).TickDirection = 'both';
+
+
+
+ax.XAxis.TickDirection = 'both';
+ax.XAxis.Label.String = 'Time (ms)';
+ax.XAxis.Label.Interpreter = 'latex';
+grid off; grid on; 
+fH2.Units = 'centimeters';
+fH2.Position(3:4) = [12 5];
+tightfig;
 %%
 % [num,den]=iirlpnorm(8,8,f/(fs/2),f/(fs/2),a_int);
 % [num,den]=iirlpnorm(8,8,f/(fs/2),f/(fs/2),f/(fs/2));
