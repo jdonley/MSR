@@ -62,7 +62,7 @@
 
 %%
 c = 343;
-rtxN = 25;
+rtxN = 60;
 startL = 0;
 endL = 3;
 linePos = (startL + endL/rtxN/2) : endL/rtxN : endL*(1 - 1/rtxN/2);
@@ -76,7 +76,7 @@ f_hi = c / (2*d);
 nb = 14;
 na = 1;
 
-s_up_fact = 1;
+s_up_fact = 3;
 
 fs = 16000*s_up_fact;
 f_band = [25 3400]*s_up_fact;
@@ -262,7 +262,7 @@ ax = gca;
 magColor = [0.8 0.1 0.1];
 stem((0:numel(imp)-1)/fs*1e3,...
     mag2db(abs(imp)),...
-    ':','color', magColor);
+    ':x','color', magColor);
 ylim( max(mag2db(abs(imp)))*[-1 1]*1.1 );
 ax = gca;
 ax.YAxis(end).Label.String = 'Magnitude (dB)';
@@ -281,10 +281,9 @@ ylim( max(abs(imp))*[-1 1]*1.1 );
 ax = gca;
 ax.YAxis(1).Label.String = 'Amplitude';
 ax.YAxis(1).Label.Interpreter = 'latex';
-ax.YAxis(end).Color = ampColor;
+ax.YAxis(1).Color = ampColor;
 ax.YAxis(1).MinorTick = 'on';
 ax.YAxis(1).TickDirection = 'both';
-
 
 
 ax.XAxis.TickDirection = 'both';
@@ -327,7 +326,7 @@ beta(2,:) = (1 - [1.0   [0 1 1 1 1]*1.0]).^2;                 % Reverberation ti
 beta(3,:) = (1 - [1.0   [0 0 1 1 1]*1.0]).^2;                 % Reverberation time (s)
 beta(4,:) = (1 - [1.0   [0 0 0 1 1]*1.0]).^2;                 % Reverberation time (s)
 beta(5,:) = (1 - [1.0   [0 0 0 0 1]*1.0]).^2;                 % Reverberation time (s)
-beta(6,:) = (1 - [0.0   [0 0 0 0 0]*1.0]).^2;                 % Reverberation time (s)
+beta(6,:) = (1 - [1.0   [0 0 0 0 0]*1.0]).^2;                 % Reverberation time (s)
 %%%
 
 % rtxN = 60;
@@ -568,29 +567,30 @@ while ss < 200 %ss<1 %for ss = 1:10
     % grid on; grid minor; set(gca,'xscale','log');
     % xlabel('Frequency (kHz)');ylabel('Phase (\circ)');
     
-    figure(2);
+    fHres = figure(222);
+    fHres.Color = 'w';
     meanMF = mag2db(mean(MF,2));
     % plot(ff, mag2db(  MF        ) - meanMF  ,':k'); hold on;
     % plot(ff, mag2db(  M         ) - meanMF  ,':m'); hold on;
-    plot(ff, mag2db(  mean(MF(:,:,img(1)),2) ) - meanMF(:,:,img(1))  ,'-k','linew',1.5); hold on;
+    pl0 = plot(ff, mag2db(  mean(MF(:,:,img(1)),2) ) - meanMF(:,:,img(1))  ,'-k','linew',1.5); hold on;
     set(gca,'ColorOrderIndex',1);
     for img = imgs%1:6 
         
-        if ss > 1
-            CIs = Tools.confidence_intervals(db2mag(mag2db(  MId(:,:,img) ).' - meanMF(:,:,img).'),95,true);
-            CIs = mag2db(exp(CIs));
-            CI = CIs + mag2db(  mean( MId(:,:,img),2) ) - meanMF(:,:,img);
-            plot(ff, CI  ,'-','color',[1.0 0 0.0 0.2],'linew',1.5); hold on; 
-        end
-        plot(ff, mag2db(  mean( MId(:,:,img),2) ) - meanMF(:,:,img)  ,'-r','linew',1.5); hold on;
+%         if ss > 1
+%             CIs = Tools.confidence_intervals(db2mag(mag2db(  MId(:,:,img) ).' - meanMF(:,:,img).'),95,true);
+%             CIs = mag2db(exp(CIs));
+%             CI = CIs + mag2db(  mean( MId(:,:,img),2) ) - meanMF(:,:,img);
+%             plot(ff, CI  ,'-','color',[1.0 0 1.0 0.2],'linew',1.5); hold on; 
+%         end
+%         plot(ff, mag2db(  mean( MId(:,:,img),2) ) - meanMF(:,:,img)  ,'-m','linew',1.5); hold on;
         
         if ss > 1
             CIs = Tools.confidence_intervals(db2mag(mag2db(  M(:,:,img) ).' - meanMF(:,:,img).'),95,true);
             CIs = mag2db(exp(CIs));
             CI = CIs + mag2db(  mean( M(:,:,img),2) ) - meanMF(:,:,img);
-            plot(ff, CI  ,'-','color',[1.0 0 1.0 0.2],'linew',1.5); hold on; 
+            plot(ff, CI  ,'-','color',[1.0 0 0.0 0.2],'linew',1.5); hold on; 
         end
-        plot(ff, mag2db(  mean( M(:,:,img),2) ) - meanMF(:,:,img)  ,'-m','linew',1.5); hold on;
+        pl1 = plot(ff, mag2db(  mean( M(:,:,img),2) ) - meanMF(:,:,img)  ,'-r','linew',1.5); hold on;
         
         if ss > 1
             CIs = Tools.confidence_intervals(db2mag(mag2db(  MDi(:,:,img) ).' - meanMF(:,:,img).'),95,true);
@@ -598,24 +598,36 @@ while ss < 200 %ss<1 %for ss = 1:10
             CI = CIs + mag2db(  mean( MDi(:,:,img),2) ) - meanMF(:,:,img);
             plot(ff, CI  ,'-','color',[0 0 1.0 0.2],'linew',1.5); hold on; 
         end
-        plot(ff, mag2db(  mean( MDi(:,:,img),2) ) - meanMF(:,:,img)  ,'-b','linew',1.5); hold on;
+        pl2 = plot(ff, mag2db(  mean( MDi(:,:,img),2) ) - meanMF(:,:,img)  ,'-b','linew',1.5); hold on;
         
     end
     
     hold off;
     xlim([0.1 10]); 
-    ylim([-30 10]);
-    grid on; grid minor; set(gca,'xscale','log');
-    xlabel('Frequency (kHz)');ylabel('Magnitude (dB)');
-    legend({'Active Wall Off'; ...
-%         'Active Wall On & 1 Reflection'; ...
-%         'Active Wall On & 2 Reflections'; ...
-%         'Active Wall On & 3 Reflections'; ...
-%         'Active Wall On & 4 Reflections'; ...
-%         'Active Wall On & 5 Reflections'; ...
-        'Active Wall On'}, ...
+    ylim([-18 10]);
+    grid off; grid on; grid minor;
+    lH = legend([pl0, pl1, pl2], ...
+        {'Inactive'; ...
+        %         'Active Wall On & 1 Reflection'; ...
+        %         'Active Wall On & 2 Reflections'; ...
+        %         'Active Wall On & 3 Reflections'; ...
+        %         'Active Wall On & 4 Reflections'; ...
+        %         'Active Wall On & 5 Reflections'; ...
+        'Active - Proposed WFS WLS'; ...
+        'Active - Proposed FOD'}, ...
         'Location','northwest');
+    ax = gca;
+    ax.YAxis.Label.String = 'Magnitude (dB)';
+    ax.YAxis.Label.Interpreter = 'latex';
+    ax.YAxis.MinorTick = 'on';
+    ax.YAxis.TickDirection = 'both';
+    ax.XScale = 'log';
+    ax.XAxis.TickDirection = 'both';
+    ax.XAxis.Label.String = 'Frequency (kHz)';
+    ax.XAxis.Label.Interpreter = 'latex';
     
+    fHres.Units = 'centimeters';
+    fHres.Position(3:4) = [12 7];
 
 % figure(111); scatter(x,y,'ok'); hold on;
 % xlim([0 3]); ylim([0 3]);
@@ -627,6 +639,7 @@ disp(ss);
 end
 toc;
 
+tightfig;
 %%
 % hh(:,:,:,1) = reshape(hh1,3*res,3*res,[]);
 % hh(:,:,:,2) = reshape(hh2,3*res,3*res,[]);
