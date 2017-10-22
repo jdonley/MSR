@@ -613,7 +613,10 @@ hInd = sub2ind([3,size(test_srcs,1)],1,each_test_src);
 axes(hAll(hInd));
 
 FIELDREFLECTIONS = hh(:,:,IC, 1 );
-image((FIELDREFLECTIONS / maxV + 1 )/2 * size(C,1));
+image((FIELDREFLECTIONS / maxV + 1 )/2 * size(C,1)); hold on;
+plot(test_srcs(each_test_src,1)*res,test_srcs(each_test_src,2)*res,...
+    'rx','MarkerSize',7,'linew',1.5); hold on;
+hold off;
 if each_test_src == 1
 tiH = title('Inactive');
 tiH.Interpreter = 'latex';
@@ -644,7 +647,10 @@ hInd = sub2ind([3,size(test_srcs,1)],2,each_test_src);
 axes(hAll(hInd));
 
 FIELDERROR_method1 = diff(hh(:,:,IC,[1 2]),[],4);
-image((FIELDERROR_method1 / maxV + 1 )/2 * size(C,1));
+image((FIELDERROR_method1 / maxV + 1 )/2 * size(C,1));hold on;
+plot(test_srcs(each_test_src,1)*res,test_srcs(each_test_src,2)*res,...
+    'rx','MarkerSize',7,'linew',1.5); hold on;
+hold off;
 if each_test_src == 1
 tiH = title('Active - Proposed WFS WLS');
 tiH.Interpreter = 'latex';
@@ -672,7 +678,10 @@ hInd = sub2ind([3,size(test_srcs,1)],3,each_test_src);
 axes(hAll(hInd));
 
 FIELDERROR_method2 = diff(hh(:,:,IC,[1 3]),[],4);
-image((FIELDERROR_method2 / maxV + 1 )/2 * size(C,1));
+image((FIELDERROR_method2 / maxV + 1 )/2 * size(C,1));hold on;
+plot(test_srcs(each_test_src,1)*res,test_srcs(each_test_src,2)*res,...
+    'rx','MarkerSize',7,'linew',1.5); hold on;
+hold off;
 if each_test_src == 1
 tiH = title('Active - Proposed FOD');
 tiH.Interpreter = 'latex';
