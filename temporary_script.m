@@ -61,25 +61,64 @@
 % xlim([0.01 10]); hold off;
 
 %%
-fs = 16000;
-f_band = [200 2000];
+%%
+c = 343;
+rtxN = 60;
+startL = 0;
+endL = 3;
+linePos = (startL + endL/rtxN/2) : endL/rtxN : endL*(1 - 1/rtxN/2);
+[yy,zz] = meshgrid( linePos ); % Planar Array
+d = mean(mean([diff(zz,[],1) diff(yy,[],2).'] ));
+
+f_lo = c / (2*endL);
+f_hi = c / (2*d);
+
+
+nb = 14;
+na = 1;
+
+s_up_fact = 3;
+
+fs = 16000*s_up_fact;
+f_band = [25 3400]*s_up_fact;
+% f_band = round([f_lo f_hi]);
+f_filtlow = 10*s_up_fact;
 % fmid = 10^mean(log10(f_band));
-res = 20;
-F = (0:res:fs/2)/(fs/2);
-A = [0 ... DC component
-    res:res:fs/2];
+
+% [bc,ac]=cheby1(6,1,f_band(2)/(fs/2));
+% impc = impz(bc,ac);
+% IMPC = fft(impc,1024*2);
+% IMPC(end/2+1:end) = [];
+% Ac = -unwrap(angle(IMPC));
+
+% res = 20;
+% F = [0 ...
+%     (res:res:fs/2)/(fs/2)];
+F = [0 ...
+    logspace(log10(f_filtlow),log10(fs/2),1023)/(fs/2)];  F(end)=1;
+w = [1 ... DC component
+     1*ones(1,numel(F(F< f_band(1)/(fs/2)) ) - 1) ...
+     1*ones(1,numel(F(F>=f_band(1)/(fs/2) & F<=f_band(2)/(fs/2)))) ...
+     0*ones(1,numel(F(F> f_band(2)/(fs/2)))) ...
+     ];
+A = F*fs/2;%[0 ... DC component
+    %res:res:fs/2];
 P = [0 ... DC component
-    ones(1,length(A)-1)*pi/2];
+	...Ac(2:end).' + ...
+    ones(1,numel(A)-1)*pi/2];
+% ff = linspace(F(1),F(end),nfft);
+% Pbegin = P((ff<f_band(1)/(fs/2)) );
+% Pend = P((ff>f_band(2)/(fs/2)));
+% wp = [ ... DC component
+%      Pbegin(end)+Pbegin*0 ...
+%      P((ff>=f_band(1)/(fs/2) & ff<=f_band(2)/(fs/2))) ...
+%      Pend(1)+Pend*0 ...
+%      ];
+% P = wp; P(1) = 0;
 
 H = A .* exp(1j*P);
-nb = 6;
-na = 1;
 f = fdesign.arbmagnphase('Nb,Na,F,H',nb,na,F,H);
-w = [1 ... DC component
-     0*ones(1,numel(res:res:f_band(1)-1)) ...
-     1*ones(1,numel(f_band(1):res:f_band(2) )) ...
-     0*ones(1,numel(f_band(2)+1:res:fs/2)) ...
-     ];
+
 
 Hd = design(f,'iirls','Weights',w);
 
@@ -100,7 +139,7 @@ fprintf('WFS/SDM IIR(LS) pre-filter length: %d\n',numel(imp_));
 % ax.XScale = 'log';
 
 %%% 
-nfft = max(nextpow2(numel(H)),1024);
+nfft = max(nextpow2(numel(H)),4096);
 ff = linspace(F(1),F(end),nfft);
 aa = interp1(F,A,ff);
 pp = interp1(F,P,ff);
@@ -109,9 +148,9 @@ WW = interp1(F,w,ff);
 % WW(WW~=0) = tukeywin(nnz(WW),0.1);
 
 WW = sqrt(WW);
-% OM = exp(-1i*(0:nb)' * ff*pi);
-% Dva =  (OM(2:na+1,:).') .* HH.';
-% Dvb = -(OM(1:nb+1,:).');
+OM = exp(-1i*(0:nb)' * ff*pi);
+Dva =  (OM(2:na+1,:).') .* HH.';
+Dvb = -(OM(1:nb+1,:).');
 % D=[Dva Dvb].*(WW.'*ones(1,na+nb+1));
 % 
 % R  = real(D'*D);
@@ -122,9 +161,6 @@ WW = sqrt(WW);
 % D_ = diag(WW)*[Dvb Dva];
 % HH_ = diag(WW)*(-HH).';
 % th = real(D_'*D_) \ real(D_' * HH_);
-
-c = 343;
-kk = 2*pi*(ff*fs/2)/c;
 
 OM = exp(-1i*(0:nb)' * ff*pi);
 Dvb = -(OM(1:nb+1,:).');
@@ -137,17 +173,22 @@ th = real( D' * W * D ) \ real( D' * W * (-HH).' );
 b = th(1:nb+1).';
 a = [1 th(nb+2:end).'];
 
+a = polystab(a);
+
 imp = impz(b,a);
-% imp(mag2db(abs(imp/max(imp)))<-60) = [];
+impIDEAL = (ifft([HH conj(HH(end:-1:2))])).'; % But contains delay
+% imp(mag2db(abs(imp/max(imp)))<-120) = [];
 
 if isstable(b,a), ImpSt='true';else,ImpSt='false';end
 fprintf('WFS/SDM IIR(LS) pre-filter is stable: %s\n',ImpSt);
 fprintf('WFS/SDM IIR(LS) pre-filter length: %d\n',numel(imp));
 
 
-% PRE_b = b;
-% PRE_a = a;
-% 0;
+PRE_b = b;
+PRE_a = a;
+0;
+
+% imp = Tools.fconv(imp,impc);
 
 % y = zeros(1,16000);
 % y(end/2)=1;
@@ -163,9 +204,11 @@ fprintf('WFS/SDM IIR(LS) pre-filter length: %d\n',numel(imp));
 % YY2(end/2:end) = [];
 % YY3(end/2:end) = [];
 
-% IMP = fft(imp,1024);
-% IMP(end/2+1:end) = [];
-% frqs = linspace(0,fs/2,numel(IMP))/1e3;
+IMP = fft(imp,4096);
+IMP(end/2+1:end) = [];
+% IMP_ = fft(imp_,1024);
+% IMP_(end/2+1:end) = [];
+frqs = linspace(0,fs/2,numel(IMP))/1e3;
 
 % close all;
 % fH = figure(1);
@@ -173,10 +216,11 @@ fprintf('WFS/SDM IIR(LS) pre-filter length: %d\n',numel(imp));
 % yyaxis left;
 % ax = gca;
 % magColor = [0.0 0.3 0.7];
-% plot(frqs,mag2db(abs(IMP)),'color',magColor,'linew',1.5); hold on;
+% plot(frqs,mag2db(abs(IMP)),'.','color',magColor,'linew',1.5); hold on;
+% % plot(frqs,mag2db(abs(IMP_)),'.','color',magColor/2,'linew',1.5); hold on;
 % plot(ff*fs/2/1e3,WW.^2 * 99+0.5,'color','k','linew',1.5); hold on;
 % hold off;
-% ax.YAxis(1).Label.String = 'Magnitude (dB)  or  LS Weight (\%)';
+% ax.YAxis(1).Label.String = {'Magnitude (dB)';  'or  LS Weight (\%)'};
 % ax.YAxis(1).Label.Interpreter = 'latex';
 % ax.YAxis(1).Color = magColor;
 % ax.YAxis(1).MinorTick = 'on';
@@ -186,7 +230,8 @@ fprintf('WFS/SDM IIR(LS) pre-filter length: %d\n',numel(imp));
 % yyaxis right;
 % ax = gca;
 % phaseColor = [0.8 0.1 0.1];
-% plot(frqs,unwrap(angle(IMP))/pi*180,'color',phaseColor,'linew',1.5); hold on
+% plot(frqs,(mod(unwrap(angle(IMP))+pi,2*pi)-pi)/pi*180,'.','color',phaseColor,'linew',1.5); hold on
+% % plot(frqs,(mod(unwrap(angle(IMP_))+pi,2*pi)-pi)/pi*180,'.','color',phaseColor/2,'linew',1.5); hold on
 % % plot(frqs,unwrap(mod(unwrap(angle(Y)) - unwrap(angle(YY2)+pi),2*pi)-pi)/pi*180); hold on
 % % plot(frqs,unwrap(mod(unwrap(angle(Y)) - unwrap(angle(YY3)+pi),2*pi)-pi)/pi*180); hold on
 % % plot(f_band/1e3,[90 90],'-k','linew',1.5);  hold on
@@ -202,8 +247,53 @@ fprintf('WFS/SDM IIR(LS) pre-filter length: %d\n',numel(imp));
 % ax.XAxis.TickDirection = 'both';
 % ax.XAxis(1).Label.String = 'Frequency (kHz)';
 % ax.XAxis(1).Label.Interpreter = 'latex';
-% ylim([45 135]); 
-% xlim([100 10000]/1e3)
+% ylim([60 120]); 
+% xlim([0.1 round(fs/2/1e4)*1e1])
+% grid off; grid on; grid minor;
+% fH.Units = 'centimeters';
+% fH.Position(3:4) = [12 5];
+% tightfig;
+% 
+% %%%
+% fH2 = figure(2);
+% fH2.Color = 'w';
+% 
+% yyaxis right;
+% ax = gca;
+% magColor = [0.8 0.1 0.1];
+% stem((0:numel(imp)-1)/fs*1e3,...
+%     mag2db(abs(imp)),...
+%     ':x','color', magColor);
+% ylim( max(mag2db(abs(imp)))*[-1 1]*1.1 );
+% ax = gca;
+% ax.YAxis(end).Label.String = 'Magnitude (dB)';
+% ax.YAxis(end).Label.Interpreter = 'latex';
+% ax.YAxis(end).Color = magColor;
+% ax.YAxis(end).MinorTick = 'on';
+% ax.YAxis(end).TickDirection = 'both';
+% 
+% yyaxis left;
+% ax = gca;
+% ampColor = [0.0 0.3 0.7];
+% stem((0:numel(imp)-1)/fs*1e3,...
+%     ((imp)),...
+%     'color', ampColor);
+% ylim( max(abs(imp))*[-1 1]*1.1 );
+% ax = gca;
+% ax.YAxis(1).Label.String = 'Amplitude';
+% ax.YAxis(1).Label.Interpreter = 'latex';
+% ax.YAxis(1).Color = ampColor;
+% ax.YAxis(1).MinorTick = 'on';
+% ax.YAxis(1).TickDirection = 'both';
+% 
+% 
+% ax.XAxis.TickDirection = 'both';
+% ax.XAxis.Label.String = 'Time (ms)';
+% ax.XAxis.Label.Interpreter = 'latex';
+% grid off; grid on; 
+% fH2.Units = 'centimeters';
+% fH2.Position(3:4) = [12 5];
+% tightfig;
 
 %%
 % [num,den]=iirlpnorm(8,8,f/(fs/2),f/(fs/2),a_int);
@@ -217,8 +307,8 @@ fprintf('WFS/SDM IIR(LS) pre-filter length: %d\n',numel(imp));
 % close all;
 
 
-c = 343;                    % Sound velocity (m/s)
-fs = 16000;                 % Sample frequency (samples/s)
+% c = 343;                    % Sound velocity (m/s)
+% fs = 16000;                 % Sample frequency (samples/s)
 L = [3 3 3];                % Room dimensions [x y z] (m)
 n = 0.1*fs;                 % Number of samples
 mtype = 'omnidirectional';  % Type of microphone
@@ -241,8 +331,8 @@ beta(5,:) = (1 - [1.0   [0 0 0 0 1]*1.0]).^2;                 % Reverberation ti
 beta(6,:) = (1 - [1.0   [0 0 0 0 0]*1.0]).^2;                 % Reverberation time (s)
 %%%
 
-rtxN = 61;
-[yy,zz] = meshgrid(linspace(0,3,rtxN)); % Planar Array
+% rtxN = 61;
+% [yy,zz] = meshgrid(linspace(0,3,rtxN)); % Planar Array
 % yy = linspace(0,3,rtxN); zz = yy*0+1.5; % Linear Array
 
 %%% taper window to limit diffraction
@@ -268,15 +358,15 @@ ss=0;
 %     ss = ss+1;
 
 img = imgSingle;
-[b,a] = cheby1(6,0.1,[250 1500]/(fs/2));
+[b,a] = cheby1(5,0.1,[150 2500]/(fs/2));
 
 s  = [1.5 2.5 1.5];    % Source position [x y z] (m)
 
 %%% Mic transfer functions
 stx = s;              % Source position [x y z] (m)
-htx = rir_generator(c, fs, rtx, stx, L, [0 beta(img,2:end)], n, mtypeW, order-1, dim, orientation, hp_filter);
+htx = rir_generator(c, fs, rtx, stx, L, beta(img,:), n, mtype, order-1, dim, orientation, hp_filter);
 htxLR = htx - ... % Last reflection
-    rir_generator(c, fs, rtx, stx, L, [0 beta(img,2:end)], n, mtypeW, order-2, dim, orientation, hp_filter) ;
+    rir_generator(c, fs, rtx, stx, L, beta(img,:), n, mtype, order-2, dim, orientation, hp_filter) ;
 %%%
 
 current_pool = gcp; %Start new pool
@@ -311,19 +401,38 @@ parfor ss = 1:(3*res)^2
             hrxLR(i,:) = rir_generator(c, fs, rrx, srx(i,:), L, beta(img,:), n, mtype, order-2, dim, orientation, hp_filter);
         end
         
-        %%% Determine carioid pattern multiplier
+        %%% Determine cardioid pattern multiplier
         th = atan( ...
             sqrt( (srx(:,2) - rrx(2)).^2 + (srx(:,3) - rrx(3)).^2 ) ...
             ./ (srx(:,1) - rrx(1)) );
-        alph = 0.5; % cardioid
-        A = alph + (1-alph)*cos(th.');      
+%         alph = 0.5; % cardioid
+%         A = alph + (1-alph)*cos(th);  
+%         alph = realmax; % monopole
+%         alph = 2/1.0; % sub-cardioid
+%         alph = 1/1.0; % cardioid
+%         alph = 1/1.7; % super-cardioid
+%         alph = 1/3.0; % hyper-cardioid     
+        alph = 0/1.0; % dipole   
+        A =  (alph + cos(th)) ...
+            /(abs(alph) + 1);
+        %%% Apply directional pattern to microphones and loudspeakers
+        htxDi = htx .* A;
+        htxLRDi = htxLR .* A;          
+%         hrx = hrx .* A;
+%         hrxLR = hrxLR .* A;  
+
+%         htx = htx(1:end/2,:) + htx(end/2+1:end,:);
+%         htxLR = htxLR .* A;          
+%         hrx = hrx .* A;
+%         hrxLR = hrxLR .* A;    
         %%%
         
         %%% Apply WFS/SDM pre-filter
         hrx = Tools.fconv(hrx.',repmat(imp.',size(hrx,1),1).').';
         hrxLR = Tools.fconv(hrxLR.',repmat(imp.',size(hrxLR,1),1).').';
-%         hrx   = filter(PRE_b,PRE_a,hrx.'  ).';
-%         hrxLR = filter(PRE_b,PRE_a,hrxLR.').';
+        
+%         hrxIdeal = Tools.fconv(hrx.',repmat(impIDEAL.',size(hrx,1),1).').';
+%         hrxLRIdeal = Tools.fconv(hrxLR.',repmat(impIDEAL.',size(hrxLR,1),1).').';
         %%%
         
         %%% Cancellation signal minus last refelction
