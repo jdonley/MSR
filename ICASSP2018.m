@@ -345,7 +345,7 @@ rtx = [zeros(numel(yy),1), yy(:), zz(:)];
 srx = rtx;
 
 imgSingle = 6;
-res = 20;
+res = 30;
 [XX,YY] = meshgrid(linspace(0,3,3*res));
 
 
@@ -360,7 +360,12 @@ ss=0;
 img = imgSingle;
 [b,a] = cheby1(6,0.1,[150 1500]/(fs/2));
 
-s  = [1.5 2.5 1.5];    % Source position [x y z] (m)
+test_srcs  = [...
+    1.5 1.5 1.5; ...
+    1.5 2.5 1.5];    % Source position [x y z] (m)
+
+for each_test_src = 1:size(test_srcs,1)
+    s = test_srcs(each_test_src,:);
 
 %%% Mic transfer functions
 stx = s;              % Source position [x y z] (m)
@@ -573,9 +578,23 @@ tEnd = toc;
 fprintf('\nRIR execution time: %dmin(s) %fsec(s)\n\n', floor(tEnd/60), rem(tEnd,60)); %Time taken to execute this script
 
 %%
-hh(:,:,:,1) = reshape(hh1,3*res,3*res,[]);
-hh(:,:,:,2) = reshape(hh2,3*res,3*res,[]);
-hh(:,:,:,3) = reshape(hh3,3*res,3*res,[]);
+hhh(:,:,:,1,each_test_src) = reshape(hh1,3*res,3*res,[]);
+hhh(:,:,:,2,each_test_src) = reshape(hh2,3*res,3*res,[]);
+hhh(:,:,:,3,each_test_src) = reshape(hh3,3*res,3*res,[]);
+end
+%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if exist('figH'), if isvalid(figH), close figH; end; end
+figH = figure('Name','figH');
+
+figH.Color = 'w';
+plot_width = 88.9/10 + 6.35/10 + 88.9/10; %IEEE full text width (cm)
+hAll = tightPlots(size(test_srcs,1),3,plot_width,[1 1],[0.5 0.5],1,1,'centimeters');
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+for each_test_src = 1:size(test_srcs,1)
+hh = hhh(:,:,:,:,each_test_src);
 
 [~,IC] = max(abs(hh(ceil(size(XX,1)/2),ceil(size(XX,2)/2),:,1))); % spatial-centre time-index
 
@@ -587,20 +606,18 @@ C = repmat(linspace(0,1,256)',1,3);
 
 hh = hh * hhRender(Imax)/abs(hhRender(Imax)); % Invert so the peak is positive
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if exist('figH'), if isvalid(figH), close figH; end; end
-figH = figure('Name','figH');
 
-plot_width = 88.9/10 + 6.35/10 + 88.9/10; %IEEE full text width (cm)
-hAll = tightPlots(1,3,plot_width,[1 1],[0.5 0.5],1,1,'centimeters');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-axes(hAll(1));
+hInd = sub2ind([3,size(test_srcs,1)],1,each_test_src);
+axes(hAll(hInd));
 
 FIELDREFLECTIONS = hh(:,:,IC, 1 );
 image((FIELDREFLECTIONS / maxV + 1 )/2 * size(C,1));
+if each_test_src == 1
 tiH = title('Inactive');
 tiH.Interpreter = 'latex';
+end
 ax = gca; ax.Color(4) = 0;
 ax.FontName = 'cambria';
 ax.YDir = 'normal'; ax.TickDir = 'both';
@@ -608,19 +625,30 @@ axis([1 size(hh,1) 1 size(hh,2)]);
 ax.YTick = linspace(1,size(hh,1),4);
 ax.YTickLabel = linspace(0,3,4);
 ax.XTick = linspace(1,size(hh,2),4);
+if each_test_src == size(test_srcs,1)
 ax.XTickLabel = linspace(0,3,4);
+ax.XLabel.String = 'Width (m)';%[];
+else
+ax.XTickLabel = [];
 ax.XLabel.String = [];
-ax.YLabel.String = 'Length (m)';
+end
+% if each_test_src == 1
+    ax.YLabel.String = 'Length (m)';
+% end
 ax.YLabel.Interpreter = 'latex';
+ax.XLabel.Interpreter = 'latex';
 colormap(C);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-axes(hAll(2));
+hInd = sub2ind([3,size(test_srcs,1)],2,each_test_src);
+axes(hAll(hInd));
 
 FIELDERROR_method1 = diff(hh(:,:,IC,[1 2]),[],4);
 image((FIELDERROR_method1 / maxV + 1 )/2 * size(C,1));
+if each_test_src == 1
 tiH = title('Active - Proposed WFS WLS');
 tiH.Interpreter = 'latex';
+end
 ax = gca; ax.Color(4) = 0;
 ax.FontName = 'cambria';
 ax.YDir = 'normal'; ax.TickDir = 'both';
@@ -628,19 +656,27 @@ axis([1 size(hh,1) 1 size(hh,2)]);
 ax.YTick = linspace(1,size(hh,1),4);
 ax.YTickLabel = [];
 ax.XTick = linspace(1,size(hh,2),4);
+if each_test_src == size(test_srcs,1)
 ax.XTickLabel = linspace(0,3,4);
 ax.XLabel.String = 'Width (m)';
+else
+ax.XTickLabel = [];
+ax.XLabel.String = [];
+end
 ax.YLabel = [];
 ax.XLabel.Interpreter = 'latex';
 colormap(C);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-axes(hAll(3));
+hInd = sub2ind([3,size(test_srcs,1)],3,each_test_src);
+axes(hAll(hInd));
 
 FIELDERROR_method2 = diff(hh(:,:,IC,[1 3]),[],4);
 image((FIELDERROR_method2 / maxV + 1 )/2 * size(C,1));
+if each_test_src == 1
 tiH = title('Active - Proposed FOD');
 tiH.Interpreter = 'latex';
+end
 ax = gca; ax.Color(4) = 0;
 ax.FontName = 'cambria';
 ax.YDir = 'normal'; ax.TickDir = 'both';
@@ -648,11 +684,18 @@ axis([1 size(hh,1) 1 size(hh,2)]);
 ax.YTick = linspace(1,size(hh,1),4);
 ax.YTickLabel = [];
 ax.XTick = linspace(1,size(hh,2),4);
+if each_test_src == size(test_srcs,1)
 ax.XTickLabel = linspace(0,3,4);
+ax.XLabel.String = 'Width (m)';%[];
+else
+ax.XTickLabel = [];
 ax.XLabel.String = [];
+end
 ax.YLabel.String = [];
+ax.XLabel.Interpreter = 'latex';
 colormap(C);
 
+end
 
 figH.Position(1:2) = [100 100];
 
