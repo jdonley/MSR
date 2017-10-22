@@ -310,7 +310,7 @@ frqs = linspace(0,fs/2,numel(IMP))/1e3;
 % c = 343;                    % Sound velocity (m/s)
 % fs = 16000;                 % Sample frequency (samples/s)
 L = [3 3 3];                % Room dimensions [x y z] (m)
-n = 0.1*fs;                 % Number of samples
+n = 0.05*fs;                 % Number of samples
 mtype = 'omnidirectional';  % Type of microphone
 mtypeW= 'cardioid';         % Type of microphone
 order = 2;                  % -1 equals maximum reflection order
@@ -345,7 +345,7 @@ rtx = [zeros(numel(yy),1), yy(:), zz(:)];
 srx = rtx;
 
 imgSingle = 6;
-res = 25;
+res = 20;
 [XX,YY] = meshgrid(linspace(0,3,3*res));
 
 
