@@ -575,90 +575,96 @@ fprintf('\nRIR execution time: %dmin(s) %fsec(s)\n\n', floor(tEnd/60), rem(tEnd,
 %%
 hh(:,:,:,1) = reshape(hh1,3*res,3*res,[]);
 hh(:,:,:,2) = reshape(hh2,3*res,3*res,[]);
-hh3(:,:,:,1) = reshape(hh3,3*res,3*res,[]);
+hh(:,:,:,3) = reshape(hh3,3*res,3*res,[]);
 
 [~,IC] = max(abs(hh(ceil(size(XX,1)/2),ceil(size(XX,2)/2),:,1))); % spatial-centre time-index
-FIELDERROR = diff(hh(:,:,IC,:),[],4);
-imagesc(FIELDERROR);
+
+figure(111);
+FIELDERROR_method1 = diff(hh(:,:,IC,[1 2]),[],4);
+imagesc(FIELDERROR_method1);
+
+figure(222);
+FIELDERROR_method2 = diff(hh(:,:,IC,[1 3]),[],4);
+imagesc(FIELDERROR_method2);
 
 %%
-v = VideoWriter('IRcancelwall.avi','Uncompressed AVI');
-open(v);
-hhRender = hh(:,2:end,:,:);
-maxV = max( abs( hhRender(:) ) ) * 0.5;
-C = repmat(linspace(0,1,256)',1,3);
-fH = figure(1); fH.Color = 'k';
-
-for i = 1:600
-FIELDERROR = hh(:,:,i,1);
-image((FIELDERROR / maxV /1 + 1 ) * size(C,1)/2);
-title('Reflections');
-ax = gca; ax.Color(4) = 0;
-ax.YDir = 'normal'; ax.TickDir = 'both';
-axis([1 size(hh,1) 1 size(hh,2)]);
-ax.YTick = linspace(1,size(hh,1),4);
-ax.YTickLabel = linspace(0,3,4);
-ax.XTick = linspace(1,size(hh,2),4);
-ax.XTickLabel = linspace(0,3,4);
-ax.XLabel.String = 'Width (m)';
-ax.YLabel.String = 'Length (m)';
-set(gcf,'Position',[100 100 500 500])
-colormap(C);
-ax.XLabel.Color = 1 - ax.XLabel.Color;
-ax.YLabel.Color = 1 - ax.YLabel.Color;
-ax.XAxis.Color  = 1 - ax.XAxis.Color;
-ax.YAxis.Color  = 1 - ax.YAxis.Color;
-ax.Title.Color  = 1 - ax.Title.Color;
-disp(i); drawnow;
-set(gcf,'Renderer','zbuffer');
-writeVideo(v,getframe(gcf));
-end
-for i = 1:600
-FIELDERROR = hh(:,:,i,2);
-image((FIELDERROR / maxV /1 + 1 ) * size(C,1)/2);
-title('Cancellation Signal');
-ax = gca; ax.Color(4) = 0;
-ax.YDir = 'normal'; ax.TickDir = 'both';
-axis([1 size(hh,1) 1 size(hh,2)]);
-ax.YTick = linspace(1,size(hh,1),4);
-ax.YTickLabel = linspace(0,3,4);
-ax.XTick = linspace(1,size(hh,2),4);
-ax.XTickLabel = linspace(0,3,4);
-ax.XLabel.String = 'Width (m)';
-ax.YLabel.String = 'Length (m)';
-set(gcf,'Position',[100 100 500 500])
-colormap(C);
-ax.XLabel.Color = 1 - ax.XLabel.Color;
-ax.YLabel.Color = 1 - ax.YLabel.Color;
-ax.XAxis.Color  = 1 - ax.XAxis.Color;
-ax.YAxis.Color  = 1 - ax.YAxis.Color;
-ax.Title.Color  = 1 - ax.Title.Color;
-disp(i); drawnow;
-set(gcf,'Renderer','zbuffer');
-writeVideo(v,getframe(gcf));
-end
-for i = 1:600
-FIELDERROR = diff(hh(:,:,i,:),[],4);
-image((FIELDERROR / maxV /1 + 1 ) * size(C,1)/2);
-title('Suppressed Reflections');
-ax = gca; ax.Color(4) = 0;
-ax.YDir = 'normal'; ax.TickDir = 'both';
-axis([1 size(hh,1) 1 size(hh,2)]);
-ax.YTick = linspace(1,size(hh,1),4);
-ax.YTickLabel = linspace(0,3,4);
-ax.XTick = linspace(1,size(hh,2),4);
-ax.XTickLabel = linspace(0,3,4);
-ax.XLabel.String = 'Width (m)';
-ax.YLabel.String = 'Length (m)';
-set(gcf,'Position',[100 100 500 500])
-colormap(C);
-ax.XLabel.Color = 1 - ax.XLabel.Color;
-ax.YLabel.Color = 1 - ax.YLabel.Color;
-ax.XAxis.Color  = 1 - ax.XAxis.Color;
-ax.YAxis.Color  = 1 - ax.YAxis.Color;
-ax.Title.Color  = 1 - ax.Title.Color;
-disp(i); drawnow;
-set(gcf,'Renderer','zbuffer');
-writeVideo(v,getframe(gcf));
-end
-close(v);
+% v = VideoWriter('IRcancelwall.avi','Uncompressed AVI');
+% open(v);
+% hhRender = hh(:,2:end,:,:);
+% maxV = max( abs( hhRender(:) ) ) * 0.5;
+% C = repmat(linspace(0,1,256)',1,3);
+% fH = figure(1); fH.Color = 'k';
+% 
+% for i = 1:600
+% FIELDERROR = hh(:,:,i,1);
+% image((FIELDERROR / maxV /1 + 1 ) * size(C,1)/2);
+% title('Reflections');
+% ax = gca; ax.Color(4) = 0;
+% ax.YDir = 'normal'; ax.TickDir = 'both';
+% axis([1 size(hh,1) 1 size(hh,2)]);
+% ax.YTick = linspace(1,size(hh,1),4);
+% ax.YTickLabel = linspace(0,3,4);
+% ax.XTick = linspace(1,size(hh,2),4);
+% ax.XTickLabel = linspace(0,3,4);
+% ax.XLabel.String = 'Width (m)';
+% ax.YLabel.String = 'Length (m)';
+% set(gcf,'Position',[100 100 500 500])
+% colormap(C);
+% ax.XLabel.Color = 1 - ax.XLabel.Color;
+% ax.YLabel.Color = 1 - ax.YLabel.Color;
+% ax.XAxis.Color  = 1 - ax.XAxis.Color;
+% ax.YAxis.Color  = 1 - ax.YAxis.Color;
+% ax.Title.Color  = 1 - ax.Title.Color;
+% disp(i); drawnow;
+% set(gcf,'Renderer','zbuffer');
+% writeVideo(v,getframe(gcf));
+% end
+% for i = 1:600
+% FIELDERROR = hh(:,:,i,2);
+% image((FIELDERROR / maxV /1 + 1 ) * size(C,1)/2);
+% title('Cancellation Signal');
+% ax = gca; ax.Color(4) = 0;
+% ax.YDir = 'normal'; ax.TickDir = 'both';
+% axis([1 size(hh,1) 1 size(hh,2)]);
+% ax.YTick = linspace(1,size(hh,1),4);
+% ax.YTickLabel = linspace(0,3,4);
+% ax.XTick = linspace(1,size(hh,2),4);
+% ax.XTickLabel = linspace(0,3,4);
+% ax.XLabel.String = 'Width (m)';
+% ax.YLabel.String = 'Length (m)';
+% set(gcf,'Position',[100 100 500 500])
+% colormap(C);
+% ax.XLabel.Color = 1 - ax.XLabel.Color;
+% ax.YLabel.Color = 1 - ax.YLabel.Color;
+% ax.XAxis.Color  = 1 - ax.XAxis.Color;
+% ax.YAxis.Color  = 1 - ax.YAxis.Color;
+% ax.Title.Color  = 1 - ax.Title.Color;
+% disp(i); drawnow;
+% set(gcf,'Renderer','zbuffer');
+% writeVideo(v,getframe(gcf));
+% end
+% for i = 1:600
+% FIELDERROR = diff(hh(:,:,i,1:2),[],4);
+% image((FIELDERROR / maxV /1 + 1 ) * size(C,1)/2);
+% title('Suppressed Reflections');
+% ax = gca; ax.Color(4) = 0;
+% ax.YDir = 'normal'; ax.TickDir = 'both';
+% axis([1 size(hh,1) 1 size(hh,2)]);
+% ax.YTick = linspace(1,size(hh,1),4);
+% ax.YTickLabel = linspace(0,3,4);
+% ax.XTick = linspace(1,size(hh,2),4);
+% ax.XTickLabel = linspace(0,3,4);
+% ax.XLabel.String = 'Width (m)';
+% ax.YLabel.String = 'Length (m)';
+% set(gcf,'Position',[100 100 500 500])
+% colormap(C);
+% ax.XLabel.Color = 1 - ax.XLabel.Color;
+% ax.YLabel.Color = 1 - ax.YLabel.Color;
+% ax.XAxis.Color  = 1 - ax.XAxis.Color;
+% ax.YAxis.Color  = 1 - ax.YAxis.Color;
+% ax.Title.Color  = 1 - ax.Title.Color;
+% disp(i); drawnow;
+% set(gcf,'Renderer','zbuffer');
+% writeVideo(v,getframe(gcf));
+% end
+% close(v);
