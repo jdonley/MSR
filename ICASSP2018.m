@@ -588,56 +588,75 @@ C = repmat(linspace(0,1,256)',1,3);
 hh = hh * hhRender(Imax)/abs(hhRender(Imax)); % Invert so the peak is positive
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-figure(100);
+if exist('figH'), if isvalid(figH), close figH; end; end
+figH = figure('Name','figH');
+
+plot_width = 88.9/10 + 6.35/10 + 88.9/10; %IEEE full text width (cm)
+hAll = tightPlots(1,3,plot_width,[1 1],[0.5 0.5],1,1,'centimeters');
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+axes(hAll(1));
+
 FIELDREFLECTIONS = hh(:,:,IC, 1 );
 image((FIELDREFLECTIONS / maxV + 1 )/2 * size(C,1));
-title('Inactive');
+tiH = title('Inactive');
+tiH.Interpreter = 'latex';
 ax = gca; ax.Color(4) = 0;
+ax.FontName = 'cambria';
 ax.YDir = 'normal'; ax.TickDir = 'both';
 axis([1 size(hh,1) 1 size(hh,2)]);
 ax.YTick = linspace(1,size(hh,1),4);
 ax.YTickLabel = linspace(0,3,4);
 ax.XTick = linspace(1,size(hh,2),4);
 ax.XTickLabel = linspace(0,3,4);
-ax.XLabel.String = 'Width (m)';
+ax.XLabel.String = [];
 ax.YLabel.String = 'Length (m)';
-set(gcf,'Position',[100 100 500 500])
+ax.YLabel.Interpreter = 'latex';
 colormap(C);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-figure(111);
+axes(hAll(2));
+
 FIELDERROR_method1 = diff(hh(:,:,IC,[1 2]),[],4);
 image((FIELDERROR_method1 / maxV + 1 )/2 * size(C,1));
-title('Active - Proposed WFS WLS');
+tiH = title('Active - Proposed WFS WLS');
+tiH.Interpreter = 'latex';
 ax = gca; ax.Color(4) = 0;
+ax.FontName = 'cambria';
 ax.YDir = 'normal'; ax.TickDir = 'both';
 axis([1 size(hh,1) 1 size(hh,2)]);
 ax.YTick = linspace(1,size(hh,1),4);
-ax.YTickLabel = linspace(0,3,4);
+ax.YTickLabel = [];
 ax.XTick = linspace(1,size(hh,2),4);
 ax.XTickLabel = linspace(0,3,4);
 ax.XLabel.String = 'Width (m)';
-ax.YLabel.String = 'Length (m)';
-set(gcf,'Position',[100 100 500 500])
+ax.YLabel = [];
+ax.XLabel.Interpreter = 'latex';
 colormap(C);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-figure(222);
+axes(hAll(3));
+
 FIELDERROR_method2 = diff(hh(:,:,IC,[1 3]),[],4);
 image((FIELDERROR_method2 / maxV + 1 )/2 * size(C,1));
-title('Active - Proposed FOD');
+tiH = title('Active - Proposed FOD');
+tiH.Interpreter = 'latex';
 ax = gca; ax.Color(4) = 0;
+ax.FontName = 'cambria';
 ax.YDir = 'normal'; ax.TickDir = 'both';
 axis([1 size(hh,1) 1 size(hh,2)]);
 ax.YTick = linspace(1,size(hh,1),4);
-ax.YTickLabel = linspace(0,3,4);
+ax.YTickLabel = [];
 ax.XTick = linspace(1,size(hh,2),4);
 ax.XTickLabel = linspace(0,3,4);
-ax.XLabel.String = 'Width (m)';
-ax.YLabel.String = 'Length (m)';
-set(gcf,'Position',[100 100 500 500])
+ax.XLabel.String = [];
+ax.YLabel.String = [];
 colormap(C);
 
+
+figH.Position(1:2) = [100 100];
+
+tightfig;
 %%
 % v = VideoWriter('IRcancelwall.avi','Uncompressed AVI');
 % open(v);
