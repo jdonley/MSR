@@ -579,14 +579,18 @@ hh(:,:,:,3) = reshape(hh3,3*res,3*res,[]);
 
 [~,IC] = max(abs(hh(ceil(size(XX,1)/2),ceil(size(XX,2)/2),:,1))); % spatial-centre time-index
 
-hhRender = hh(:,2:end,:,:);
-maxV = max( abs( hhRender(:) ) ) * 0.5;
+hhRender(:,:,1) = hh(:,2:end,IC,1);
+hhRender(:,:,2) = diff(hh(:,2:end,IC,[1 2]),[],4);
+hhRender(:,:,3) = diff(hh(:,2:end,IC,[1 3]),[],4);
+[maxV, Imax] = max( abs( hhRender(:) ) ) ;
 C = repmat(linspace(0,1,256)',1,3);
+
+hh = hh * hhRender(Imax)/abs(hhRender(Imax)); % Invert so the peak is positive
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 figure(100);
 FIELDREFLECTIONS = hh(:,:,IC, 1 );
-image((FIELDREFLECTIONS / maxV /1 + 1 ) * size(C,1)/2);
+image((FIELDREFLECTIONS / maxV + 1 )/2 * size(C,1));
 title('Inactive');
 ax = gca; ax.Color(4) = 0;
 ax.YDir = 'normal'; ax.TickDir = 'both';
@@ -603,7 +607,7 @@ colormap(C);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 figure(111);
 FIELDERROR_method1 = diff(hh(:,:,IC,[1 2]),[],4);
-image((FIELDERROR_method1 / maxV /1 + 1 ) * size(C,1)/2);
+image((FIELDERROR_method1 / maxV + 1 )/2 * size(C,1));
 title('Active - Proposed WFS WLS');
 ax = gca; ax.Color(4) = 0;
 ax.YDir = 'normal'; ax.TickDir = 'both';
@@ -620,7 +624,7 @@ colormap(C);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 figure(222);
 FIELDERROR_method2 = diff(hh(:,:,IC,[1 3]),[],4);
-image((FIELDERROR_method2 / maxV /1 + 1 ) * size(C,1)/2);
+image((FIELDERROR_method2 / maxV + 1 )/2 * size(C,1));
 title('Active - Proposed FOD');
 ax = gca; ax.Color(4) = 0;
 ax.YDir = 'normal'; ax.TickDir = 'both';
