@@ -589,6 +589,7 @@ if exist('figH'), if isvalid(figH), close figH; end; end
 figH = figure('Name','figH');
 
 figH.Color = 'w';
+ImageSrcChar = '\iota';
 plot_width = 88.9/10 + 6.35/10 + 88.9/10; %IEEE full text width (cm)
 txtLblPos = [0.05 0.1]; % percentage of width/height
 hAll = tightPlots(size(test_srcs,1),3,plot_width,[1 1],[0.5 0.5],1,1,'centimeters');
@@ -644,47 +645,53 @@ end
 % end
 ax.YLabel.Interpreter = 'latex';
 ax.XLabel.Interpreter = 'latex';
+ax.FontSize = 14;
+tiH.FontSize = 13;
+ax.XLabel.FontSize = 14;
+ax.YLabel.FontSize = 14;
 colormap(C);
 if each_test_src == 1
     ar = annotation('arrow','headstyle','deltoid','linew',1);
-    tx = text(1,1,'$y^{-}$','interpreter','latex','units','norm','fontsize',12);
-    ar.Position = [0.1 0.77 0.02 0.05];
+    tx = text(1,1,['$' ImageSrcChar '_{\mathrm{c}}$'],'interpreter','latex','units','norm','fontsize',18);
+    ar.Position = [0.11 0.76 0.02 0.05];
     tx.Position(1:2) = [0.1 0.5];
 
     ar = annotation('arrow','headstyle','deltoid','linew',1);
-    tx = text(1,1,'$y^{+}$','interpreter','latex','units','norm','fontsize',12);
-    ar.Position = [0.12 0.58 -0.02 0.05];
+    tx = text(1,1,['$' ImageSrcChar '_{\mathrm{b}}$'],'interpreter','latex','units','norm','fontsize',18);
+    ar.Position = [0.14 0.59 -0.02 0.05];
     tx.Position(1:2) = [0.25 0.1];
 
     ar = annotation('arrow','headstyle','deltoid','linew',1);
-    tx = text(1,1,'$z^{+} + z^{-}$','interpreter','latex','units','norm','fontsize',12);
-    ar.Position = [0.22 0.58 -0.02 0.05];
-    tx.Position(1:2) = [0.6 0.1];
+    tx = text(1,1,...
+        ['$' ImageSrcChar '_{\mathrm{d}} + ' ImageSrcChar '_{\mathrm{e}}$'],'interpreter','latex','units','norm','fontsize',18);
+    ar.Position = [0.25 0.59 -0.03 0.04];
+    tx.Position(1:2) = [0.64 0.1];
 
     ar = annotation('arrow','headstyle','deltoid','linew',1);
-    tx = text(1,1,'$x^{-}$','interpreter','latex','units','norm','fontsize',12);
-    ar.Position = [0.27 0.75 0.04 0.0];
+    tx = text(1,1,['$' ImageSrcChar '_{\mathrm{a}}$'],'interpreter','latex','units','norm','fontsize',18);
+    ar.Position = [0.28 0.75 0.04 0.0];
     tx.Position(1:2) = [0.64 0.5];
 elseif each_test_src == 2
     ar = annotation('arrow','headstyle','deltoid','linew',1);
-    tx = text(1,1,'$y^{-}$','interpreter','latex','units','norm','fontsize',12);
-    ar.Position = [0.1 0.2 0.02 0.05];
+    tx = text(1,1,['$' ImageSrcChar '_{\mathrm{c}}$'],'interpreter','latex','units','norm','fontsize',18);
+    ar.Position = [0.11 0.21 0.02 0.05];
     tx.Position(1:2) = [0.1 0.2];
 
     ar = annotation('arrow','headstyle','deltoid','linew',1);
-    tx = text(1,1,'$y^{+}$','interpreter','latex','units','norm','fontsize',12);
-    ar.Position = [0.27 0.38 0.02 -0.05];
+    tx = text(1,1,['$' ImageSrcChar '_{\mathrm{b}}$'],'interpreter','latex','units','norm','fontsize',18);
+    ar.Position = [0.28 0.39 0.02 -0.05];
     tx.Position(1:2) = [0.70 0.76];
 
     ar = annotation('arrow','headstyle','deltoid','linew',1);
-    tx = text(1,1,'$z^{+} + z^{-}$','interpreter','latex','units','norm','fontsize',12);
-    ar.Position = [0.16 0.38 0.04 -0.02];
+    tx = text(1,1,...
+        ['$' ImageSrcChar '_{\mathrm{d}} + ' ImageSrcChar '_{\mathrm{e}}$'],'interpreter','latex','units','norm','fontsize',18);
+    ar.Position = [0.17 0.38 0.04 -0.02];
     tx.Position(1:2) = [0.1 0.74];
 
     ar = annotation('arrow','headstyle','deltoid','linew',1);
-    tx = text(1,1,'$x^{-}$','interpreter','latex','units','norm','fontsize',12);
-    ar.Position = [0.33 0.15 -0.015 0.055];
-    tx.Position(1:2) = [0.9 0.1];
+    tx = text(1,1,['$' ImageSrcChar '_{\mathrm{a}}$'],'interpreter','latex','units','norm','fontsize',18);
+    ar.Position = [0.34 0.17 -0.025 0.035];
+    tx.Position(1:2) = [0.90 0.1];
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -719,6 +726,10 @@ ax.XLabel.String = [];
 end
 ax.YLabel = [];
 ax.XLabel.Interpreter = 'latex';
+ax.FontSize = 14;
+tiH.FontSize = 13;
+ax.XLabel.FontSize = 14;
+ax.YLabel.FontSize = 14;
 colormap(C);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -753,11 +764,15 @@ ax.XLabel.String = [];
 end
 ax.YLabel.String = [];
 ax.XLabel.Interpreter = 'latex';
+ax.FontSize = 14;
+tiH.FontSize = 13;
+ax.XLabel.FontSize = 14;
+ax.YLabel.FontSize = 14;
 colormap(C);
 
 end
 
-figH.Position(1:2) = [100 100];
+figH.Position(1:2) = [100 200];
 
 tightfig;
 %%
