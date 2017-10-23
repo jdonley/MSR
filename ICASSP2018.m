@@ -590,6 +590,7 @@ figH = figure('Name','figH');
 
 figH.Color = 'w';
 plot_width = 88.9/10 + 6.35/10 + 88.9/10; %IEEE full text width (cm)
+txtLblPos = [0.05 0.1]; % percentage of width/height
 hAll = tightPlots(size(test_srcs,1),3,plot_width,[1 1],[0.5 0.5],1,1,'centimeters');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -614,9 +615,12 @@ axes(hAll(hInd));
 
 FIELDREFLECTIONS = hh(:,:,IC, 1 );
 image((FIELDREFLECTIONS / maxV + 1 )/2 * size(C,1)); hold on;
+plot(linePos*0+1.3,linePos*res,'.b'); hold on;
 plot(test_srcs(each_test_src,1)*res,test_srcs(each_test_src,2)*res,...
     'rx','MarkerSize',7,'linew',1.5); hold on;
 hold off;
+text(3*res*(txtLblPos(1)),3*res*(1-txtLblPos(2)),char(64+hInd),...
+    'Interpreter','latex','FontSize',14);
 if each_test_src == 1
 tiH = title('Inactive');
 tiH.Interpreter = 'latex';
@@ -641,6 +645,47 @@ end
 ax.YLabel.Interpreter = 'latex';
 ax.XLabel.Interpreter = 'latex';
 colormap(C);
+if each_test_src == 1
+    ar = annotation('arrow','headstyle','deltoid','linew',1);
+    tx = text(1,1,'$y^{-}$','interpreter','latex','units','norm','fontsize',12);
+    ar.Position = [0.1 0.77 0.02 0.05];
+    tx.Position(1:2) = [0.1 0.5];
+
+    ar = annotation('arrow','headstyle','deltoid','linew',1);
+    tx = text(1,1,'$y^{+}$','interpreter','latex','units','norm','fontsize',12);
+    ar.Position = [0.12 0.58 -0.02 0.05];
+    tx.Position(1:2) = [0.25 0.1];
+
+    ar = annotation('arrow','headstyle','deltoid','linew',1);
+    tx = text(1,1,'$z^{+} + z^{-}$','interpreter','latex','units','norm','fontsize',12);
+    ar.Position = [0.22 0.58 -0.02 0.05];
+    tx.Position(1:2) = [0.6 0.1];
+
+    ar = annotation('arrow','headstyle','deltoid','linew',1);
+    tx = text(1,1,'$x^{-}$','interpreter','latex','units','norm','fontsize',12);
+    ar.Position = [0.27 0.75 0.04 0.0];
+    tx.Position(1:2) = [0.64 0.5];
+elseif each_test_src == 2
+    ar = annotation('arrow','headstyle','deltoid','linew',1);
+    tx = text(1,1,'$y^{-}$','interpreter','latex','units','norm','fontsize',12);
+    ar.Position = [0.1 0.2 0.02 0.05];
+    tx.Position(1:2) = [0.1 0.2];
+
+    ar = annotation('arrow','headstyle','deltoid','linew',1);
+    tx = text(1,1,'$y^{+}$','interpreter','latex','units','norm','fontsize',12);
+    ar.Position = [0.27 0.38 0.02 -0.05];
+    tx.Position(1:2) = [0.70 0.76];
+
+    ar = annotation('arrow','headstyle','deltoid','linew',1);
+    tx = text(1,1,'$z^{+} + z^{-}$','interpreter','latex','units','norm','fontsize',12);
+    ar.Position = [0.16 0.38 0.04 -0.02];
+    tx.Position(1:2) = [0.1 0.74];
+
+    ar = annotation('arrow','headstyle','deltoid','linew',1);
+    tx = text(1,1,'$x^{-}$','interpreter','latex','units','norm','fontsize',12);
+    ar.Position = [0.33 0.15 -0.015 0.055];
+    tx.Position(1:2) = [0.9 0.1];
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 hInd = sub2ind([3,size(test_srcs,1)],2,each_test_src);
@@ -648,9 +693,12 @@ axes(hAll(hInd));
 
 FIELDERROR_method1 = diff(hh(:,:,IC,[1 2]),[],4);
 image((FIELDERROR_method1 / maxV + 1 )/2 * size(C,1));hold on;
+plot(linePos*0+1.3,linePos*res,'.b'); hold on;
 plot(test_srcs(each_test_src,1)*res,test_srcs(each_test_src,2)*res,...
     'rx','MarkerSize',7,'linew',1.5); hold on;
 hold off;
+text(3*res*(txtLblPos(1)),3*res*(1-txtLblPos(2)),char(64+hInd),...
+    'Interpreter','latex','FontSize',14);
 if each_test_src == 1
 tiH = title('Active - Proposed WFS WLS');
 tiH.Interpreter = 'latex';
@@ -679,9 +727,12 @@ axes(hAll(hInd));
 
 FIELDERROR_method2 = diff(hh(:,:,IC,[1 3]),[],4);
 image((FIELDERROR_method2 / maxV + 1 )/2 * size(C,1));hold on;
+plot(linePos*0+1.3,linePos*res,'.b'); hold on;
 plot(test_srcs(each_test_src,1)*res,test_srcs(each_test_src,2)*res,...
     'rx','MarkerSize',7,'linew',1.5); hold on;
 hold off;
+text(3*res*(txtLblPos(1)),3*res*(1-txtLblPos(2)),char(64+hInd),...
+    'Interpreter','latex','FontSize',14);
 if each_test_src == 1
 tiH = title('Active - Proposed FOD');
 tiH.Interpreter = 'latex';
