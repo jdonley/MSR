@@ -79,7 +79,7 @@ na = 1;
 s_up_fact = 3;
 
 fs = 16000*s_up_fact;
-f_band = [25 3400];%*s_up_fact;
+f_band = [25 f_hi];%*s_up_fact;
 % f_band = round([f_lo f_hi]);
 f_filtlow = 10*s_up_fact;
 % fmid = 10^mean(log10(f_band));
@@ -285,6 +285,7 @@ ax.YAxis(1).TickDirection = 'both';
 
 
 ax.XAxis.TickDirection = 'both';
+ax.XAxis.MinorTick = 'on';
 ax.XAxis.Label.String = 'Time (ms)';
 ax.XAxis.Label.Interpreter = 'latex';
 grid off; grid on; 
@@ -313,7 +314,7 @@ order = 2;                  % -1 equals maximum reflection order
 dim = 3;                    % Room dimension
 orientation = 0;            % Microphone orientation (rad)
 hp_filter = 0;              % Enable high-pass filter
-rng shuffle;
+rng(sum('ICASSP2018'));
 
 %%%
 betaW     = (1 - [1.0   [1 1 1 1 1]*1.0]).^2;   %anechoic              % Reverberation time (s)
