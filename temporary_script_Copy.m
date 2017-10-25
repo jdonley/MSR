@@ -219,6 +219,12 @@ plot(frqs,mag2db(abs(IMP)),'.','color',blueColor,'linew',1.5); hold on;
 % plot(frqs,mag2db(abs(IMP_)),'.','color',magColor/2,'linew',1.5); hold on;
 plot(ff*fs/2/1e3,WW.^2 * 99+0.5,'color','k','linew',1.5); hold on;
 hold off;
+
+text(1.9,20,'$k_{\mathrm{u}}$','Interpreter','latex','fontsize',12);
+ar = annotation(gcf,'arrow', [0.58 0.615],[0.36 0.26]);
+ar.HeadStyle = 'deltoid';
+
+
 ax.YAxis(1).Label.String = {'Magnitude (dB)';  'or  LS Weight (\%)'};
 ax.YAxis(1).Label.Interpreter = 'latex';
 ax.YAxis(1).Color = blueColor;
@@ -248,6 +254,8 @@ ax.XAxis(1).Label.String = 'Frequency (kHz)';
 ax.XAxis(1).Label.Interpreter = 'latex';
 ylim([60 120]); 
 xlim([0.1 fs/2/1e3])
+ax.XTick = [0.1, 1, 3.43, 10, 24];
+ax.XTickLabel = {'0.1','1','3.43','10','24'};
 grid off; grid on; grid minor;
 fH.Units = 'centimeters';
 fH.Position(3:4) = [12 5];
@@ -283,7 +291,7 @@ ax.YAxis(1).Color = blueColor;
 ax.YAxis(1).MinorTick = 'on';
 ax.YAxis(1).TickDirection = 'both';
 
-
+ax.XLim = ax.XLim + [-1 1]*diff(ax.XLim)*0.03;
 ax.XAxis.TickDirection = 'both';
 ax.XAxis.MinorTick = 'on';
 ax.XAxis.Label.String = 'Time (ms)';
