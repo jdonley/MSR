@@ -73,13 +73,13 @@ f_lo = c / (2*endL);
 f_hi = c / (2*d);
 
 
-nb = 14;
+nb = 4;
 na = 1;
 
 s_up_fact = 3;
 
 fs = 16000*s_up_fact;
-f_band = [25 3400]*s_up_fact;
+f_band = [25 3400];%*s_up_fact;
 % f_band = round([f_lo f_hi]);
 f_filtlow = 10*s_up_fact;
 % fmid = 10^mean(log10(f_band));
@@ -214,22 +214,22 @@ fH = figure(1);
 fH.Color = 'w';
 yyaxis left;
 ax = gca;
-magColor = [0.0 0.3 0.7];
-plot(frqs,mag2db(abs(IMP)),'.','color',magColor,'linew',1.5); hold on;
+blueColor = [0.0 0.3 0.7];
+plot(frqs,mag2db(abs(IMP)),'.','color',blueColor,'linew',1.5); hold on;
 % plot(frqs,mag2db(abs(IMP_)),'.','color',magColor/2,'linew',1.5); hold on;
 plot(ff*fs/2/1e3,WW.^2 * 99+0.5,'color','k','linew',1.5); hold on;
 hold off;
 ax.YAxis(1).Label.String = {'Magnitude (dB)';  'or  LS Weight (\%)'};
 ax.YAxis(1).Label.Interpreter = 'latex';
-ax.YAxis(1).Color = magColor;
+ax.YAxis(1).Color = blueColor;
 ax.YAxis(1).MinorTick = 'on';
 ax.YAxis(1).TickDirection = 'both';
 ylim([0 100]); 
 
 yyaxis right;
 ax = gca;
-phaseColor = [0.8 0.1 0.1];
-plot(frqs,(mod(unwrap(angle(IMP))+pi,2*pi)-pi)/pi*180,'.','color',phaseColor,'linew',1.5); hold on
+redColor = [0.8 0.1 0.1];
+plot(frqs,(mod(unwrap(angle(IMP))+pi,2*pi)-pi)/pi*180,'.','color',redColor,'linew',1.5); hold on
 % plot(frqs,(mod(unwrap(angle(IMP_))+pi,2*pi)-pi)/pi*180,'.','color',phaseColor/2,'linew',1.5); hold on
 % plot(frqs,unwrap(mod(unwrap(angle(Y)) - unwrap(angle(YY2)+pi),2*pi)-pi)/pi*180); hold on
 % plot(frqs,unwrap(mod(unwrap(angle(Y)) - unwrap(angle(YY3)+pi),2*pi)-pi)/pi*180); hold on
@@ -239,7 +239,7 @@ plot(f_band/1e3,[89 89],':k','linew',0.5);  hold on
 hold off;
 ax.YAxis(end).Label.String = 'Phase (${}^\circ$)';
 ax.YAxis(end).Label.Interpreter = 'latex';
-ax.YAxis(end).Color = phaseColor;
+ax.YAxis(end).Color = redColor;
 ax.YAxis(end).MinorTick = 'on';
 ax.YAxis(end).TickDirection = 'both';
 ax.XScale = 'log';
@@ -247,7 +247,7 @@ ax.XAxis.TickDirection = 'both';
 ax.XAxis(1).Label.String = 'Frequency (kHz)';
 ax.XAxis(1).Label.Interpreter = 'latex';
 ylim([60 120]); 
-xlim([0.1 round(fs/2/1e4)*1e1])
+xlim([0.1 fs/2/1e3])
 grid off; grid on; grid minor;
 fH.Units = 'centimeters';
 fH.Position(3:4) = [12 5];
@@ -259,29 +259,27 @@ fH2.Color = 'w';
 
 yyaxis right;
 ax = gca;
-magColor = [0.8 0.1 0.1];
 stem((0:numel(imp)-1)/fs*1e3,...
     mag2db(abs(imp)),...
-    ':x','color', magColor);
+    ':x','color', redColor);
 ylim( max(mag2db(abs(imp)))*[-1 1]*1.1 );
 ax = gca;
 ax.YAxis(end).Label.String = 'Magnitude (dB)';
 ax.YAxis(end).Label.Interpreter = 'latex';
-ax.YAxis(end).Color = magColor;
+ax.YAxis(end).Color = redColor;
 ax.YAxis(end).MinorTick = 'on';
 ax.YAxis(end).TickDirection = 'both';
 
 yyaxis left;
 ax = gca;
-ampColor = [0.0 0.3 0.7];
 stem((0:numel(imp)-1)/fs*1e3,...
     ((imp)),...
-    'color', ampColor);
+    'color', blueColor);
 ylim( max(abs(imp))*[-1 1]*1.1 );
 ax = gca;
 ax.YAxis(1).Label.String = 'Amplitude';
 ax.YAxis(1).Label.Interpreter = 'latex';
-ax.YAxis(1).Color = ampColor;
+ax.YAxis(1).Color = blueColor;
 ax.YAxis(1).MinorTick = 'on';
 ax.YAxis(1).TickDirection = 'both';
 
@@ -588,22 +586,22 @@ while ss < 200 %ss<1 %for ss = 1:10
             CIs = Tools.confidence_intervals(db2mag(mag2db(  M(:,:,img) ).' - meanMF(:,:,img).'),95,true);
             CIs = mag2db(exp(CIs));
             CI = CIs + mag2db(  mean( M(:,:,img),2) ) - meanMF(:,:,img);
-            plot(ff, CI  ,'-','color',[1.0 0 0.0 0.2],'linew',1.5); hold on; 
+            plot(ff, CI  ,'-','color',[redColor 0.2],'linew',1.5); hold on; 
         end
-        pl1 = plot(ff, mag2db(  mean( M(:,:,img),2) ) - meanMF(:,:,img)  ,'-r','linew',1.5); hold on;
+        pl1 = plot(ff, mag2db(  mean( M(:,:,img),2) ) - meanMF(:,:,img)  ,'-','color',redColor,'linew',1.5); hold on;
         
         if ss > 1
             CIs = Tools.confidence_intervals(db2mag(mag2db(  MDi(:,:,img) ).' - meanMF(:,:,img).'),95,true);
             CIs = mag2db(exp(CIs));
             CI = CIs + mag2db(  mean( MDi(:,:,img),2) ) - meanMF(:,:,img);
-            plot(ff, CI  ,'-','color',[0 0 1.0 0.2],'linew',1.5); hold on; 
+            plot(ff, CI  ,'-','color',[blueColor 0.2],'linew',1.5); hold on; 
         end
-        pl2 = plot(ff, mag2db(  mean( MDi(:,:,img),2) ) - meanMF(:,:,img)  ,'-b','linew',1.5); hold on;
+        pl2 = plot(ff, mag2db(  mean( MDi(:,:,img),2) ) - meanMF(:,:,img)  ,'-','color',blueColor,'linew',1.5); hold on;
         
     end
     
     hold off;
-    xlim([0.1 10]); 
+    xlim([0.1 fs/2/1e3]); 
     ylim([-18 10]);
     grid off; grid on; grid minor;
     lH = legend([pl0, pl1, pl2], ...
@@ -613,9 +611,10 @@ while ss < 200 %ss<1 %for ss = 1:10
         %         'Active Wall On & 3 Reflections'; ...
         %         'Active Wall On & 4 Reflections'; ...
         %         'Active Wall On & 5 Reflections'; ...
-        'Active - Proposed WFS WLS'; ...
+        'Active - WFS: Proposed WLS'; ...
         'Active - Proposed FOD'}, ...
-        'Location','northwest');
+        'Location','northwest', ...
+        'interpreter','latex');
     ax = gca;
     ax.YAxis.Label.String = 'Magnitude (dB)';
     ax.YAxis.Label.Interpreter = 'latex';
