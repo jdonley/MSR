@@ -63,7 +63,7 @@
 %%
 %%
 c = 343;
-rtxN = 40;
+rtxN = 20;
 startL = 0;
 endL = 3;
 linePos = (startL + endL/rtxN/2) : endL/rtxN : endL*(1 - 1/rtxN/2);
