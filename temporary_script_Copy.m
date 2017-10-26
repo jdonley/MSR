@@ -576,10 +576,16 @@ while ss < 200 %ss<1 %for ss = 1:10
     
     fHres = figure(222);
     fHres.Color = 'w';
-    meanMF = mag2db(mean(MF,2));
+    meanMF = mean(mean( mag2db(MF),2));
     % plot(ff, mag2db(  MF        ) - meanMF  ,':k'); hold on;
     % plot(ff, mag2db(  M         ) - meanMF  ,':m'); hold on;
-    pl0 = plot(ff, mag2db(  mean(MF(:,:,img(1)),2) ) - meanMF(:,:,img(1))  ,'-k','linew',1.5); hold on;
+    if ss > 1
+        CIs = Tools.confidence_intervals(db2mag(mag2db(  MF(:,:,img) ).' - meanMF(:,:,img).'),95,true);
+        CIs = mag2db(exp(CIs));
+        CI = CIs + mean( mag2db(  MF(:,:,img)),2 ) - meanMF(:,:,img);
+        plot(ff, CI  ,'-','color',[0 0 0 0.2],'linew',1.5); hold on;
+    end
+    pl0 = plot(ff, mean(mag2db(  MF(:,:,img(1))),2 ) - meanMF(:,:,img(1))  ,'-','color',[0 0 0],'linew',1.5); hold on;
     set(gca,'ColorOrderIndex',1);
     for img = imgs%1:6 
         
@@ -594,24 +600,24 @@ while ss < 200 %ss<1 %for ss = 1:10
         if ss > 1
             CIs = Tools.confidence_intervals(db2mag(mag2db(  M(:,:,img) ).' - meanMF(:,:,img).'),95,true);
             CIs = mag2db(exp(CIs));
-            CI = CIs + mag2db(  mean( M(:,:,img),2) ) - meanMF(:,:,img);
+            CI = CIs + mean( mag2db(  M(:,:,img)),2 ) - meanMF(:,:,img);
             plot(ff, CI  ,'-','color',[redColor 0.2],'linew',1.5); hold on; 
         end
-        pl1 = plot(ff, mag2db(  mean( M(:,:,img),2) ) - meanMF(:,:,img)  ,'-','color',redColor,'linew',1.5); hold on;
+        pl1 = plot(ff, mean( mag2db(  M(:,:,img)),2 ) - meanMF(:,:,img)  ,'-','color',redColor,'linew',1.5); hold on;
         
         if ss > 1
             CIs = Tools.confidence_intervals(db2mag(mag2db(  MDi(:,:,img) ).' - meanMF(:,:,img).'),95,true);
             CIs = mag2db(exp(CIs));
-            CI = CIs + mag2db(  mean( MDi(:,:,img),2) ) - meanMF(:,:,img);
+            CI = CIs + mean(  mag2db( MDi(:,:,img)),2 ) - meanMF(:,:,img);
             plot(ff, CI  ,'-','color',[blueColor 0.2],'linew',1.5); hold on; 
         end
-        pl2 = plot(ff, mag2db(  mean( MDi(:,:,img),2) ) - meanMF(:,:,img)  ,'-','color',blueColor,'linew',1.5); hold on;
+        pl2 = plot(ff, mean(  mag2db( MDi(:,:,img)),2 ) - meanMF(:,:,img)  ,'-','color',blueColor,'linew',1.5); hold on;
         
     end
     
     hold off;
     xlim([0.1 fs/2/1e3]); 
-    ylim([-18 25]);
+    ylim([-20 24]);
     grid off; grid on; grid minor;
     lH = legend([pl0, pl1, pl2], ...
         {'Inactive'; ...
@@ -641,6 +647,10 @@ while ss < 200 %ss<1 %for ss = 1:10
 
 % figure(111); scatter(x,y,'ok'); hold on;
 % xlim([0 3]); ylim([0 3]);
+
+text(3.43,10,'$k_{\mathrm{u}}$','Interpreter','latex','fontsize',12);
+ar = annotation(gcf,'arrow', [0.58 0.615],[0.36 0.26]);
+ar.HeadStyle = 'deltoid';
 
 drawnow;
 
