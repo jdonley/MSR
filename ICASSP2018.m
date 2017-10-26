@@ -63,7 +63,7 @@
 %%
 %%
 c = 343;
-rtxN = 60;
+rtxN = 45;
 startL = 0;
 endL = 3;
 linePos = (startL + endL/rtxN/2) : endL/rtxN : endL*(1 - 1/rtxN/2);
@@ -74,13 +74,13 @@ f_lo = c / (2*endL);
 f_hi = c / (2*d);
 
 
-nb = 14;
+nb = 4;
 na = 1;
 
-s_up_fact = 1;
+s_up_fact = 3;
 
 fs = 16000*s_up_fact;
-f_band = [25 3400]*s_up_fact;
+f_band = [25 3430];
 % f_band = round([f_lo f_hi]);
 f_filtlow = 10*s_up_fact;
 % fmid = 10^mean(log10(f_band));
@@ -358,7 +358,7 @@ ss=0;
 %     ss = ss+1;
 
 img = imgSingle;
-[b,a] = cheby1(6,0.1,[150 1500]/(fs/2));
+[b,a] = cheby1(5,0.1,[150 2000]/(fs/2));
 
 test_srcs  = [...
     1.5 1.5 1.5; ...
