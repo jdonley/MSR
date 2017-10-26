@@ -648,9 +648,7 @@ while ss < 200 %ss<1 %for ss = 1:10
 % figure(111); scatter(x,y,'ok'); hold on;
 % xlim([0 3]); ylim([0 3]);
 
-text(3.43,10,'$k_{\mathrm{u}}$','Interpreter','latex','fontsize',12,'ho','c');
-ar = annotation(gcf,'arrow', [0.58 0.615],[0.36 0.26]);
-ar.HeadStyle = 'deltoid';
+
 
 drawnow;
 
@@ -660,6 +658,22 @@ end
 toc;
 
 tightfig;
+
+text(5.5,-11.5,'$k_{\mathrm{u}}$','Interpreter','latex','fontsize',12,'ho','c');
+ar = annotation(gcf,'arrow', [0.725 0.685],[0.3 0.2]);
+ar.HeadStyle = 'deltoid';
+
+    lH = legend([pl0, pl1, pl2], ...
+        {'Inactive'; ...
+        %         'Active Wall On & 1 Reflection'; ...
+        %         'Active Wall On & 2 Reflections'; ...
+        %         'Active Wall On & 3 Reflections'; ...
+        %         'Active Wall On & 4 Reflections'; ...
+        %         'Active Wall On & 5 Reflections'; ...
+        'Active - WFR: Proposed WLS'; ...
+        'Active - Proposed FOD'}, ...
+        'Location','northwest', ...
+        'interpreter','latex');
 %%
 % hh(:,:,:,1) = reshape(hh1,3*res,3*res,[]);
 % hh(:,:,:,2) = reshape(hh2,3*res,3*res,[]);
