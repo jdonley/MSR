@@ -611,7 +611,7 @@ while ss < 200 %ss<1 %for ss = 1:10
     
     hold off;
     xlim([0.1 fs/2/1e3]); 
-    ylim([-18 10]);
+    ylim([-18 25]);
     grid off; grid on; grid minor;
     lH = legend([pl0, pl1, pl2], ...
         {'Inactive'; ...
