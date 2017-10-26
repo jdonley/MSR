@@ -356,8 +356,8 @@ rtx = [zeros(numel(yy),1), yy(:), zz(:)]; % monopole
 srx = rtx;
 
 imgs = 6;
-res = 20;
-[XX,YY] = meshgrid(linspace(0,3,3*res));
+% res = 20;
+% [XX,YY] = meshgrid(linspace(0,3,3*res));
 
 
 %%% taper window to limit diffraction
@@ -373,8 +373,8 @@ DiffracWin = Wx .* Wy;
 
 
 MC=[];MF=[];M=[];MI=[];PP=[];
-hh1=zeros((3*res)^2,n);
-hh2=hh1;
+% hh1=zeros((3*res)^2,n);
+% hh2=hh1;
 tic;
 ss=0;
 while ss < 200 %ss<1 %for ss = 1:10
@@ -447,20 +447,20 @@ while ss < 200 %ss<1 %for ss = 1:10
         hrx = Tools.fconv(hrx.',repmat(imp.',size(hrx,1),1).').';
         hrxLR = Tools.fconv(hrxLR.',repmat(imp.',size(hrxLR,1),1).').';
         
-        hrxIdeal = Tools.fconv(hrx.',repmat(impIDEAL.',size(hrx,1),1).').';
-        hrxLRIdeal = Tools.fconv(hrxLR.',repmat(impIDEAL.',size(hrxLR,1),1).').';
+%         hrxIdeal = Tools.fconv(hrx.',repmat(impIDEAL.',size(hrx,1),1).').';
+%         hrxLRIdeal = Tools.fconv(hrxLR.',repmat(impIDEAL.',size(hrxLR,1),1).').';
         %%%
         
         %%% Cancellation signal minus last reflection
         %%% ONE (previously suggested pre-filter)
-        hcId = Tools.fconv(htx.',hrxIdeal.');        
-        hcLRdirectId = Tools.fconv(htxLR.',hrxLRIdeal.');
-        hcLRId = Tools.fconv(htxLR.',hrxIdeal.');
-        hcLId = (hcLRId - hcLRdirectId);
-        %         hc = hc .* repmat(DiffracWin(:).',size(hc,1),1);
-%         hcL = hcL .* repmat(DiffracWin(:).',size(hcL,1),1);
-        hcId = sum(hcId(1:numel(hf),:),2) / rtxN^2 / pi;
-        hcLId = sum(hcLId(1:numel(hf),:),2) / rtxN^2 / pi;
+%         hcId = Tools.fconv(htx.',hrxIdeal.');        
+%         hcLRdirectId = Tools.fconv(htxLR.',hrxLRIdeal.');
+%         hcLRId = Tools.fconv(htxLR.',hrxIdeal.');
+%         hcLId = (hcLRId - hcLRdirectId);
+%         %         hc = hc .* repmat(DiffracWin(:).',size(hc,1),1);
+% %         hcL = hcL .* repmat(DiffracWin(:).',size(hcL,1),1);
+%         hcId = sum(hcId(1:numel(hf),:),2) / rtxN^2 / pi;
+%         hcLId = sum(hcLId(1:numel(hf),:),2) / rtxN^2 / pi;
         
         %%% TWO
         hc = Tools.fconv(htx.',hrx.');        
@@ -486,7 +486,7 @@ while ss < 200 %ss<1 %for ss = 1:10
 
         
         
-        hcId = hcId - hcLId;
+%         hcId = hcId - hcLId;
         hc = hc - hcL;
         hcDi = hcDi - hcLDi;
         %%% 
@@ -516,13 +516,13 @@ while ss < 200 %ss<1 %for ss = 1:10
 % hh1(ss,:) = hf_band;
 % hh2(ss,:) = hc_band;
         
-        hId = hf-hcId;
+%         hId = hf-hcId;
         h = hf-hc;
         hDi = hf-hcDi;
         
         HF = fft(hf);
 %         HC = fft(hc);
-        HId = fft(hId);
+%         HId = fft(hId);
         H = fft(h);
         HDi = fft(hDi);
 %         H2 = fft(h2);
@@ -534,8 +534,8 @@ while ss < 200 %ss<1 %for ss = 1:10
 %         MagnitudeC(end/2+1:end)=[];
         MagnitudeF = abs(HF);
         MagnitudeF(end/2+1:end)=[];
-        MagnitudeId = abs(HId);
-        MagnitudeId(end/2+1:end)=[];
+%         MagnitudeId = abs(HId);
+%         MagnitudeId(end/2+1:end)=[];
         Magnitude = abs(H);
         Magnitude(end/2+1:end)=[];
         MagnitudeDi = abs(HDi);
@@ -548,7 +548,7 @@ while ss < 200 %ss<1 %for ss = 1:10
         
 %         MC(:,ss,img) = MagnitudeC;
         MF(:,ss,img) = MagnitudeF;
-        MId(:,ss,img) = MagnitudeId;
+%         MId(:,ss,img) = MagnitudeId;
         M(:,ss,img) = Magnitude;
         MDi(:,ss,img) = MagnitudeDi;
 %         M2(:,ss,img) = Magnitude2;
@@ -633,6 +633,8 @@ while ss < 200 %ss<1 %for ss = 1:10
     ax.XAxis.TickDirection = 'both';
     ax.XAxis.Label.String = 'Frequency (kHz)';
     ax.XAxis.Label.Interpreter = 'latex';
+    ax.XTick = [0.1, 1, 3.43, 10, 24];
+    ax.XTickLabel = {'0.1','1','3.43','10','24'};
     
     fHres.Units = 'centimeters';
     fHres.Position(3:4) = [12 7];

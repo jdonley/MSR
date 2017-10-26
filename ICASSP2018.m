@@ -74,13 +74,13 @@ f_lo = c / (2*endL);
 f_hi = c / (2*d);
 
 
-nb = 4;
+nb = 9;
 na = 1;
 
-s_up_fact = 3;
+s_up_fact = 1;
 
 fs = 16000*s_up_fact;
-f_band = [25 3430];
+f_band = [25 2500];
 % f_band = round([f_lo f_hi]);
 f_filtlow = 10*s_up_fact;
 % fmid = 10^mean(log10(f_band));
