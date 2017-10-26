@@ -648,7 +648,7 @@ while ss < 200 %ss<1 %for ss = 1:10
 % figure(111); scatter(x,y,'ok'); hold on;
 % xlim([0 3]); ylim([0 3]);
 
-text(3.43,10,'$k_{\mathrm{u}}$','Interpreter','latex','fontsize',12);
+text(3.43,10,'$k_{\mathrm{u}}$','Interpreter','latex','fontsize',12,'ho','c');
 ar = annotation(gcf,'arrow', [0.58 0.615],[0.36 0.26]);
 ar.HeadStyle = 'deltoid';
 
