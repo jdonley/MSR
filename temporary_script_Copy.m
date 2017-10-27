@@ -657,6 +657,15 @@ disp(ss);
 end
 toc;
 
+yyaxis right;
+ax = gca;
+ax.YLabel.String = 'Absorption Coefficient';
+ax.YLabel.Interpreter = 'latex';
+ax.YTick = ([-20:10:20] + 20)/(24+20);
+ax.YTickLabel = mat2cell(round( 1-sqrt(db2mag([-20:10:20])) ,2 ) ,1,ones(1,5));
+ax.TickDir = 'both';
+ax.YMinorTick = 'on';
+
 tightfig;
 
 text(5.5,-11.5,'$k_{\mathrm{u}}$','Interpreter','latex','fontsize',12,'ho','c');
