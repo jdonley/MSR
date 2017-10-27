@@ -63,7 +63,7 @@
 %%
 %%
 c = 343;
-rtxN = 45;
+rtxN = 30;
 startL = 0;
 endL = 3;
 linePos = (startL + endL/rtxN/2) : endL/rtxN : endL*(1 - 1/rtxN/2);
@@ -358,7 +358,7 @@ ss=0;
 %     ss = ss+1;
 
 img = imgSingle;
-[b,a] = cheby1(5,0.1,[150 2000]/(fs/2));
+[b,a] = cheby1(6,0.1,[150 1500]/(fs/2));
 
 test_srcs  = [...
     1.5 1.5 1.5; ...
