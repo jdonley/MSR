@@ -377,7 +377,7 @@ MC=[];MF=[];M=[];MI=[];PP=[];
 % hh2=hh1;
 tic;
 ss=0;
-while ss < 2%200 %ss<1 %for ss = 1:10
+while ss < 200 %ss<1 %for ss = 1:10
     ss = ss+1;
 % for ss = 1%:(3*res)^2
 %     [x_,y_] = ind2sub(size(XX),ss);
