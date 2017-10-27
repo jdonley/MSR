@@ -221,7 +221,7 @@ plot(ff*fs/2/1e3,WW.^2 * 99+0.5,'color','k','linew',1.5); hold on;
 hold off;
 
 text(1.9,20,'$k_{\mathrm{u}}$','Interpreter','latex','fontsize',12);
-ar = annotation(gcf,'arrow', [0.58 0.615],[0.36 0.26]);
+ar = annotation(gcf,'arrow', [0.58 0.615],[0.42 0.32]);
 ar.HeadStyle = 'deltoid';
 
 
@@ -258,7 +258,7 @@ ax.XTick = [0.1, 1, 3.43, 10, 24];
 ax.XTickLabel = {'0.1','1','3.43','10','24'};
 grid off; grid on; grid minor;
 fH.Units = 'centimeters';
-fH.Position(3:4) = [12 5];
+fH.Position(3:4) = [12 4];
 tightfig;
 
 %%%
@@ -285,7 +285,7 @@ stem((0:numel(imp)-1)/fs*1e3,...
     'color', blueColor);
 ylim( max(abs(imp))*[-1 1]*1.1 );
 ax = gca;
-ax.YAxis(1).Label.String = 'Amplitude';
+ax.YAxis(1).Label.String = ['Amplitude ($10^' num2str(0) '$)'];
 ax.YAxis(1).Label.Interpreter = 'latex';
 ax.YAxis(1).Color = blueColor;
 ax.YAxis(1).MinorTick = 'on';
@@ -298,8 +298,14 @@ ax.XAxis.Label.String = 'Time (ms)';
 ax.XAxis.Label.Interpreter = 'latex';
 grid off; grid on; 
 fH2.Units = 'centimeters';
-fH2.Position(3:4) = [12 5];
+fH2.Position(3:4) = [12 4];
+
+ax.YAxis(1).TickLabels = ax.YAxis(1).TickLabels;
+e = floor(log10( max(ax.YAxis(1).TickValues) ));
+ax.YAxis(1).Label.String = ['Amplitude ($10^' num2str(e) '$)'];
+
 tightfig;
+
 %%
 % [num,den]=iirlpnorm(8,8,f/(fs/2),f/(fs/2),a_int);
 % [num,den]=iirlpnorm(8,8,f/(fs/2),f/(fs/2),f/(fs/2));
