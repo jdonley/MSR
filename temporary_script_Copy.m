@@ -377,7 +377,7 @@ MC=[];MF=[];M=[];MI=[];PP=[];
 % hh2=hh1;
 tic;
 ss=0;
-while ss < 10%200 %ss<1 %for ss = 1:10
+while ss < 2%200 %ss<1 %for ss = 1:10
     ss = ss+1;
 % for ss = 1%:(3*res)^2
 %     [x_,y_] = ind2sub(size(XX),ss);
@@ -677,8 +677,9 @@ ax.YMinorTick = 'off';
 fHres.Position(3:4) = [12 5];
 tightfig;
 
+yyaxis left;
 text(5.5,-11.5,'$k_{\mathrm{u}}$','Interpreter','latex','fontsize',12,'ho','c');
-ar = annotation(gcf,'arrow', [0.725 0.685],[0.3 0.2]);
+ar = annotation(gcf,'arrow', [0.650 0.610],[0.37 0.27]);
 ar.HeadStyle = 'deltoid';
 
     lH = legend([pl0, pl1, pl2], ...

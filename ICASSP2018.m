@@ -618,7 +618,7 @@ FIELDREFLECTIONS = hh(:,:,IC, 1 );
 image((FIELDREFLECTIONS / maxV + 1 )/2 * size(C,1)); hold on;
 plot(linePos*0+1.3,linePos*res,'.b'); hold on;
 plot(test_srcs(each_test_src,1)*res,test_srcs(each_test_src,2)*res,...
-    'rx','MarkerSize',7,'linew',1.5); hold on;
+    'rx','MarkerSize',12,'linew',1.5); hold on;
 hold off;
 text(3*res*(txtLblPos(1)),3*res*(1-txtLblPos(2)),char(64+hInd),...
     'Interpreter','latex','FontSize',14);
@@ -702,7 +702,7 @@ FIELDERROR_method1 = diff(hh(:,:,IC,[1 2]),[],4);
 image((FIELDERROR_method1 / maxV + 1 )/2 * size(C,1));hold on;
 plot(linePos*0+1.3,linePos*res,'.b'); hold on;
 plot(test_srcs(each_test_src,1)*res,test_srcs(each_test_src,2)*res,...
-    'rx','MarkerSize',7,'linew',1.5); hold on;
+    'rx','MarkerSize',12,'linew',1.5); hold on;
 hold off;
 text(3*res*(txtLblPos(1)),3*res*(1-txtLblPos(2)),char(64+hInd),...
     'Interpreter','latex','FontSize',14);
@@ -740,7 +740,7 @@ FIELDERROR_method2 = diff(hh(:,:,IC,[1 3]),[],4);
 image((FIELDERROR_method2 / maxV + 1 )/2 * size(C,1));hold on;
 plot(linePos*0+1.3,linePos*res,'.b'); hold on;
 plot(test_srcs(each_test_src,1)*res,test_srcs(each_test_src,2)*res,...
-    'rx','MarkerSize',7,'linew',1.5); hold on;
+    'rx','MarkerSize',12,'linew',1.5); hold on;
 hold off;
 text(3*res*(txtLblPos(1)),3*res*(1-txtLblPos(2)),char(64+hInd),...
     'Interpreter','latex','FontSize',14);
