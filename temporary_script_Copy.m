@@ -377,7 +377,7 @@ MC=[];MF=[];M=[];MI=[];PP=[];
 % hh2=hh1;
 tic;
 ss=0;
-while ss < 200 %ss<1 %for ss = 1:10
+while ss < 10%200 %ss<1 %for ss = 1:10
     ss = ss+1;
 % for ss = 1%:(3*res)^2
 %     [x_,y_] = ind2sub(size(XX),ss);
@@ -618,7 +618,7 @@ while ss < 200 %ss<1 %for ss = 1:10
     hold off;
     xlim([0.1 fs/2/1e3]); 
     ylim([-20 24]);
-    grid off; grid on; grid minor;
+    
     lH = legend([pl0, pl1, pl2], ...
         {'Inactive'; ...
         %         'Active Wall On & 1 Reflection'; ...
@@ -631,10 +631,16 @@ while ss < 200 %ss<1 %for ss = 1:10
         'Location','northwest', ...
         'interpreter','latex');
     ax = gca;
+    ax.XGrid = 'on';
+    ax.XMinorGrid = 'on';
+    ax.YGrid = 'on';
+    ax.YMinorGrid = 'off';
     ax.YAxis.Label.String = 'Magnitude (dB)';
     ax.YAxis.Label.Interpreter = 'latex';
-    ax.YAxis.MinorTick = 'on';
+    ax.YAxis.MinorTick = 'off';
     ax.YAxis.TickDirection = 'both';
+    ax.YTick = [-20:5:24];
+    ax.YTickLabel = num2cell([-20:5:24]);
     ax.XScale = 'log';
     ax.XAxis.TickDirection = 'both';
     ax.XAxis.Label.String = 'Frequency (kHz)';
@@ -643,7 +649,7 @@ while ss < 200 %ss<1 %for ss = 1:10
     ax.XTickLabel = {'0.1','1','3.43','10','24'};
     
     fHres.Units = 'centimeters';
-    fHres.Position(3:4) = [12 7];
+    fHres.Position(3:4) = [12 5];
 
 % figure(111); scatter(x,y,'ok'); hold on;
 % xlim([0 3]); ylim([0 3]);
@@ -657,15 +663,18 @@ disp(ss);
 end
 toc;
 
+ax = gca;
+ax.ColorOrder = [0 0 0];
 yyaxis right;
 ax = gca;
 ax.YLabel.String = 'Absorption Coefficient';
 ax.YLabel.Interpreter = 'latex';
-ax.YTick = ([-20:10:20] + 20)/(24+20);
-ax.YTickLabel = mat2cell(round( 1-sqrt(db2mag([-20:10:20])) ,2 ) ,1,ones(1,5));
+ax.YTick = ([-20:5:20] + 20)/(24+20);
+ax.YTickLabel = mat2cell(round( 1-sqrt(db2mag([-20:5:20])) ,2 ) ,1,ones(1,9));
 ax.TickDir = 'both';
-ax.YMinorTick = 'on';
+ax.YMinorTick = 'off';
 
+fHres.Position(3:4) = [12 5];
 tightfig;
 
 text(5.5,-11.5,'$k_{\mathrm{u}}$','Interpreter','latex','fontsize',12,'ho','c');
