@@ -86,6 +86,9 @@ classdef multizone_soundfield_OBE
             if strcmpi( obj.Geometry, 'circle' )
                 width = int16(obj.res * obj.Radius * 2);
                 height = width;
+                if isempty(obj.ReproRegionSize)
+                    
+                end
             elseif contains( lower(obj.Geometry), 'rect' )
                 width  = obj.ReproRegionSize(1) * obj.res;
                 height = obj.ReproRegionSize(2) * obj.res;
