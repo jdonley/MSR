@@ -163,6 +163,7 @@ classdef loudspeaker_setup
             end
             
             % Normalise to the average of the absolute bright zone values
+            if all(obj.Multizone_Soundfield.ReproRegionSize == obj.RoomSize)
             [xx,yy] = obj.getCoordinateMesh( ...
                 obj.Multizone_Soundfield.ReproRegionSize ...
                 *obj.Multizone_Soundfield.res);
@@ -170,6 +171,9 @@ classdef loudspeaker_setup
                         & xx<=obj.RoomSize(2)/2 ...
                         & -obj.RoomSize(1)/2<yy ...
                         & yy<=obj.RoomSize(1)/2;
+            else
+                roomMask = obj.Multizone_Soundfield.Bright_Zone.Soundfield_d_mean_mask;
+            end
             bMask = obj.Multizone_Soundfield.Bright_Zone.Soundfield_d_mean_mask ...
                     & roomMask;
             BrightSamples = obj.Bright_Samples;
