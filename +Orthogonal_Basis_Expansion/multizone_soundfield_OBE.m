@@ -87,7 +87,7 @@ classdef multizone_soundfield_OBE
                 width = int16(obj.res * obj.Radius * 2);
                 height = width;
                 if isempty(obj.ReproRegionSize)
-                    
+                    obj = obj.setReproRegionSize([width, height]/obj.res);
                 end
             elseif contains( lower(obj.Geometry), 'rect' )
                 width  = obj.ReproRegionSize(1) * obj.res;

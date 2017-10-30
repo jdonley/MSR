@@ -17,7 +17,7 @@ classdef loudspeaker_setup
         Dimensionality = 2;                 % 2D, 3D
         Loudspeaker_Count = 32;             % Number of speakers used in the reproduction (Number of speakers required = ceil( Angular_Window * (2*M + 1) / (2*pi) ) ).
         Origin = [0,0];                     % [y,x] This coordinate system follows that of the Room_Acoustics.Room class which is [y,x,z]
-        RoomSize = [];
+        RoomSize = [];                      % [y,x]
         Radius = 1.5;                       % Radius of speaker layout
         Speaker_Arc_Angle = 180;            % Angle of the arc of speakers (360 = full circle, 180 = semi-circle)
         Angle_FirstSpeaker = 0;             % The angle where the first speaker of the array occurs
@@ -86,6 +86,9 @@ classdef loudspeaker_setup
         function obj = createEmptySoundfield(obj)
             [width, height] = obj.getFieldSize();
             obj.Soundfield_reproduced = zeros(height,width);
+            if isempty(obj.RoomSize)
+               obj.RoomSize = [height, width]/obj.res; 
+            end
         end
         
         function [width, height] = getFieldSize(obj)
