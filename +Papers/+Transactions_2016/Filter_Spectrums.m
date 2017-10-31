@@ -190,6 +190,8 @@ S5=Tools.octaveBandMean(BZS_low,frqs,octSpace);
 S6 = 1 ./ sqrt( 1 + (10^(Rp/10)-1)*chebyshevT(cheby_order,(f1/f_cutoff)).^2);
 
 ms = 4;
+f_c = f_cutoff*[1 1]/1e3;
+pl_Ku1= plot(f_c,ylims,'--k', 'LineWidth',lineWid,'markersize',ms); hold on;
 pl_S1 = plot(f1/1e3,mag2db(S1),'-',  'Color',[0 0 0],       'LineWidth',lineWid,'markersize',ms); hold on;
 pl_S2 = plot(f2/1e3,mag2db(S2),'--', 'Color',[0.8 0.5 0.5], 'LineWidth',lineWid,'markersize',ms); hold on;
 pl_S3 = plot(f2/1e3,mag2db(S3),'--', 'Color',[1 0 0],       'LineWidth',lineWid,'markersize',ms); hold on;
