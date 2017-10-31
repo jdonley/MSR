@@ -198,10 +198,12 @@ pl_S2 = plot(f2/1e3,mag2db(S2),'--', 'Color',[0.8 0.5 0.5], 'LineWidth',lineWid,
 pl_S3 = plot(f2/1e3,mag2db(S3),'--', 'Color',[1 0 0],       'LineWidth',lineWid,'markersize',ms); hold on;
 pl_S4 = plot(f2/1e3,mag2db(S4),'-.', 'Color',[0.5 0.5 0.8],'LineWidth',lineWid,'markersize',ms); hold on;
 pl_S5 = plot(f2/1e3,mag2db(S5),'-.', 'Color',[0 0 1],      'LineWidth',lineWid,'markersize',ms); hold on;
-pl_S6 = plot(f1/1e3,mag2db(S6),':',  'Color',[0 0 0],        'LineWidth',lineWid,'markersize',ms); hold off;
+pl_S6 = plot(f1/1e3,mag2db(S6),':',  'Color',[0 0 0],        'LineWidth',lineWid,'markersize',ms); hold on;
 
-patch([f_c*[1 1] xlims(end)*[1 1]],ylims([1 end 1 end],)
+arH = area([f_c*[1,1]; xlims(end)*[1,1]],[ylims(1)*[1;1], diff(ylims)*[1;1]]); hold on;
+set(arH,'FaceColor', [0 0 0],'FaceAlpha', 0.05,'EdgeColor', 'none','BaseValue', ylims(1)); 
 
+hold off;
 text(axLblXpos/1e3,ylims(end)-7,'(A)','interpreter','latex','horizontalalignment','center');
 set(gca,figParams{:},'YLim',ylims);% axis square
 set(gca,'XTickLabel',{});
@@ -268,7 +270,7 @@ pl_2 = plot(f1/1e3, mag2db(SQuietMask / mean(SQuietMask(f1band)) ),'--','color',
 pl_3 = plot(f1/1e3, mag2db(SIdealMask / mean(SIdealMask(f1band)) ),'.-','color',[0 0 1 1],'LineWidth',lineWid); hold on
 pl_4 = plot(f1/1e3, mag2db(SBrightMask / mean(SBrightMask(f1band)) ),'-.','color',[0 0.5 0 1],'LineWidth',lineWid); hold on
 
-hold off
+
 ylims = ylims+20;
 text(axLblXpos/1e3,ylims(end)-7,'(B)','interpreter','latex','horizontalalignment','center');
 
@@ -277,6 +279,12 @@ text(round(f_c,2),ylims(end),'$k_\mathrm{u}$','Interpreter','latex','HorizontalA
 set(gca,figParams{:},'YLim',ylims);% axis square
 set(gca,'XTickLabel',{' '});
 yticks = [ylims(1):10:ylims(end)].';
+
+arH = area([f_c*[1,1]; xlims(end)*[1,1]],[ylims(1)*[1;1], diff(ylims)*[1;1]]); hold on;
+set(arH,'FaceColor', [0 0 0],'FaceAlpha', 0.05,'EdgeColor', 'none','BaseValue', ylims(1)); 
+
+hold off
+
 Tlbls= [repmat(latexNumFontSettings,size(yticks,1),1) ...
     num2str(yticks) ...
     repmat('}',size(yticks,1),1)];
@@ -325,12 +333,17 @@ pl_6 = plot(f1/1e3, mag2db(SIdealMaskB / mean(SIdealMaskB(f1band)) ),'.-','color
 pl_7 = plot(f1/1e3, mag2db(SBrightMaskB / mean(SBrightMaskB(f1band)) ),'-.','color',[0 0.5 0 1],'LineWidth',lineWid); hold on
 
 
-hold off
-ylims = ylims;
+% ylims = ylims;
 text(axLblXpos/1e3,ylims(end)-7,'(C)','interpreter','latex','horizontalalignment','center');
 text(round(f_c,2),ylims(end),'$k_\mathrm{u}$','Interpreter','latex','HorizontalAlignment','center','VerticalAlignment','bottom');
 set(gca,figParams{:},'YLim',ylims);% axis square
 yticks = [ylims(1):10:ylims(end)].';
+
+arH = area([f_c*[1,1]; xlims(end)*[1,1]],[ylims(1)*[1;1], diff(ylims)*[1;1]]); hold on;
+set(arH,'FaceColor', [0 0 0],'FaceAlpha', 0.05,'EdgeColor', 'none','BaseValue', ylims(1)); 
+
+hold off
+
 Tlbls= [repmat(latexNumFontSettings,size(yticks,1),1) ...
     num2str(yticks) ...
     repmat('}',size(yticks,1),1)];
