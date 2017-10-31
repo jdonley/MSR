@@ -190,8 +190,7 @@ S5=Tools.octaveBandMean(BZS_low,frqs,octSpace);
 S6 = 1 ./ sqrt( 1 + (10^(Rp/10)-1)*chebyshevT(cheby_order,(f1/f_cutoff)).^2);
 
 ms = 4;
-f_c = f_cutoff*[1 1]/1e3;
-pl_Ku1= plot(f_c,ylims,'--k', 'LineWidth',lineWid,'markersize',ms); hold on;
+% pl_Ku1= plot(f_c,ylims,'--k', 'LineWidth',lineWid,'markersize',ms); hold on;
 pl_S1 = plot(f1/1e3,mag2db(S1),'-',  'Color',[0 0 0],       'LineWidth',lineWid,'markersize',ms); hold on;
 pl_S2 = plot(f2/1e3,mag2db(S2),'--', 'Color',[0.8 0.5 0.5], 'LineWidth',lineWid,'markersize',ms); hold on;
 pl_S3 = plot(f2/1e3,mag2db(S3),'--', 'Color',[1 0 0],       'LineWidth',lineWid,'markersize',ms); hold on;
@@ -202,6 +201,8 @@ pl_S6 = plot(f1/1e3,mag2db(S6),':',  'Color',[0 0 0],        'LineWidth',lineWid
 text(axLblXpos/1e3,ylims(end)-7,'(A)','interpreter','latex','horizontalalignment','center');
 set(gca,figParams{:},'YLim',ylims);% axis square
 set(gca,'XTickLabel',{});
+ax = gca;
+ax.XTick = round(sort( [ax.XTick f_c(1)] ),2);
 yticks = [ylims(1):10:ylims(end)].';
 Tlbls= [repmat(latexNumFontSettings,size(yticks,1),1) ...
     num2str(yticks) ...
@@ -270,6 +271,8 @@ ylims = ylims+20;
 text(axLblXpos/1e3,ylims(end)-7,'(B)','interpreter','latex','horizontalalignment','center');
 set(gca,figParams{:},'YLim',ylims);% axis square
 set(gca,'XTickLabel',{' '});
+ax = gca;
+ax.XTick = round(sort( [ax.XTick f_c(1)] ),2);
 yticks = [ylims(1):10:ylims(end)].';
 Tlbls= [repmat(latexNumFontSettings,size(yticks,1),1) ...
     num2str(yticks) ...
