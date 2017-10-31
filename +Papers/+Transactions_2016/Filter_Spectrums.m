@@ -156,7 +156,7 @@ latexNumFontSettings = ['{\fontfamily{' FFnums '}' ...
     '\selectfont '];
 
 % Start Plotting
-ha = tightPlots(3,1,plot_width,[2.0 0.9], [0.1 0.1], 1, 1,'centimeters');
+ha = tightPlots(3,1,plot_width,[2.0 0.9], [0.2 0.1], 1, 1,'centimeters');
 
 axLblXpos = 150;
 f_c = f_cutoff/1e3;
@@ -192,13 +192,15 @@ S5=Tools.octaveBandMean(BZS_low,frqs,octSpace);
 S6 = 1 ./ sqrt( 1 + (10^(Rp/10)-1)*chebyshevT(cheby_order,(f1/f_cutoff)).^2);
 
 ms = 4;
-% pl_Ku1= plot(f_c,ylims,'--k', 'LineWidth',lineWid,'markersize',ms); hold on;
+
 pl_S1 = plot(f1/1e3,mag2db(S1),'-',  'Color',[0 0 0],       'LineWidth',lineWid,'markersize',ms); hold on;
 pl_S2 = plot(f2/1e3,mag2db(S2),'--', 'Color',[0.8 0.5 0.5], 'LineWidth',lineWid,'markersize',ms); hold on;
 pl_S3 = plot(f2/1e3,mag2db(S3),'--', 'Color',[1 0 0],       'LineWidth',lineWid,'markersize',ms); hold on;
 pl_S4 = plot(f2/1e3,mag2db(S4),'-.', 'Color',[0.5 0.5 0.8],'LineWidth',lineWid,'markersize',ms); hold on;
 pl_S5 = plot(f2/1e3,mag2db(S5),'-.', 'Color',[0 0 1],      'LineWidth',lineWid,'markersize',ms); hold on;
 pl_S6 = plot(f1/1e3,mag2db(S6),':',  'Color',[0 0 0],        'LineWidth',lineWid,'markersize',ms); hold off;
+
+patch([f_c*[1 1] xlims(end)*[1 1]],ylims([1 end 1 end],)
 
 text(axLblXpos/1e3,ylims(end)-7,'(A)','interpreter','latex','horizontalalignment','center');
 set(gca,figParams{:},'YLim',ylims);% axis square
@@ -269,6 +271,9 @@ pl_4 = plot(f1/1e3, mag2db(SBrightMask / mean(SBrightMask(f1band)) ),'-.','color
 hold off
 ylims = ylims+20;
 text(axLblXpos/1e3,ylims(end)-7,'(B)','interpreter','latex','horizontalalignment','center');
+
+text(round(f_c,2),ylims(end),'$k_\mathrm{u}$','Interpreter','latex','HorizontalAlignment','center','VerticalAlignment','bottom');
+
 set(gca,figParams{:},'YLim',ylims);% axis square
 set(gca,'XTickLabel',{' '});
 yticks = [ylims(1):10:ylims(end)].';
@@ -323,6 +328,7 @@ pl_7 = plot(f1/1e3, mag2db(SBrightMaskB / mean(SBrightMaskB(f1band)) ),'-.','col
 hold off
 ylims = ylims;
 text(axLblXpos/1e3,ylims(end)-7,'(C)','interpreter','latex','horizontalalignment','center');
+text(round(f_c,2),ylims(end),'$k_\mathrm{u}$','Interpreter','latex','HorizontalAlignment','center','VerticalAlignment','bottom');
 set(gca,figParams{:},'YLim',ylims);% axis square
 yticks = [ylims(1):10:ylims(end)].';
 Tlbls= [repmat(latexNumFontSettings,size(yticks,1),1) ...
