@@ -159,12 +159,14 @@ latexNumFontSettings = ['{\fontfamily{' FFnums '}' ...
 ha = tightPlots(3,1,plot_width,[2.0 0.9], [0.1 0.1], 1, 1,'centimeters');
 
 axLblXpos = 150;
+f_c = f_cutoff/1e3;
 xlims = [0.1 8];
 ylims = [-50 0];
 numXTicks = 3;
-xticks = [xlims(1) 1.0 xlims(end)];
+xticks = round(sort([xlims(1) 1.0 xlims(end) f_c]),2);
 XTlbls = mat2cell(num2str(xticks'),ones(size(num2str(xticks'),1),1),size(num2str(xticks'),2));
 XTlbls = cellfun(@(x) strrep(x,' ',''), XTlbls, 'un', 0);
+% XTlbls{contains(XTlbls,num2str(round(f_c,2)))} = '$k_\mathrm{u}$';
 XTlbls = cellfun(@(x) [latexNumFontSettings x '}'],XTlbls,'un',0);
 figParams = {'XScale','log', ...
     'TickLabelInterpreter', 'latex', ...
@@ -201,8 +203,6 @@ pl_S6 = plot(f1/1e3,mag2db(S6),':',  'Color',[0 0 0],        'LineWidth',lineWid
 text(axLblXpos/1e3,ylims(end)-7,'(A)','interpreter','latex','horizontalalignment','center');
 set(gca,figParams{:},'YLim',ylims);% axis square
 set(gca,'XTickLabel',{});
-ax = gca;
-ax.XTick = round(sort( [ax.XTick f_c(1)] ),2);
 yticks = [ylims(1):10:ylims(end)].';
 Tlbls= [repmat(latexNumFontSettings,size(yticks,1),1) ...
     num2str(yticks) ...
@@ -271,8 +271,6 @@ ylims = ylims+20;
 text(axLblXpos/1e3,ylims(end)-7,'(B)','interpreter','latex','horizontalalignment','center');
 set(gca,figParams{:},'YLim',ylims);% axis square
 set(gca,'XTickLabel',{' '});
-ax = gca;
-ax.XTick = round(sort( [ax.XTick f_c(1)] ),2);
 yticks = [ylims(1):10:ylims(end)].';
 Tlbls= [repmat(latexNumFontSettings,size(yticks,1),1) ...
     num2str(yticks) ...
