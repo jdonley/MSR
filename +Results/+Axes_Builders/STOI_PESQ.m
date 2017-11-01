@@ -187,14 +187,31 @@ for li = 1:Nlines
                     else
                         range_lbl = 'STOI (\%WC)';
                     end
+                    % Confidential Speech Privacy Area Shading (WC < 25%)
+                    % Determined from: ASTM E1130 and "ASTM METRICS FOR RATING SPEECH PRIVACY OF CLOSED ROOMS AND OPEN PLAN SPACES"
+                    axes(axCurr); hold on;
+                    arS = area(axCurr, ...
+                        ([1;1]*domain*2)', ...
+                        [0 0; 25 25]'); hold off;
+                    set(arS,'FaceColor', [1 0 0],'FaceAlpha', 0.1,'EdgeColor', 'none','BaseValue', -10);
+
+                    
                 case 'Quality'
                     axCurr = ax(2);
                     range = [1 4.56];
                     if isfield(SYS.publication_info,'ylabel2')
                         range_lbl = SYS.publication_info.ylabel2;
                     else
-                        range_lbl = 'PESQ (MOS)';
+                        range_lbl = 'PESQ (MOS-LQO) (WB)';
                     end
+                    % Confidential Speech Privacy Area Shading (WC < 25%)
+                    % Determined from: ASTM E1130 and "ASTM METRICS FOR RATING SPEECH PRIVACY OF CLOSED ROOMS AND OPEN PLAN SPACES"
+                    axes(axCurr); hold on;
+                    arS = area(axCurr, ...
+                        ([1;1]*domain*2)', ...
+                        [3 3; 2 2]'); hold off;
+                    set(arS,'FaceColor', [0 1 0],'FaceAlpha', 0.1,'EdgeColor', 'none','BaseValue', -10);
+                    
             end
             
             Results.Axes_Builders.Helpers.setAxisParameters( SYS, axCurr, range, domain, range_lbl, domain_lbl);
