@@ -204,13 +204,14 @@ for li = 1:Nlines
                     else
                         range_lbl = 'PESQ (MOS-LQO) (WB)';
                     end
-                    % Confidential Speech Privacy Area Shading (WC < 25%)
-                    % Determined from: ASTM E1130 and "ASTM METRICS FOR RATING SPEECH PRIVACY OF CLOSED ROOMS AND OPEN PLAN SPACES"
+                    % Good Speech Quality (PESQ MOS-LQO = 4 (3.5 to 4.5))
+                    PESQ_Goodlvl = 3.5;
                     axes(axCurr); hold on;
                     arS = area(axCurr, ...
                         ([1;1]*domain*2)', ...
-                        [3 3; 2 2]'); hold off;
-                    set(arS,'FaceColor', [0 1 0],'FaceAlpha', 0.1,'EdgeColor', 'none','BaseValue', -10);
+                        [PESQ_Goodlvl*[1 1]; 2 2]'); hold off;
+                    set(arS,'FaceColor', [0 1 0],'FaceAlpha', 0.1,'EdgeColor', 'none','BaseValue', PESQ_Goodlvl);
+                    arS(1).BaseLine.Color = 'none';
                     
             end
             
