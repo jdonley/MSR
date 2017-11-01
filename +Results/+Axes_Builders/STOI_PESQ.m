@@ -261,6 +261,7 @@ if rt==2
     txtOffs = [-0.5 +0.5 -0.5];
     lambdas = [0.33 1 3];
     for l = 1:numel(lambdas)
+        fHdetail = figure(12321);
         lambda = lambdas(l);
         optCurve = SIC + lambda*PESQB;
         plot(G,optCurve); hold on;
@@ -272,6 +273,13 @@ if rt==2
              ['G = ' num2str(Gopt,3)]; ...
              ['SIC_{STOI} = ' num2str(SIC(Iopt)*100,3) '%']; ...
              ['B_{PESQ} = ' num2str(PESQB(Iopt)*3.56+1,3) 'MOS']},'ho','c');
+         
+         if lambdas(l) == 1
+             axes(axs(1)); hold on;
+             plot(axs(1),Gopt*[1 1],axs(1).YLim,':k');
+             plot(axs(1),G,SIC*100,'-','color',[0,0,0,0.5]);
+             hold off;
+         end
     end
     hold off;
 end
