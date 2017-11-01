@@ -256,7 +256,8 @@ if rt==2
     PESQB=(Res_trend_{2}{1}-1)/3.56;
     %                 sum(PESQB)-sum(STOIQ);
     SIC = STOIB-STOIQ;
-    figure(12321);
+    fHdetail = figure(12321);
+    fHdetail.Position(1:2) = [100 100];
     txtOffs = [-0.5 +0.5 -0.5];
     lambdas = [0.33 1 3];
     for l = 1:numel(lambdas)

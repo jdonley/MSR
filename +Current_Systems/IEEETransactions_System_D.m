@@ -304,10 +304,13 @@ publication_info.axes_gap = [0.5 0.5]; %Gap between axes [gap_height gap_width] 
 publication_info.axes_margins_height = [1 1]; %Axes height margins [lower upper]  %centimeters
 publication_info.axes_margins_width = [1 1]; %Axes width margins [left right]  %centimeters
 publication_info.axes_grid = 'on'; % Show axes grid ('on', 'minor' or 'off')
-publication_info.axes_gridMinorY = 'off'; % Override minor grid for Y axis ('on' or 'off')
 publication_info.axes_gridMinorX = 'off'; % Override minor grid for X axis ('on' or 'off')
+publication_info.axes_gridMinorY = 'off'; % Override minor grid for Y axis ('on' or 'off')
 publication_info.axes_tickdir = 'both'; % Axes tick direction(s) ('in', 'out' or 'both')
+publication_info.axes_tickMinorX = 'on'; % Minor ticks for X axis ('on' or 'off')
+publication_info.axes_tickMinorY = 'off';% Minor ticks for Y axis ('on' or 'off')
 publication_info.axes_NumTicks = [5 9]; % Number of ticks [NumXticks NumYticks];
+publication_info.axes_NumMinorTicks = [2 0]; % Number of minor ticks between major ticks [NumMinorXticks NumMinorYticks];
 publication_info.axes_limitBufs = [0.05 0.05]; % axis limits buffer in percentage [width, height]
 
 publication_info.FontSize = 9;  % Font size of text in figure
