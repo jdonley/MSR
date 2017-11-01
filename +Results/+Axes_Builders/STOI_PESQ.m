@@ -193,7 +193,7 @@ for li = 1:Nlines
                     arS = area(axCurr, ...
                         ([1;1]*domain*2)', ...
                         [0 0; 25 25]'); hold off;
-                    set(arS,'FaceColor', [1 0 0],'FaceAlpha', 0.1,'EdgeColor', 'none','BaseValue', -10);
+                    set(arS,'FaceColor', colours{rt}(2,:),'FaceAlpha', 0.05,'EdgeColor', 'none','BaseValue', -10);
 
                     
                 case 'Quality'
@@ -210,7 +210,7 @@ for li = 1:Nlines
                     arS = area(axCurr, ...
                         ([1;1]*domain*2)', ...
                         [PESQ_Goodlvl*[1 1]; 2 2]'); hold off;
-                    set(arS,'FaceColor', [0 1 0],'FaceAlpha', 0.1,'EdgeColor', 'none','BaseValue', PESQ_Goodlvl);
+                    set(arS,'FaceColor', colours{rt}(1,:),'FaceAlpha', 0.05,'EdgeColor', 'none','BaseValue', PESQ_Goodlvl);
                     arS(1).BaseLine.Color = 'none';
                     
             end
