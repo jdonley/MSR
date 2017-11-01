@@ -30,6 +30,8 @@ if isfield(SYS.publication_info,'axes_NumMinorTicks') ...
         && ~isempty(SYS.publication_info.axes_NumMinorTicks)
     nMXT= SYS.publication_info.axes_NumMinorTicks(1); % number of X minor ticks between major ticks
     nMYT= SYS.publication_info.axes_NumMinorTicks(2); % number of Y minor ticks between major ticks
+else
+    nMXT = 0; nMYT = 0;
 end
 sigRounding = SYS.publication_info.sigRounding; % number of significant figures rounding
 FF = SYS.publication_info.LaTeX_FontFamily; % Set fonts for latex interpreter
