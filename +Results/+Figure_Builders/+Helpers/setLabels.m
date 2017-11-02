@@ -46,8 +46,14 @@ for y = 1:nY
                 ax.YTickLabel = '';
             end
             
-            if lr == size(axs,2) %Axes numbers                
-                ax.Title.String = ['(' char( 64 + axInd(1) ) ')'];
+            if lr == size(axs,2) %Axes numbers
+                if isfield(SYS.publication_info,'subPlotTitles')
+                    addTitleTxt = [': ' SYS.publication_info.subPlotTitles{axInd(1)}];
+                else 
+                    addTitleTxt = [];
+                end
+                ax.Title.String = ['(' char( 64 + axInd(1) ) ')' addTitleTxt];
+
                 if strcmpi(SYS.publication_info.Interpreter, 'latex')
                     ax.Title.Interpreter = SYS.publication_info.Interpreter;
                     ax.Title.String = [latexFontSettings ...
