@@ -84,8 +84,8 @@ if strcmpi(linetypes,'line'), a = 1; b=0.65; else a = 2; b=0.0; end
 legWid = leg.Position(3) * (1-diff(legli(a).XData)*(1-b)) ... %normalised units
     + max([legli(1:2:end).MarkerSize]); % plus maximum marker width in points
 legWid = legWid * (1+legEntrySpacing); % Add spacing between legend entries as percentage of legWid
-if leg.Position(3)*nLegEnts > axEnts(1).Parent.Parent.OuterPosition(3)
-    LegCols = floor((axEnts(1).Parent.OuterPosition(3) / leg.Position(3))/2)*2;
+if legWid*nLegEnts > axEnts(1).Parent.Parent.OuterPosition(3)
+    LegCols = floor((axEnts(1).Parent.Parent.OuterPosition(3) / legWid)/2)*2;
 else
     LegCols = nLegEnts;
 end

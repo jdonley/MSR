@@ -27,12 +27,14 @@ results_types = {'SpeechIntelligibility';'Quality'};
 
 colours = {[ ...            R G B  values
     0.2 0.2 1.0       ; ...       Bright Intelligibility
-    1.0 0.0 0.0       ;];[ ...    Quiet  Intelligibility
+    1.0 0.0 0.0       ; ...       Quiet  Intelligibility
+    0.5 0.5 0.5       ;];[ ...    Speech Intelligibility Contrast
     0.6 0.0 0.6       ];}; %      Bright Quality
 
 markers = {[ ...          Marker Shapes
     'o'       ; ...       Bright Intelligibility
-    '>'       ;];[ ...    Quiet  Intelligibility
+    '>'       ; ...       Quiet  Intelligibility
+    's'       ;];[ ...    Speech Intelligibility Contrast
     'd'       ];}; %      Bright Quality
 
 lineStys = { ...         Line Styles
@@ -105,6 +107,10 @@ for li = 1:Nlines
                 if li == 1
                     legendStrings = {legendStrings{:}, [measures{rt} ' QZ']};
                 end
+                %%% Include Speech Intelligibility Contrast (SIC) in the plot
+                if li == 1
+                    legendStrings = {legendStrings{:}, ['SIC']};
+                end
                 
             case 'Quality'
                 % Read results
@@ -152,6 +158,12 @@ for li = 1:Nlines
                 Res_trend(~cellfun('isempty',Res_trend)), 'un',0);
             Res_Matrix_{rt} = Res_Matrix;
             Res_CI_{rt}     = Res_CI;
+        end
+        
+        if strcmpi(results_types{rt},'SpeechIntelligibility') && li==Nlines
+            %%% Include Speech Intelligibility Contrast (SIC) in the plot
+            Res_Matrix_{rt}{3} = Res_Matrix_{rt}{1} - Res_Matrix_{rt}{2};
+            Res_trend_{rt}{3}  = Res_trend_{rt}{1}  - Res_trend_{rt}{2};
         end
         %%
         if (mergeLines && li==Nlines) || ~mergeLines
@@ -310,12 +322,12 @@ if rt==2
              ['SIC_{STOI} = ' num2str(SIC(Iopt)*100,3) '%']; ...
              ['B_{PESQ} = ' num2str(PESQB(Iopt)*3.56+1,3) 'MOS']},'ho','c');
          
-         if lambdas(l) == 1
-             axes(axs(1)); hold on;
-             plot(axs(1),Gopt*[1 1],axs(1).YLim,':k');
-             plot(axs(1),G,SIC*100,'-','color',[0,0,0,0.5]);
-             hold off;
-         end
+%          if lambdas(l) == 1
+%              axes(axs(1)); hold on;
+%              plot(axs(1),Gopt*[1 1],axs(1).YLim,':k');
+%              plot(axs(1),G,SIC*100,'-','color',[0,0,0,0.5]);
+%              hold off;
+%          end
     end
     hold off;
 end

@@ -298,7 +298,10 @@ publication_info.LatexMacrosFile = 'IEEE_Trans2016_LaTeX_Macros.tex';
 publication_info.figure_width = 88.9/10;% + 6.35/10 + 88.9/10; %Figure width in centimeters %IEEE full text width
 publication_info.figure_aspect_ratio = 6/3; %Full figure aspect ratio width/height
 publication_info.subPlotDims = [numel(array_type) numel(lambda_g) numel(SourceAngleSetIndices)]; % Dimensions of the subplots ([width height depth(lines/plot)])
-publication_info.subPlotTitles
+publication_info.subPlotTitles = repmat({'White Noise'; ...
+                                  '$\lambda^\prime=0.0$'; ...
+                                  '$\lambda^\prime=0.5$'; ...
+                                  '$\lambda^\prime=1.0$'; },1,2)';
 publication_info.MergeLines = true; % Plots the average of each line on an axis (each page's arithmetic mean)
 publication_info.axis_aspect_ratio = [1 0.8]; %Single axis aspect ration [width height]
 publication_info.axes_gap = [0.5 0.5]; %Gap between axes [gap_height gap_width] %centimeters
