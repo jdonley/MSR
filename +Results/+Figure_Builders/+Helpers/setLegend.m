@@ -72,11 +72,18 @@ end
 %     'FontSize', SYS.publication_info.FontSize);
 leg.Box = 'off';
 legli = findobj(legi,'Type','line'); % legend lines
+legtx = findobj(legi,'Type','text'); % legend lines
 if isfield(SYS.publication_info,'leg_MarkerSize')
     for i = 1:numel(legli)
         legli(i).MarkerSize = SYS.publication_info.leg_MarkerSize;
     end
 end
+% Center align legend text
+for i = 1:numel(legtx)
+    legtx(i).HorizontalAlignment = 'center';    % Center the text
+%     legtx(i).Position(1) = legtx(i).Position(1) + legtx(i).Extent(3)/2; % re-position text block to center
+end
+
 
 % Change legend grid
 tmpUnits = leg.Units; leg.Units = 'points';
@@ -100,8 +107,13 @@ leg.Position(4) = leg.Position(4)/LegCols;
 % Resize legend markers
 if ~strcmpi(linetypes,'line')
     for ll = 1:2:length(legli)
-        legli(ll).XData(1) = legli(ll).XData(1) ...
-            + diff([legli(ll).XData(1), legli(ll+1).XData(2)]) .* 1;
+%         legli(ll).XData(1) = legli(ll).XData(1) ...
+%             + diff([legli(ll).XData(1), legli(ll+1).XData(2)]) .* 1;
+        legli(ll).XData(1) = legtx((ll+1)/2).Extent(1);
+        unitTmp = legtx((ll+1)/2).Units; legtx((ll+1)/2).Units = 'points';
+        legtx((ll+1)/2).Position(1) = legtx((ll+1)/2).Position(1) ...
+            + legli(ll).MarkerSize;
+        legtx((ll+1)/2).Units = unitTmp;
     end
 else
     for ll = 1:2:length(legli)
