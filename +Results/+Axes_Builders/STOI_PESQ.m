@@ -185,19 +185,42 @@ for li = 1:Nlines
                     if isfield(SYS.publication_info,'ylabel')
                         range_lbl = SYS.publication_info.ylabel;
                     else
-                        range_lbl = 'STOI (\%WC)';
-                    end
+                        range_lbl = 'STOI (\%WC) or SIC (\%)';
+                    end                    
                     % Confidential Speech Privacy Area Shading (WC < 25%)
                     % Determined from: ASTM E1130 and "ASTM METRICS FOR RATING SPEECH PRIVACY OF CLOSED ROOMS AND OPEN PLAN SPACES"
+                    STOI_Conflvl = 25;
                     axes(axCurr); hold on;
+                    %%%
+                    tx = text(mean(domain),(STOI_Conflvl-0)/2,upper('confidential'));
+                    tx.BackgroundColor = 'none';
+                    tx.Color = (1 - (1 - colours{rt}(2,:))*0.2);
+                    tx.HorizontalAlignment = 'center';
+                    tx.FontWeight = 'bold';
+                    %%%
                     arS = area(axCurr, ...
                         ([1;1]*domain*2)', ...
-                        [0 0; 25 25]'); hold off;
+                        [-10*[1 1]; 10 + STOI_Conflvl*[1 1]]'); hold off;
                     set(arS,'FaceColor', colours{rt}(2,:),'FaceAlpha', 0.05,'EdgeColor', 'none','BaseValue', -10);
-                    tx = text(mean(domain),(25-0)/2,upper('confidential'));
+                    arS(1).BaseLine.Color = 'none';arS(1).FaceAlpha = 0;
+                    %%%
+                    % Good Speech Quality (PESQ MOS-LQO = 4 (3.5 to 4.5))
+                    PESQ_Goodlvl = 3.5;
+%                     axes(axCurr);
+                    hold on;
+                    %%%
+                    tx = text(mean(domain),((PESQ_Goodlvl + 0.5)-1)/3.56*100,upper('Good Quality'));
                     tx.BackgroundColor = 'none';
-                    tx.Color = [colours{rt}(2,:) 0.5];
-                    
+                    tx.Color = (1 - (1 - colours{rt}(1,:))*0.2);
+                    tx.HorizontalAlignment = 'center';
+                    tx.FontWeight = 'bold';
+                    %%%
+                    arS = area(axCurr, ...
+                        ([1;1]*domain*2)', ...
+                        ([PESQ_Goodlvl*[1 1] - 1; 5.5 5.5]')/3.56*100); hold off;
+                    set(arS,'FaceColor', colours{rt}(1,:),'FaceAlpha', 0.05,'EdgeColor', 'none','BaseValue', ((PESQ_Goodlvl)-1)/3.56*100);
+                    arS(1).BaseLine.Color = 'none';arS(1).FaceAlpha = 0;
+                    %%%
                     
                 case 'Quality'
                     axCurr = ax(2);
@@ -207,15 +230,7 @@ for li = 1:Nlines
                     else
                         range_lbl = 'PESQ (MOS-LQO) (WB)';
                     end
-                    % Good Speech Quality (PESQ MOS-LQO = 4 (3.5 to 4.5))
-                    PESQ_Goodlvl = 3.5;
-                    axes(axCurr); hold on;
-                    arS = area(axCurr, ...
-                        ([1;1]*domain*2)', ...
-                        [PESQ_Goodlvl*[1 1]; 2 2]'); hold off;
-                    set(arS,'FaceColor', colours{rt}(1,:),'FaceAlpha', 0.05,'EdgeColor', 'none','BaseValue', PESQ_Goodlvl);
-                    arS(1).BaseLine.Color = 'none';
-                    
+
             end
             
             Results.Axes_Builders.Helpers.setAxisParameters( SYS, axCurr, range, domain, range_lbl, domain_lbl);
