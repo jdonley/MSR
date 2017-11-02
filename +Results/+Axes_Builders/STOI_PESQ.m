@@ -194,7 +194,10 @@ for li = 1:Nlines
                         ([1;1]*domain*2)', ...
                         [0 0; 25 25]'); hold off;
                     set(arS,'FaceColor', colours{rt}(2,:),'FaceAlpha', 0.05,'EdgeColor', 'none','BaseValue', -10);
-
+                    tx = text(mean(domain),(25-0)/2,upper('confidential'));
+                    tx.BackgroundColor = 'none';
+                    tx.Color = [colours{rt}(2,:) 0.5];
+                    
                     
                 case 'Quality'
                     axCurr = ax(2);
