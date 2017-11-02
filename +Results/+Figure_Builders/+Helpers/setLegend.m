@@ -79,9 +79,11 @@ if isfield(SYS.publication_info,'leg_MarkerSize')
     end
 end
 % Center align legend text
+maxTxtWid = max(reshape([legtx.Extent],4,[])',[],1);
+maxTxtWid = maxTxtWid(3);
 for i = 1:numel(legtx)
     legtx(i).HorizontalAlignment = 'center';    % Center the text
-%     legtx(i).Position(1) = legtx(i).Position(1) + legtx(i).Extent(3)/2; % re-position text block to center
+    legtx(i).Position(1) = legtx(i).Position(1) + maxTxtWid/2; % re-position text block to center
 end
 
 
