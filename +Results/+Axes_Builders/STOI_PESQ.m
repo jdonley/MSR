@@ -217,7 +217,7 @@ for li = 1:Nlines
                     arS(1).BaseLine.Color = 'none';arS(1).FaceAlpha = 0;
                     %%%
                     % Good Speech Quality (PESQ MOS-LQO = 4 (3.5 to 4.5))
-                    PESQ_Goodlvl = 3.5;
+                    PESQ_Goodlvl = 4.0;
 %                     axes(axCurr);
                     hold on;
                     %%%
