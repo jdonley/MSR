@@ -45,6 +45,8 @@ lineStys = { ...         Line Styles
 trendAlpha = 0.5;
 
 axes(axH);
+axCurrH = gca;
+axIndNum = axCurrH.Tag*1 - 64;
 [ax,h1,h2]=plotyy(1,1,1,1);delete(h1);delete(h2);
 
 axs = ax;
@@ -62,7 +64,7 @@ SYS_AllLines = SYS;
 Nlines = numel(SYS.Main_Setup);
 
 if mergeLines
-   lineStys{Nlines} = '-';
+    lineStys{Nlines} = '-';
 end
 
 for li = 1:Nlines
@@ -78,7 +80,7 @@ for li = 1:Nlines
         Res_Matrix  = cell(2,1);
         Res_trend   = cell(2,1);
         Res_area    = cell(2,1);
-        Res_CI      = cell(2,1);        
+        Res_CI      = cell(2,1);
         
         %% Read results
         results_func = str2func(['Results.import_' results_types{rt} '_Reverb']);
@@ -149,11 +151,11 @@ for li = 1:Nlines
                 Res_Matrix(~cellfun('isempty',Res_Matrix)), ...
                 Res_Matrix_{rt}(~cellfun('isempty',Res_Matrix_{rt})), 'un',0);
             
-%             Res_CI_{rt}     = cellfun( @(v1,v2) v1 + v2 , ...
-%                 Res_CI(~cellfun('isempty',Res_CI)), ...
-%                 Res_CI_{rt}(~cellfun('isempty',Res_CI_{rt})), 'un',0);
+            %             Res_CI_{rt}     = cellfun( @(v1,v2) v1 + v2 , ...
+            %                 Res_CI(~cellfun('isempty',Res_CI)), ...
+            %                 Res_CI_{rt}(~cellfun('isempty',Res_CI_{rt})), 'un',0);
             
-        else            
+        else
             Res_trend_{rt}  = cellfun(@(v1) v1(trend_vec), ...
                 Res_trend(~cellfun('isempty',Res_trend)), 'un',0);
             Res_Matrix_{rt} = Res_Matrix;
@@ -170,15 +172,15 @@ for li = 1:Nlines
             if mergeLines
                 Res_trend_{rt}  = cellfun(@(v1) v1/Nlines, ...
                     Res_trend_{rt}, 'un',0);
-%                 Res_Matrix_{rt}  = cellfun(@(v1) v1/Nlines, ...
-%                     Res_Matrix_{rt}, 'un',0);
-%                 Res_CI_{rt}  = cellfun(@(v1) v1/Nlines, ...
-%                     Res_CI_{rt}, 'un',0);
+                %                 Res_Matrix_{rt}  = cellfun(@(v1) v1/Nlines, ...
+                %                     Res_Matrix_{rt}, 'un',0);
+                %                 Res_CI_{rt}  = cellfun(@(v1) v1/Nlines, ...
+                %                     Res_CI_{rt}, 'un',0);
                 Res_CI_{rt}  = cellfun(@(v1) Tools.confidence_intervals(v1,95), ... % 95 percent confidence interval
                     Res_Matrix_{rt}, 'un',0);
             end
             
-
+            
             
             cols = colours{rt};
             mrks = markers{rt};
@@ -198,59 +200,70 @@ for li = 1:Nlines
                         range_lbl = SYS.publication_info.ylabel;
                     else
                         range_lbl = 'STOI (\%WC) or SIC (\%)';
-                    end                    
+                    end
+                    
+                    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                     % Confidential Speech Privacy Area Shading (WC < 25%)
                     % Determined from: ASTM E1130 and "ASTM METRICS FOR RATING SPEECH PRIVACY OF CLOSED ROOMS AND OPEN PLAN SPACES"
                     STOI_Conflvl = 25;
                     axes(axCurr); hold on;
+                    txColor = (1 - (1 - colours{rt}(2,:))*0.2);
                     %%%
-                    tx = text(mean(domain),(STOI_Conflvl-0)/2,upper('confidential'));
-                    tx.BackgroundColor = 'none';
-                    tx.Color = (1 - (1 - colours{rt}(2,:))*0.2);
-                    tx.HorizontalAlignment = 'center';
-                    tx.FontWeight = 'bold';
+                    if axIndNum == 1
+                        tx = text(mean(domain),(STOI_Conflvl-0)/2,upper('confidential'));
+                        tx.BackgroundColor = 'none';
+                        tx.Color = txColor;
+                        tx.HorizontalAlignment = 'center';
+                        tx.FontWeight = 'bold';
+                    end
                     %%%
                     arS = area(axCurr, ...
                         ([1;1]*domain*2)', ...
                         [-10*[1 1]; 10 + STOI_Conflvl*[1 1]]'); hold off;
-                    set(arS,'FaceColor', colours{rt}(2,:),'FaceAlpha', 0.05,'EdgeColor', 'none','BaseValue', -10);
+                    set(arS,'FaceColor', colours{rt}(2,:),'FaceAlpha', 0.05,'EdgeColor', txColor,'BaseValue', -10);
                     arS(1).BaseLine.Color = 'none';arS(1).FaceAlpha = 0;
-                    %%%
+                    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                     % Good or Better Speech Quality (PESQ MOS-LQO > 4)
                     PESQ_Goodlvl = 4.0;
-%                     axes(axCurr);
                     hold on;
                     %%%
-                    tx = text(mean(domain),((PESQ_Goodlvl + 0.25)-1)/3.56*100,upper('Good'));
-                    tx.BackgroundColor = 'none';
-                    tx.Color = (1 - (1 - colours{contains(lower(results_types),'quality')}(1,:))*0.2);
-                    tx.HorizontalAlignment = 'center';
-                    tx.FontWeight = 'bold';
+                    txColor = (1 - (1 - colours{contains(lower(results_types),'quality')}(1,:))*0.3);
+                    if axIndNum == 1
+                        tx = text(mean(domain),((PESQ_Goodlvl + 0.3)-1)/3.56*100,upper('Good'));
+                        tx.BackgroundColor = 'none';
+                        tx.Color = txColor;
+                        tx.HorizontalAlignment = 'center';
+                        tx.FontWeight = 'bold';
+                    end
                     %%%
                     arS = area(axCurr, ...
                         ([1;1]*domain*2)', ...
                         ([PESQ_Goodlvl*[1 1] - 1; 4.6 4.6]')/3.56*100); hold off;
                     set(arS,'FaceColor', colours{contains(lower(results_types),'quality')}(1,:),...
-                        'FaceAlpha', 0.05,'EdgeColor', 'none','BaseValue', ((PESQ_Goodlvl)-1)/3.56*100);
+                        'FaceAlpha', 0.05,'EdgeColor', txColor,'BaseValue', ((PESQ_Goodlvl)-1)/3.56*100);
                     arS(1).BaseLine.Color = 'none';arS(1).FaceAlpha = 0;
-                    %%%
+                    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                     % Fair or Better Speech Quality (PESQ MOS-LQO > 3)
                     PESQ_Fairlvl = 3.0;
                     hold on;
                     %%%
-                    tx = text(mean(domain),((PESQ_Fairlvl + 0.25)-1)/3.56*100,upper('Fair'));
-                    tx.BackgroundColor = 'none';
-                    tx.Color = (1 - (1 - colours{contains(lower(results_types),'quality')}(1,:))*0.2);
-                    tx.HorizontalAlignment = 'center';
-                    tx.FontWeight = 'bold';
+                    txColor = (1 - (1 - colours{contains(lower(results_types),'quality')}(1,:))*0.2);
+                    if axIndNum == 1
+                        tx = text(mean(domain),((PESQ_Fairlvl + 0.5)-1)/3.56*100,upper('Fair'));
+                        tx.BackgroundColor = 'none';
+                        tx.Color = txColor;
+                        tx.HorizontalAlignment = 'center';
+                        tx.FontWeight = 'bold';
+                    end
                     %%%
                     arS = area(axCurr, ...
                         ([1;1]*domain*2)', ...
                         ([PESQ_Fairlvl*[1 1] - 1; 4.6 4.6]')/3.56*100); hold off;
                     set(arS,'FaceColor', colours{contains(lower(results_types),'quality')}(1,:),...
-                        'FaceAlpha', 0.05,'EdgeColor', 'none','BaseValue', ((PESQ_Fairlvl)-1)/3.56*100);
+                        'FaceAlpha', 0.05,'EdgeColor', txColor, 'BaseValue', ((PESQ_Fairlvl)-1)/3.56*100);
                     arS(1).BaseLine.Color = 'none';arS(1).FaceAlpha = 0;
                     %%%
+                    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                     
                 case 'Quality'
                     axCurr = ax(2);
@@ -260,7 +273,7 @@ for li = 1:Nlines
                     else
                         range_lbl = 'PESQ (MOS-LQO) (WB)';
                     end
-
+                    
             end
             
             Results.Axes_Builders.Helpers.setAxisParameters( SYS, axCurr, range, domain, range_lbl, domain_lbl);
@@ -336,16 +349,16 @@ if rt==2
         plot(Gopt,max(optCurve),'or');
         text(Gopt,max(optCurve)+txtOffs(l),...
             {['\lambda = ' num2str(lambdas(l),3)]; ...
-             ['G = ' num2str(Gopt,3)]; ...
-             ['SIC_{STOI} = ' num2str(SIC(Iopt)*100,3) '%']; ...
-             ['B_{PESQ} = ' num2str(PESQB(Iopt)*3.56+1,3) 'MOS']},'ho','c');
-         
-         if lambdas(l) == 1
-             axes(axs(1)); hold on;
-             plot(axs(1),Gopt*[1 1],axs(1).YLim,':k');
-%              plot(axs(1),G,SIC*100,'-','color',[0,0,0,0.5]);
-             hold off;
-         end
+            ['G = ' num2str(Gopt,3)]; ...
+            ['SIC_{STOI} = ' num2str(SIC(Iopt)*100,3) '%']; ...
+            ['B_{PESQ} = ' num2str(PESQB(Iopt)*3.56+1,3) 'MOS']},'ho','c');
+        
+        if lambdas(l) == 1
+            axes(axs(1)); hold on;
+            plot(axs(1),Gopt*[1 1],axs(1).YLim,':k');
+            %              plot(axs(1),G,SIC*100,'-','color',[0,0,0,0.5]);
+            hold off;
+        end
     end
     hold off;
 end
@@ -353,7 +366,7 @@ end
 end
 
 % function saveSelectResultsAsLATEXmacros
-%    
+%
 % %
 % Results = [Eps_min_dB, ...
 %            Eps_minB_dB, ...
@@ -372,12 +385,12 @@ end
 % mac_rownames = {''; ...
 %                 'B'; ...
 %                 'AVG';};
-%             
+%
 % cols = numel(mac_names);
 % rows = numel(mac_rownames);
 % mac_post = '';
 % mac_names = num2cell(char((1:cols).' +64));
-% mac_rownames = num2cell(char((1:rows).' +64));           
+% mac_rownames = num2cell(char((1:rows).' +64));
 % M = cellfun(@(a,b) [a,b],...
 %     repmat({ mac_pre   },cols,1),...
 %              mac_names ,...
@@ -387,17 +400,17 @@ end
 %     reshape(repmat( mac_rownames.' ,cols,1),[],1),...
 %     repmat({ mac_post  },rows*cols,1),...
 %     'UniformOutput',false);
-%       
+%
 % FC1 = cellfun(@(m) [newcom '{' m '} {{' ],macros,'UniformOutput',false);
 % FC2 = [num2str(round(Results.',3,'significant')) repmat('}}\n',numel(macros),1)];
-% 
+%
 % filecontent = cellfun(@(a,b) [a,b],FC1,mat2cell(FC2,ones(size(FC2,1),1),size(FC2,2)),'UniformOutput',false);
-% 
+%
 % fid = fopen([SYS.publication_info.DocumentPath filesep SYS.publication_info.LatexMacrosFile],'w');
 % fprintf(fid,[filecontent{:}]);
-% 
+%
 % fclose(fid);
-% 
+%
 % Tools.MiKTeX_FNDB_Refresh;
 % end
 
