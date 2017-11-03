@@ -331,6 +331,7 @@ axs(2).Box = 'off';
 
 % Some testing analysis if needed
 if rt==2
+    optimalLineStyles = {':','-.','--'};
     G = trend_vec;
     STOIB=(Res_trend_{1}{1})/100;
     STOIQ=(Res_trend_{1}{2})/100;
@@ -355,12 +356,13 @@ if rt==2
             ['SIC_{STOI} = ' num2str(SIC(Iopt)*100,3) '%']; ...
             ['B_{PESQ} = ' num2str(PESQB(Iopt)*3.56+1,3) 'MOS']},'ho','c');
         
-        if lambdas(l) == 1
+%         if lambdas(l) == 1
+            optLS = optimalLineStyles{l};
             axes(axs(1)); hold on;
-            plot(axs(1),Gopt*[1 1],axs(1).YLim,':k');
+            plot(axs(1),Gopt*[1 1],axs(1).YLim,[optLS 'k']);
             %              plot(axs(1),G,SIC*100,'-','color',[0,0,0,0.5]);
             hold off;
-        end
+%         end
     end
     hold off;
 end

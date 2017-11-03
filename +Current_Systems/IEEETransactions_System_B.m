@@ -253,15 +253,22 @@ publication_info.LatexMacrosFile = 'IEEE_Trans2016_LaTeX_Macros.tex';
 publication_info.figure_width = 88.9/10;% + 6.35/10 + 88.9/10; %Figure width in centimeters %IEEE full text width
 publication_info.figure_aspect_ratio = 6/3; %Full figure aspect ratio width/height
 publication_info.subPlotDims = [numel(array_type) numel(N_spkrs)]; % Dimensions of the subplots ([width height])
+publication_info.subPlotTitles = repmat({'$L=16$'; ...
+                                  '$L=24$'; ...
+                                  '$L=32$'; ...
+                                  '$L=114$'; },1,2)';
 publication_info.axis_aspect_ratio = [1 0.8]; %Single axis aspect ration [width height]
 publication_info.axes_gap = [0.5 0.5]; %Gap between axes [gap_height gap_width] %centimeters
 publication_info.axes_margins_height = [1 1]; %Axes height margins [lower upper]  %centimeters
 publication_info.axes_margins_width = [1 1]; %Axes width margins [left right]  %centimeters
-publication_info.axes_grid = 'off'; % Show axes grid ('on', 'minor' or 'off')
+publication_info.axes_grid = 'on'; % Show axes grid ('on', 'minor' or 'off')
 publication_info.axes_gridMinorY = 'off'; % Override minor grid for Y axis ('on' or 'off')
 publication_info.axes_gridMinorX = 'off'; % Override minor grid for X axis ('on' or 'off')
 publication_info.axes_tickdir = 'both'; % Axes tick direction(s) ('in', 'out' or 'both')
+publication_info.axes_tickMinorX = 'on'; % Minor ticks for X axis ('on' or 'off')
+publication_info.axes_tickMinorY = 'off';% Minor ticks for Y axis ('on' or 'off')
 publication_info.axes_NumTicks = [5 9]; % Number of ticks [NumXticks NumYticks];
+publication_info.axes_NumMinorTicks = [2 0]; % Number of minor ticks between major ticks [NumMinorXticks NumMinorYticks];
 publication_info.axes_limitBufs = [0.05 0.05]; % axis limits buffer in percentage [width, height]
 publication_info.sigRounding = 3; % number of significant figures rounding
 

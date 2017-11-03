@@ -307,6 +307,7 @@ publication_info.axes_gridMinorY = 'off'; % Override minor grid for Y axis ('on'
 publication_info.axes_gridMinorX = 'off'; % Override minor grid for X axis ('on' or 'off')
 publication_info.axes_tickdir = 'both'; % Axes tick direction(s) ('in', 'out' or 'both')
 publication_info.axes_NumTicks = [5 9]; % Number of ticks [NumXticks NumYticks];
+publication_info.axes_NumMinorTicks = [2 0]; % Number of minor ticks between major ticks [NumMinorXticks NumMinorYticks];
 publication_info.axes_limitBufs = [0.05 0.05]; % axis limits buffer in percentage [width, height]
 publication_info.sigRounding = 3; % number of significant figures rounding
 
