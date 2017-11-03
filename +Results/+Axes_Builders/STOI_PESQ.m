@@ -216,12 +216,12 @@ for li = 1:Nlines
                     set(arS,'FaceColor', colours{rt}(2,:),'FaceAlpha', 0.05,'EdgeColor', 'none','BaseValue', -10);
                     arS(1).BaseLine.Color = 'none';arS(1).FaceAlpha = 0;
                     %%%
-                    % Good Speech Quality (PESQ MOS-LQO = 4 (3.5 to 4.5))
+                    % Good or Better Speech Quality (PESQ MOS-LQO > 4)
                     PESQ_Goodlvl = 4.0;
 %                     axes(axCurr);
                     hold on;
                     %%%
-                    tx = text(mean(domain),((PESQ_Goodlvl + 0.5)-1)/3.56*100,upper('Good Quality'));
+                    tx = text(mean(domain),((PESQ_Goodlvl + 0.25)-1)/3.56*100,upper('Good'));
                     tx.BackgroundColor = 'none';
                     tx.Color = (1 - (1 - colours{contains(lower(results_types),'quality')}(1,:))*0.2);
                     tx.HorizontalAlignment = 'center';
@@ -229,9 +229,26 @@ for li = 1:Nlines
                     %%%
                     arS = area(axCurr, ...
                         ([1;1]*domain*2)', ...
-                        ([PESQ_Goodlvl*[1 1] - 1; 5.5 5.5]')/3.56*100); hold off;
+                        ([PESQ_Goodlvl*[1 1] - 1; 4.6 4.6]')/3.56*100); hold off;
                     set(arS,'FaceColor', colours{contains(lower(results_types),'quality')}(1,:),...
                         'FaceAlpha', 0.05,'EdgeColor', 'none','BaseValue', ((PESQ_Goodlvl)-1)/3.56*100);
+                    arS(1).BaseLine.Color = 'none';arS(1).FaceAlpha = 0;
+                    %%%
+                    % Fair or Better Speech Quality (PESQ MOS-LQO > 3)
+                    PESQ_Fairlvl = 3.0;
+                    hold on;
+                    %%%
+                    tx = text(mean(domain),((PESQ_Fairlvl + 0.25)-1)/3.56*100,upper('Fair'));
+                    tx.BackgroundColor = 'none';
+                    tx.Color = (1 - (1 - colours{contains(lower(results_types),'quality')}(1,:))*0.2);
+                    tx.HorizontalAlignment = 'center';
+                    tx.FontWeight = 'bold';
+                    %%%
+                    arS = area(axCurr, ...
+                        ([1;1]*domain*2)', ...
+                        ([PESQ_Fairlvl*[1 1] - 1; 4.6 4.6]')/3.56*100); hold off;
+                    set(arS,'FaceColor', colours{contains(lower(results_types),'quality')}(1,:),...
+                        'FaceAlpha', 0.05,'EdgeColor', 'none','BaseValue', ((PESQ_Fairlvl)-1)/3.56*100);
                     arS(1).BaseLine.Color = 'none';arS(1).FaceAlpha = 0;
                     %%%
                     
