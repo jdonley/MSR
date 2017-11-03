@@ -166,6 +166,8 @@ for li = 1:Nlines
             %%% Include Speech Intelligibility Contrast (SIC) in the plot
             Res_Matrix_{rt}{3} = Res_Matrix_{rt}{1} - Res_Matrix_{rt}{2};
             Res_trend_{rt}{3}  = Res_trend_{rt}{1}  - Res_trend_{rt}{2};
+            Res_CI_{rt}(3)     = cellfun(@(v1) Tools.confidence_intervals(v1,95), ... % 95 percent confidence interval
+                    Res_Matrix_{rt}(3), 'un',0);
         end
         %%
         if (mergeLines && li==Nlines) || ~mergeLines
