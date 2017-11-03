@@ -128,7 +128,7 @@ end
 
 % Find max width and max height of axes
 allAxs = findobj(ax.Parent.Children,'type','axes');
-axPos=reshape([allAxs.Position],4,[])';
+axPos=reshape([allAxs.OuterPosition],4,[])';
 fullWidHigh = max(axPos(:,1:2),[],1) ...
             + max(axPos(:,3:4),[],1);
 if strcmpi(linetypes,'line')

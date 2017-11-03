@@ -28,8 +28,8 @@ results_types = {'SpeechIntelligibility';'Quality'};
 colours = {[ ...            R G B  values
     0.2 0.2 1.0       ; ...       Bright Intelligibility
     1.0 0.0 0.0       ; ...       Quiet  Intelligibility
-    0.5 0.5 0.5       ;];[ ...    Speech Intelligibility Contrast
-    0.6 0.0 0.6       ];}; %      Bright Quality
+    0.6 0.0 0.6       ;];[ ...    Speech Intelligibility Contrast
+    0.0 0.6 0.0       ];}; %      Bright Quality
 
 markers = {[ ...          Marker Shapes
     'o'       ; ...       Bright Intelligibility
@@ -223,14 +223,15 @@ for li = 1:Nlines
                     %%%
                     tx = text(mean(domain),((PESQ_Goodlvl + 0.5)-1)/3.56*100,upper('Good Quality'));
                     tx.BackgroundColor = 'none';
-                    tx.Color = (1 - (1 - colours{rt}(1,:))*0.2);
+                    tx.Color = (1 - (1 - colours{contains(lower(results_types),'quality')}(1,:))*0.2);
                     tx.HorizontalAlignment = 'center';
                     tx.FontWeight = 'bold';
                     %%%
                     arS = area(axCurr, ...
                         ([1;1]*domain*2)', ...
                         ([PESQ_Goodlvl*[1 1] - 1; 5.5 5.5]')/3.56*100); hold off;
-                    set(arS,'FaceColor', colours{rt}(1,:),'FaceAlpha', 0.05,'EdgeColor', 'none','BaseValue', ((PESQ_Goodlvl)-1)/3.56*100);
+                    set(arS,'FaceColor', colours{contains(lower(results_types),'quality')}(1,:),...
+                        'FaceAlpha', 0.05,'EdgeColor', 'none','BaseValue', ((PESQ_Goodlvl)-1)/3.56*100);
                     arS(1).BaseLine.Color = 'none';arS(1).FaceAlpha = 0;
                     %%%
                     
@@ -322,12 +323,12 @@ if rt==2
              ['SIC_{STOI} = ' num2str(SIC(Iopt)*100,3) '%']; ...
              ['B_{PESQ} = ' num2str(PESQB(Iopt)*3.56+1,3) 'MOS']},'ho','c');
          
-%          if lambdas(l) == 1
-%              axes(axs(1)); hold on;
-%              plot(axs(1),Gopt*[1 1],axs(1).YLim,':k');
+         if lambdas(l) == 1
+             axes(axs(1)); hold on;
+             plot(axs(1),Gopt*[1 1],axs(1).YLim,':k');
 %              plot(axs(1),G,SIC*100,'-','color',[0,0,0,0.5]);
-%              hold off;
-%          end
+             hold off;
+         end
     end
     hold off;
 end
