@@ -119,10 +119,9 @@ if ~strcmpi(linetypes,'line')
     end
 else
     for ll = 1:2:length(legli)
-        legli(ll).XData(1) = legli(ll).XData(1) ...
-            + diff(legli(ll).XData) .* (1-b);
+        legli(ll).XData = [-diff(legli(ll).XData).*b 0] + legtx((ll+1)/2).Extent(1);
         legli(ll+1).XData(1) = legli(ll).XData(1) ...
-            + diff(legli(ll).XData) .* 0.5;
+            + diff(legli(ll).XData) .* 0.8;
     end
 end
 
