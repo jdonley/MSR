@@ -3,8 +3,8 @@ function SR_SYSTEM = IEEETransactions_System_G()
 
 array_type = {'circle','line'}; % 'circle' or 'line'
 
-SourceAngleSetIndices = [1, 1, 2]; % 1, 2 or 3
-Frequencies = [1000, -1, -1]; % 1, 2 or 3
+SourceAngleSetIndices = [1, 2, 3]; % 1, 2 or 3
+Frequencies = [-1, -1, -1]; % 1, 2 or 3
 
 N_spkrs = 24; % 16, 24, 32 or 149
 
@@ -41,49 +41,48 @@ for typs = 1:Ntyps
     arrTyp = array_type{typs};
     for setInd = 1:Nangs
         angInd = SourceAngleSetIndices(setInd);
-        I = sub2ind([Ntyps Nangs],typs,setInd);
+        I = sub2ind([Nangs Ntyps],setInd,typs);
         
         if strcmpi(arrTyp,'circle')
             switch angInd
                 case 1
-                    Theta    =  0;
+                    Theta    =  -atand(mean(abs([By,Qy]))/spkr_radius);
+                    %                     Theta    =  0;
                     Vartheta = -90+acosd( (abs(By)+abs(Qy)) / sqrt(abs(2*By*Qy)+Qy^2+spkr_radius^2) );
                 case 2
-                    Theta    =  atand(mean(abs([By,Qy]))/spkr_radius);
+                    Theta    =  0;
+                    %                     Theta    =  atand(mean(abs([By,Qy]))/spkr_radius);
                     Vartheta = -atand(mean(abs([By,Qy]))/spkr_radius);
                 case 3
-                    Theta    =  90-acosd( (abs(By)+abs(Qy)) / sqrt(abs(2*By*Qy)+By^2+spkr_radius^2) );
+                    Theta    =  atand(mean(abs([By,Qy]))/spkr_radius);
+                    %                     Theta    =  90-acosd( (abs(By)+abs(Qy)) / sqrt(abs(2*By*Qy)+By^2+spkr_radius^2) );
                     Vartheta =  0;
             end
         elseif strcmpi(arrTyp,'line')
             switch angInd
                 case 1
-                    Theta    =  0;
+                    Theta    =  -atand(mean(abs([By,Qy]))/spkr_radius);
+                    %                     Theta    =  0;
                     Vartheta = -90+atand( spkr_radius / (abs(By)+abs(Qy)) );
                 case 2
-                    Theta    =  atand(mean(abs([By,Qy]))/spkr_radius);
+                    Theta    =  0;
+                    %                     Theta    =  atand(mean(abs([By,Qy]))/spkr_radius);
                     Vartheta = -atand(mean(abs([By,Qy]))/spkr_radius);
                 case 3
-                    Theta    =  90-atand( spkr_radius / (abs(By)+abs(Qy)) );
+                    Theta    =  atand(mean(abs([By,Qy]))/spkr_radius);
+                    %                     Theta    =  90-atand( spkr_radius / (abs(By)+abs(Qy)) );
                     Vartheta =  0;
             end
         end
-%         fprintf(['theta: ', num2str(Theta,3), '\tvartheta: ', num2str(Vartheta,3), '\n']);
+        
         gemoetrical_layout = { ...
             'brightzone_pos_angle',        90, ...
             'quietzone_pos_angle',         -90, ...
             'brightzone_source_angle',     Theta, ...
             'brightzone_source_dist',      sqrt(0.6^2+1.3^2), ...
             'brightzone_source_type',      'pw'};
-        masker_layout = { ...
-            'brightzone_pos_angle',        -90, ...
-            'quietzone_pos_angle',         90, ...
-            'brightzone_source_angle',     Vartheta, ...
-            'brightzone_source_dist',      sqrt(0.6^2+1.3^2), ...
-            'brightzone_source_type',      'pw'};
-        Para_Spkr = Parametric_Synthesis.parametric_soundfield;
-        Para_Spkr.P1 = db2mag( 100 ); % 100dB amplitude parametric array loudspeaker
-        Para_Spkr.P2 = db2mag( 100 ); % 100dB secondary amplitude
+        
+
         if strcmpi(arrTyp, 'Circle')
             [x,y] = pol2cart(-90/180*pi, 0.6);
             x_ = sqrt(spkr_radius^2-y^2);
@@ -107,17 +106,6 @@ for typs = 1:Ntyps
                 'speaker_array_type',            arrTyp, ...
                 'angleof_loudspeakerarrcentre', 180, ...
                 'quiet_weight',                 1e2};
-        elseif strcmpi(spkr_type, 'Parametric')
-            loudspeaker_layout = {  ...
-                'angleto_firstloudspeaker',     atan2d(-0.6,-x_), ...
-                'angleof_loudspeakerarrcentre', 180, ... +atand(0.6/1.3), ...
-                'loudspeaker_radius',           x_, ... spkr_radius, ...
-                'numberof_loudspeakers',        1, ...
-                'loudspeaker_model',            'Parametric', ...
-                'loudspeaker_spacing',          0.01, ...
-                'speaker_array_type',           'line', ...
-                'brightzone_source_dist',        x_};
-            Para_Spkr = Para_Spkr.set_f1( 40000 );
         end
         
         f = Frequencies(setInd);
@@ -134,12 +122,16 @@ for typs = 1:Ntyps
                 'brightzone_pos_distance',      0.6, ...
                 'quietzone_radius',             0.3, ...
                 'quietzone_pos_distance',       0.6, ...
-                'maximum_frequency',            8000, ...
-                'loudspeaker_object',           Para_Spkr });
+                'maximum_frequency',            8000});
             
             c = 343; % Speed of sound in metres/sec
             if f == -1
-                f = Broadband_Tools.getAliasingFrequency(Main_Setup(I))/2/pi*c;
+                if setInd<=1
+                    f = Broadband_Tools.getAliasingFrequency(Main_Setup(I))/2/pi*c;
+                else
+                    f = f_prev;
+                end
+                f_prev = f;
             else, break;
             end
         end

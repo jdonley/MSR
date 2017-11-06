@@ -46,7 +46,7 @@ end
 
 
 %%
-% try close('111'); catch; end
+if exist('fH'), if isvalid(fH), close(fH); end; end
 
 figNums = [101,102,103];
 realistic = false;
@@ -64,21 +64,21 @@ for s = 1:numel(setup)
  F{s} = setup(s).Soundfield_reproduced*setup(s).res;
 end
 
-gainNorm = 1/max(pk); % Normalise to the maximum of all bright peaks
 
-clipFact = 2;
+% clipFact = 2;
 for s = 1:numel(setup)
+gainNorm = 1/max(pk(s)); % Normalise to the maximum of all bright peaks
     F{s} = F{s}*gainNorm; pk(s) = pk(s)*gainNorm;
     
-    F{s}(abs(F{s})>clipFact*pk(s))=nan;
+%     F{s}(abs(F{s})>clipFact*pk(s))=nan;
 end
 
 
 % close all;
 fH = figure('Name',SYS.publication_info.FigureName);
 ha = tightPlots( ...
-    SYS.publication_info.subPlotDims(1), ...
     SYS.publication_info.subPlotDims(2), ...
+    SYS.publication_info.subPlotDims(1), ...
     SYS.publication_info.figure_width, ...
     SYS.publication_info.axis_aspect_ratio, ...
     SYS.publication_info.axes_gap, ...
@@ -88,32 +88,39 @@ ha = tightPlots( ...
 FontSize = 16;
 FontName = 'Times';
 
-axes(ha(1));
+
+for s = 1:numel(setup)
+axes(ha(s));
 ax=gca;
-setup(1).plotSoundfield( (Z1), 'scientific_D1', realistic, details);
-text(10,size(Z1,1)-FontSize-10,1e3,'(A)',...
-    'BackgroundColor',[1 1 1 0.7],'FontName',FontName,'FontSize',FontSize)
+setup(s).plotSoundfield( ((F{s})), 'scientific_D1', realistic, details);
+text(10,size(F{s},1)-FontSize-10,1e3,['(' char(64+s) ')'],...
+    'BackgroundColor',[1 1 1 0.7], ...
+    'FontName',FontName,'FontSize',FontSize)
 ax.Title.String = '';%'Pressure Soundfield of Talker';
 % ax.XLabel = [];
 % ax.XTickLabel = [];
-clim_=[-1 1].*pk(1);
+
+clim_=[-1 1].*pk(s);
+% clim_=[-30 mag2db(abs(pk(s)))];
 ax.CLim = clim_;
 colorbar off
 
-axes(ha(2))
-ax=gca;
-setup(1).plotSoundfield( Z2, 'scientific_D1', realistic, details);
-text(10,size(Z2,1)-FontSize-10,1e3,'(B)',...
-    'BackgroundColor',[1 1 1 0.7],'FontName',FontName,'FontSize',FontSize)
-ax.Title=[];
-% ax.XLabel = [];
-% ax.XTickLabel = [];
-% ax.YLabel = [];
-% ax.YTickLabel = [];
-ax.CLim=clim_;
-% colorbar off
-hCB = colorbar(ax); 
-hCB.Visible = 'off';
+end
+
+% axes(ha(2))
+% ax=gca;
+% setup(1).plotSoundfield( Z2, 'scientific_D1', realistic, details);
+% text(10,size(Z2,1)-FontSize-10,1e3,'(B)',...
+%     'BackgroundColor',[1 1 1 0.7],'FontName',FontName,'FontSize',FontSize)
+% ax.Title=[];
+% % ax.XLabel = [];
+% % ax.XTickLabel = [];
+% % ax.YLabel = [];
+% % ax.YTickLabel = [];
+% ax.CLim=clim_;
+% % colorbar off
+% hCB = colorbar(ax); 
+% hCB.Visible = 'off';
 
 % axes(ha(3))
 % ax=gca;
