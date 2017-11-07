@@ -3,8 +3,8 @@ function SR_SYSTEM = IEEETransactions_System_G()
 
 array_type = {'circle','line'}; % 'circle' or 'line'
 
-SourceAngleSetIndices = [1, 2, 3]; % 1, 2 or 3
-Frequencies = [-1, -1, -1]; % 1, 2 or 3
+SourceAngleSetIndices = [1, 2, 3, 4]; 
+Frequencies = [-1, -1, -1, -1]; 
 
 N_spkrs = 24; % 16, 24, 32 or 149
 
@@ -48,30 +48,28 @@ for typs = 1:Ntyps
                 case 1
                     Theta    =  -atand(mean(abs([By,Qy]))/spkr_radius);
                     %                     Theta    =  0;
-                    Vartheta = -90+acosd( (abs(By)+abs(Qy)) / sqrt(abs(2*By*Qy)+Qy^2+spkr_radius^2) );
                 case 2
                     Theta    =  0;
                     %                     Theta    =  atand(mean(abs([By,Qy]))/spkr_radius);
-                    Vartheta = -atand(mean(abs([By,Qy]))/spkr_radius);
                 case 3
                     Theta    =  atand(mean(abs([By,Qy]))/spkr_radius);
                     %                     Theta    =  90-acosd( (abs(By)+abs(Qy)) / sqrt(abs(2*By*Qy)+By^2+spkr_radius^2) );
-                    Vartheta =  0;
+                case 4
+                    Theta    =  2*atand(mean(abs([By,Qy]))/spkr_radius);
             end
         elseif strcmpi(arrTyp,'line')
             switch angInd
                 case 1
                     Theta    =  -atand(mean(abs([By,Qy]))/spkr_radius);
                     %                     Theta    =  0;
-                    Vartheta = -90+atand( spkr_radius / (abs(By)+abs(Qy)) );
                 case 2
                     Theta    =  0;
                     %                     Theta    =  atand(mean(abs([By,Qy]))/spkr_radius);
-                    Vartheta = -atand(mean(abs([By,Qy]))/spkr_radius);
                 case 3
                     Theta    =  atand(mean(abs([By,Qy]))/spkr_radius);
                     %                     Theta    =  90-atand( spkr_radius / (abs(By)+abs(Qy)) );
-                    Vartheta =  0;
+                case 4
+                    Theta    =  2*atand(mean(abs([By,Qy]))/spkr_radius);
             end
         end
         
@@ -94,6 +92,7 @@ for typs = 1:Ntyps
             th_c = 180;
             th = atan2(-0.6,-spkr_radius);
             spkr_spacing = 0.001; %1mm spacing between adjacent loudspeakers
+%             spkr_spacing = 0.0661; %(for 16 loudspeakers)
         end
         if strcmpi(spkr_type, 'Dynamic')
             loudspeaker_layout = { ...

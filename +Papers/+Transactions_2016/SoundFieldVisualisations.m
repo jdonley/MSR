@@ -92,7 +92,7 @@ FontName = 'Times';
 for s = 1:numel(setup)
 axes(ha(s));
 ax=gca;
-setup(s).plotSoundfield( ((F{s})), 'scientific_D1', realistic, details);
+setup(s).plotSoundfield( mag2db(abs(F{s})), 'scientific_L12', realistic, details);
 text(10,size(F{s},1)-FontSize-10,1e3,['(' char(64+s) ')'],...
     'BackgroundColor',[1 1 1 0.7], ...
     'FontName',FontName,'FontSize',FontSize)
@@ -100,8 +100,8 @@ ax.Title.String = '';%'Pressure Soundfield of Talker';
 % ax.XLabel = [];
 % ax.XTickLabel = [];
 
-clim_=[-1 1].*pk(s);
-% clim_=[-30 mag2db(abs(pk(s)))];
+% clim_=[-1 1].*pk(s);
+clim_=[-30 mag2db(abs(pk(s)))];
 ax.CLim = clim_;
 colorbar off
 
