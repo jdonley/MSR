@@ -29,7 +29,11 @@ details.arrowBuffer = 2;
 details.lblFontSize = 10;
 
 for s = 1:numel(setup)
+    
+    reproRegionSamples = setup(s).getZoneSamples();
+    
  pk(s) = max(abs((setup(s).Bright_Samples(:))))*setup(s).res;
+%  pk(s) = max(abs((setup(s).Soundfield_reproduced(:))))*setup(s).res;
  
  F{s} = setup(s).Soundfield_reproduced*setup(s).res;
 end
@@ -90,7 +94,7 @@ if r ~= dimSz(2)
 end
 
 % clim_=[-1 1].*pk(s);
-clim_=[-25 mag2db(abs(pk(s)))];
+clim_=[-20 mag2db(abs(pk(s)))];
 ax.CLim = clim_;
 colorbar off;
 

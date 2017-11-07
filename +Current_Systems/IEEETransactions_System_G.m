@@ -43,35 +43,17 @@ for typs = 1:Ntyps
         angInd = SourceAngleSetIndices(setInd);
         I = sub2ind([Nangs Ntyps],setInd,typs);
         
-        if strcmpi(arrTyp,'circle')
-            switch angInd
-                case 1
-                    Theta    =  -atand(mean(abs([By,Qy]))/spkr_radius);
-                    %                     Theta    =  0;
-                case 2
-                    Theta    =  0;
-                    %                     Theta    =  atand(mean(abs([By,Qy]))/spkr_radius);
-                case 3
-                    Theta    =  atand(mean(abs([By,Qy]))/spkr_radius);
-                    %                     Theta    =  90-acosd( (abs(By)+abs(Qy)) / sqrt(abs(2*By*Qy)+By^2+spkr_radius^2) );
-                case 4
-                    Theta    =  2*atand(mean(abs([By,Qy]))/spkr_radius);
-            end
-        elseif strcmpi(arrTyp,'line')
-            switch angInd
-                case 1
-                    Theta    =  -atand(mean(abs([By,Qy]))/spkr_radius);
-                    %                     Theta    =  0;
-                case 2
-                    Theta    =  0;
-                    %                     Theta    =  atand(mean(abs([By,Qy]))/spkr_radius);
-                case 3
-                    Theta    =  atand(mean(abs([By,Qy]))/spkr_radius);
-                    %                     Theta    =  90-atand( spkr_radius / (abs(By)+abs(Qy)) );
-                case 4
-                    Theta    =  2*atand(mean(abs([By,Qy]))/spkr_radius);
-            end
+        switch angInd
+            case 1
+                Theta    =  -30;
+            case 2
+                Theta    =  0;
+            case 3
+                Theta    =  0;
+            case 4
+                Theta    =  30;
         end
+
         
         gemoetrical_layout = { ...
             'brightzone_pos_angle',        90, ...
