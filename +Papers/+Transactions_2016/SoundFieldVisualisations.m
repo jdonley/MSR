@@ -100,7 +100,9 @@ hCB.Units = 'points';
 hCB.Label.Interpreter = SYS.publication_info.Interpreter;
 hCB.TickLabelInterpreter = SYS.publication_info.Interpreter;
 hCB.Ticks = interp1(1:length(caxis),caxis,linspace(1,length(caxis),6));
-hCB.TickLabels = num2cell(num2str(linspace( ax.CLim(1), ax.CLim(2),6)' ),2);
+hCB.TickLabels = cellfun(@strrep, ...
+    num2cell(num2str(linspace( ax.CLim(1), ax.CLim(2),6)' ),2), ...
+    repmat({' '},6,1), repmat({''},6,1),'un',0);
 
 hCB.Label.String = 'Magnitude (dB)';
 
