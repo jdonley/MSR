@@ -41,7 +41,7 @@ for s = 1:numel(setup)
 %     reproRegionSamples = reproRegionSamples / maxBrightVal;
 %     
 %     pk(s) = max(abs((reproRegionSamples(:))))*setup(s).res;
-     pk(s) = max(abs((setup(s).Bright_Samples(:))))*setup(s).res;
+     pk(s) = mean(abs((setup(s).Bright_Samples(:))),'omitnan')*setup(s).res;
 %      pk(s) = max(abs((setup(s).Soundfield_reproduced(:))))*setup(s).res;
     
     F{s} = setup(s).Soundfield_reproduced*setup(s).res;
@@ -80,9 +80,10 @@ setup(s).plotSoundfield( mag2db(abs(F{s})), 'scientific_L12', realistic, details
 
 % cm = cmap('linear_blue_95-50_c20_n256');
 cm = cmap('L12','N',24);
-cm2 = cm(:,[3 1 2]);
-cm3 = cm(:,[3 2 1]);
-cm = (cm2 + cm3)/2;
+cm2 = hsv2rgb(rgb2hsv(cm(end-4:end,:)).*[1/3 1 1] );
+cm3 = hsv2rgb(rgb2hsv(cm(end-6:end-5,:)).*[2/3 1 1] );
+cm(end-4:end,:) = cm2;
+cm(end-6:end-5,:) = cm3;
 colormap(ax,cm);
 
 text(0,size(F{s},1),1e3,['(' char(64+s) ')'],...

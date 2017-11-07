@@ -45,13 +45,13 @@ for typs = 1:Ntyps
         
         switch angInd
             case 1
-                Theta    =  -30;
+                Theta    =  -20;
             case 2
                 Theta    =  0;
             case 3
                 Theta    =  0;
             case 4
-                Theta    =  30;
+                Theta    =  40;
         end
 
         
