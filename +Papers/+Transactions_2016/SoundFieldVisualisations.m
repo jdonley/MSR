@@ -97,14 +97,28 @@ drawnow;
 hCB = colorbar; 
 hCB.Location = 'manual';
 hCB.Units = 'points';
-hCB.Ticks = interp1(1:length(caxis),caxis,linspace(1,length(caxis),5));
-hCB.TickLabels = num2str(linspace( ax.CLim(1), ax.CLim(2),5)' );
+hCB.Label.Interpreter = SYS.publication_info.Interpreter;
+hCB.TickLabelInterpreter = SYS.publication_info.Interpreter;
+hCB.Ticks = interp1(1:length(caxis),caxis,linspace(1,length(caxis),6));
+hCB.TickLabels = num2cell(num2str(linspace( ax.CLim(1), ax.CLim(2),6)' ),2);
+
 hCB.Label.String = 'Magnitude (dB)';
 
-ax.Units = 'centimeters';
-axWH = ax.Position(3:4);
-hCB.Units = 'centimeters';
-hCB.Position(4) = axWH(2) + 0.5 + axWH(2); % Colorbar height
+ax.Units = 'centimeters'; hCB.Units = 'centimeters';
+
+hCB.Position(1) = ...
+    ax.Position(1) + ...
+    ax.Position(3) + ...
+    SYS.publication_info.axes_gap(2);
+hCB.Position(2) = ...
+    ax.Position(2);
+hCB.Position(3) = ...
+    SYS.publication_info.axes_gap(2);
+hCB.Position(4) = ...
+    ax.Position(4) + ...
+    SYS.publication_info.axes_gap(1) + ...
+    ax.Position(4); % Colorbar height
+
 
 tightfig;
 
