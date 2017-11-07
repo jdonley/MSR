@@ -125,7 +125,7 @@ for typs = 1:Ntyps
             
             c = 343; % Speed of sound in metres/sec
             if f == -1
-                if setInd<=1
+                if setInd==1 || setInd==3
                     f = Broadband_Tools.getAliasingFrequency(Main_Setup(I))/2/pi*c;
                 else
                     f = f_prev;
