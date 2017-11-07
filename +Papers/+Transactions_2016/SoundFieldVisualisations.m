@@ -78,13 +78,20 @@ axes(ha(s));
 ax=gca;
 setup(s).plotSoundfield( mag2db(abs(F{s})), 'scientific_L12', realistic, details);
 
-% cm = cmap('linear_blue_95-50_c20_n256');
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 cm = cmap('L12','N',24);
-cm2 = hsv2rgb(rgb2hsv(cm(end-4:end,:)).*[1/3 1 1] );
-cm3 = hsv2rgb(rgb2hsv(cm(end-6:end-5,:)).*[2/3 1 1] );
-cm(end-4:end,:) = cm2;
-cm(end-6:end-5,:) = cm3;
+labcm = rgb2lab(cm);
+cmA = atan2(labcm(:,3),labcm(:,2))/pi*180;
+cmC = sum(labcm(:,2:3).^2,2).^.5;
+
+cmA(end-4:end,:) = cmA(end-4:end,:) + 90; % Red
+cmA(end-6:end-5,:) = cmA(end-6:end-5,:) + 270; % Green
+
+labcm(:,2:3) = cmC.*[cos(cmA/180*pi) sin(cmA/180*pi)];
+cm = lab2rgb(labcm);
+
 colormap(ax,cm);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 text(0,size(F{s},1),1e3,['(' char(64+s) ')'],...
     ... 'BackgroundColor',[1 1 1 0.7], ...
