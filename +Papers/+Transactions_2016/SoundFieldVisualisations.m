@@ -51,12 +51,12 @@ if exist('fH'), if isvalid(fH), close(fH); end; end
 figNums = [101,102,103];
 realistic = false;
 details.DrawDetails = false;
-details.zoneLineWid = 1.5;
-details.arrowLineWid = 0.4;
+details.zoneLineWid = 1.0;
+details.arrowLineWid = 0.5;
 details.arrowLength = 3;
 details.arrowAngle = 30;
 details.arrowBuffer = 2;
-details.lblFontSize = 12;
+details.lblFontSize = 10;
 
 for s = 1:numel(setup)
  pk(s) = max(abs((setup(s).Bright_Samples(:))))*setup(s).res;
@@ -76,16 +76,17 @@ end
 
 % close all;
 fH = figure('Name',SYS.publication_info.FigureName);
+dimSz = SYS.publication_info.subPlotDims;
 ha = tightPlots( ...
-    SYS.publication_info.subPlotDims(2), ...
-    SYS.publication_info.subPlotDims(1), ...
+    dimSz(2), ...
+    dimSz(1), ...
     SYS.publication_info.figure_width, ...
     SYS.publication_info.axis_aspect_ratio, ...
-    SYS.publication_info.axes_gap, ...
+    [0.5 -0.4], ...
     SYS.publication_info.axes_margins_height, ...
     SYS.publication_info.axes_margins_width, ...
     'centimeters');
-FontSize = 16;
+FontSize = 10;
 FontName = 'Times';
 
 
@@ -93,62 +94,39 @@ for s = 1:numel(setup)
 axes(ha(s));
 ax=gca;
 setup(s).plotSoundfield( mag2db(abs(F{s})), 'scientific_L12', realistic, details);
+
 text(10,size(F{s},1)-FontSize-10,1e3,['(' char(64+s) ')'],...
     'BackgroundColor',[1 1 1 0.7], ...
     'FontName',FontName,'FontSize',FontSize)
-ax.Title.String = '';%'Pressure Soundfield of Talker';
-% ax.XLabel = [];
-% ax.XTickLabel = [];
+ax.Title.String = '';
+
+[c,r] = ind2sub(dimSz,s);
+if c ~= 1
+ ax.YLabel = [];
+ ax.YTickLabel = [];
+end
+if r ~= dimSz(2)
+ ax.XLabel = [];
+ ax.XTickLabel = [];    
+end
 
 % clim_=[-1 1].*pk(s);
-clim_=[-30 mag2db(abs(pk(s)))];
+clim_=[-25 mag2db(abs(pk(s)))];
 ax.CLim = clim_;
-colorbar off
+colorbar off;
 
 end
 
-% axes(ha(2))
-% ax=gca;
-% setup(1).plotSoundfield( Z2, 'scientific_D1', realistic, details);
-% text(10,size(Z2,1)-FontSize-10,1e3,'(B)',...
-%     'BackgroundColor',[1 1 1 0.7],'FontName',FontName,'FontSize',FontSize)
-% ax.Title=[];
-% % ax.XLabel = [];
-% % ax.XTickLabel = [];
-% % ax.YLabel = [];
-% % ax.YTickLabel = [];
-% ax.CLim=clim_;
-% % colorbar off
-% hCB = colorbar(ax); 
-% hCB.Visible = 'off';
+% 
+ hCB = colorbar; hCB.Units = 'points';
+ hCB.Ticks = interp1(1:length(caxis),caxis,linspace(1,length(caxis),5));
+ hCB.TickLabels = num2str(linspace( ax.CLim(1), ax.CLim(2),5)' );
+ hCB.Label.String = 'Magnitude (dB)';
 
-% axes(ha(3))
-% ax=gca;
-% setup(1).plotSoundfield( Z3-Z1, 'scientific_D1', realistic, details);
-% text(10,size(Z2,1)-FontSize-10,1e3,'(C)',...
-%     'BackgroundColor',[1 1 1 0.7],'FontName',FontName,'FontSize',FontSize)
-% ax.Title=[];
-% ax.CLim=clim_;
-% colorbar off
-% 
-% 
-% axes(ha(4))
-% ax=gca;
-% setup(1).plotSoundfield( abs(Z3-Z1), 'scientific_L9', realistic, details);
-% text(10,size(Z2,1)-FontSize-10,1e3,'(D)',...
-%     'BackgroundColor',[1 1 1 0.7],'FontName',FontName,'FontSize',FontSize)
-% ax.Title=[];
-% ax.YLabel = [];
-% ax.YTickLabel = [];
-% ax.CLim=[-60 0];
-% colorbar off;
-% % tightfig;
-% 
-% hCB = colorbar; hCB.Units = 'points';
-% hCB.Ticks = interp1(1:length(caxis),caxis,linspace(1,length(caxis),5));
-% hCB.TickLabels = num2str(linspace( ax.CLim(1), ax.CLim(2),5)' );
-% hCB.Label.String = 'Magnitude (dB)';
-% 
+ 
+ tightfig;
+ 
+ % 
 % set(fH.Children, 'Units','Points')
 % for c = 1:numel(fH.Children)
 %  fH.Children(c).Position(2) = fH.Children(c).Position(2)+20;
@@ -178,40 +156,16 @@ end
 
 %  hold on;
 
-%  Z = setup.Soundfield_reproduced;
-%  %Z_ = -QualityGuidedUnwrap2D_r1(Z);
-%  Z_ = GoldsteinUnwrap2D_r1(Z);
-%
-%  Zs = abs(Z);
-%  Zs = Zs(1:10:end,1:10:end);
-%  Z__ = Z_(1:10:end,1:10:end);
-%
-%  [U,V] = gradient( Z__(2:end-1,2:end-1) );
-%  [X,Y] = meshgrid( 1:size(Z,1) , 1:size(Z,2) );
-%  X = X(1:10:end,1:10:end);
-%  Y = Y(1:10:end,1:10:end);
-%  X = X(2:end-1,2:end-1);
-%  Y = Y(2:end-1,2:end-1);
-%  quiver3( X , Y, ones(size(U))*4, U .* abs(Zs(2:end-1,2:end-1)) , V .* abs(Zs(2:end-1,2:end-1)), zeros(size(U)), 1, 'k' );
-%quiver3( X , Y, ones(size(U))*4, U  , V , zeros(size(U)), 1, 'k' );
-%
+
 
 C(end+1) = pow2db(setup(1).Acoustic_Contrast);
 E(end+1) = mag2db(setup(1).MSE_Bright);
 
-% end
-%%
-% figure(1010)
-% hold on;
-% plot(Freqs,-C/2); hold off; ylim([-60 0]); set(gca,'XScale','log'); grid on; grid minor;
-% figure(1011)
-% hold on;
-% plot(Freqs,E); hold off
 %%
 disp(['   Contrast: ' num2str(pow2db(setup(1).Acoustic_Contrast)) 'dB']);
 disp(['        MSE: ' num2str(mag2db(setup(1).MSE_Bright)) 'dB']);
 disp(['Attenuation: ' num2str(setup(1).Attenuation_dB(1)) 'dB (±' num2str(setup(1).Attenuation_dB(2)) 'dB)']);
-% mean(mag2db(abs(Z3(:)-Z1(:))))
+
 %%
 %fprintf(Speaker_Setup.printSetupDetails(setup));
 
