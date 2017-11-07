@@ -70,7 +70,11 @@ text(0,size(F{s},1),1e3,['(' char(64+s) ')'],...
     'FontName',FontName,'FontSize',FontSize, ...
     'Interpreter','latex', ...
     'HorizontalAlignment','left', 'VerticalAlignment','bottom');
-ax.Title = [];
+if s ~= 1
+    ax.Title = [];
+else
+    ax.Title.String = ' ';
+end
 
 ax.XLabel.Interpreter = SYS.publication_info.Interpreter;
 ax.YLabel.Interpreter = SYS.publication_info.Interpreter;
