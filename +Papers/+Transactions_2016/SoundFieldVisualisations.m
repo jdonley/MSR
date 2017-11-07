@@ -29,13 +29,22 @@ details.arrowBuffer = 2;
 details.lblFontSize = 10;
 
 for s = 1:numel(setup)
+%     reproZone = Orthogonal_Basis_Expansion.spatial_zone( ...
+%         setup(s).Multizone_Soundfield.k_global/2/pi*343, ...
+%         0, setup(s).Multizone_Soundfield.Radius, 'pw');
+%     reproZone.res = setup(s).res;
+%     reproZone = reproZone.createEmptySoundfield();
+%     reproRegionSamples = setup(s).getZoneSamples(reproZone);
+%     bMask = setup(s).Multizone_Soundfield.Bright_Zone.Soundfield_d_mean_mask;
+%     setup(s) = setup(s).save_Bright_Samples();
+%     maxBrightVal = mean(abs(setup(s).Bright_Samples(bMask(:))));
+%     reproRegionSamples = reproRegionSamples / maxBrightVal;
+%     
+%     pk(s) = max(abs((reproRegionSamples(:))))*setup(s).res;
+     pk(s) = max(abs((setup(s).Bright_Samples(:))))*setup(s).res;
+%      pk(s) = max(abs((setup(s).Soundfield_reproduced(:))))*setup(s).res;
     
-    reproRegionSamples = setup(s).getZoneSamples();
-    
- pk(s) = max(abs((setup(s).Bright_Samples(:))))*setup(s).res;
-%  pk(s) = max(abs((setup(s).Soundfield_reproduced(:))))*setup(s).res;
- 
- F{s} = setup(s).Soundfield_reproduced*setup(s).res;
+    F{s} = setup(s).Soundfield_reproduced*setup(s).res;
 end
 
 
@@ -69,6 +78,13 @@ axes(ha(s));
 ax=gca;
 setup(s).plotSoundfield( mag2db(abs(F{s})), 'scientific_L12', realistic, details);
 
+% cm = cmap('linear_blue_95-50_c20_n256');
+cm = cmap('L12','N',24);
+cm2 = cm(:,[3 1 2]);
+cm3 = cm(:,[3 2 1]);
+cm = (cm2 + cm3)/2;
+colormap(ax,cm);
+
 text(0,size(F{s},1),1e3,['(' char(64+s) ')'],...
     ... 'BackgroundColor',[1 1 1 0.7], ...
     'FontName',FontName,'FontSize',FontSize, ...
@@ -94,23 +110,26 @@ if r ~= dimSz(2)
 end
 
 % clim_=[-1 1].*pk(s);
-clim_=[-20 mag2db(abs(pk(s)))];
+clim_=[-18 6];
 ax.CLim = clim_;
 colorbar off;
 
 end
 
+cbTickSep = 3; %dB
+NcbTicks = numel(ax.CLim(1):cbTickSep:ax.CLim(end));
 % 
 drawnow;
 hCB = colorbar; 
 hCB.Location = 'manual';
 hCB.Units = 'points';
+hCB.TickDirection = SYS.publication_info.axes_tickdir;
 hCB.Label.Interpreter = SYS.publication_info.Interpreter;
 hCB.TickLabelInterpreter = SYS.publication_info.Interpreter;
-hCB.Ticks = interp1(1:length(caxis),caxis,linspace(1,length(caxis),6));
+hCB.Ticks = interp1(1:length(caxis),caxis,linspace(1,length(caxis),NcbTicks));
 hCB.TickLabels = cellfun(@strrep, ...
-    num2cell(num2str(linspace( ax.CLim(1), ax.CLim(2),6)' ),2), ...
-    repmat({' '},6,1), repmat({''},6,1),'un',0);
+    num2cell(num2str(linspace( ax.CLim(1), ax.CLim(2),NcbTicks)' ),2), ...
+    repmat({' '},NcbTicks,1), repmat({''},NcbTicks,1),'un',0);
 
 hCB.Label.String = 'Magnitude (dB)';
 
