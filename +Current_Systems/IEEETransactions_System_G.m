@@ -229,7 +229,7 @@ publication_info.axes_margins_height = [1 1]; %Axes height margins [lower upper]
 publication_info.axes_margins_width = [1 1]; %Axes width margins [left right]  %centimeters
 publication_info.axes_grid = 'minor'; % Show axes grid ('on', 'minor' or 'off')
 publication_info.axes_tickdir = 'both'; % Axes tick direction(s) ('in', 'out' or 'both')
-publication_info.axes_NumTicks = [5 9]; % Number of ticks [NumXticks NumYticks];
+publication_info.axes_NumTicks = [7 7]; % Number of ticks [NumXticks NumYticks];
 publication_info.axes_limitBufs = [0.02 0.02]; % axis limits buffer in percentage [width, height]
 publication_info.sigRounding = 3; % number of significant figures rounding
 

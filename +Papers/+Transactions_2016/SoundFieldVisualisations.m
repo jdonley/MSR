@@ -27,7 +27,7 @@ details.arrowLength = 3;
 details.arrowAngle = 30;
 details.arrowBuffer = 2;
 details.lblFontSize = 10;
-details.NTicks = [7 7];
+details.NTicks = SYS.publication_info.axes_NumTicks;
 
 for s = 1:numel(setup)
 %     reproZone = Orthogonal_Basis_Expansion.spatial_zone( ...
