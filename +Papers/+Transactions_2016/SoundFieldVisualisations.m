@@ -27,6 +27,8 @@ details.arrowLength = 3;
 details.arrowAngle = 30;
 details.arrowBuffer = 2;
 details.lblFontSize = 10;
+details.PlotMic = false;
+details.sphereRad = 2; % centimetres
 details.NTicks = SYS.publication_info.axes_NumTicks;
 
 for s = 1:numel(setup)
@@ -203,6 +205,11 @@ hCB.Position(4) = ...
 
 
 tightfig;
+
+savePath = [SYS.publication_info.DocumentPath, ...
+    filesep, SYS.publication_info.FigureName, ...
+    '.', SYS.publication_info.print_fmt];
+print(savePath,['-d' SYS.publication_info.print_fmt]);
 
 %
 % set(fH.Children, 'Units','Points')
