@@ -787,12 +787,12 @@ classdef loudspeaker_setup
                 CaxisSize(2) = ceil(max(field(~isnan(field(:)))));
             end
             
-            if ~details.DrawDetails
+            if ~isfield(details,'DrawDetails')
                 details.NTicks = [5 5];
             end
             
             lenDim = size(field,2);
-            XTick = fix(linspace(-1,1,details.NTicks(1))*lenDim/obj.res)*obj.res/2 + lenDim/2;
+            XTick = fix(round(linspace(-1,1,details.NTicks(1))*lenDim,0)/obj.res)*obj.res/2 + lenDim/2;
             XTickLabel = (XTick-lenDim/2)/obj.res-obj.Origin(2);
             XTickLabel = num2cell(XTickLabel);
             if diff(details.NTicks)<0
@@ -802,7 +802,7 @@ classdef loudspeaker_setup
             end
             
             lenDim = size(field,1);
-            YTick = fix(linspace(-1,1,details.NTicks(2))*lenDim/obj.res)/2*obj.res + lenDim/2;
+            YTick = fix(round(linspace(-1,1,details.NTicks(2))*lenDim,0)/obj.res)/2*obj.res + lenDim/2;
             YTickLabel = (YTick-lenDim/2)/obj.res-obj.Origin(1);
             YTickLabel = num2cell(YTickLabel);
             

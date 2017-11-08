@@ -27,6 +27,7 @@ details.arrowLength = 3;
 details.arrowAngle = 30;
 details.arrowBuffer = 2;
 details.lblFontSize = 10;
+details.NTicks = [7 7];
 
 for s = 1:numel(setup)
 %     reproZone = Orthogonal_Basis_Expansion.spatial_zone( ...
@@ -108,9 +109,9 @@ ax.FontSize = SYS.publication_info.FontSize;
 ax.XLabel.FontSize = SYS.publication_info.FontSize;
 ax.YLabel.FontSize = SYS.publication_info.FontSize;
 
+ax.TickLabelInterpreter = SYS.publication_info.Interpreter;
 ax.XLabel.Interpreter = SYS.publication_info.Interpreter;
 ax.YLabel.Interpreter = SYS.publication_info.Interpreter;
-
 
 
 [c,r] = ind2sub(dimSz,s);
@@ -127,6 +128,41 @@ end
 clim_=[-18 6];
 ax.CLim = clim_;
 colorbar off;
+
+
+% If bottom left axis then keep ylabel and shift to centre
+if r == dimSz(2) && c == 1
+    ylblTop = get(ha(1),'YLabel'); % Top left is always first axis
+    ylblBtm = get(ha(s),'YLabel'); % We stopped on the bottom left axis (current axis)
+    
+    handles = [ylblTop ylblTop.Parent ylblBtm ylblBtm.Parent];
+    origUnits = get(handles, 'Units');
+    set(handles, 'Units', 'centimeters');
+
+    meanPos = mean([sum([handles(4).Position(2) handles(3).Extent(2)]), ...
+        sum([handles(2).Position(2) handles(1).Extent([2 4])])]);    
+    ylblBtm.Position(2) = meanPos - handles(4).Position(2);
+    ylblTop.String = '';
+    
+    cellfun(@set, num2cell(handles'), repmat({'Units'},numel(origUnits),1), origUnits);
+end
+% If bottom right axis then keep xlabel and shift to centre
+if r == dimSz(2) && c == dimSz(1)
+    Ibtmleft = sub2ind(dimSz,1,dimSz(2));
+    xlblLft = get(ha(Ibtmleft),'XLabel'); % Bottom left is found from linear index
+    xlblRgt = get(ha(s),'XLabel'); % We stopped on the bottom right axis (current axis)
+    
+    handles = [xlblRgt xlblRgt.Parent xlblLft xlblLft.Parent];
+    origUnits = get(handles, 'Units');
+    set(handles, 'Units', 'centimeters');
+
+    meanPos = mean([sum([handles(3).Position(1) handles(3).Extent(1)]), ...
+        sum([handles(2).Position(1) handles(1).Extent([1 3])])]);    
+    xlblLft.Position(1) = meanPos - handles(4).Position(1);
+    xlblRgt.String = '';
+    
+    cellfun(@set, num2cell(handles'), repmat({'Units'},numel(origUnits),1), origUnits);
+end
 
 end
 
