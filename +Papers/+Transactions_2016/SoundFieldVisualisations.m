@@ -141,7 +141,6 @@ origUnits = get([axY axY(end).YLabel], 'Units');
 set([axY axY(end).YLabel], 'Units', 'centimeters');
 
 axY(end).YLabel.Position(2) = (sum(axY(1).Position([2 4])) - axY(end).Position(2))/2;
-axY(end).TightInset
 for a = 1:dimSz(2)-1
     axY(a).YLabel.String = '';
 end
