@@ -807,7 +807,14 @@ classdef loudspeaker_setup
             YTickLabel = num2cell(YTickLabel);
             
             ax = gca;
-            h = surf(ax, real(field),'EdgeColor','None');
+            if (isfield(details,'PlotType') && strcmpi(details.PlotType,'surf')) ...
+                    || ~isfield(details,'PlotType')
+                h = surf(ax, real(field),'EdgeColor','None');
+            elseif isfield(details,'PlotType') && strcmpi(details.PlotType,'image')
+                h = image(ax, real(field));
+                ax.YDir = 'normal';
+                h.CDataMapping = 'scaled';
+            end
             if realistic
                 drawnow; pause(0.05);
                 h.FaceAlpha = 0.5;
