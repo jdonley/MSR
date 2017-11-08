@@ -129,42 +129,44 @@ clim_=[-18 6];
 ax.CLim = clim_;
 colorbar off;
 
-
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % If bottom left axis then keep ylabel and shift to centre
-if r == dimSz(2) && c == 1
-    ylblTop = get(ha(1),'YLabel'); % Top left is always first axis
-    ylblBtm = get(ha(s),'YLabel'); % We stopped on the bottom left axis (current axis)
-    
-    handles = [ylblTop ylblTop.Parent ylblBtm ylblBtm.Parent];
-    origUnits = get(handles, 'Units');
-    set(handles, 'Units', 'centimeters');
-
-    meanPos = mean([sum([handles(4).Position(2) handles(3).Extent(2)]), ...
-        sum([handles(2).Position(2) handles(1).Extent([2 4])])]);    
-    ylblBtm.Position(2) = meanPos - handles(4).Position(2);
-    ylblTop.String = '';
-    
-    cellfun(@set, num2cell(handles'), repmat({'Units'},numel(origUnits),1), origUnits);
+for a = 1:dimSz(2)
+    I = sub2ind(dimSz,1,a);
+    axes(ha(I)); axY(a) = gca;
 end
+
+origUnits = get([axY axY(end).YLabel], 'Units');
+set([axY axY(end).YLabel], 'Units', 'centimeters');
+
+axY(end).YLabel.Position(2) = (sum(axY(1).Position([2 4])) - axY(end).Position(2))/2;
+axY(end).TightInset
+for a = 1:dimSz(2)-1
+    axY(a).YLabel.String = '';
+end
+
+cellfun(@set, num2cell([axY axY(end).YLabel]'), ...
+    repmat({'Units'},numel(origUnits),1), origUnits);
+
 % If bottom right axis then keep xlabel and shift to centre
-if r == dimSz(2) && c == dimSz(1)
-    Ibtmleft = sub2ind(dimSz,1,dimSz(2));
-    xlblLft = get(ha(Ibtmleft),'XLabel'); % Bottom left is found from linear index
-    xlblRgt = get(ha(s),'XLabel'); % We stopped on the bottom right axis (current axis)
-    
-    handles = [xlblRgt xlblRgt.Parent xlblLft xlblLft.Parent];
-    origUnits = get(handles, 'Units');
-    set(handles, 'Units', 'centimeters');
+for a = 1:dimSz(1)
+    I = sub2ind(dimSz,a,dimSz(2));
+    axes(ha(I)); axX(dimSz(1)-a+1) = gca;
+end
+origUnits = get([axX axX(end).XLabel], 'Units');
+set([axX axX(end).XLabel], 'Units', 'centimeters');
 
-    meanPos = mean([sum([handles(3).Position(1) handles(3).Extent(1)]), ...
-        sum([handles(2).Position(1) handles(1).Extent([1 3])])]);    
-    xlblLft.Position(1) = meanPos - handles(4).Position(1);
-    xlblRgt.String = '';
-    
-    cellfun(@set, num2cell(handles'), repmat({'Units'},numel(origUnits),1), origUnits);
+axX(end).XLabel.Position(1) = (sum(axX(1).Position([1 3])) - axX(end).Position(1))/2;
+for a = 2:dimSz(1)
+    axX(dimSz(1)-a+1).XLabel.String = '';
 end
 
-end
+cellfun(@set, num2cell([axX axX(end).XLabel]'), ...
+    repmat({'Units'},numel(origUnits),1), origUnits);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 
 cbTickSep = 3; %dB
 NcbTicks = numel(ax.CLim(1):cbTickSep:ax.CLim(end));
