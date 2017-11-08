@@ -84,7 +84,7 @@ labcm = rgb2lab(cm);
 cmA = atan2(labcm(:,3),labcm(:,2))/pi*180;
 cmC = sum(labcm(:,2:3).^2,2).^.5;
 
-cmA(end-4:end,:) = cmA(end-4:end,:) + 90; % Red
+cmA(end-4:end,:) = cmA(end-4:end,:) + 45; % Red
 cmA(end-6:end-5,:) = cmA(end-6:end-5,:) + 270; % Green
 
 labcm(:,2:3) = cmC.*[cos(cmA/180*pi) sin(cmA/180*pi)];
@@ -104,8 +104,14 @@ else
     ax.Title.String = ' ';
 end
 
+ax.FontSize = SYS.publication_info.FontSize;
+ax.XLabel.FontSize = SYS.publication_info.FontSize;
+ax.YLabel.FontSize = SYS.publication_info.FontSize;
+
 ax.XLabel.Interpreter = SYS.publication_info.Interpreter;
 ax.YLabel.Interpreter = SYS.publication_info.Interpreter;
+
+
 
 [c,r] = ind2sub(dimSz,s);
 if c ~= 1
