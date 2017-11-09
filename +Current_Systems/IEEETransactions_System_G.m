@@ -233,7 +233,7 @@ publication_info.subPlotTitles = {...
     '$\theta= 30^{\circ}$, $k=k_{\mathrm{u}}^{(G)}$'; ...
     };
 publication_info.axis_aspect_ratio = [1 1]; %Single axis aspect ration [width height]
-publication_info.axes_gap = [0.5 0.7]; %Gap between axes [gap_height gap_width] %centimeters
+publication_info.axes_gap = [0.6 0.7]; %Gap between axes [gap_height gap_width] %centimeters
 publication_info.colorbarWidth = 0.5; %Width of the colorbar %centimeters
 publication_info.axes_margins_height = [1 1]; %Axes height margins [lower upper]  %centimeters
 publication_info.axes_margins_width = [1 1]; %Axes width margins [left right]  %centimeters
