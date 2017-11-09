@@ -215,40 +215,12 @@ savePath = [SYS.publication_info.DocumentPath, ...
 % print(savePath,['-d' SYS.publication_info.print_fmt]);
 export_fig(savePath,['-d' SYS.publication_info.print_fmt]);
 
-%
-% set(fH.Children, 'Units','Points')
-% for c = 1:numel(fH.Children)
-%  fH.Children(c).Position(2) = fH.Children(c).Position(2)+20;
-% end
 
 
+%%
+round([setup(1:2:end).k_global],SYS.publication_info.sigRounding,'s')
+round([setup(1:2:end).k_global]/2/pi*SYS.signal_info.c,SYS.publication_info.sigRounding,'s')
 
-% figure(figNums(2)); hold off
-% setup.plotSoundfield( Z2, 'scientific_L9', realistic, details);
-% figure(figNums(3)); hold off
-% setup.plotSoundfield( Z3, 'scientific_L9', realistic, details);
-
-
-
-% for fn = 1:numel(figNums)
-%     figure(figNums(fn));
-%     if setup.Loudspeaker_Count > 1
-%         R = [0 1].*size(Z,1) ; xlim(R);ylim(R);
-%     else
-%         R = [0 1].*size(Z,1) - size(Z,1) - x_*setup.res; xlim(R);ylim(R);
-%     end
-% end
-%  caxis([-30, 0] );
-
-
-%title('Small Zone Weight');
-
-%  hold on;
-
-
-
-% C(end+1) = pow2db(setup(1).Acoustic_Contrast);
-% E(end+1) = mag2db(setup(1).MSE_Bright);
 
 %%
 disp(['   Contrast: ' num2str(pow2db(setup(1).Acoustic_Contrast)) 'dB']);
