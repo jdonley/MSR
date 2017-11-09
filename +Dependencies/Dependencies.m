@@ -97,6 +97,10 @@ d(end+1).Name           = 'SweptSineAnalysis';
               
 d(end+1).Name           = 'tightfig';
   d(end).URL            = 'http://au.mathworks.com/matlabcentral/fileexchange/34055-tightfig';
+  d(end).Required       = false;
+              
+d(end+1).Name           = 'tightfigadv';
+  d(end).URL            = '';
   d(end).Required       = true;
               
 d(end+1).Name           = 'tightPlots';
