@@ -1,11 +1,37 @@
 function [ sig_matched, adjustVal ] = power_norm( sig_orig, sig_diff, Fs, band)
-%POWER_NORM Summary of this function goes here
-%   Detailed explanation goes here
+% Summary of this function goes here
+% 
+% Syntax:	[ sig_matched, adjustVal ] = ...
+%               power_norm( sig_orig, sig_diff, Fs, band)
+% 
+% Inputs: 
+% 	input1 - Description
+% 	input2 - Description
+% 	input3 - Description
+% 
+% Outputs: 
+% 	output1 - Description
+% 	output2 - Description
+% 
+% Example: 
+% 	Line 1 of example
+% 	Line 2 of example
+% 	Line 3 of example
+% 
+% See also: List related files here
+
+% Author: Jacob Donley
+% University of Wollongong
+% Email: jrd089@uowmail.edu.au
+% Copyright: Jacob Donley 2016-2017
+% Date: 22 February 2016
+% Version: 0.1 (22 February 2016)
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 if length(band) == 1
     % Calculate octave band
-    f_centre = band;
-    fd = (2^0.5);
-    band = f_centre .* [1/fd, fd];
+    band = band * [2^-.5 2^.5];
 end
 
 bpow_in   = mean(bandpower( sig_orig, Fs, band));

@@ -72,11 +72,20 @@ end
 %     'FontSize', SYS.publication_info.FontSize);
 leg.Box = 'off';
 legli = findobj(legi,'Type','line'); % legend lines
+legtx = findobj(legi,'Type','text'); % legend lines
 if isfield(SYS.publication_info,'leg_MarkerSize')
     for i = 1:numel(legli)
         legli(i).MarkerSize = SYS.publication_info.leg_MarkerSize;
     end
 end
+% Center align legend text
+maxTxtWid = max(reshape([legtx.Extent],4,[])',[],1);
+maxTxtWid = maxTxtWid(3);
+for i = 1:numel(legtx)
+    legtx(i).HorizontalAlignment = 'center';    % Center the text
+    legtx(i).Position(1) = legtx(i).Position(1) + maxTxtWid/2; % re-position text block to center
+end
+
 
 % Change legend grid
 tmpUnits = leg.Units; leg.Units = 'points';
@@ -84,8 +93,8 @@ if strcmpi(linetypes,'line'), a = 1; b=0.65; else a = 2; b=0.0; end
 legWid = leg.Position(3) * (1-diff(legli(a).XData)*(1-b)) ... %normalised units
     + max([legli(1:2:end).MarkerSize]); % plus maximum marker width in points
 legWid = legWid * (1+legEntrySpacing); % Add spacing between legend entries as percentage of legWid
-if leg.Position(3)*nLegEnts > axEnts(1).Parent.Parent.OuterPosition(3)
-    LegCols = floor((axEnts(1).Parent.OuterPosition(3) / leg.Position(3))/2)*2;
+if legWid*nLegEnts > axEnts(1).Parent.Parent.OuterPosition(3)
+    LegCols = floor((axEnts(1).Parent.Parent.OuterPosition(3) / legWid)/2)*2;
 else
     LegCols = nLegEnts;
 end
@@ -100,21 +109,25 @@ leg.Position(4) = leg.Position(4)/LegCols;
 % Resize legend markers
 if ~strcmpi(linetypes,'line')
     for ll = 1:2:length(legli)
-        legli(ll).XData(1) = legli(ll).XData(1) ...
-            + diff([legli(ll).XData(1), legli(ll+1).XData(2)]) .* 1;
+%         legli(ll).XData(1) = legli(ll).XData(1) ...
+%             + diff([legli(ll).XData(1), legli(ll+1).XData(2)]) .* 1;
+        legli(ll).XData(1) = legtx((ll+1)/2).Extent(1);
+        unitTmp = legtx((ll+1)/2).Units; legtx((ll+1)/2).Units = 'points';
+        legtx((ll+1)/2).Position(1) = legtx((ll+1)/2).Position(1) ...
+            + legli(ll).MarkerSize;
+        legtx((ll+1)/2).Units = unitTmp;
     end
 else
     for ll = 1:2:length(legli)
-        legli(ll).XData(1) = legli(ll).XData(1) ...
-            + diff(legli(ll).XData) .* (1-b);
+        legli(ll).XData = [-diff(legli(ll).XData).*b 0] + legtx((ll+1)/2).Extent(1);
         legli(ll+1).XData(1) = legli(ll).XData(1) ...
-            + diff(legli(ll).XData) .* 0.5;
+            + diff(legli(ll).XData) .* 0.8;
     end
 end
 
 % Find max width and max height of axes
 allAxs = findobj(ax.Parent.Children,'type','axes');
-axPos=reshape([allAxs.Position],4,[])';
+axPos=reshape([allAxs.OuterPosition],4,[])';
 fullWidHigh = max(axPos(:,1:2),[],1) ...
             + max(axPos(:,3:4),[],1);
 if strcmpi(linetypes,'line')

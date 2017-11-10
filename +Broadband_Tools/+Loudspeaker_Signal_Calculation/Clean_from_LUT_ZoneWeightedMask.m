@@ -148,9 +148,9 @@ for sig = 1:2 % Firstly we compute the loudspeaker signals for the input signal 
     % %Loudspeaker_Signals =
     % zeros([(size(Z,1)+ceil(overlap))*size(Z,2)*2*(1-overlap) loudspeakers] ); % pre-allocate memory
     for spkr = 1:loudspeakers
-        Loudspeaker_Signals(:,spkr) = Broadband_Tools.OverlapAdd( Loudspeakers_(:,:,spkr), overlap );
+        Loudspeaker_Signals(:,spkr) = Tools.OverlapAdd( Loudspeakers_(:,:,spkr), overlap );
     end
-    Original_ = Broadband_Tools.OverlapAdd( Original, overlap );
+    Original_ = Tools.OverlapAdd( Original, overlap );
     % clear Loudspeakers_; % Save on memory
     
     

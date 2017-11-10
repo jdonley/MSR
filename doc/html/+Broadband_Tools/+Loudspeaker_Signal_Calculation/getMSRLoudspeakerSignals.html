@@ -4,7 +4,7 @@
 <head>
   <title>Description of getMSRLoudspeakerSignals</title>
   <meta name="keywords" content="getMSRLoudspeakerSignals">
-  <meta name="description" content="GETLOUDSPEAKERSIGNALS Summary of this function goes here">
+  <meta name="description" content="Generates multizone soundfield reproduction loudspeaker signals">
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
   <meta name="generator" content="">
   <meta name="robots" content="index, follow">
@@ -22,14 +22,35 @@
 </h1>
 
 <!-- <h2><a name="_name"></a>Summary <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2> -->
-<div class="purpose">GETLOUDSPEAKERSIGNALS Summary of this function goes here</div>
+<div class="purpose">Generates multizone soundfield reproduction loudspeaker signals</div>
 
 <h2><a name="_synopsis"></a>Syntax <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
 <div class="box">function [ Loudspeaker_Signals, Original_ ] = getMSRLoudspeakerSignals( Input_Signal, setup, signal_info, system_info ) </div>
 
 <h2><a name="_description"></a>Description <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
-<div class="fragment"><pre class="comment">GETLOUDSPEAKERSIGNALS Summary of this function goes here
-   Detailed explanation goes here</pre></div>
+<div class="fragment"><pre class="comment">Generates multizone soundfield reproduction loudspeaker signals
+ 
+ Syntax:    [ Loudspeaker_Signals, Original_ ] = getMSRLoudspeakerSignals( Input_Signal, setup, signal_info, system_info )
+ 
+ Inputs: 
+     Input_Signal - The signal to reproduce in the bright zone.
+     setup - The loudspeaker setup description object.
+     signal_info - The signal information structure.
+     system_info - The system information structure.
+ 
+ Outputs: 
+     Loudspeaker_Signals - The loudspeaker signals used to reproduce the
+                         multizone soundfield.
+     Original_ - The original input signal which has been exposed to the
+               same processing as the loudspeaker signals (possibly
+               bandfiltered).
+ 
+ Example: 
+     Line 1 of example
+     Line 2 of example
+     Line 3 of example
+ 
+ See also: List related files here</pre></div>
 
 <!-- crossreference -->
 <h2><a name="_cross"></a>Cross-Reference Information <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
@@ -44,6 +65,6 @@ This function is called by:
 
 
 
-<hr><address>Generated on Sun 06-Aug-2017 23:15:43 for <strong><a href="https://www.soundzones.com" title="Sound Zones - code | research | blog">Sound Zones</a></strong></address>
+<hr><address>Generated on Tue 05-Sep-2017 07:46:10 for <strong><a href="https://www.soundzones.com" title="Sound Zones - code | research | blog">Sound Zones</a></strong></address>
 </body>
 </html>

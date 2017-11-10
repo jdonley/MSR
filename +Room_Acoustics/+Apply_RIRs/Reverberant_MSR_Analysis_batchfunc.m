@@ -151,17 +151,19 @@ for m = 1:M
         end
         % Warn if there are no recordings to analyse and then return from the function
         if isempty(files_)
-            wrnCol = [255,100,0]/255;
-            cprintf(wrnCol, 'There was a problem reading associated recording files.\n');
-            cprintf(wrnCol, ['Do ''' signal_info.recording_type ''' recordings exist?\n']);
-            cprintf(wrnCol, ['Skipping ''' signal_info.recording_type ''' analysis procedure.\n']);
+            Tools.simpleWarning({...
+                ['There was a problem reading associated recording files.']; ...
+                ['Do ''' signal_info.recording_type ''' recordings exist?']; ...
+                ['Skipping ''' signal_info.recording_type ''' analysis procedure.'];''});
             delete(gcp('nocreate')); return;
         end
-        if ~any(contains(lower(files_),'bright'))
-            Tools.simpleWarning({'No ''Bright'' zone recordings were found!'});
-        end
-        if ~any(contains(lower(files_),'quiet'))
-            Tools.simpleWarning({'No ''Quiet'' zone recordings were found!'});
+        if ~any(contains(lower(files_),[num2str(room_setup.NoReceivers) 'ch']))
+            if ~any(contains(lower(files_),'bright'))
+                Tools.simpleWarning({'No ''Bright'' zone recordings were found!';''});
+            end
+            if ~any(contains(lower(files_),'quiet'))
+                Tools.simpleWarning({'No ''Quiet'' zone recordings were found!';''});
+            end
         end
         files{:,s} = sort(files_);
     end
@@ -200,7 +202,8 @@ for m = 1:M
         [~, fileName{s_1,file}, ~] = fileparts(files{s_1}{file});
         
         
-        if isempty(strfind(fileName{s_1,file},'Original')) % Make sure the file being read isn't an original file
+        if isempty(strfind(fileName{s_1,file},'Original')) ...     %Make sure the file being read isn't an original file
+                && isempty(strfind(fileName{s_1,file},'Anechoic')) %and isn't a special Anechoic reference recording
             
             % Get the file number and file name
             [Ztypeflip,Stypeflip] = strtok( flip(fileName{s_1,file}), system_info.sc );
@@ -213,16 +216,31 @@ for m = 1:M
                 Rec_Quiet = [];
             end
             
-            if strcmp('Bright',ZoneType)
+            if strcmp('Bright',ZoneType) ...
+                    || strcmpi([num2str(room_setup.NoReceivers) 'ch'], ZoneType)
                 Rec_Bright = [];
+                Rec_BrightA_ = [];
                 for s = signal_info.methods_list_clean.'
                     if ~isempty(files{s})
                         Rec_Bright_{s} = load(files{s}{file});
+                        if any(contains(lower(files{s}),'anechoic'))
+                            Rec_BrightA_ = load(files{s}{ ...
+                                contains(lower(files{s}),'anechoic')});
+                        end
                     else
-                        Rec_Bright_{s_1} = load(files{s_1}{file}); break;
+                        Rec_Bright_{s_1} = load(files{s_1}{file});
+                        break;
                     end
                 end
-                if s_1==2, Rec_Bright_{s_1}.Rec_Sigs_B = Rec_Bright_{s_1}.Rec_Sigs_B'; end %TODO: Fix the recording so the dimensions are in the correct place.
+                if s_1==2, Rec_Bright_{s_1}.Rec_Sigs_B = Rec_Bright_{s_1}.Rec_Sigs_B.'; end %TODO: Fix the recording so the dimensions are in the correct place.
+                if isfield(Rec_Bright_{s_1},'mic_signals')
+                    Rec_Bright_{s_1}.Rec_Sigs_B = ...
+                        Rec_Bright_{s_1}.mic_signals.';
+                end
+                if isfield(Rec_BrightA_,'mic_sigs_anecho')
+                    Rec_Bright_{s_1}.Rec_Sigs_B_Anecho = ...
+                        Rec_BrightA_.mic_sigs_anecho.';                    
+                end
                 sLB = size( Rec_Bright_{s_1}.Rec_Sigs_B,2); %signal Length Bright
                 for s=s_1:S
                     Rec_Bright(:,:,s) = Rec_Bright_{s}.Rec_Sigs_B(:,1:sLB);
@@ -230,6 +248,9 @@ for m = 1:M
                 Rec_Bright = sum( Rec_Bright, 3 );
                 [~,Iforce]=sort(size(Rec_Bright)); 
                 Rec_Bright=permute(Rec_Bright,Iforce);% Force smaller dimension first
+                if strcmpi([num2str(room_setup.NoReceivers) 'ch'], ZoneType)
+                    Rec_Quiet = Rec_Bright;
+                end
             elseif strcmp('Quiet',ZoneType)
                 Rec_Quiet = [];
                 for s = signal_info.methods_list_clean.'
@@ -287,7 +308,8 @@ for m = 1:M
                 end
                 % END Downsample realworld recordings
                 
-                if ~any(cell2mat(strfind(upper(Measures),'SUPPRESSION')))
+                if ~any(cell2mat(strfind(upper(Measures),'SUPPRESSION'))) ...
+                        && ~any(cell2mat(strfind(upper(Measures),'RIR')))
                     % BEGIN filter signals to acceptable measurement frequency range
                     [b,a] = butter(6, [signal_info.f_low_meas signal_info.f_high_meas] ./ (signal_info.Fs/2) );
                     %[b,a] = cheby1(6 [signal_info.f_low_meas signal_info.f_high_meas] ./ (signal_info.Fs/2) );
@@ -365,6 +387,13 @@ for m = 1:M
                     % Sound Pressure Levels
                     Room_Acoustics.Apply_RIRs.Save_Reverb_SPLs_Result( Rec_Bright, Rec_Quiet, signal_info.Fs, ...
                         analysis_info.Nfft, [analysis_info.f_low, analysis_info.f_high], ResultsPath, [], SignalName, SYS );
+                end
+                
+                if any(cell2mat(strfind(upper(Measures),'RIR')))
+                    % Room Impulse Response
+                    Room_Acoustics.Apply_RIRs.Save_Reverb_RIR_Result( ...
+                        Rec_Bright_{1}.Rec_Sigs_B, Rec_Bright_{1}.Rec_Sigs_B_Anecho, Rec_Bright, ...
+                        ResultsPath, [], SignalName, SYS );
                 end
                 % END calc and save results
                 

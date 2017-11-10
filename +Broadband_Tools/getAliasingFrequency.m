@@ -36,15 +36,23 @@ Bv = B-O; % Vector for point B
 Qv = Q-O; % Vector for point Q
 
 %% Compute Unknown Values
-if strcmpi('2line',setup.Speaker_Array_Type)
-    setup.Speaker_Array_Type = 'line';
-    L=L/2;
+if strcmpi(setup.Speaker_Array_Type(1),'2')
+    setup.Speaker_Array_Type(1) = [];
+    L = L/2;
 end
-if strcmpi('line',setup.Speaker_Array_Type)
+if strcmpi('line',setup.Speaker_Array_Type) ...
+        || strcmpi('plane',setup.Speaker_Array_Type)
+    %% Planar Array %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % Take line from planar array and assume aliasing frequency is the same
+    if strcmpi('plane',setup.Speaker_Array_Type)
+       L = sqrt(L); 
+    end
+    
     %% Linear Array %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    C = O + setup.res*Rl*[cos(phi_c) -sin(phi_c) 0;...      % Center point of loudspeaker array
+    C = O + setup.res*Rl*[...                               % Center point of loudspeaker array
+        cos(phi_c) -sin(phi_c) 0;...      
         sin(phi_c)  cos(phi_c) 0;...
-        0           0      1]*[1;0;0];
+        0           0          1]*[1;0;0];
     m1 = [cos(theta);sin(theta);0];                         % Planewave unit vector
     m2 = [cos(phi_c-pi/2);sin(phi_c-pi/2);0];               % Loudspeaker array unit vector
     A_=[m1 -m2];	b_ = [C-B]; w = pinv(A_)*b_;            % Solve intersection of planewave and loudspeaker array
@@ -64,8 +72,8 @@ if strcmpi('line',setup.Speaker_Array_Type)
         else alph_=pm*pi/2;
         end
         PAv=[cos(alph_) -sin(alph_) 0;...                   % Tangent
-            sin(alph_)  cos(alph_) 0;...
-            0           0      1] * PQv;                        
+             sin(alph_)  cos(alph_) 0;...
+             0           0          1] * PQv;                        
         PBv = Bv-Pv;                                        % Intersection to Bright zone vector
         gam_found(end+1) = atan2(norm(cross(PAv,PBv)), dot(PAv,PBv));   % One of two maximum allowable angles for the grating lobe
         % MATHEMATICALLY EQUIVALENT --> acos(dot(v1, v2) / (norm(v1) * norm(v2)))        

@@ -5,12 +5,26 @@
 %==========================================================================
 clc;clear;clear classes;close all;fclose all;delete(gcp('nocreate'));
 
-%% Build Look-Up Tables
-Soundfield_Database.LUT_Builders.Build_LUT
+% Author: Jacob Donley
+% University of Wollongong
+% Email: jrd089@uowmail.edu.au
+% Copyright: Jacob Donley 2016-2017
+% Date: 17 August 2017
+% Version: 0.2 (17 August 2017)
+% Version: 0.1 (14 June 2016)
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%% Build Room Impulse Responses
+%% Build Receiver and Reproduction Room Impulse Responses
 Room_Acoustics.Generate_RIR_Database
 
+%% Generate Microphone Signals
+Broadband_Tools.Generate_Microphone_Signals
+% temporary_script
+% TEST_SCRIPT
+
+%% Build Reproduction Look-Up Tables
+Soundfield_Database.LUT_Builders.Build_LUT
 
 %% Generate Loudspeaker Signals
 Broadband_Tools.Generate_Loudspeaker_Signals
@@ -23,10 +37,10 @@ Speaker_Setup.Calibration.Perform_Full_Calibration
 Speaker_Setup.Calibration.Calibrate_MSR_Loudspeaker_Signals
 
 
-%% Realworld Recording
+%% Realworld Reproduction Recording
 Hardware_Control.Play_and_Rec_System
 
-%% Simulate Recording 
+%% Simulated Reproduction Recording 
 Room_Acoustics.Reverberant_MSR
 
 

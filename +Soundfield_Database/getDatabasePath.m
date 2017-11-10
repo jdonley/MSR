@@ -49,6 +49,15 @@ virtual_source_dir = '';
                 case '2line'
                     spkr_array_dir  = [spkr_type_dirstr ...
                         num2str( (ceil(setup.Loudspeaker_Count/2)-1)  * (setup.Speaker_Spacing + setup.Loudspeaker_Dimensions(1)) ) 'mLen' '\'];
+                    
+                case 'plane'
+                    spkr_array_dir  = [spkr_type_dirstr ...
+                        num2str( (setup.Loudspeaker_Count^.5 - 1)  * (setup.Speaker_Spacing + setup.Loudspeaker_Dimensions(1)) ) 'mLen' '\'];
+                    
+                case '2plane'
+                    spkr_array_dir  = [spkr_type_dirstr ...
+                        num2str( (ceil(setup.Loudspeaker_Count/2).^0.5 - 1)  * (setup.Speaker_Spacing + setup.Loudspeaker_Dimensions(1)) ) 'mLen' '\'];
+                    
                 otherwise
                     error('Loudspeaker array type (circle, line, etc) from the given loudspeaker setup object does not have a database path defined.')
             end

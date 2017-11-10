@@ -1,6 +1,36 @@
 function [ Loudspeaker_Signals, Original_ ] = getMSRLoudspeakerSignals( Input_Signal, setup, signal_info, system_info )
-%GETLOUDSPEAKERSIGNALS Summary of this function goes here
-%   Detailed explanation goes here
+%Generates multizone soundfield reproduction loudspeaker signals
+% 
+% Syntax:	[ Loudspeaker_Signals, Original_ ] = getMSRLoudspeakerSignals( Input_Signal, setup, signal_info, system_info )
+% 
+% Inputs: 
+% 	Input_Signal - The signal to reproduce in the bright zone.
+% 	setup - The loudspeaker setup description object.
+% 	signal_info - The signal information structure.
+% 	system_info - The system information structure.
+% 
+% Outputs: 
+% 	Loudspeaker_Signals - The loudspeaker signals used to reproduce the
+%                         multizone soundfield.
+% 	Original_ - The original input signal which has been exposed to the
+%               same processing as the loudspeaker signals (possibly
+%               bandfiltered).
+% 
+% Example: 
+% 	Line 1 of example
+% 	Line 2 of example
+% 	Line 3 of example
+% 
+% See also: List related files here
+
+% Author: Jacob Donley
+% University of Wollongong
+% Email: jrd089@uowmail.edu.au
+% Copyright: Jacob Donley 2016-2017
+% Date: 14 June 2016
+% Version: 0.1 (14 June 2016)
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 if ~isfield(signal_info,'f_high_meas')
     signal_info.f_high_meas = signal_info.f_high;
@@ -175,14 +205,15 @@ end
 % %Loudspeaker_Signals =
 % zeros([(size(Z,1)+ceil(overlap))*size(Z,2)*2*(1-overlap) setup.Loudspeaker_Count] ); % pre-allocate memory
 for spkr = 1:setup.Loudspeaker_Count
-    %     Loudspeaker_Signals(:,spkr) = Broadband_Tools.OverlapAdd( real(Loudspeakers_(:,:,spkr)), signal_info.overlap ); %#ok<AGROW>
+    % TODO: Replace overlapadd with builtin Tools.OverlapAdd
+    %     Loudspeaker_Signals(:,spkr) = Tools.OverlapAdd( real(Loudspeakers_(:,:,spkr)), signal_info.overlap ); %#ok<AGROW>
     Loudspeaker_Signals(:,spkr) = overlapadd( squeeze(real(Loudspeakers_(:,:,spkr))), ones(signal_info.Nfft,1), (1-signal_info.overlap)*signal_info.Nfft  ); %#ok<AGROW>
     Loudspeaker_Signals(isnan(Loudspeaker_Signals(:,spkr)),spkr)=0;
 end
-% Original_ = Broadband_Tools.OverlapAdd( Original, signal_info.overlap );
+% Original_ = Tools.OverlapAdd( Original, signal_info.overlap );
 Original_ = overlapadd( Original, ones(signal_info.Nfft,1), (1-signal_info.overlap)*signal_info.Nfft  ); %#ok<AGROW>
 % Input_toMatch_ = overlapadd( Input_toMatch, ones(signal_info.Nfft,1), (1-signal_info.overlap)*signal_info.Nfft  ); %#ok<AGROW>
-% Input_toMatch_ = Broadband_Tools.OverlapAdd( Input_toMatch, signal_info.overlap );
+% Input_toMatch_ = Tools.OverlapAdd( Input_toMatch, signal_info.overlap );
 % clear Loudspeakers_; % Save on memory
 
 
@@ -199,7 +230,8 @@ Original_ = overlapadd( Original, ones(signal_info.Nfft,1), (1-signal_info.overl
 if signal_info.predict_buff ~= 0
     LS_=[];
     for s=1:setup.Loudspeaker_Count
-        LS = enframe(Loudspeaker_Signals(:,s),signal_info.Nfft/2,signal_info.Nfft/2);
+        LS = Tools.frame_data(Loudspeaker_Signals(:,s),0,signal_info.Nfft/2);
+%         LS = enframe(Loudspeaker_Signals(:,s),signal_info.Nfft/2,signal_info.Nfft/2);
         LS_(:,s) = reshape(LS(2:2:end,:).',[],1);
     end
     Loudspeaker_Signals = LS_;

@@ -1,5 +1,6 @@
 global Settings
-Settings.ToolboxPath        = 'M:\MSR';                                    % Location of the MSR toolbox
-Settings.DependenciesPath   = 'M:\';                                       % Location of the dependencies
-Settings.ChangeUserpath     = true;                                        % Set the MATLAB userpath to the toolbox path
-Settings.DefaultSystemsPath = 'M:\MSR\+Current_Systems';                   % The default location to look for MSR System files
+Settings.ToolboxPath         = 'M:\MSR';                                   % Location of the MSR toolbox
+Settings.DependenciesPath    = 'M:\';                                      % Location of the dependencies
+Settings.ChangeUserpath      = true;                                       % Set the MATLAB userpath to the toolbox path
+Settings.DefaultSystemsPath  = 'M:\MSR\+Current_Systems';                  % The default location to look for MSR System files
+Settings.DefaultDatabasePath = 'Z:\';                                      % The default location to save to and look for MSR databases

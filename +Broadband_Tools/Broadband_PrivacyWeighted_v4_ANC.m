@@ -149,7 +149,7 @@ for ANC_Step = 1:2
         Original(frame,:) = ifft( Original(frame, :) );
     end
     
-    Original_ = +Broadband_Tools.OverlapAdd( Original, overlap );
+    Original_ = Tools.OverlapAdd( Original, overlap );
     
     Original_ = Original_ ./ max(abs(Original_(:)));
     
@@ -184,8 +184,8 @@ for ANC_Step = 1:2
     end
     
     % Then we should perform the overlap-add method to obtain the complete time domain signal for each speaker
-    Bright_sig = +Broadband_Tools.OverlapAdd( Bright, overlap );
-    Quiet_sig  = +Broadband_Tools.OverlapAdd( Quiet , overlap );
+    Bright_sig = Tools.OverlapAdd( Bright, overlap );
+    Quiet_sig  = Tools.OverlapAdd( Quiet , overlap );
     
     % Normalise Signals
     maxVal = max(abs(Bright_sig(:)));

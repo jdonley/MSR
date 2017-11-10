@@ -25,7 +25,14 @@ function setAxisParameters( SYS, ax, range, domain, range_lbl, domain_lbl)
 
 axBuf = SYS.publication_info.axes_limitBufs; % axis limits buffer in percentage [width, height]
 nXT = SYS.publication_info.axes_NumTicks(1); % number of X ticks
-nYT = SYS.publication_info.axes_NumTicks(2); % number of X ticks
+nYT = SYS.publication_info.axes_NumTicks(2); % number of Y ticks
+if isfield(SYS.publication_info,'axes_NumMinorTicks') ...
+        && ~isempty(SYS.publication_info.axes_NumMinorTicks)
+    nMXT= SYS.publication_info.axes_NumMinorTicks(1); % number of X minor ticks between major ticks
+    nMYT= SYS.publication_info.axes_NumMinorTicks(2); % number of Y minor ticks between major ticks
+else
+    nMXT = 0; nMYT = 0;
+end
 sigRounding = SYS.publication_info.sigRounding; % number of significant figures rounding
 FF = SYS.publication_info.LaTeX_FontFamily; % Set fonts for latex interpreter
 FFnums = SYS.publication_info.LaTeX_NumbersFontFamily; % Set number fonts for latex interpreter
@@ -81,15 +88,42 @@ ax.XTickMode = 'manual';
 ax.YTickMode = 'manual';
 
 if ~isempty(strfind(ax.XScale, 'lin'))
-    ax.XTick = round( domain(1):diff(domain)/(nXT-1):domain(end) , ...
+    XTgap = diff(domain)/(nXT-1);
+    XTick = round( domain(1):XTgap:domain(end) , ...
         sigRounding, 'significant');
+    if any(diff(XTick)==0)
+        XTick = domain(1):XTgap:domain(end);
+    end
+    ax.XTick = XTick;
+    % Linear minor ticks
+    if nMXT ~= 0
+        MXTgap = XTgap/(nMXT+1);
+        XMTick = round( domain(1):MXTgap:domain(end) , ...
+            sigRounding, 'significant');
+        if any(diff(XMTick)==0)
+            XMTick = domain(1):MXTgap:domain(end);
+        end
+        ax.XAxis.MinorTickValues = setdiff(XMTick,XTick);
+    end
 elseif ~isempty(strfind(ax.XScale, 'log'))
-    ax.XTick = 10.^round( log10(domain(1)):diff(log10(domain))/(nXT-1):log10(domain(end)) , ...
+    XTick = 10.^round( log10(domain(1)):diff(log10(domain))/(nXT-1):log10(domain(end)) , ...
         sigRounding, 'significant');
+    if any(diff(XTick)==0)
+        XTick = 10.^ ( log10(domain(1)):diff(log10(domain))/(nXT-1):log10(domain(end)) );
+    end
+    ax.XTick = XTick;
 end
 if ~isempty(strfind(ax.YScale, 'lin'))
-    ax.YTick = round( range(1):diff(range)/(nYT-1):range(end), ...
+    YTgap = diff(range)/(nYT-1);
+    ax.YTick = round( range(1):YTgap:range(end), ...
         sigRounding, 'significant');
+    % Linear minor ticks
+    if nMYT ~= 0
+                MYTgap = YTgap/(nMYT+1);
+        YMTick = round( range(1):MYTgap:range(end) , ...
+            sigRounding, 'significant');
+        ax.YAxis.MinorTickValues = setdiff(YMTick,ax.YTick);
+    end
 elseif ~isempty(strfind(ax.YScale, 'log'))
     ax.YTick = 10.^round( log10(range(1)):diff(log10(range))/(nYT-1):log10(range(end)), ...
         sigRounding, 'significant');
@@ -102,6 +136,13 @@ end
 if isfield(SYS.publication_info,'YTicks_override')
     ax.YTick = SYS.publication_info.YTicks_override;
     range = SYS.publication_info.YTicks_override([1 end]);
+end
+% Show minor ticks if specified
+if isfield(SYS.publication_info,'axes_tickMinorX')
+    ax.XMinorTick = SYS.publication_info.axes_tickMinorX;
+end
+if isfield(SYS.publication_info,'axes_tickMinorY')
+    ax.YMinorTick = SYS.publication_info.axes_tickMinorY;
 end
 
 if ~isempty(strfind(ax.XScale, 'lin'))
@@ -129,6 +170,7 @@ if strcmpi(ax.TickLabelInterpreter, 'latex')
 end
 
 ax.YColor = [0,0,0]; %Hard coded black axes colors
+ax.XColor = [0,0,0]; %Hard coded black axes colors
 
 grid(ax, 'off');
 if strcmp(SYS.publication_info.axes_grid, 'minor') %if minor then turn on major and minor

@@ -17,13 +17,19 @@ function [axs, legendStrings] = SUPPRESSION_Freq( SYS, axH )
 % Author: Jacob Donley
 % University of Wollongong
 % Email: jrd089@uowmail.edu.au
-% Copyright: Jacob Donley 2016
-% Date: 04 September 2016
-% Revision: 0.1
+% Copyright: Jacob Donley 2016-2017
+% Date: 4 September 2017
+% Version: 0.2 (4 September 2017)
+% Version: 0.1 (4 September 2016)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 measures = SYS.analysis_info.Measures;
-results_types = measures;
+if isfield(SYS.analysis_info,'Result_Type') ...
+        && ~isempty(SYS.analysis_info.Result_Type)
+    results_types = SYS.analysis_info.Result_Type;
+else
+    results_types = measures;
+end
 
 colours = {[ ...            R G B  values
     1.0 0.0 0.0       ; ...       Predicted Signal
@@ -73,14 +79,14 @@ for rt = 1:numel(measures)
             [Hrz_Vec, Res_Matrix{1}, Res_trend{1}, Res_area{1}, Res_CI{1}, CI_vec] = ...
                 Results.generatePlotData( Xvec, Vals(:,1), ConfInt_Low(:,1), ConfInt_Up(:,1), 'smoothingspline', [1.8 1.8]);
             Res_CI{1} = [ConfInt_Low(:,1), ConfInt_Up(:,1)];
-            legendStrings = {legendStrings{:}, [measures{rt}]};
+            legendStrings = {legendStrings{:}, [results_types{rt}]};
             
         case 'Actual Signal'
             % Generate Plottable data matrices and vectors
             [Hrz_Vec, Res_Matrix{2}, Res_trend{2}, Res_area{2}, Res_CI{2}, CI_vec] = ...
                 Results.generatePlotData( Xvec, Vals(:,2), ConfInt_Low(:,2), ConfInt_Up(:,2), 'smoothingspline', [1.8 1.8]);
             Res_CI{2} = [ConfInt_Low(:,2), ConfInt_Up(:,2)];
-            legendStrings = {legendStrings{:}, [measures{rt}]};
+            legendStrings = {legendStrings{:}, [results_types{rt}]};
             
         otherwise
             error(['Result type ''' results_types{rt} ''' not recognised']);

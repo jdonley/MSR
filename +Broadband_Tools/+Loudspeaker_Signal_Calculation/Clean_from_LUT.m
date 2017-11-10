@@ -22,9 +22,9 @@ function Clean_from_LUT( Input_file, SYS_or_LUT_resolution, weight, setup )
 % Author: Jacob Donley
 % University of Wollongong
 % Email: jrd089@uowmail.edu.au
-% Copyright: Jacob Donley 2017
+% Copyright: Jacob Donley 2015-2017
 % Date: 15 August 2015
-% Revision: 0.1
+% Version: 0.1 (15 August 2015)
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -76,12 +76,16 @@ if isfield(signal_info,'inputSignalNorm') && signal_info.inputSignalNorm
     Input_Signal = Input_Signal ./ rms(Input_Signal);
 end
 
-if ~isempty(strfind(lower(signal_info.method), 'cancel'))
+if contains(lower(signal_info.method), 'cancel')
     %%% TODO
     % Fix this magnitude adjustment which is dependent on the transfer
     % function for point sources. Originates somewhere in
     % loudspeaker_setup.m or earlier. (Could be due to 2D ATFs and 3D RIRs)
-    magnitudeADJ = 0.8;
+    if setup.Dimensionality == 2
+        magnitudeADJ = 0.8;
+    else
+        magnitudeADJ = 1.0;
+    end
     Input_Signal = conv(-1,Input_Signal) * magnitudeADJ;
 end
 

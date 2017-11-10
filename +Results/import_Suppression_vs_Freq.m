@@ -21,10 +21,25 @@ ConfInt_Up=[];
 %%
 for a = 1:2
     
-    SYS.signal_info.Nfft = 12 * 1e-3 * SYS.signal_info.Fs;
+    if isfield(SYS.signal_info,'Nfft_optimal') ...
+            && ~isempty(SYS.signal_info.Nfft_optimal)
+        SYS.signal_info.Nfft = SYS.signal_info.Nfft_optimal;
+    else
+        % Assume 12ms is optimal following from:
+        % J. Donley, C. Ritz & W. B. Kleijn, "Active Speech Control using
+        % Wave-Domain Processing with a Linear Wall of Dipole Secondary
+        % Sources," in International Conference on Acoustics, Speech and
+        % Signal Processing (ICASSP). IEEE, 2017, pp. 456-460.
+        SYS.signal_info.Nfft = 12 * 1e-3 * SYS.signal_info.Fs;
+    end
     
     if a==1
-        SYS.signal_info.time_delay = []; %If empty the time delay will based on the frame length
+        if isfield(SYS.signal_info,'system_time_delay') ...
+                && ~isempty(SYS.signal_info.system_time_delay)
+            SYS.signal_info.time_delay = SYS.signal_info.system_time_delay;
+        else
+            SYS.signal_info.time_delay = []; %If empty the time delay will based on the frame length
+        end
     elseif a==2
         SYS.signal_info.time_delay = [0]; %If empty the time delay will based on the frame length
     end
@@ -36,8 +51,8 @@ for a = 1:2
     
     %%
     SYS.Main_Setup = SYS.Main_Setup(1);
-    %     Falias = Broadband_Tools.getAliasingFrequency(SYS.Main_Setup)/2/pi*SYS.signal_info.c;
-    Falias = 2000;
+%         Falias = Broadband_Tools.getAliasingFrequency(SYS.Main_Setup)/2/pi*SYS.signal_info.c;
+%     Falias = 2000;
     
     %%
     SYS.signal_info.method = SYS.signal_info.methods_list{end};
@@ -46,8 +61,12 @@ for a = 1:2
     B = [A{2:sk:end}];
     C = [A{3:sk:end}];
     C2=[];
-    for i=1:20
-        tmp= Tools.confidence_intervals( [A{sk*(i-1)+1}].' , 95);
+    for i=1:(numel(A)/sk)
+        results = [A{sk*(i-1)+1}].';
+        if size(results,1) == 1
+           results = repmat(results,2,1);
+        end
+        tmp= Tools.confidence_intervals( results , 95);
         C2(:,i)= tmp(:,2);
     end
     D = [A{sk:sk:end}];

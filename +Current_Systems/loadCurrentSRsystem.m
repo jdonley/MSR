@@ -5,9 +5,13 @@ All_Settings.Global_Settings;
 System_Path = Settings.DefaultSystemsPath;
 
 %% ALTERNATIVE SYSTEM PATHS
+% System_Path = 'D:\some\alternative\system\path';
+
 % System_Path = 'D:\Dropbox\Business and Work\Research Assistance\Novecom Project\MATLAB_Code';
 
 %% SYSTEM NAMES
+% Current_System = 'A_current_system_filename';
+
 % Current_System = 'IEEELetters2017_System_A';
 
 % Current_System = 'IEEETransactions_System_A'; % Differing Source Angles
@@ -15,6 +19,7 @@ System_Path = Settings.DefaultSystemsPath;
 % Current_System = 'IEEETransactions_System_C'; % Simulated and Real-World
 % Current_System = 'IEEETransactions_System_D'; % Differing Lambda-Grave Parameter (All Angles)
 Current_System = 'IEEETransactions_System_E'; % Acoustic Brightness Contrast - Simulated and Real-World
+% Current_System = 'IEEETransactions_System_F'; % For filter plots
 
 % Current_System = 'NOVECOM_System';
 % Current_System = 'MediaAnimation_System_1';

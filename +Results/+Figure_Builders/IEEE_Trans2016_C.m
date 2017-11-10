@@ -63,6 +63,9 @@ for row = 1:nRow
             SYS.signal_info.methods_list{ ...
             SYS.signal_info.methods_list_masker( I )};
         
+        % Set a tag to distinguish between axes
+        axes(axHndls( I )); ax = gca; ax.Tag = char(64+I);
+        
         [nA, lS] = Results.Axes_Builders.STOI_PESQ( ...
             SYStmp, ...
             axHndls( I ) );

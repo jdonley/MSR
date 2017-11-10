@@ -1,0 +1,66 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of frame_data</title>
+  <meta name="keywords" content="frame_data">
+  <meta name="description" content="Frames data with overlap">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="">
+  <meta name="robots" content="index, follow">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link type="text/css" rel="stylesheet" href="../soundzones.css">
+</head>
+<body id="mfile">
+<a name="_top"></a>
+<div class="navheader"><a href="../index.html">Home</a> &gt;  <a href="index.html">+Tools</a> &gt; frame_data.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for +Tools&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>frame_data
+</h1>
+
+<!-- <h2><a name="_name"></a>Summary <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2> -->
+<div class="purpose">Frames data with overlap</div>
+
+<h2><a name="_synopsis"></a>Syntax <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box">function [ d_framed ] = frame_data( d, OL, N ) </div>
+
+<h2><a name="_description"></a>Description <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">Frames data with overlap
+ 
+ Syntax:    [d_framed] = frame_data( d, OL, N ) 
+ 
+ Inputs: 
+      d - Input data to frame (1D array)
+     OL - Overlap as a fraction (0.25 for 25% overlap)
+      N - Frame length
+ 
+ Outputs: 
+     d_framed - The framed input data
+ 
+ Example: 
+     d = 1:100;
+     N = 10;
+     OL = (N-3)/N;
+     d_framed = frame_data(d,OL,N);
+ 
+ See also: enframe</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>Cross-Reference Information <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+
+<hr><address>Generated on Tue 05-Sep-2017 07:46:10 for <strong><a href="https://www.soundzones.com" title="Sound Zones - code | research | blog">Sound Zones</a></strong></address>
+</body>
+</html>

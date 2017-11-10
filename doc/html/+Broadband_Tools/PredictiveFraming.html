@@ -4,7 +4,7 @@
 <head>
   <title>Description of PredictiveFraming</title>
   <meta name="keywords" content="PredictiveFraming">
-  <meta name="description" content="PREDICTIVEFRAMING This function accepts a framed signal and corresponding">
+  <meta name="description" content="This function accepts a framed signal and corresponding buffers to predict forward Npredict samples.">
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
   <meta name="generator" content="">
   <meta name="robots" content="index, follow">
@@ -22,32 +22,34 @@
 </h1>
 
 <!-- <h2><a name="_name"></a>Summary <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2> -->
-<div class="purpose">PREDICTIVEFRAMING This function accepts a framed signal and corresponding</div>
+<div class="purpose">This function accepts a framed signal and corresponding buffers to predict forward Npredict samples.</div>
 
 <h2><a name="_synopsis"></a>Syntax <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
-<div class="box">function [ Frames ] = PredictiveFraming( Frames, Buffer, Npredict, method ) </div>
+<div class="box">function [ PredictedFrames, PredictedSignal, a ] = PredictiveFraming( Frames, Buffer, Npredict, method ) </div>
 
 <h2><a name="_description"></a>Description <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
-<div class="fragment"><pre class="comment">PREDICTIVEFRAMING This function accepts a framed signal and corresponding
-buffers to predict forward Npredict samples.
+<div class="fragment"><pre class="comment">This function accepts a framed signal and corresponding buffers to predict forward Npredict samples.
 
- Syntax:    [ Frames ] = PredictiveFraming( Frames, Buffer, Npredict, Npad, method )
+ Syntax:   [ PredictedFrames, PredictedSignal ] = PredictiveFraming( Frames, Buffer, Npredict, method )
 
  Inputs:
-     Frames - Description
-     Buffer - Description
-     Npredict - Description
+      Frames - The framed signal for which to predict ahead of each frame
+              by Npredict
+      Buffer - The set of buffers corresponding to each frame of 'Frames'
+   Npredict - The number of samples to predict ahead of time at each frame
+     method - The autoregressive method to use for prediction
 
  Outputs:
-     output1 - Description
-     output2 - Description
+     PredictedFrames - The set of frames containing the predicted samples
+   PredictedSignal - The frame based predicted signal
+                 a - AR based prediction filters
 
  Example:
      Line 1 of example
      Line 2 of example
      Line 3 of example
 
- See also: List related files here</pre></div>
+ See also: predict, forecast, ar, lpc, aryule, arburg, arcov, armcov</pre></div>
 
 <!-- crossreference -->
 <h2><a name="_cross"></a>Cross-Reference Information <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
@@ -62,6 +64,6 @@ This function is called by:
 
 
 
-<hr><address>Generated on Sun 06-Aug-2017 23:15:43 for <strong><a href="https://www.soundzones.com" title="Sound Zones - code | research | blog">Sound Zones</a></strong></address>
+<hr><address>Generated on Tue 05-Sep-2017 07:46:10 for <strong><a href="https://www.soundzones.com" title="Sound Zones - code | research | blog">Sound Zones</a></strong></address>
 </body>
 </html>

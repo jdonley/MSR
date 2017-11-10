@@ -1,7 +1,27 @@
 function Reverberant_MSR(SYS)
-% clear;
-%clear classes;
-%close all;
+% Summary of this function goes here
+% 
+% Syntax:	Reverberant_MSR(SYS)
+% 
+% Inputs: 
+% 	SYS - Soundfield Reproduction system object
+% 
+% Example: 
+% 	Line 1 of example
+% 	Line 2 of example
+% 	Line 3 of example
+% 
+% See also: List related files here
+
+% Author: Jacob Donley
+% University of Wollongong
+% Email: jrd089@uowmail.edu.au
+% Copyright: Jacob Donley 2016-2017
+% Date: 14 June 2017
+% Version: 0.1 (14 June 2017)
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 fclose all;
 delete(gcp('nocreate'));
 
@@ -10,7 +30,10 @@ if nargin < 1, SYS = Current_Systems.loadCurrentSRsystem; end
 
 %%
 
-N = length(SYS.signal_info.methods_list_clean(SYS.signal_info.methods_list_clean>=1)) ...
+N = length(SYS.signal_info.methods_list_clean( ...
+    SYS.signal_info.methods_list_clean>=1 ...
+    & ~strcmpi(SYS.signal_info.methods_list,'clean') ...
+    & strcmpi(SYS.signal_info.methods_list,'nomask'))) ...
     + length(SYS.signal_info.methods_list_masker(SYS.signal_info.methods_list_masker>=1));
 paired = isfield(SYS.signal_info,'methods_list_paired') && SYS.signal_info.methods_list_paired;
 
@@ -30,6 +53,21 @@ for typ = 1:N
             subSYS.Main_Setup = subSYS.Main_Setup(typ == subSYS.signal_info.methods_list_masker);
         end
     end
+    
+    if numel(SYS.Room_Setup) > 1 
+        % If there is more than one room and the first method has been 
+        % completed then we choose the room set up for reproduction 
+        % (transmission) and the associated loudspeaker setup
+        subSYS = SYS;
+        subSYS.signal_info.method = ...
+            subSYS.signal_info.methods_list{...
+            ~strcmpi(SYS.signal_info.methods_list,'clean')};
+        subSYS.Main_Setup = SYS.Main_Setup( ...
+            ~strcmpi(SYS.signal_info.methods_list,'clean') );
+        subSYS.Room_Setup = SYS.Room_Setup( ...
+            strcmpi({subSYS.Room_Setup.SystemType},'transmit') );
+    end
+    
     
     if isfield(SYS.signal_info, 'UseMeasuredATFs') && SYS.signal_info.UseMeasuredATFs, Room_Acoustics.useMeasuredATF(subSYS); end
     

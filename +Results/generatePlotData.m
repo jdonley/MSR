@@ -2,7 +2,7 @@ function [ Hrz_Vec, Res_Matrix, Res_trend, Res_area, Res_CI, CI_vec ] = generate
 %GENERATEPLOTDATA Organises input data into nice trending plottable data
 %for plots, area plots and errorbar plots.
 % 
-% Syntax:	[Hrz_Vec, Res_Matrix, Res_trend, Res_area, Res_CI, CI_vec] = GENERATEPLOTDATA(X_vals,Res,ConfInt_Low,ConfInt_Up) Explain usage here
+% Syntax:	[Hrz_Vec, Res_Matrix, Res_trend, Res_area, Res_CI, CI_vec] = GENERATEPLOTDATA(X_vals,Res,ConfInt_Low,ConfInt_Up)
 % 
 % Inputs: 
 % 	input1 - Description
@@ -23,9 +23,9 @@ function [ Hrz_Vec, Res_Matrix, Res_trend, Res_area, Res_CI, CI_vec ] = generate
 % Author: Jacob Donley
 % University of Wollongong
 % Email: jrd089@uowmail.edu.au
-% Copyright: Jacob Donley 2015
-% Date: 02 September 2015 
-% Revision: 0.1
+% Copyright: Jacob Donley 2015-2017
+% Date: 02 September 2015
+% Version: 0.1 (02 September 2015)
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if nargin < 5
@@ -34,6 +34,8 @@ end
 if nargin < 6
    X_vals_buffer = [0 0]; 
 end
+ConfInt_exists = ~isempty(ConfInt_Low) & ~isempty(ConfInt_Up);
+
     X_absdiff = abs(diff(X_vals));
     X_absdiff(X_absdiff == 0)=[];
     Num_Audio_Files = max(histcounts(X_vals,(min(X_vals)*0.9):min(X_absdiff):(max(X_vals)*1.1)));
@@ -42,11 +44,12 @@ end
     [~,I] = sort(X_vals);
     X_vals=X_vals(I);
     Res=Res(I);
-    ConfInt_Low=ConfInt_Low(I);
-    ConfInt_Up=ConfInt_Up(I);
+    if ConfInt_exists
+        ConfInt_Low=ConfInt_Low(I);
+        ConfInt_Up=ConfInt_Up(I);
+    end
     
-    
-% Create Matrices of Results
+    % Create Matrices of Results
     %Masking noise Level
     NoiseLevel_Matrix = reshape(X_vals,Num_Audio_Files,size(X_vals,1)/Num_Audio_Files);
     Hrz_Vec = double(NoiseLevel_Matrix(1,:));
@@ -54,12 +57,14 @@ end
     %Speech Intelligibility Results
     Res_Matrix = reshape(Res,Num_Audio_Files,size(Res,1)/Num_Audio_Files);
     
-    % Confidence Intervals from Spatial Sampling Points
-    ConfInt_Low_M = reshape(ConfInt_Low,Num_Audio_Files,size(ConfInt_Low,1)/Num_Audio_Files);
-    ConfInt_Up_M  = reshape(ConfInt_Up ,Num_Audio_Files,size(ConfInt_Up ,1)/Num_Audio_Files);
+    if ConfInt_exists
+        % Confidence Intervals from Spatial Sampling Points
+        ConfInt_Low_M = reshape(ConfInt_Low,Num_Audio_Files,size(ConfInt_Low,1)/Num_Audio_Files);
+        ConfInt_Up_M  = reshape(ConfInt_Up ,Num_Audio_Files,size(ConfInt_Up ,1)/Num_Audio_Files);
         
-    %Average Spatial Sampling Confidence Intervals
-    ConfInt_M = [mean(ConfInt_Low_M,1)' mean(ConfInt_Up_M,1)'];
+        %Average Spatial Sampling Confidence Intervals
+        ConfInt_M = [mean(ConfInt_Low_M,1)' mean(ConfInt_Up_M,1)'];
+    end
     
         %% Calculate confidence intervals
     Res_CI = Tools.confidence_intervals(Res_Matrix, 95);

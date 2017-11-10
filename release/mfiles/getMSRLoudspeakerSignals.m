@@ -175,14 +175,15 @@ end
 % %Loudspeaker_Signals =
 % zeros([(size(Z,1)+ceil(overlap))*size(Z,2)*2*(1-overlap) setup.Loudspeaker_Count] ); % pre-allocate memory
 for spkr = 1:setup.Loudspeaker_Count
-    %     Loudspeaker_Signals(:,spkr) = Broadband_Tools.OverlapAdd( real(Loudspeakers_(:,:,spkr)), signal_info.overlap ); %#ok<AGROW>
+    % TODO: Replace overlapadd with MSR builtin Tools.OverlapAdd
+    %     Loudspeaker_Signals(:,spkr) = Tools.OverlapAdd( real(Loudspeakers_(:,:,spkr)), signal_info.overlap ); %#ok<AGROW>
     Loudspeaker_Signals(:,spkr) = overlapadd( squeeze(real(Loudspeakers_(:,:,spkr))), ones(signal_info.Nfft,1), (1-signal_info.overlap)*signal_info.Nfft  ); %#ok<AGROW>
     Loudspeaker_Signals(isnan(Loudspeaker_Signals(:,spkr)),spkr)=0;
 end
-% Original_ = Broadband_Tools.OverlapAdd( Original, signal_info.overlap );
+% Original_ = Tools.OverlapAdd( Original, signal_info.overlap );
 Original_ = overlapadd( Original, ones(signal_info.Nfft,1), (1-signal_info.overlap)*signal_info.Nfft  ); %#ok<AGROW>
 % Input_toMatch_ = overlapadd( Input_toMatch, ones(signal_info.Nfft,1), (1-signal_info.overlap)*signal_info.Nfft  ); %#ok<AGROW>
-% Input_toMatch_ = Broadband_Tools.OverlapAdd( Input_toMatch, signal_info.overlap );
+% Input_toMatch_ = Tools.OverlapAdd( Input_toMatch, signal_info.overlap );
 % clear Loudspeakers_; % Save on memory
 
 

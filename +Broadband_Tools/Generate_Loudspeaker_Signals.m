@@ -1,14 +1,41 @@
 function Generate_Loudspeaker_Signals(SYS)
-% clear;
-%clear classes;
-% close all;
-fclose all;
+% Summary of this function goes here
+% 
+% Syntax:	[OUTPUTARGS] = TEMPLATE(INPUTARGS) Explain usage here
+% 
+% Inputs: 
+% 	input1 - Description
+% 	input2 - Description
+% 	input3 - Description
+% 
+% Outputs: 
+% 	output1 - Description
+% 	output2 - Description
+% 
+% Example: 
+% 	Line 1 of example
+% 	Line 2 of example
+% 	Line 3 of example
+% 
+% See also: List related files here
+
+% Author: Jacob Donley
+% University of Wollongong
+% Email: jrd089@uowmail.edu.au
+% Copyright: Jacob Donley 2015-2017
+% Date: 15 August 2015
+% Version: 0.1 (15 August 2015)
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Load System
 if nargin < 1, SYS = Current_Systems.loadCurrentSRsystem; end
 
 %%
-N = length(SYS.signal_info.methods_list_clean(SYS.signal_info.methods_list_clean>=1)) ...
+N = length(SYS.signal_info.methods_list_clean( ...
+    SYS.signal_info.methods_list_clean>=1 ...
+    & ~strcmpi(SYS.signal_info.methods_list,'clean') ...
+    & strcmpi(SYS.signal_info.methods_list,'nomask'))) ...
     + length(SYS.signal_info.methods_list_masker(SYS.signal_info.methods_list_masker>=1));
 paired = isfield(SYS.signal_info,'methods_list_paired') && SYS.signal_info.methods_list_paired;
 
@@ -35,6 +62,14 @@ for typ = 1:N
         if paired
             subSYS.Main_Setup = subSYS.Main_Setup(typ == subSYS.signal_info.methods_list_masker);
         end
+    end
+    if numel(SYS.Room_Setup) > 1
+        subSYS = SYS;
+        subSYS.signal_info.method = ...
+            subSYS.signal_info.methods_list{...
+            ~strcmpi(subSYS.signal_info.methods_list,'clean')};
+    else
+        subSYS.Room_Setup = SYS.Room_Setup(1);
     end
     
     Broadband_Tools.Generate_Loudspeaker_Signals_batchfunc( subSYS );

@@ -14,23 +14,29 @@ function Build_LUT( SYS )
 % Author: Jacob Donley
 % University of Wollongong
 % Email: jrd089@uowmail.edu.au
-% Copyright: Jacob Donley 2017
+% Copyright: Jacob Donley 2015-2017
 % Date: 31 October 2015 
-% Revision: 0.1
+% Revision: 0.1 (31 October 2015)
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-tic; %Start timing this script
-delete(gcp('nocreate'));
-current_pool = parpool; %Start new pool
-C = clock;
-fprintf('Started execution at %.0f:%.0f:%.0f on the %.0f/%.0f/%.0f\n',C([4:6 3:-1:1]))
 
 %% Settings
 if nargin < 1, SYS = Current_Systems.loadCurrentSRsystem; end
 
 DebugMode = 'DEBUG';        % Set this to 'DEBUG' for a fast aproximate output, for complete soundfield contruction replace with ''
 % You can suppress the output when executing a complete soundfield construction with 'suppress_output'
+
+if any(contains(SYS.signal_info.methods_list,'BoundaryCancel'))
+    Tools.simpleWarning('Boundary cancellation does not require a Look-Up Table\n');
+    return;
+end
+
+%% Initialise timing and parallel processing pool
+startTime = tic; %Start timing this function
+delete(gcp('nocreate'));
+current_pool = parpool; %Start new pool
+C = clock;
+fprintf('Started execution at %.0f:%.0f:%.0f on the %.0f/%.0f/%.0f\n',C([4:6 3:-1:1]))
 
 %%
 Setups = [];
@@ -54,10 +60,12 @@ for s = DBsetups
         SYS.signal_info.f_high,'lin');
     
     single_LUT_weight = (SYS.system_info.LUT_weights == 1);
-    if Setup.Loudspeaker_Count > 1
+    if Setup.Loudspeaker_Count > 1 && ~single_LUT_weight
         Weights = [0,  logspace(log10( min(SYS.system_info.LUT_weight_range) ), ...
             log10( max(SYS.system_info.LUT_weight_range) ), ...
             SYS.system_info.LUT_weights - 1) ];
+    elseif Setup.Loudspeaker_Count > 1 && single_LUT_weight       
+        Weights = SYS.system_info.LUT_weight_range;
     elseif Setup.Loudspeaker_Count == 1 && single_LUT_weight
         Weights = 1;
     end
@@ -91,10 +99,13 @@ for s = DBsetups
     fprintf(Speaker_Setup.printSetupDetails(Setup));
     fprintf(['No. of Frequencies:\t' num2str(SYS.system_info.LUT_frequencies) '\n']);
     fprintf(['No. of Weights:\t\t' num2str(length(Weights)) '\n\n']);
-    fprintf('\t Completion: ');n=0;
-    a=1;
+    fprintf('\t Completion: '); startTime = tic; Tools.showTimeToCompletion;
+    
+    percCompl = parfor_progress( length(Weights) * length(Frequencies) );
+    
     for w = 1:length(Weights)
         currWeight = Weights( w ); % Current Weight to process
+        
         parfor f = 1:length(Frequencies)
             
             parsetup = Setup;
@@ -113,19 +124,26 @@ for s = DBsetups
             if parsetup.Loudspeaker_Count > 1
                 Bright_Sample__Weight_Vs_Frequency( w, f ) = parsetup.Bright_Sample;
                 Quiet_Sample__Weight_Vs_Frequency( w, f ) = parsetup.Quiet_Sample;
-            elseif parsetup.Loudspeaker_Count == 1 && single_LUT_weight
+            elseif parsetup.Loudspeaker_Count == 1 && single_LUT_weight 
                 Bright_Sample__Weight_Vs_Frequency{ w, f } = parsetup.Bright_Samples;
                 Quiet_Sample__Weight_Vs_Frequency{ w, f } = parsetup.Quiet_Samples;
             end
             Acoustic_Contrast__Weight_Vs_Frequency( w, f ) = parsetup.Acoustic_Contrast;
             Loudspeaker_Weights__Weight_Vs_Frequency{ w, f } = parsetup.Loudspeaker_Weights; 
+            
+            %%%
+            percCompl = parfor_progress;
+            Tools.showTimeToCompletion( percCompl/100, [], [], startTime );
+            %%%
         end
-        n = Tools.showTimeToCompletion(w/length(Weights), n); 
-    end
+    end    
+    percCompl=parfor_progress(0);
+    Tools.showTimeToCompletion( percCompl/100, [], [], startTime );
+    
     Loudspeaker_Locations = Setup.Loudspeaker_Locations;
     
     %% Save
-    if ~exist(DBpath,'dir'), mkdir(DBpath);end;
+    if ~exist(DBpath,'dir'), mkdir(DBpath);end
     save(DB_fullpath, ...
         'Frequencies', ...
         'Weights', ...
@@ -136,7 +154,7 @@ for s = DBsetups
         'Loudspeaker_Locations');
 
     %% Finished
-    tEnd = toc;
+    tEnd = toc(startTime);
     fprintf('\nExecution time: %dmin(s) %fsec(s)\n', floor(tEnd/60), rem(tEnd,60)); %Time taken to execute this script
     
 end

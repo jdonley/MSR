@@ -86,6 +86,9 @@ classdef multizone_soundfield_OBE
             if strcmpi( obj.Geometry, 'circle' )
                 width = int16(obj.res * obj.Radius * 2);
                 height = width;
+                if isempty(obj.ReproRegionSize)
+                    obj = obj.setReproRegionSize([width, height]/obj.res);
+                end
             elseif contains( lower(obj.Geometry), 'rect' )
                 width  = obj.ReproRegionSize(1) * obj.res;
                 height = obj.ReproRegionSize(2) * obj.res;
@@ -149,7 +152,7 @@ classdef multizone_soundfield_OBE
                     end
                 end
                 
-                if ~contains(Debug,'suppress_output'); fprintf('\n\n'); end;
+                if ~contains(Debug,'suppress_output'); fprintf('\n\n'); end
             end
             
 %             if ~strcmp(Debug, 'Bright') && ~strcmp(Debug, 'Quiet')

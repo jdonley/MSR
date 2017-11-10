@@ -1,6 +1,37 @@
-function [ Y, frequencies, Frames, Windows, Yo, Frames_orig] = FFT_custom( audio_pathORdata, signal_info ) %Nfft, Fs, Overlap, pad, delay, BuffLen )
-%FFT_CUSTOM Summary of this function goes here
-%   Detailed explanation goes here
+function [ Y, frequencies, Frames, Windows, Yo, Frames_orig] = FFT_custom( audio_pathORdata, signal_info )
+% A short-time fast Fourier transform function with advanced short-time 
+% features, such as frame prediction.
+% 
+% Syntax:	[ Y, frequencies, Frames, Windows, Yo, Frames_orig] = ...
+%                               FFT_custom( audio_pathORdata, signal_info )
+% 
+% Inputs: 
+% 	input1 - Description
+% 	input2 - Description
+% 	input3 - Description
+% 
+% Outputs: 
+% 	output1 - Description
+% 	output2 - Description
+% 
+% Example: 
+% 	Line 1 of example
+% 	Line 2 of example
+% 	Line 3 of example
+% 
+% See also: List related files here
+
+% Author: Jacob Donley
+% University of Wollongong
+% Email: jrd089@uowmail.edu.au
+% Copyright: Jacob Donley 2017
+% Date: 9 December 2016
+% Version: 0.2 (9 December 2016)
+% Version: 0.1 (15 August 2015)
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Simplify variable names
 Nfft = signal_info.Nfft;
 Fs = signal_info.Fs;
 Overlap = signal_info.overlap;
@@ -30,21 +61,6 @@ else
     end
 end
 
-% if nargin < 2
-%     Nfft = 1024; % 1024 samples per frame
-% end
-% if nargin < 4
-%     Overlap = 0.5;
-% end
-% if nargin < 5
-%     pad = [];
-% end
-% if nargin < 6
-%     delay = 0;
-% end
-% if nargin < 7
-%     BuffLen = 1;
-% end
 if isempty(delay)
     delay = Nfft / Fs; % Assume delay is equivalent to frame length
     %(i.e. how long it takes to get the frame is the number of samples in that frame)
@@ -52,18 +68,13 @@ end
 
 if ~isempty(pad)
     Npad = pad * Fs;
-%     Nframe = Nfft + Npad;
-    %    Nfft = Nfft / 2;
 end
 
-
-if size(x,2) > 1 % If audio is not mono then sum audio from all channels together
-    %x = sum(x,2);
-end
 x = x(:,1);
 
 %% Split audio file into frames with overlap
-Frames = enframe( x, Nfft, (1-Overlap)*Nfft );
+Frames = Tools.frame_data( x, Overlap, Nfft );
+% Frames = enframe( x, Nfft, (1-Overlap)*Nfft );
 N_of_frames = size(Frames,1);
 
 %% Predict ahead and frame
@@ -85,7 +96,6 @@ Frames_orig = Frames;
 
 %% Zero pad
 if ~isempty(pad)
-    
     Frames_orig = [zeros(N_of_frames,Npad/2), ...
         Frames_orig, ...
         zeros(N_of_frames,Npad/2)];
@@ -95,7 +105,6 @@ if ~isempty(pad)
         Frames, ...
         zeros(N_of_frames,Npad/2)];
 end
-
 
 %% Apply windowing to each frame
 if mod(Nfft,2) % If odd set to periodic hanning window
