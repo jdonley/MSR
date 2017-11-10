@@ -95,12 +95,8 @@ d(end+1).Name           = 'sqdistance';
 d(end+1).Name           = 'SweptSineAnalysis';
   d(end).URL            = 'http://au.mathworks.com/matlabcentral/fileexchange/29187-swept-sine-analysis';
               
-d(end+1).Name           = 'tightfig';
-  d(end).URL            = 'http://au.mathworks.com/matlabcentral/fileexchange/34055-tightfig';
-  d(end).Required       = false;
-              
 d(end+1).Name           = 'tightfigadv';
-  d(end).URL            = '';
+  d(end).URL            = 'https://au.mathworks.com/matlabcentral/fileexchange/65004-jacobd10-tightfigadv';
   d(end).Required       = true;
               
 d(end+1).Name           = 'tightPlots';
