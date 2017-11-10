@@ -76,12 +76,12 @@ for row = 1:nRow
     
 end
 
-drawnow;pause(0.05);
-tightfig(fig);
-
 Results.Figure_Builders.Helpers.setLegend( SYS, newAxs, legStrs, 'errorbar' );
 
 Results.Figure_Builders.Helpers.setLabels( SYS, newAxs, nRow, nCol );
+
+drawnow;pause(0.05);
+tightfig(fig);
 
 end
 

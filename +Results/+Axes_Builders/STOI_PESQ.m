@@ -311,15 +311,18 @@ for li = 1:Nlines
                 
                 erPl = errorbar(axCurr,Hrz_Vec,mean(Res_Matrix_{rt}{pl}),Res_CI_{rt}{pl}(:,1),Res_CI_{rt}{pl}(:,2),...
                     erPlDetails{:});
-                erPl.Marker = 'none';
-                erPl2 = plot(axCurr,Hrz_Vec(ceil(end/2)),mean(Res_Matrix_{rt}{pl}(:,ceil(end/2))),...
-                    erPlDetails1{:});
+                erPl.Marker = 'none'; erPl.Tag = 'noLegend';
+                [~,Imrk]=min(abs(trend_vec - mean(Hrz_Vec(ceil(end/2)+[0 1]))));
+                erPl2 = errorbar(axCurr, ...
+                    trend_vec(Imrk), Res_trend_{rt}{pl}(Imrk),...
+                    [],[], erPlDetails1{:});
                 
                 hold off;
                 
                 if li ~= 1 && ~mergeLines
                     Pl.Tag = 'noLegend';
                     erPl.Tag = 'noLegend';
+                    erPl2.Tag = 'noLegend';
                 end
                 
             end
