@@ -310,6 +310,9 @@ for li = 1:Nlines
                 
                 erPl = errorbar(axCurr,Hrz_Vec,mean(Res_Matrix_{rt}{pl}),Res_CI_{rt}{pl}(:,1),Res_CI_{rt}{pl}(:,2),...
                     erPlDetails{:});
+                erPl.Marker = 'none';
+                erPl2 = errorbar(axCurr,Hrz_Vec(ceil(end/2)),mean(Res_Matrix_{rt}{pl}(:,ceil(end/2))),Res_CI_{rt}{pl}(ceil(end/2),1),Res_CI_{rt}{pl}(ceil(end/2),2),...
+                    erPlDetails{:});
                 
                 hold off;
                 
