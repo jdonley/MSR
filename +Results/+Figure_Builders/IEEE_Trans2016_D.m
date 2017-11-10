@@ -92,12 +92,12 @@ SYS_ = SYS;
 SYS_.Main_Setup(row*col+1:end)=[];
 SYS_.Masker_Setup(row*col+1:end)=[];
 
-drawnow;pause(0.05);
-tightfig(fig);
-
 Results.Figure_Builders.Helpers.setLegend( SYS_, newAxs, legStrs, 'errorbar' );
 
 Results.Figure_Builders.Helpers.setLabels( SYS_, newAxs, nRow, nCol );
+
+drawnow;pause(0.05);
+tightfig(fig);
 
 end
 
