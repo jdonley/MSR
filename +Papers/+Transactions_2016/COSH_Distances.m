@@ -152,9 +152,9 @@ end
 Eps_min_dB = mag2db(Eps_min);
 Eps_minB_dB = mag2db(Eps_minB);
 Eps_mean_dB = mag2db(mean([Eps_min;Eps_minB]));
-Eps_min_dB = mag2db(Eps_min);
-Eps_minB_dB = mag2db(Eps_minB);
-Eps_mean_dB = mag2db(mean([Eps_min;Eps_minB]));
+Eps_min_CI  = Tools.confidence_intervals(E_min);
+Eps_minB_CI = Tools.confidence_intervals(E_minB);
+Eps_mean_CI = Tools.confidence_intervals([E_min;E_minB]);
 
 
 fprintf(['\nCOSH Distances in Decibels (dB)\n'...
