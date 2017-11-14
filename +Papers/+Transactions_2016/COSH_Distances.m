@@ -165,6 +165,13 @@ colours = {[ ...            R G B  values
     0.6 0.0 0.6       ;];[ ...    Speech Intelligibility Contrast
     0.0 0.6 0.0       ];}; %      Bright Quality
 
+LAB = rgb2lab(colours{1}(1:2,:));
+[A,C] = cart2pol(LAB(:,2),LAB(:,3));
+C = [74;84];
+[a,b]=pol2cart(A,C);
+LAB2 = [[60;40] a b];
+colours{1}(1:2,:) = lab2rgb(LAB2);
+
 % Figure Output Settings
 DocumentPath = SYS.publication_info.DocumentPath;
 print_fmt = 'pdf'; %figure image file format
@@ -193,29 +200,40 @@ setLatexNumFont = @(s) [latexNumFontSettings s '}'];
 
 fH = figure(1);
 fH.Color = 'w';
+
+ax=gca; hold on;
+yL = [-40 10];
+xlim([0.5 5.5]);
+ylim( yL );
+ax.XTick = 1:5;
+ax.YTick = -40:10:10;
+xg = ax.XTick([2:end;2:end]) - 0.5 ; xg = xg(:).';
+xgy = repmat([yL, flip(yL)]*1e3,1,(numel(ax.XTick)-1)/2);
+plot( xg,xgy, '-','color',[0 0 0 0.5] );
+yg = ax.YTick([1:end;1:end]); yg = yg(:).';
+ygx = repmat([1 -1 -1 1]*1e3,1,ceil(numel(ax.YTick)/2)); ygx(numel(yg)+1:end)=[];
+plot( ygx,yg, ':','color',[0 0 0 0.2] );
+
+
 MarkSep = 0.2;
 x = 1:5; x = x - MarkSep;
 y = Eps_min_dB(end-4:end);
 CI = Eps_min_CI(:,end-4:end);
-errorbar(x,y,CI(1,:),CI(2,:),'.','color',colours{1}(1,:)); hold on;
+errorbar(x,y,CI(1,:),CI(2,:),'.','color',colours{1}(1,:)); 
 
 x = 1:5;
 y = Eps_minB_dB(end-4:end);
 CI = Eps_minB_CI(:,end-4:end);
-errorbar(x,y,CI(1,:),CI(2,:),'.','color',colours{1}(2,:)); hold on;
+errorbar(x,y,CI(1,:),CI(2,:),'.','color',colours{1}(2,:)); 
 
 x = 1:5; x = x + MarkSep;
 y = Eps_mean_dB(end-4:end);
 CI = Eps_mean_CI(:,end-4:end);
-errorbar(x,y,CI(1,:),CI(2,:),'.k'); hold on;
-ax = gca;
-xlim([0.5 5.5]);
-ylim( [-40 10] );
+errorbar(x,y,CI(1,:),CI(2,:),'.k');
 
+ax.Box = 'on';
 ax.TickDir = 'both';
 ax.YMinorTick = 'on';
-ax.XTick = 1:5;
-ax.YTick = -40:10:10;
 % ax.YGrid = 'on';
 ax.TickLabelInterpreter = 'latex';
 ax.YLabel.Interpreter = 'latex';
@@ -223,24 +241,13 @@ ax.YLabel.String = setLatexFont('COSH Distance ($\mathrm{dB}$)');
 ax.XTickLabel = {...
     '$\{\mathrm{ wh},\mathrm{lp}\}$'; ...
     '$\{\mathrm{  p},\mathrm{lp}\}$'; ...
-    '\begin{tabular}{c} $\{\mathcal{IB},\mathrm{lp}\}$ \\ $\lambda^{\grave{}}=0.0$\end{tabular}'; ...
-    '\begin{tabular}{c} $\{\mathcal{IB},\mathrm{lp}\}$ \\ $\lambda^{\grave{}}=0.5$\end{tabular}'; ...
-    '\begin{tabular}{c} $\{\mathcal{IB},\mathrm{lp}\}$ \\ $\lambda^{\grave{}}=1.0$\end{tabular}'; };
+    '\begin{tabular}{c} $\{\mathcal{IB},\mathrm{lp}\}$ \\ $\lambda{\grave{}}=0.0$\end{tabular}'; ...
+    '\begin{tabular}{c} $\{\mathcal{IB},\mathrm{lp}\}$ \\ $\lambda{\grave{}}=0.5$\end{tabular}'; ...
+    '\begin{tabular}{c} $\{\mathcal{IB},\mathrm{lp}\}$ \\ $\lambda{\grave{}}=1.0$\end{tabular}'; };
 ax.YTickLabel = cellfun(@num2str,num2cell(ax.YTick(:)),'un',0);
 
 ax.XTickLabel = cellfun(setLatexFont, ax.XTickLabel,'un',0);
 ax.YTickLabel = cellfun(setLatexNumFont, ax.YTickLabel,'un',0);
-
-xg = ax.XTick([2:end;2:end]) - 0.5 ;
-xg = xg(:).';
-xgy = repmat([ax.YLim, flip(ax.YLim)]*1e3,1,(numel(ax.XTick)-1)/2);
-plot( xg,xgy, '-','color',[0 0 0 0.5] );
-
-yg = ax.YTick([1:end;1:end]);
-yg = yg(:).';
-ygx = repmat([[1 -1 -1 1]*1e3],1,ceil(numel(ax.YTick)/2));
-ygx(numel(yg)+1:end)=[];
-plot( ygx,yg, ':','color',[0 0 0 0.2] );
 
 grid off;
 hold off;
@@ -260,6 +267,9 @@ ax2.XTick = ax.XTick(2:end) - 0.5;
 
 drawnow; %pause(1.0);
 tightfigadv;
+
+fname = [SYS.publication_info.DocumentPath filesep 'COSH_Distances'];
+print(fname,['-d' SYS.publication_info.print_fmt]);
 
 %%
 fprintf(['\nCOSH Distances in Decibels (dB)\n'...
