@@ -177,7 +177,7 @@ DocumentPath = SYS.publication_info.DocumentPath;
 print_fmt = 'pdf'; %figure image file format
 print_res = 600; %dpi
 plot_width = 88.9/10;% + 6.35/10 + 88.9/10; %IEEE full text width
-aspect_ratio = 2/5;
+aspect_ratio = 33/100;
 FontSize = 8;
 Font = 'Times';
 lineWid = 0.5;
@@ -216,20 +216,28 @@ plot( ygx,yg, ':','color',[0 0 0 0.2] );
 
 
 MarkSep = 0.2;
+circCol = [0 0 0] + 0.5;
+circSz = 10;
 x = 1:5; x = x - MarkSep;
 y = Eps_min_dB(end-4:end);
 CI = Eps_min_CI(:,end-4:end);
 errorbar(x,y,CI(1,:),CI(2,:),'.','color',colours{1}(1,:)); 
+[Ym,Im] = min(y);
+pl = plot(x(Im),Ym,'o','color',circCol,'MarkerSize',circSz+2); 
 
 x = 1:5;
 y = Eps_minB_dB(end-4:end);
 CI = Eps_minB_CI(:,end-4:end);
 errorbar(x,y,CI(1,:),CI(2,:),'.','color',colours{1}(2,:)); 
+[Ym,Im] = min(y);
+plot(x(Im),Ym,'o','MarkerEdgeColor',circCol,'MarkerSize',circSz+4); 
 
 x = 1:5; x = x + MarkSep;
 y = Eps_mean_dB(end-4:end);
 CI = Eps_mean_CI(:,end-4:end);
 errorbar(x,y,CI(1,:),CI(2,:),'.k');
+[Ym,Im] = min(y);
+plot(x(Im),Ym,'o','color',circCol,'MarkerSize',circSz); 
 
 ax.Box = 'on';
 ax.TickDir = 'both';
@@ -239,11 +247,11 @@ ax.TickLabelInterpreter = 'latex';
 ax.YLabel.Interpreter = 'latex';
 ax.YLabel.String = setLatexFont('COSH Distance ($\mathrm{dB}$)');
 ax.XTickLabel = {...
-    '$\{\mathrm{ wh},\mathrm{lp}\}$'; ...
-    '$\{\mathrm{  p},\mathrm{lp}\}$'; ...
-    '\begin{tabular}{c} $\{\mathcal{IB},\mathrm{lp}\}$ \\ $\lambda{\grave{}}=0.0$\end{tabular}'; ...
-    '\begin{tabular}{c} $\{\mathcal{IB},\mathrm{lp}\}$ \\ $\lambda{\grave{}}=0.5$\end{tabular}'; ...
-    '\begin{tabular}{c} $\{\mathcal{IB},\mathrm{lp}\}$ \\ $\lambda{\grave{}}=1.0$\end{tabular}'; };
+    '\begin{tabular}{c} \vspace{-0.7em} \\ $\{\mathrm{ wh},\mathrm{lp}\}$ \\ $~$ \end{tabular}'; ...
+    '\begin{tabular}{c} \vspace{-0.7em} \\ $\{\mathrm{  p},\mathrm{lp}\}$ \\ $~$ \end{tabular}'; ...
+    '\begin{tabular}{c} \vspace{-0.7em} \\ $\{\mathcal{IB},\mathrm{lp}\}$ \\ $\lambda{\grave{}}=0.0$\end{tabular}'; ...
+    '\begin{tabular}{c} \vspace{-0.7em} \\ $\{\mathcal{IB},\mathrm{lp}\}$ \\ $\lambda{\grave{}}=0.5$\end{tabular}'; ...
+    '\begin{tabular}{c} \vspace{-0.7em} \\ $\{\mathcal{IB},\mathrm{lp}\}$ \\ $\lambda{\grave{}}=1.0$\end{tabular}'; };
 ax.YTickLabel = cellfun(@num2str,num2cell(ax.YTick(:)),'un',0);
 
 ax.XTickLabel = cellfun(setLatexFont, ax.XTickLabel,'un',0);
@@ -256,14 +264,16 @@ ax.Units = 'centimeters';
 ax.Position(3:4) = plot_width * [1 aspect_ratio];
 
 
+ax.Color(4) = 0;
 ax2 = copyobj(ax,fH);
-ax2.Color(4) = 0;
 ax2.YLabel = [];
 ax2.XTickLabel = [];
 ax2.YTickLabel = [];
 ax2.Children.delete;
 ax.TickLength = [0 0];
 ax2.XTick = ax.XTick(2:end) - 0.5;
+fH.Children = flip(fH.Children);
+
 
 drawnow; %pause(1.0);
 tightfigadv;
