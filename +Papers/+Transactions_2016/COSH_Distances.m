@@ -152,11 +152,42 @@ end
 Eps_min_dB = mag2db(Eps_min);
 Eps_minB_dB = mag2db(Eps_minB);
 Eps_mean_dB = mag2db(mean([Eps_min;Eps_minB]));
-Eps_min_CI  = Tools.confidence_intervals(E_min);
-Eps_minB_CI = Tools.confidence_intervals(E_minB);
-Eps_mean_CI = Tools.confidence_intervals([E_min;E_minB]);
+Eps_min_CI  = mag2db( exp( Tools.confidence_intervals(E_min,95,true) ) ).';
+Eps_minB_CI = mag2db( exp( Tools.confidence_intervals(E_minB,95,true) ) ).';
+Eps_mean_CI = mag2db( exp( Tools.confidence_intervals([E_min;E_minB],95,true) ) ).';
 
+%%
+% Figure Output Settings
+DocumentPath = SYS.publication_info.DocumentPath;
+print_fmt = 'pdf'; %figure image file format
+print_res = 600; %dpi
+plot_width = 88.9/10;% + 6.35/10 + 88.9/10; %IEEE full text width
+aspect_ratio = 4/5;
+FontSize = 8;
+Font = 'Times';
+lineWid = 0.5;
+LegendHeightScaleFactor = 1.1;
 
+ha = tightPlots(3,1,plot_width,[2.0 0.9], [0.2 0.1], 1, 1,'centimeters');
+
+x = 1:5; x = x - 0.1;
+y = Eps_min_dB(end-4:end);
+CI = Eps_min_CI(:,end-4:end);
+errorbar(x,y,CI(1,:),CI(2,:),'xb','linestyle','none'); hold on;
+
+x = 1:5; x = x - 0.0;
+y = Eps_minB_dB(end-4:end);
+CI = Eps_minB_CI(:,end-4:end);
+errorbar(x,y,CI(1,:),CI(2,:),'+r','linestyle','none'); hold on;
+
+x = 1:5; x = x + 0.1;
+y = Eps_mean_dB(end-4:end);
+CI = Eps_mean_CI(:,end-4:end);
+errorbar(x,y,CI(1,:),CI(2,:),'*k','linestyle','none'); hold on;
+xlim([0.5 5.5]);
+hold off;
+
+%%
 fprintf(['\nCOSH Distances in Decibels (dB)\n'...
     '\t\t\t'...
     '{sp}\t\t'...
