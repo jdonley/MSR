@@ -172,13 +172,25 @@ y = Eps_mean_dB(end-4:end);
 CI = Eps_mean_CI(:,end-4:end);
 errorbar(x,y,CI(1,:),CI(2,:),'*k'); hold on;
 xlim([0.5 5.5]);
-hold off;
 
 ax = gca;
 ax.TickDir = 'both';
 ax.XTick = 1:5;
-for i = 1:
+ax.TickLabelInterpreter = 'latex';
+ax.XTickLabel = {...
+    '$\{\mathrm{ wh},\mathrm{lp}\}$'; ...
+    '$\{\mathrm{  p},\mathrm{lp}\}$'; ...
+    '$\{\mathcal{IB},\mathrm{lp}\}$\n test';...'$\lambda^\grave{}=0.0$';}; ...
+    '$\{\mathcal{IB},\mathrm{lp}\}$'; ...
+    '$\{\mathcal{IB},\mathrm{lp}\}$' };
+
+xg = ax.XTick([2:end;2:end]) - 0.5 ;
+xg = xg(:).';
+yg = repmat([ax.YLim, flip(ax.YLim)],1,(numel(ax.XTick)-1)/2);
+plot( xg,yg, ':','color',[0 0 0 0.3] );
+
 grid off;
+hold off;
 
 %%
 fprintf(['\nCOSH Distances in Decibels (dB)\n'...
