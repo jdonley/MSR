@@ -157,28 +157,53 @@ Eps_minB_CI = mag2db( exp( Tools.confidence_intervals(E_minB,95,true) ) ).';
 Eps_mean_CI = mag2db( exp( Tools.confidence_intervals([E_min;E_minB],95,true) ) ).';
 
 %%
+% Figure Output Settings
+DocumentPath = SYS.publication_info.DocumentPath;
+print_fmt = 'pdf'; %figure image file format
+print_res = 600; %dpi
+plot_width = 88.9/10;% + 6.35/10 + 88.9/10; %IEEE full text width
+aspect_ratio = 2/5;
+FontSize = 8;
+Font = 'Times';
+lineWid = 0.5;
+LegendHeightScaleFactor = 1.1;
+
+% Latex Fonts
+FF = SYS.publication_info.LaTeX_FontFamily; % Set fonts for latex interpreter
+FFnums = SYS.publication_info.LaTeX_NumbersFontFamily; % Set number fonts for latex interpreter
+FS = SYS.publication_info.FontSize;
+latexFontSettings = ['{\fontfamily{' FF '}' ...
+    '\fontsize{' num2str(FS) 'pt}{' num2str(FS) 'pt}' ...
+    '\selectfont '];
+latexNumFontSettings = ['{\fontfamily{' FFnums '}' ...
+    '\fontsize{' num2str(FS) 'pt}{' num2str(FS) 'pt}' ...
+    '\selectfont '];
+
+
+fH = figure(1);
 MarkSep = 0.2;
 x = 1:5; x = x - MarkSep;
 y = Eps_min_dB(end-4:end);
 CI = Eps_min_CI(:,end-4:end);
-errorbar(x,y,CI(1,:),CI(2,:),'xb'); hold on;
+errorbar(x,y,CI(1,:),CI(2,:),'.b'); hold on;
 
 x = 1:5;
 y = Eps_minB_dB(end-4:end);
 CI = Eps_minB_CI(:,end-4:end);
-errorbar(x,y,CI(1,:),CI(2,:),'+r'); hold on;
+errorbar(x,y,CI(1,:),CI(2,:),'.r'); hold on;
 
 x = 1:5; x = x + MarkSep;
 y = Eps_mean_dB(end-4:end);
 CI = Eps_mean_CI(:,end-4:end);
-errorbar(x,y,CI(1,:),CI(2,:),'*k'); hold on;
-
+errorbar(x,y,CI(1,:),CI(2,:),'.k'); hold on;
 ax = gca;
 xlim([0.5 5.5]);
-ylim( ax.YLim );
+ylim( [-40 10] );
 
 ax.TickDir = 'both';
+ax.YMinorTick = 'on';
 ax.XTick = 1:5;
+% ax.YGrid = 'on';
 ax.TickLabelInterpreter = 'latex';
 ax.XTickLabel = {...
     '$\{\mathrm{ wh},\mathrm{lp}\}$'; ...
@@ -189,11 +214,23 @@ ax.XTickLabel = {...
 
 xg = ax.XTick([2:end;2:end]) - 0.5 ;
 xg = xg(:).';
-yg = repmat([ax.YLim, flip(ax.YLim)]*1e3,1,(numel(ax.XTick)-1)/2);
-plot( xg,yg, ':','color',[0 0 0 0.3] );
+xgy = repmat([ax.YLim, flip(ax.YLim)]*1e3,1,(numel(ax.XTick)-1)/2);
+plot( xg,xgy, '-','color',[0 0 0 0.5] );
+
+yg = ax.YTick([1:end;1:end]);
+yg = yg(:).';
+ygx = repmat([[1 -1 -1 1]*1e3],1,ceil(numel(ax.YTick)/2));
+ygx(numel(yg)+1:end)=[];
+plot( ygx,yg, ':','color',[0 0 0 0.2] );
 
 grid off;
 hold off;
+
+fH.Units = 'centimeters';
+fH.Position(3:4) = plot_width * [1 aspect_ratio];
+
+drawnow; %pause(0.1);
+tightfigadv;
 
 %%
 fprintf(['\nCOSH Distances in Decibels (dB)\n'...
