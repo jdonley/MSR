@@ -157,6 +157,14 @@ Eps_minB_CI = mag2db( exp( Tools.confidence_intervals(E_minB,95,true) ) ).';
 Eps_mean_CI = mag2db( exp( Tools.confidence_intervals([E_min;E_minB],95,true) ) ).';
 
 %%
+if exist('fH'), if isvalid(fH), close(fH); end; end
+
+colours = {[ ...            R G B  values
+    0.2 0.2 1.0       ; ...       Bright Intelligibility
+    1.0 0.0 0.0       ; ...       Quiet  Intelligibility
+    0.6 0.0 0.6       ;];[ ...    Speech Intelligibility Contrast
+    0.0 0.6 0.0       ];}; %      Bright Quality
+
 % Figure Output Settings
 DocumentPath = SYS.publication_info.DocumentPath;
 print_fmt = 'pdf'; %figure image file format
@@ -179,18 +187,22 @@ latexNumFontSettings = ['{\fontfamily{' FFnums '}' ...
     '\fontsize{' num2str(FS) 'pt}{' num2str(FS) 'pt}' ...
     '\selectfont '];
 
+setLatexFont    = @(s) [latexFontSettings    s '}'];
+setLatexNumFont = @(s) [latexNumFontSettings s '}'];
+
 
 fH = figure(1);
+fH.Color = 'w';
 MarkSep = 0.2;
 x = 1:5; x = x - MarkSep;
 y = Eps_min_dB(end-4:end);
 CI = Eps_min_CI(:,end-4:end);
-errorbar(x,y,CI(1,:),CI(2,:),'.b'); hold on;
+errorbar(x,y,CI(1,:),CI(2,:),'.','color',colours{1}(1,:)); hold on;
 
 x = 1:5;
 y = Eps_minB_dB(end-4:end);
 CI = Eps_minB_CI(:,end-4:end);
-errorbar(x,y,CI(1,:),CI(2,:),'.r'); hold on;
+errorbar(x,y,CI(1,:),CI(2,:),'.','color',colours{1}(2,:)); hold on;
 
 x = 1:5; x = x + MarkSep;
 y = Eps_mean_dB(end-4:end);
@@ -203,14 +215,21 @@ ylim( [-40 10] );
 ax.TickDir = 'both';
 ax.YMinorTick = 'on';
 ax.XTick = 1:5;
+ax.YTick = -40:10:10;
 % ax.YGrid = 'on';
 ax.TickLabelInterpreter = 'latex';
+ax.YLabel.Interpreter = 'latex';
+ax.YLabel.String = setLatexFont('COSH Distance ($\mathrm{dB}$)');
 ax.XTickLabel = {...
     '$\{\mathrm{ wh},\mathrm{lp}\}$'; ...
     '$\{\mathrm{  p},\mathrm{lp}\}$'; ...
     '\begin{tabular}{c} $\{\mathcal{IB},\mathrm{lp}\}$ \\ $\lambda^{\grave{}}=0.0$\end{tabular}'; ...
     '\begin{tabular}{c} $\{\mathcal{IB},\mathrm{lp}\}$ \\ $\lambda^{\grave{}}=0.5$\end{tabular}'; ...
     '\begin{tabular}{c} $\{\mathcal{IB},\mathrm{lp}\}$ \\ $\lambda^{\grave{}}=1.0$\end{tabular}'; };
+ax.YTickLabel = cellfun(@num2str,num2cell(ax.YTick(:)),'un',0);
+
+ax.XTickLabel = cellfun(setLatexFont, ax.XTickLabel,'un',0);
+ax.YTickLabel = cellfun(setLatexNumFont, ax.YTickLabel,'un',0);
 
 xg = ax.XTick([2:end;2:end]) - 0.5 ;
 xg = xg(:).';
@@ -226,10 +245,20 @@ plot( ygx,yg, ':','color',[0 0 0 0.2] );
 grid off;
 hold off;
 
-fH.Units = 'centimeters';
-fH.Position(3:4) = plot_width * [1 aspect_ratio];
+ax.Units = 'centimeters';
+ax.Position(3:4) = plot_width * [1 aspect_ratio];
 
-drawnow; %pause(0.1);
+
+ax2 = copyobj(ax,fH);
+ax2.Color(4) = 0;
+ax2.YLabel = [];
+ax2.XTickLabel = [];
+ax2.YTickLabel = [];
+ax2.Children.delete;
+ax.TickLength = [0 0];
+ax2.XTick = ax.XTick(2:end) - 0.5;
+
+drawnow; %pause(1.0);
 tightfigadv;
 
 %%
