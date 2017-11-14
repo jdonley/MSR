@@ -157,36 +157,39 @@ Eps_minB_CI = mag2db( exp( Tools.confidence_intervals(E_minB,95,true) ) ).';
 Eps_mean_CI = mag2db( exp( Tools.confidence_intervals([E_min;E_minB],95,true) ) ).';
 
 %%
-x = 1:5; x = x - 0.1;
+MarkSep = 0.2;
+x = 1:5; x = x - MarkSep;
 y = Eps_min_dB(end-4:end);
 CI = Eps_min_CI(:,end-4:end);
 errorbar(x,y,CI(1,:),CI(2,:),'xb'); hold on;
 
-x = 1:5; x = x - 0.0;
+x = 1:5;
 y = Eps_minB_dB(end-4:end);
 CI = Eps_minB_CI(:,end-4:end);
 errorbar(x,y,CI(1,:),CI(2,:),'+r'); hold on;
 
-x = 1:5; x = x + 0.1;
+x = 1:5; x = x + MarkSep;
 y = Eps_mean_dB(end-4:end);
 CI = Eps_mean_CI(:,end-4:end);
 errorbar(x,y,CI(1,:),CI(2,:),'*k'); hold on;
-xlim([0.5 5.5]);
 
 ax = gca;
+xlim([0.5 5.5]);
+ylim( ax.YLim );
+
 ax.TickDir = 'both';
 ax.XTick = 1:5;
 ax.TickLabelInterpreter = 'latex';
 ax.XTickLabel = {...
     '$\{\mathrm{ wh},\mathrm{lp}\}$'; ...
     '$\{\mathrm{  p},\mathrm{lp}\}$'; ...
-    '$\{\mathcal{IB},\mathrm{lp}\}$\n test';...'$\lambda^\grave{}=0.0$';}; ...
-    '$\{\mathcal{IB},\mathrm{lp}\}$'; ...
-    '$\{\mathcal{IB},\mathrm{lp}\}$' };
+    '\begin{tabular}{c} $\{\mathcal{IB},\mathrm{lp}\}$ \\ $\lambda^{\grave{}}=0.0$\end{tabular}'; ...
+    '\begin{tabular}{c} $\{\mathcal{IB},\mathrm{lp}\}$ \\ $\lambda^{\grave{}}=0.5$\end{tabular}'; ...
+    '\begin{tabular}{c} $\{\mathcal{IB},\mathrm{lp}\}$ \\ $\lambda^{\grave{}}=1.0$\end{tabular}'; };
 
 xg = ax.XTick([2:end;2:end]) - 0.5 ;
 xg = xg(:).';
-yg = repmat([ax.YLim, flip(ax.YLim)],1,(numel(ax.XTick)-1)/2);
+yg = repmat([ax.YLim, flip(ax.YLim)]*1e3,1,(numel(ax.XTick)-1)/2);
 plot( xg,yg, ':','color',[0 0 0 0.3] );
 
 grid off;
