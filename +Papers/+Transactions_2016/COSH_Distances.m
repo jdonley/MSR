@@ -159,19 +159,18 @@ Eps_mean_CI = mag2db( exp( Tools.confidence_intervals([E_min;E_minB],95,true) ) 
 %%
 if exist('fH'), if isvalid(fH), close(fH); end; end
 
-colours = {[ ...            R G B  values
-    0.2 0.2 1.0       ; ...       Bright Intelligibility
-    1.0 0.0 0.0       ; ...       Quiet  Intelligibility
-    0.6 0.0 0.6       ;];[ ...    Speech Intelligibility Contrast
-    0.0 0.6 0.0       ];}; %      Bright Quality
+colours = [ ...            R G B  values
+    0.0 0.0 1.0       ; ...
+    1.0 0.0 0.0       ; ...
+    0.0 0.0 0.0       ;];
 
-LAB = rgb2lab(colours{1}(1:2,:));
+LAB = rgb2lab(colours);
 [A,C] = cart2pol(LAB(:,2),LAB(:,3));
-C = [74;84];
+C = [40;60;0];
 [a,b]=pol2cart(A,C);
-LAB2 = [[60;40] a b];
-colours{1}(1:2,:) = lab2rgb(LAB2);
-
+LAB2 = [[20;40;60] a b];
+colours = lab2rgb(LAB2);colours
+%%
 % Figure Output Settings
 DocumentPath = SYS.publication_info.DocumentPath;
 print_fmt = 'pdf'; %figure image file format
@@ -221,21 +220,21 @@ circSz = 10;
 x = 1:5; x = x - MarkSep;
 y = Eps_min_dB(end-4:end);
 CI = Eps_min_CI(:,end-4:end);
-errorbar(x,y,CI(1,:),CI(2,:),'.','color',colours{1}(1,:)); 
+errorbar(x,y,CI(1,:),CI(2,:),'.','color',colours(1,:)); 
 [Ym,Im] = min(y);
 pl = plot(x(Im),Ym,'o','color',circCol,'MarkerSize',circSz+2); 
 
 x = 1:5;
 y = Eps_minB_dB(end-4:end);
 CI = Eps_minB_CI(:,end-4:end);
-errorbar(x,y,CI(1,:),CI(2,:),'.','color',colours{1}(2,:)); 
+errorbar(x,y,CI(1,:),CI(2,:),'.','color',colours(2,:)); 
 [Ym,Im] = min(y);
 plot(x(Im),Ym,'o','MarkerEdgeColor',circCol,'MarkerSize',circSz+4); 
 
 x = 1:5; x = x + MarkSep;
 y = Eps_mean_dB(end-4:end);
 CI = Eps_mean_CI(:,end-4:end);
-errorbar(x,y,CI(1,:),CI(2,:),'.k');
+errorbar(x,y,CI(1,:),CI(2,:),'.','color',colours(3,:)); 
 [Ym,Im] = min(y);
 plot(x(Im),Ym,'o','color',circCol,'MarkerSize',circSz); 
 
