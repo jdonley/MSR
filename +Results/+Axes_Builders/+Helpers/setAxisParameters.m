@@ -180,6 +180,9 @@ grid(ax, SYS.publication_info.axes_grid);
 ax.YMinorGrid = SYS.publication_info.axes_gridMinorY;
 ax.XMinorGrid = SYS.publication_info.axes_gridMinorX;
 
-%TODO: generate axis grids manually so that line styles can be controlled.
+if isfield(SYS.publication_info, 'axes_grid_linestyle')
+    ax.GridLineStyle = SYS.publication_info.axes_grid_linestyle;
+end
 
 end
+
