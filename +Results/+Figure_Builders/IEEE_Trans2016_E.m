@@ -1,4 +1,4 @@
-function [ fig ] = IEEE_Trans2016_D( SYS )
+function [ fig ] = IEEE_Trans2016_E( SYS )
 %TEMPLATE Summary of this function goes here
 %
 % Syntax:	[OUTPUTARGS] = TEMPLATE(INPUTARGS) Explain usage here
@@ -70,14 +70,11 @@ for row = 1:nRow
     
 end
 
-
-%%
-drawnow;pause(0.05);
-tightfig(fig);
-
 Results.Figure_Builders.Helpers.setLegend( SYS, newAxs, legStrs );
 
 Results.Figure_Builders.Helpers.setLabels( SYS, newAxs, nRow, nCol );
 
+drawnow;pause(0.05);
+tightfig(fig);
 
 end

@@ -212,6 +212,9 @@ hCB.Ticks = interp1(1:length(caxis),caxis,linspace(1,length(caxis),NcbTicks));
 hCB.TickLabels = cellfun(@strrep, ...
     num2cell(num2str(linspace( ax.CLim(1), ax.CLim(2),NcbTicks)' ),2), ...
     repmat({' '},NcbTicks,1), repmat({''},NcbTicks,1),'un',0);
+if strcmpi(hCB.TickLabelInterpreter, 'latex')
+    hCB.TickLabels = cellfun(@(s) [latexNumFontSettings s '}'], hCB.TickLabels,'un',0);
+end
 
 hCB.Label.String = 'Magnitude (dB)';
 

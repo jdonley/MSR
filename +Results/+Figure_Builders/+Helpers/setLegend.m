@@ -126,13 +126,15 @@ else
 end
 
 % Find max width and max height of axes
-allAxs = findobj(ax.Parent.Children,'type','axes');
-axPos=reshape([allAxs.OuterPosition],4,[])';
-fullWidHigh = max(axPos(:,1:2),[],1) ...
-            + max(axPos(:,3:4),[],1);
-if strcmpi(linetypes,'line')
-    fullWidHigh(1)  = fullWidHigh(1) + max(axPos(:,1));
-end
+allAxs = findobj(ax.Parent,'type','axes');
+% axPos=reshape([allAxs.OuterPosition],4,[])';
+% fullWidHigh = max(axPos(:,1:2),[],1) ...
+%             + max(axPos(:,3:4),[],1);
+% if strcmpi(linetypes,'line')
+%     fullWidHigh(1)  = fullWidHigh(1) + max(axPos(:,1));
+% end
+axPos=reshape([allAxs.Position],4,[])';
+fullWidHigh = max(axPos(:,1:2) + axPos(:,3:4),[],1);
 
 % Relocate legend
 % leg.Position(1:2) = fullWidHigh - [leg.Position(3) 0]; % upper right corner
