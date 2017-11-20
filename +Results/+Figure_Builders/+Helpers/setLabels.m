@@ -61,7 +61,12 @@ for y = 1:nY
                 end
                 tmpUnits = ax.Title.Units; ax.Title.Units = 'points'; %assume points
                 ax.Title.HorizontalAlignment = 'left';
-                ax.Title.Position(1) = 0; ax.Title.Units = tmpUnits; % 0.05 => 5 percent of axes width
+                ax.Title.Position(1) = 0; 
+                if (contains(lower(SYS.publication_info.axes_tickdir),'both') ...
+                        || contains(lower(SYS.publication_info.axes_tickdir),'out'))
+                    ax.Title.Position(2) = ax.Position(4);
+                end
+                ax.Title.Units = tmpUnits; % 0.05 => 5 percent of axes width
                 %ax.Title.Position(1) = ax.Position(3)*0.05; ax.Title.Units = tmpUnits; % 0.05 => 5 percent of axes width
             end
             if ~(y == 1 && x == 1) && lr == 1 % if not top left axis and left y axis
