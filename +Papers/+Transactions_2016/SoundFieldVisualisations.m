@@ -116,7 +116,7 @@ for s = 1:numel(setup)
         
         colormap(ax,cm);
     elseif contains(plotType,'real')
-        cm = cmap('D1','N',24);
+        cm = cmap('D1','N',40);
         colormap(ax,cm);
     end
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%

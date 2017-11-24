@@ -45,19 +45,19 @@ for typs = 1:Ntyps
         
         switch angInd
             case 1
-                Theta    =  -15;
+                Theta    =  0;
             case 2
                 Theta    =  0;
             case 3
                 Theta    =  0;
             case 4
-                Theta    =  30;
+                Theta    =  60;
         end
 
         
         gemoetrical_layout = { ...
-            'brightzone_pos_angle',        135, ...
-            'quietzone_pos_angle',         -45, ...
+            'brightzone_pos_angle',        90, ...
+            'quietzone_pos_angle',         -90, ...
             'brightzone_source_angle',     Theta, ...
             'brightzone_source_dist',      sqrt(0.6^2+1.3^2), ...
             'brightzone_source_type',      'pw'};
