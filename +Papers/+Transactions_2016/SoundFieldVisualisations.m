@@ -18,6 +18,11 @@ end
 %%
 if exist('fH'), if isvalid(fH), close(fH); end; end
 
+
+plotType = 'real';
+% plotType = 'abs';
+
+
 figNums = [101,102,103];
 realistic = false;
 details.PlotType = 'image'; % 'image' or 'surf'
@@ -90,21 +95,30 @@ latexNumFontSettings = ['{\fontfamily{' FFnums '}' ...
 for s = 1:numel(setup)
     axes(ha(s));
     ax=gca;
-    setup(s).plotSoundfield( mag2db(abs(F{s})), 'scientific_L12', realistic, details);
+    if contains(plotType,'abs')
+        setup(s).plotSoundfield( mag2db(abs(F{s})), 'scientific_L12', realistic, details);
+    elseif contains(plotType,'real')
+        setup(s).plotSoundfield( real(F{s}), 'scientific_D1', realistic, details);
+    end
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    cm = cmap('L12','N',24);
-    labcm = rgb2lab(cm);
-    cmA = atan2(labcm(:,3),labcm(:,2))/pi*180;
-    cmC = sum(labcm(:,2:3).^2,2).^.5;
-    
-    cmA(end-4:end,:) = cmA(end-4:end,:) + 45; % Red
-    cmA(end-6:end-5,:) = cmA(end-6:end-5,:) + 270; % Green
-    
-    labcm(:,2:3) = cmC.*[cos(cmA/180*pi) sin(cmA/180*pi)];
-    cm = lab2rgb(labcm);
-    
-    colormap(ax,cm);
+    if contains(plotType,'abs')
+        cm = cmap('L12','N',24);
+        labcm = rgb2lab(cm);
+        cmA = atan2(labcm(:,3),labcm(:,2))/pi*180;
+        cmC = sum(labcm(:,2:3).^2,2).^.5;
+        
+        cmA(end-4:end,:) = cmA(end-4:end,:) + 45; % Red
+        cmA(end-6:end-5,:) = cmA(end-6:end-5,:) + 270; % Green
+        
+        labcm(:,2:3) = cmC.*[cos(cmA/180*pi) sin(cmA/180*pi)];
+        cm = lab2rgb(labcm);
+        
+        colormap(ax,cm);
+    elseif contains(plotType,'real')
+        cm = cmap('D1','N',24);
+        colormap(ax,cm);
+    end
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     txH = text(0,size(F{s},1),1e3,...
@@ -154,8 +168,12 @@ for s = 1:numel(setup)
         end
     end
     
-    % clim_=[-1 1].*pk(s);
-    clim_=[-18 6];
+    
+    if contains(plotType,'real')
+        clim_=[-1 1].*pk(s);
+    elseif contains(plotType,'abs')
+        clim_=[-18 6];
+    end
     ax.CLim = clim_;
     colorbar off;
     
@@ -198,7 +216,11 @@ cellfun(@set, num2cell([axX axX(end).XLabel]'), ...
 
 
 
-cbTickSep = 3; %dB
+if contains(plotType,'abs')
+    cbTickSep = 3; %dB
+elseif contains(plotType,'real')
+    cbTickSep = 0.2; %Unitless
+end
 NcbTicks = numel(ax.CLim(1):cbTickSep:ax.CLim(end));
 %
 drawnow;
@@ -216,7 +238,11 @@ if strcmpi(hCB.TickLabelInterpreter, 'latex')
     hCB.TickLabels = cellfun(@(s) [latexNumFontSettings s '}'], hCB.TickLabels,'un',0);
 end
 
-hCB.Label.String = 'Magnitude (dB)';
+if contains(plotType,'abs')
+    hCB.Label.String = 'Magnitude (dB)';
+elseif contains(plotType,'real')
+    hCB.Label.String = 'Normalised Amplitude';
+end
 
 ax.Units = 'centimeters'; hCB.Units = 'centimeters';
 
