@@ -3,8 +3,8 @@ function SR_SYSTEM = IEEETransactions_System_G()
 
 array_type = {'circle','line'}; % 'circle' or 'line'
 
-SourceAngleSetIndices = [1, 2, 3, 4]; 
-Frequencies = [-1, -1, -1, -1]; 
+SourceAngleSetIndices = [1, 2];%, 3, 4]; 
+Frequencies = [-1, -1];%, -1, -1]; 
 
 N_spkrs = 24; % 16, 24, 32 or 149
 
@@ -45,13 +45,13 @@ for typs = 1:Ntyps
         
         switch angInd
             case 1
-                Theta    =  15;
+                Theta    =  -50;
             case 2
-                Theta    =  15;
-            case 3
-                Theta    =  15;
-            case 4
-                Theta    =  -60;
+                Theta    =  10;
+%             case 3
+%                 Theta    =  10;
+%             case 4
+%                 Theta    =  -50;
         end
 
         
@@ -219,18 +219,18 @@ publication_info.print_res = 600; %rastered graphic DPI
 
 publication_info.LatexMacrosFile = 'IEEE_Trans2016_LaTeX_Macros.tex';
 
-publication_info.figure_width = 88.9/10 + 6.35/10 + 88.9/10; %Figure width in centimeters %IEEE full text width
+publication_info.figure_width = 88.9/10;% + 6.35/10 + 88.9/10; %Figure width in centimeters %IEEE full text width
 publication_info.figure_aspect_ratio = 6/3; %Full figure aspect ratio width/height
 publication_info.subPlotDims = [Nangs Ntyps]; % Dimensions of the subplots ([width height])
 publication_info.subPlotTitles = {...
-    '$\theta=-15^{\circ}$, $k=k_{\mathrm{u}}^{\mathrm{(A)}}$'; ...
-    '$\theta=  0^{\circ}$, $k=k_{\mathrm{u}}^{\mathrm{(A)}}$'; ...
-    '$\theta=  0^{\circ}$, $k=k_{\mathrm{u}}^{\mathrm{(C)}}$'; ...
-    '$\theta= 30^{\circ}$, $k=k_{\mathrm{u}}^{\mathrm{(C)}}$'; ...
-    '$\theta=-15^{\circ}$, $k=k_{\mathrm{u}}^{\mathrm{(E)}}$'; ...
-    '$\theta=  0^{\circ}$, $k=k_{\mathrm{u}}^{\mathrm{(E)}}$'; ...
-    '$\theta=  0^{\circ}$, $k=k_{\mathrm{u}}^{\mathrm{(G)}}$'; ...
-    '$\theta= 30^{\circ}$, $k=k_{\mathrm{u}}^{\mathrm{(G)}}$'; ...
+    '$\vartheta=-15^{\circ}$, $k=k_{\mathrm{u}}^{\mathrm{(A)}}$'; ...
+    '$\vartheta=  0^{\circ}$, $k=k_{\mathrm{u}}^{\mathrm{(A)}}$'; ...
+    '$\vartheta=  0^{\circ}$, $k=k_{\mathrm{u}}^{\mathrm{(C)}}$'; ...
+    '$\vartheta= 30^{\circ}$, $k=k_{\mathrm{u}}^{\mathrm{(C)}}$'; ...
+    '$\vartheta=-15^{\circ}$, $k=k_{\mathrm{u}}^{\mathrm{(E)}}$'; ...
+    '$\vartheta=  0^{\circ}$, $k=k_{\mathrm{u}}^{\mathrm{(E)}}$'; ...
+    '$\vartheta=  0^{\circ}$, $k=k_{\mathrm{u}}^{\mathrm{(G)}}$'; ...
+    '$\vartheta= 30^{\circ}$, $k=k_{\mathrm{u}}^{\mathrm{(G)}}$'; ...
     };
 publication_info.axis_aspect_ratio = [1 1]; %Single axis aspect ration [width height]
 publication_info.axes_gap = [0.6 0.7]; %Gap between axes [gap_height gap_width] %centimeters
