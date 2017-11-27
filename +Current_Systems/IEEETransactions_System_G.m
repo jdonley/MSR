@@ -225,7 +225,7 @@ analysis_info.f_high = 7500; % Hz
 %% Publication Figure Setup Information
 publication_info.DocumentPath = 'tex\latex\IEEE_Trans2016';
 publication_info.FigureName = 'IEEE_Trans2016_G';
-publication_info.FigureTitle = 'Sound Field Visualisations';
+publication_info.FigureTitle = 'Sound Masker Spatial Aliasing';
 publication_info.print_fmt = 'pdf'; %figure image file format
 publication_info.print_res = 600; %rastered graphic DPI
 
