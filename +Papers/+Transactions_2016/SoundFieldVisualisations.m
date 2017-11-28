@@ -19,8 +19,8 @@ end
 if exist('fH'), if isvalid(fH), close(fH); end; end
 
 
-plotType = 'real';
-% plotType = 'abs';
+% plotType = 'real';
+plotType = 'abs';
 
 
 figNums = [101,102,103];
