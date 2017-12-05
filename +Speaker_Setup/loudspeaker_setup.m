@@ -807,7 +807,14 @@ classdef loudspeaker_setup
             YTickLabel = num2cell(YTickLabel);
             
             ax = gca;
-            h = surf(ax, real(field),'EdgeColor','None');
+            if (isfield(details,'PlotType') && strcmpi(details.PlotType,'surf')) ...
+                    || ~isfield(details,'PlotType')
+                h = surf(ax, real(field),'EdgeColor','None');
+            elseif isfield(details,'PlotType') && strcmpi(details.PlotType,'image')
+                h = image(ax, real(field));
+                ax.YDir = 'normal';
+                h.CDataMapping = 'scaled';
+            end
             if realistic
                 drawnow; pause(0.05);
                 h.FaceAlpha = 0.5;
@@ -858,7 +865,7 @@ classdef loudspeaker_setup
             details.ReproRegionSize = obj.Multizone_Soundfield.ReproRegionSize;
             
             obj.zonePlots(real(field),realistic, details);
-            obj.sourcePlots(real(field),realistic);
+            obj.sourcePlots(real(field),realistic,details);
             if details.DrawDetails
                 obj.detailPlots(real(field),realistic,details);
             end
@@ -1387,14 +1394,16 @@ classdef loudspeaker_setup
             end
             [c_x, c_y] = pol2cart(obj.Speaker_Array_Centre/180*pi, (obj.Radius * obj.res));
             
-            h.sphereVSrc = surf( ...
-                slx*sphereRad + c_x + O(1), ...
-                sly*sphereRad + c_y + O(2), ...
-                slz*sphereRad + ones(size(ps_x))*maxZ, ...
-                repmat(0.5,[size(slx),3]), ...
-                'linestyle','none');
-            h.sphereVSrc.CData = permute(repmat([1 0 0].',[1,size(slx)]),[2 3 1]);
-            
+            if (isfield(details,'PlotMic') && details.PlotMic) ...
+                    || ~isfield(details,'PlotMic')
+                h.sphereVSrc = surf( ...
+                    slx*sphereRad + c_x + O(1), ...
+                    sly*sphereRad + c_y + O(2), ...
+                    slz*sphereRad + ones(size(ps_x))*maxZ, ...
+                    repmat(0.5,[size(slx),3]), ...
+                    'linestyle','none');
+                h.sphereVSrc.CData = permute(repmat([1 0 0].',[1,size(slx)]),[2 3 1]);
+            end
             
             hold off;
         end

@@ -78,14 +78,6 @@ if isfield(SYS.publication_info,'leg_MarkerSize')
         legli(i).MarkerSize = SYS.publication_info.leg_MarkerSize;
     end
 end
-% Center align legend text
-maxTxtWid = max(reshape([legtx.Extent],4,[])',[],1);
-maxTxtWid = maxTxtWid(3);
-for i = 1:numel(legtx)
-    legtx(i).HorizontalAlignment = 'center';    % Center the text
-    legtx(i).Position(1) = legtx(i).Position(1) + maxTxtWid/2; % re-position text block to center
-end
-
 
 % Change legend grid
 tmpUnits = leg.Units; leg.Units = 'points';
@@ -106,12 +98,28 @@ gridLegend(axEnts, LegCols, strs(1,:), ...
 
 leg.Position(4) = leg.Position(4)/LegCols;
 
+
+% % Center align legend text
+maxTxtWid = max(reshape([legtx.Extent],4,[])');
+maxTxtWid = maxTxtWid(3);
+legIcoWid = diff(legli(1).XData).*b;
+legEntWid = legIcoWid + maxTxtWid;
+legEntLeft = (1/LegCols - legEntWid)/2; %normalised
+
+for i = 1:numel(legtx)
+%     legtx(i).HorizontalAlignment = 'center';    % Center the text
+%     legli(i*2-1).XData = legEntLeft; % re-position line to center
+%     legli(i*2).Position(1) = legEntLeft + legIcoWid; % re-position marker to center
+    legtx(i).Position(1) = (ceil(i/numel(legtx)*LegCols)-1)/LegCols ... Column offset
+        + legEntLeft + legIcoWid; % re-position text block to center
+end
+
 % Resize legend markers
 if ~strcmpi(linetypes,'line')
     for ll = 1:2:length(legli)
 %         legli(ll).XData(1) = legli(ll).XData(1) ...
 %             + diff([legli(ll).XData(1), legli(ll+1).XData(2)]) .* 1;
-        legli(ll).XData(1) = legtx((ll+1)/2).Extent(1);
+        legli(ll).XData(1) = legEntLeft;
         unitTmp = legtx((ll+1)/2).Units; legtx((ll+1)/2).Units = 'points';
         legtx((ll+1)/2).Position(1) = legtx((ll+1)/2).Position(1) ...
             + legli(ll).MarkerSize;
@@ -119,24 +127,29 @@ if ~strcmpi(linetypes,'line')
     end
 else
     for ll = 1:2:length(legli)
-        legli(ll).XData = [-diff(legli(ll).XData).*b 0] + legtx((ll+1)/2).Extent(1);
+        legli(ll).XData = (ceil(ll/numel(legli)*LegCols)-1)/LegCols ... Column offset
+                        + [0 legIcoWid] + legEntLeft;
         legli(ll+1).XData(1) = legli(ll).XData(1) ...
             + diff(legli(ll).XData) .* 0.8;
     end
 end
 
+
 % Find max width and max height of axes
-allAxs = findobj(ax.Parent.Children,'type','axes');
-axPos=reshape([allAxs.OuterPosition],4,[])';
-fullWidHigh = max(axPos(:,1:2),[],1) ...
-            + max(axPos(:,3:4),[],1);
-if strcmpi(linetypes,'line')
-    fullWidHigh(1)  = fullWidHigh(1) + max(axPos(:,1));
-end
+allAxs = findobj(ax.Parent,'type','axes');
+% axPos=reshape([allAxs.OuterPosition],4,[])';
+% fullWidHigh = max(axPos(:,1:2),[],1) ...
+%             + max(axPos(:,3:4),[],1);
+% if strcmpi(linetypes,'line')
+%     fullWidHigh(1)  = fullWidHigh(1) + max(axPos(:,1));
+% end
+axPos=reshape([allAxs.Position],4,[])';
+fullWidHigh = max(axPos(:,1:2) + axPos(:,3:4),[],1) - min(axPos(:,1:2));
 
 % Relocate legend
 % leg.Position(1:2) = fullWidHigh - [leg.Position(3) 0]; % upper right corner
 leg.Position(1:2) = fullWidHigh .* [1/2 1.0] - leg.Position(3:4).*[1/2 0.5/LegCols]; % centered below title
+leg.Position(1:2) = leg.Position(1:2) + min(axPos(:,1:2));
 tmpUnits2 = allAxs(end).Title.Units; allAxs(end).Title.Units = 'points';
 leg.Position(2) = allAxs(end).Position(2) + allAxs(end).Title.Position(2) - leg.Position(4)/2 + FS/2;
 allAxs(end).Title.Units = tmpUnits2;

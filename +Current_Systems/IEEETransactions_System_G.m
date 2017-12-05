@@ -3,8 +3,8 @@ function SR_SYSTEM = IEEETransactions_System_G()
 
 array_type = {'circle','line'}; % 'circle' or 'line'
 
-SourceAngleSetIndices = [1, 2, 3, 4]; 
-Frequencies = [-1, -1, -1, -1]; 
+SourceAngleSetIndices = [1, 2];%, 3, 4]; 
+Frequencies = [-1, -1];%, -1, -1]; 
 
 N_spkrs = 24; % 16, 24, 32 or 149
 
@@ -45,19 +45,27 @@ for typs = 1:Ntyps
         
         switch angInd
             case 1
-                Theta    =  -15;
+                if strcmpi(arrTyp, 'Circle')
+                    Theta    =  45;
+                elseif strcmpi(arrTyp, 'Line')
+                    Theta    =  15;
+                end
             case 2
-                Theta    =  0;
-            case 3
-                Theta    =  0;
-            case 4
-                Theta    =  30;
+                if strcmpi(arrTyp, 'Circle')
+                    Theta    =  -45;
+                elseif strcmpi(arrTyp, 'Line')
+                    Theta    =  -45;                    
+                end                
+%             case 3
+%                 Theta    =  10;
+%             case 4
+%                 Theta    =  -50;
         end
 
         
         gemoetrical_layout = { ...
-            'brightzone_pos_angle',        135, ...
-            'quietzone_pos_angle',         -45, ...
+            'brightzone_pos_angle',        -90, ...
+            'quietzone_pos_angle',         90, ...
             'brightzone_source_angle',     Theta, ...
             'brightzone_source_dist',      sqrt(0.6^2+1.3^2), ...
             'brightzone_source_type',      'pw'};
@@ -90,6 +98,8 @@ for typs = 1:Ntyps
         end
         
         f = Frequencies(setInd);
+
+        
         while true
             Main_Setup(I) = Speaker_Setup.createSetup({...
                 'frequency',                    f, ...
@@ -107,8 +117,10 @@ for typs = 1:Ntyps
             
             c = 343; % Speed of sound in metres/sec
             if f == -1
-                if setInd==1 || setInd==3
-                    f = Broadband_Tools.getAliasingFrequency(Main_Setup(I))/2/pi*c;
+                if setInd==1
+%                     f = Broadband_Tools.getAliasingFrequency(Main_Setup(I),'old')/2/pi*c;
+%                 elseif setInd == 2
+                    f = Broadband_Tools.getAliasingFrequency(Main_Setup(I),'new')/2/pi*c;
                 else
                     f = f_prev;
                 end
@@ -213,23 +225,33 @@ analysis_info.f_high = 7500; % Hz
 %% Publication Figure Setup Information
 publication_info.DocumentPath = 'tex\latex\IEEE_Trans2016';
 publication_info.FigureName = 'IEEE_Trans2016_G';
-publication_info.FigureTitle = 'Sound Field Visualisations';
+publication_info.FigureTitle = 'Sound Masker Spatial Aliasing';
 publication_info.print_fmt = 'pdf'; %figure image file format
 publication_info.print_res = 600; %rastered graphic DPI
 
 publication_info.LatexMacrosFile = 'IEEE_Trans2016_LaTeX_Macros.tex';
 
-publication_info.figure_width = 88.9/10 + 6.35/10 + 88.9/10; %Figure width in centimeters %IEEE full text width
+publication_info.figure_width = 88.9/10;% + 6.35/10 + 88.9/10; %Figure width in centimeters %IEEE full text width
 publication_info.figure_aspect_ratio = 6/3; %Full figure aspect ratio width/height
 publication_info.subPlotDims = [Nangs Ntyps]; % Dimensions of the subplots ([width height])
+publication_info.subPlotTitles = {...
+    '$\vartheta= 45^{\circ}$, $k=k_{\mathrm{u}}^{\mathrm{(A)}}$'; ...
+    '$\vartheta=-45^{\circ}$, $k=k_{\mathrm{u}}^{\mathrm{(A)}}$'; ...
+    '$\vartheta= 15^{\circ}$, $k=k_{\mathrm{u}}^{\mathrm{(C)}}$'; ...
+    '$\vartheta=-45^{\circ}$, $k=k_{\mathrm{u}}^{\mathrm{(C)}}$'; ...
+    '$\vartheta=-15^{\circ}$, $k=k_{\mathrm{u}}^{\mathrm{(E)}}$'; ...
+    '$\vartheta=  0^{\circ}$, $k=k_{\mathrm{u}}^{\mathrm{(E)}}$'; ...
+    '$\vartheta=  0^{\circ}$, $k=k_{\mathrm{u}}^{\mathrm{(G)}}$'; ...
+    '$\vartheta= 30^{\circ}$, $k=k_{\mathrm{u}}^{\mathrm{(G)}}$'; ...
+    };
 publication_info.axis_aspect_ratio = [1 1]; %Single axis aspect ration [width height]
-publication_info.axes_gap = [0.5 0.7]; %Gap between axes [gap_height gap_width] %centimeters
+publication_info.axes_gap = [0.6 0.7]; %Gap between axes [gap_height gap_width] %centimeters
 publication_info.colorbarWidth = 0.5; %Width of the colorbar %centimeters
 publication_info.axes_margins_height = [1 1]; %Axes height margins [lower upper]  %centimeters
 publication_info.axes_margins_width = [1 1]; %Axes width margins [left right]  %centimeters
 publication_info.axes_grid = 'minor'; % Show axes grid ('on', 'minor' or 'off')
 publication_info.axes_tickdir = 'both'; % Axes tick direction(s) ('in', 'out' or 'both')
-publication_info.axes_NumTicks = [5 9]; % Number of ticks [NumXticks NumYticks];
+publication_info.axes_NumTicks = [7 7]; % Number of ticks [NumXticks NumYticks];
 publication_info.axes_limitBufs = [0.02 0.02]; % axis limits buffer in percentage [width, height]
 publication_info.sigRounding = 3; % number of significant figures rounding
 

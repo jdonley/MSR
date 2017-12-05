@@ -151,6 +151,136 @@ end
 %%
 Eps_min_dB = mag2db(Eps_min);
 Eps_minB_dB = mag2db(Eps_minB);
+Eps_mean_dB = mag2db(mean([Eps_min;Eps_minB]));
+Eps_min_CI  = mag2db( exp( Tools.confidence_intervals(E_min,95,true) ) ).';
+Eps_minB_CI = mag2db( exp( Tools.confidence_intervals(E_minB,95,true) ) ).';
+Eps_mean_CI = mag2db( exp( Tools.confidence_intervals([E_min;E_minB],95,true) ) ).';
+
+%%
+if exist('fH'), if isvalid(fH), close(fH); end; end
+
+colours = [ ...            R G B  values
+    0.0 0.0 1.0       ; ...
+    1.0 0.0 0.0       ; ...
+    0.0 0.0 0.0       ;];
+
+LAB = rgb2lab(colours);
+[A,C] = cart2pol(LAB(:,2),LAB(:,3));
+C = [40;60;0];
+[a,b]=pol2cart(A,C);
+LAB2 = [[20;40;60] a b];
+colours = lab2rgb(LAB2);colours
+%%
+% Figure Output Settings
+DocumentPath = SYS.publication_info.DocumentPath;
+print_fmt = 'pdf'; %figure image file format
+print_res = 600; %dpi
+plot_width = 88.9/10;% + 6.35/10 + 88.9/10; %IEEE full text width
+aspect_ratio = 33/100;
+FontSize = 8;
+Font = 'Times';
+lineWid = 0.5;
+LegendHeightScaleFactor = 1.1;
+
+% Latex Fonts
+FF = SYS.publication_info.LaTeX_FontFamily; % Set fonts for latex interpreter
+FFnums = SYS.publication_info.LaTeX_NumbersFontFamily; % Set number fonts for latex interpreter
+FS = SYS.publication_info.FontSize;
+latexFontSettings = ['{\fontfamily{' FF '}' ...
+    '\fontsize{' num2str(FS) 'pt}{' num2str(FS) 'pt}' ...
+    '\selectfont '];
+latexNumFontSettings = ['{\fontfamily{' FFnums '}' ...
+    '\fontsize{' num2str(FS) 'pt}{' num2str(FS) 'pt}' ...
+    '\selectfont '];
+
+setLatexFont    = @(s) [latexFontSettings    s '}'];
+setLatexNumFont = @(s) [latexNumFontSettings s '}'];
+
+
+fH = figure(1);
+fH.Color = 'w';
+
+ax=gca; hold on;
+yL = [-40 10];
+xlim([0.5 5.5]);
+ylim( yL );
+ax.XTick = 1:5;
+ax.YTick = -40:10:10;
+xg = ax.XTick([2:end;2:end]) - 0.5 ; xg = xg(:).';
+xgy = repmat([yL, flip(yL)]*1e3,1,(numel(ax.XTick)-1)/2);
+plot( xg,xgy, '-','color',[0 0 0 0.5] );
+yg = ax.YTick([1:end;1:end]); yg = yg(:).';
+ygx = repmat([1 -1 -1 1]*1e3,1,ceil(numel(ax.YTick)/2)); ygx(numel(yg)+1:end)=[];
+plot( ygx,yg, ':','color',[0 0 0 0.2] );
+
+
+MarkSep = 0.2;
+circCol = [0 0 0] + 0.5;
+circSz = 10;
+x = 1:5; x = x - MarkSep;
+y = Eps_min_dB(end-4:end);
+CI = Eps_min_CI(:,end-4:end);
+errorbar(x,y,CI(1,:),CI(2,:),'.','color',colours(1,:)); 
+[Ym,Im] = min(y);
+pl = plot(x(Im),Ym,'o','color',circCol,'MarkerSize',circSz+2); 
+
+x = 1:5;
+y = Eps_minB_dB(end-4:end);
+CI = Eps_minB_CI(:,end-4:end);
+errorbar(x,y,CI(1,:),CI(2,:),'.','color',colours(2,:)); 
+[Ym,Im] = min(y);
+plot(x(Im),Ym,'o','MarkerEdgeColor',circCol,'MarkerSize',circSz+4); 
+
+x = 1:5; x = x + MarkSep;
+y = Eps_mean_dB(end-4:end);
+CI = Eps_mean_CI(:,end-4:end);
+errorbar(x,y,CI(1,:),CI(2,:),'.','color',colours(3,:)); 
+[Ym,Im] = min(y);
+plot(x(Im),Ym,'o','color',circCol,'MarkerSize',circSz); 
+
+ax.Box = 'on';
+ax.TickDir = 'both';
+ax.YMinorTick = 'on';
+% ax.YGrid = 'on';
+ax.TickLabelInterpreter = 'latex';
+ax.YLabel.Interpreter = 'latex';
+ax.YLabel.String = setLatexFont('COSH Distance ($\mathrm{dB}$)');
+ax.XTickLabel = {...
+    '\begin{tabular}{c} \vspace{-0.7em} \\ $\{\mathrm{ wh},\mathrm{lp}\}$ \\ $~$ \end{tabular}'; ...
+    '\begin{tabular}{c} \vspace{-0.7em} \\ $\{\mathrm{  p},\mathrm{lp}\}$ \\ $~$ \end{tabular}'; ...
+    '\begin{tabular}{c} \vspace{-0.7em} \\ $\{\mathcal{IB},\mathrm{lp}\}$ \\ $\lambda{\grave{}}=0.0$\end{tabular}'; ...
+    '\begin{tabular}{c} \vspace{-0.7em} \\ $\{\mathcal{IB},\mathrm{lp}\}$ \\ $\lambda{\grave{}}=0.5$\end{tabular}'; ...
+    '\begin{tabular}{c} \vspace{-0.7em} \\ $\{\mathcal{IB},\mathrm{lp}\}$ \\ $\lambda{\grave{}}=1.0$\end{tabular}'; };
+ax.YTickLabel = cellfun(@num2str,num2cell(ax.YTick(:)),'un',0);
+
+ax.XTickLabel = cellfun(setLatexFont, ax.XTickLabel,'un',0);
+ax.YTickLabel = cellfun(setLatexNumFont, ax.YTickLabel,'un',0);
+
+grid off;
+hold off;
+
+ax.Units = 'centimeters';
+ax.Position(3:4) = plot_width * [1 aspect_ratio];
+
+
+ax.Color(4) = 0;
+ax2 = copyobj(ax,fH);
+ax2.YLabel = [];
+ax2.XTickLabel = [];
+ax2.YTickLabel = [];
+ax2.Children.delete;
+ax.TickLength = [0 0];
+ax2.XTick = ax.XTick(2:end) - 0.5;
+fH.Children = flip(fH.Children);
+
+
+drawnow; %pause(1.0);
+tightfigadv;
+
+fname = [SYS.publication_info.DocumentPath filesep 'COSH_Distances'];
+print(fname,['-d' SYS.publication_info.print_fmt]);
+
+%%
 fprintf(['\nCOSH Distances in Decibels (dB)\n'...
     '\t\t\t'...
     '{sp}\t\t'...
@@ -162,15 +292,15 @@ fprintf(['\nCOSH Distances in Decibels (dB)\n'...
     '{IB(0.5),lp}\t'...
     '{IB(1),lp}\t'...
     '\n'...
-    'Eps_COSH' '\t'     num2str(round(Eps_min, 3,'significant')) '\n' ...
-    'Eps_COSH_B' '\t'   num2str(round(Eps_minB,3,'significant')) '\n' ...
-    'Mean' '\t\t'       num2str(round((mean(([Eps_min;Eps_minB]))),3,'significant')) '\n\n']);
+    'Eps_COSH' '\t'     num2str(round(Eps_min_dB, 3,'significant')) '\n' ...
+    'Eps_COSH_B' '\t'   num2str(round(Eps_minB_dB,3,'significant')) '\n' ...
+    'Mean' '\t\t'       num2str(round(Eps_mean_dB,3,'significant')) '\n\n']);
 
 %    
 %%
-Results = [Eps_min, ...
-           Eps_minB, ...
-           (mean(([Eps_min;Eps_minB])))];
+Results = [Eps_min_dB, ...
+           Eps_minB_dB, ...
+           Eps_mean_dB];
 newcom = '\\newcommand';
 mac_pre = '\\';
 mac_post = 'res';

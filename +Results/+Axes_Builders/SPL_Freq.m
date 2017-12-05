@@ -54,6 +54,7 @@ trendAlpha = 0.33;
 
 axes(axH);
 [ax,h1,h2]=plotyy(1,1,1,1);delete(h1);delete(h2);
+ax(1).Position(3) = ax(1).Position(3) + ax(2).TightInset(3);
 ax(2).Visible = 'off';
 ax(2).Title.Visible = 'on';
 % ax(2).delete;ax(2)=[]; % Uncomment and delete these to remove the lettered labels from the subplots

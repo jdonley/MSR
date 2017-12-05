@@ -38,6 +38,9 @@ function [Path, err, room_details_path, RIR_Name__Details] = getRIRDatabasePath(
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 global Settings
+if isempty(Settings)
+    All_Settings.Global_Settings;
+end
 
 latest_method = 'new2';
 if nargin < 4
