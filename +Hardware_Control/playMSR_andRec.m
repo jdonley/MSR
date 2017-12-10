@@ -33,6 +33,10 @@ playrec( 'init', system_info.fs, dev.deviceID, dev.deviceID );
 %% Get signals
 [SpkrSignals, seg_details] = Hardware_Control.getMSR_Audio( Main_Setup, signal_info, system_info, Masker_Setup, masker_signal_info );
 
+if signal_info.LowpassFilterDemoSignal
+    [b,a] = cheby1(6,1,[]/signal_info);
+    SpkrSignals;
+end
 %% Normalise loudspeaker power
 SpkrSignals = SpkrSignals ./ db2mag(mean(mag2db(rms(SpkrSignals))));
 
