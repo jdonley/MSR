@@ -38,8 +38,7 @@ cbH.Position = [0.25 + sum(ax.Position([1 3])), ...
                 0.5, ...
                 ax.Position(4)];
 
-
-axes(axH(2)); ax = gca;
+axes(axH(2)); ax = gca; ax.Units = 'centimeters';
 surf(Frequencies/1e3,...
     mag2db(Weights),...
     mag2db(abs(Quiet_Sample__Weight_Vs_Frequency)),...
@@ -48,12 +47,18 @@ view(2);
 set(gca,'xscale','log')
 
 colormap(gray);
-colorbar('location','eastoutside');
-caxis([-50 -15])
+caxis([-50 -15]);
 xlim([0.15 8]);
 ylim([-40 80]);
 ax.TickDir = 'both';
 ax.XTick = [0.15 1 8];
+cbH = colorbar;
+cbH.Units = ax.Units;
+cbH.Location = 'manual';
+cbH.Position = [0.25 + sum(ax.Position([1 3])), ...
+                ax.Position(2), ...
+                0.5, ...
+                ax.Position(4)];
 
 xlabel('Frequency (kHz)');
 ylabel('Quiet Zone Weight (dB)');
