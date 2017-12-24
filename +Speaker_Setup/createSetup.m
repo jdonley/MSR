@@ -1,6 +1,7 @@
 function [ setup ] = createSetup( settings )
 %CREATESETUP Summary of this function goes here
 %   Detailed explanation goes here
+if nargin == 0, settings = {}; end
 p = inputParser;
 p.CaseSensitive = false;
 
