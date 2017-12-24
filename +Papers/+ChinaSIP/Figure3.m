@@ -10,7 +10,9 @@ Quiet_Sample__Weight_Vs_Frequency  = Quiet_Sample__Weight_Vs_Frequency  / bright
 
 
 %%
-falias = 1.25*1e3;
+falias = 1.3648*1e3;
+% falias = 880;
+% falias = 2.4657*1e3;
 
 fh = figure(54321);
 close(fh);
@@ -33,11 +35,11 @@ surf(Frequencies/1e3,...
     mag2db(Weights),...
     mag2db(abs(Bright_Sample__Weight_Vs_Frequency)),...
     'lines','no');
-hold on;
-arbLineGap = 7;
-plot(([falias falias]-arbLineGap)/1e3,yLims,'w','LineWidth',0.5);
-plot(([falias falias]+arbLineGap)/1e3,yLims,'k','LineWidth',0.5);
-hold off;
+% hold on;
+% arbLineGap = 7;
+% plot(([falias falias]-arbLineGap)/1e3,yLims,'w','LineWidth',0.5);
+% plot(([falias falias]+arbLineGap)/1e3,yLims,'k','LineWidth',0.5);
+% hold off;
 view(2);
 set(gca,'xscale','log')
 colormap(gray);
@@ -60,11 +62,11 @@ surf(Frequencies/1e3,...
     mag2db(Weights),...
     mag2db(abs(Quiet_Sample__Weight_Vs_Frequency)),...
     'lines','no');
-hold on;
-arbLineGap = 7;
-plot(([falias falias]-arbLineGap)/1e3,yLims,'w','LineWidth',0.5);
-plot(([falias falias]+arbLineGap)/1e3,yLims,'k','LineWidth',0.5);
-hold off;
+% hold on;
+% arbLineGap = 7;
+% plot(([falias falias]-arbLineGap)/1e3,yLims,'w','LineWidth',0.5);
+% plot(([falias falias]+arbLineGap)/1e3,yLims,'k','LineWidth',0.5);
+% hold off;
 view(2);
 set(gca,'xscale','log')
 
