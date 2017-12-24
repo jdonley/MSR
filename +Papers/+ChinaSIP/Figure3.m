@@ -34,8 +34,9 @@ surf(Frequencies/1e3,...
     mag2db(abs(Bright_Sample__Weight_Vs_Frequency)),...
     'lines','no');
 hold on;
-plot([falias falias]/1e3,yLims,'w','LineWidth',1.5);
-plot([falias falias]/1e3,yLims,'k','LineWidth',0.5);
+arbLineGap = 7;
+plot(([falias falias]-arbLineGap)/1e3,yLims,'w','LineWidth',0.5);
+plot(([falias falias]+arbLineGap)/1e3,yLims,'k','LineWidth',0.5);
 hold off;
 view(2);
 set(gca,'xscale','log')
@@ -60,8 +61,8 @@ surf(Frequencies/1e3,...
     mag2db(abs(Quiet_Sample__Weight_Vs_Frequency)),...
     'lines','no');
 hold on;
-arbLineGap = 100;
-plot(([falias falias]+arbLineGap)/1e3,yLims,'w','LineWidth',0.5);
+arbLineGap = 7;
+plot(([falias falias]-arbLineGap)/1e3,yLims,'w','LineWidth',0.5);
 plot(([falias falias]+arbLineGap)/1e3,yLims,'k','LineWidth',0.5);
 hold off;
 view(2);
@@ -89,8 +90,8 @@ ylabel('Quiet Zone Weight (dB)','Interpreter','latex');
 ax2.YLabel.Units = ax2.Units;
 
 
-cbH2.Label.Position(2) = [sum(cbH1.Position([2 4])) - cbH2.Position(2)]/2;
-ax2.YLabel.Position(2) = [sum(ax1.Position([2 4])) - ax2.Position(2)]/2;
+cbH2.Label.Position(2) = (sum(cbH1.Position([2 4])) - cbH2.Position(2))/2;
+ax2.YLabel.Position(2) = (sum(ax1.Position([2 4])) - ax2.Position(2))/2;
 
 
 tightfigadv;
