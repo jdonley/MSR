@@ -67,6 +67,7 @@ classdef loudspeaker_setup
         Acoustic_Contrast = 0;
         MSE_Bright = 0;
         Attenuation_dB = 0; %Log-normal mean and std error
+        Planartity = 0; % Planarity measure is not suitable for point sources
     end
     
     properties (Access = private)
@@ -744,6 +745,20 @@ classdef loudspeaker_setup
             sigm = sqrt( log( 1 + v./m.^2 ) ) *dbConv;
             
             Atten_dB = [mu_, sigm]; %lognormal mean and std error
+        end
+        
+        function MSE = getPlanarity(obj)
+            
+            [~, actual_vec] = obj.getNormalisedFieldVectors;
+            [height,width] = size(actual_vec);
+            x = ((1:width ) - width/2 ) / obj.res;
+            y = ((1:height) - height/2) / obj.res;
+            [xx,yy] = meshgrid(x,y);
+            X = complex(xx,yy);
+            H(ang,:) = exp( 1i * (k * (cos(ang)*real(X) + sin(ang)*imag(X))) ); %Planewave formula ( e^(i*(kx+ky+kz)) )
+            PWEnergy = 0.5*abs(H*actual_vec); % TODO: finish off
+            Planarity = 0; % TODO: finish off
+            
         end
         
         function [Sd, Sa] = getNormalisedFieldVectors(obj)
