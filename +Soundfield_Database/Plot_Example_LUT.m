@@ -20,7 +20,7 @@ FontSize = 9;
 Font = 'Times';
 
 %%
-LUT = load(['+Soundfield_Database\+' num2str(speaker_radius*2) 'm_SpkrDia\+' num2str(loudspeakers) 'Spkrs_' num2str(speaker_arc) 'DegArc\LUT_Weight_vs_Frequency_' num2str(angle_pw) 'deg_' LUT_resolution '.mat'], ...
+LUT = load(['Z:\+Soundfield_Database\+' num2str(speaker_radius*2) 'm_SpkrDia\+' num2str(loudspeakers) 'Spkrs_' num2str(speaker_arc) 'DegArc\LUT_Weight_vs_Frequency_' num2str(angle_pw) 'deg_' LUT_resolution '.mat'], ...
       'Quiet_SPL__Weight_Vs_Frequency', 'Frequencies', 'Weights');
   F = LUT.Frequencies;
   W = LUT.Weights;
@@ -70,7 +70,7 @@ set(h, 'PaperUnits','centimeters', ...
 t.Position(2) = t.Position(2)*2;
 
 %print(['-d' print_fmt], ['-r' num2str(print_res)], [DocumentPath '\Example_LUT']);
-print(['-d' print_fmt], ['-r' num2str(print_res)], [DocumentPath '\Example_High_Res_LUT']);
+% print(['-d' print_fmt], ['-r' num2str(print_res)], [DocumentPath '\Example_High_Res_LUT']);
 
 close(h);
 

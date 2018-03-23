@@ -33,6 +33,14 @@ playrec( 'init', system_info.fs, dev.deviceID, dev.deviceID );
 %% Get signals
 [SpkrSignals, seg_details] = Hardware_Control.getMSR_Audio( Main_Setup, signal_info, system_info, Masker_Setup, masker_signal_info );
 
+if isfield(system_info,'LowpassFilterDemoSignal') ...
+        && system_info.LowpassFilterDemoSignal
+    alias_f = Broadband_Tools.getAliasingFrequency(Main_Setup)*signal_info.c/2/pi;
+    [b,a] = cheby1(9,0.1,alias_f/(system_info.fs/2));
+    for l = 1:size(SpkrSignals,2)
+    SpkrSignals(:,l) = filter(b,a,SpkrSignals(:,l));
+    end
+end
 %% Normalise loudspeaker power
 SpkrSignals = SpkrSignals ./ db2mag(mean(mag2db(rms(SpkrSignals))));
 

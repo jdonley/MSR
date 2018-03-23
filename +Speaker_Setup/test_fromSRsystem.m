@@ -6,7 +6,7 @@ tic;
 %%
 % SYS = Current_Systems.loadCurrentSRsystem;
 
-SYS = Current_Systems.IEEELetters2017_System_A;
+% SYS = Current_Systems.IEEELetters2017_System_A;
 % SYS = Current_Systems.IEEELetters2017_System_B;
 
 % SYS = Current_Systems.ICASSP2017_System_A;
@@ -14,6 +14,8 @@ SYS = Current_Systems.IEEELetters2017_System_A;
 % SYS = Current_Systems.IEEETransactions_System_F;
 % SYS = Current_Systems.IEEETransactions_System_E;
 % SYS = Current_Systems.IEEETransactions_System_D;
+
+% SYS = Current_Systems.ChinaSipTempSYS;
 
 %%
 f = 1000;
@@ -64,6 +66,8 @@ details.arrowLength = 3;
 details.arrowAngle = 30;
 details.arrowBuffer = 2;
 details.lblFontSize = 12;
+details.NTicks = [5 5];
+details.sphereRad = 1;
 
  pk(1) = max(abs((setup(1).Bright_Samples(:))))*setup(1).res; % Masker (loudspeakers)
  pk(2) = max(abs((setup(2).Bright_Samples(:))))*setup(2).res; % Talker

@@ -72,6 +72,19 @@ for c = SYS.signal_info.methods_list_clean
                 % masker_signal_info = [];
                 % SYS.Masker_Setup = [];
                 
+                %%% FOR DEMOS RUN THIS CODE AND BREAK AFTERWARDS %%%
+                while true
+                    SYS.system_info.LowpassFilterDemoSignal = false; % true or false to lowpass filter the playback signal
+                    % Use the lines below for clean speech
+%                     masker_signal_info.L_noise_mask = -inf; % -inf for clean speech
+%                     a=Hardware_Control.playMSR_andRec( subSYS.Main_Setup, SYS.Room_Setup, SYS.signal_info, SYS.system_info, [], [], master_gain );
+                    % Use the lines below for masker
+                    masker_signal_info.L_noise_mask = -05; % +-##dB for masked speech
+                    a=Hardware_Control.playMSR_andRec( subSYS.Main_Setup, SYS.Room_Setup, SYS.signal_info, SYS.system_info, subSYS.Masker_Setup, masker_signal_info, master_gain );
+                end
+                return;
+                %%% END DEMO %%%
+                
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                 masker_signal_info.L_noise_mask = noise_mask; % dB
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
